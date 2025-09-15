@@ -15,12 +15,14 @@ R-Type is a classic 1987 side-scrolling shoot ’em up where players pilot the R
 
 ## Requirements
 - CMake
-- 
+- Pre-commit
 
 ---
 
 ## Usage
 ```bash
+pre-commit install
+
 mkdir build
 cmake .
 ```
