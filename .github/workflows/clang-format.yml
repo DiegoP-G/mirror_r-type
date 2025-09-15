@@ -1,0 +1,29 @@
+name: Check C++ Formatting
+
+on:
+  push:
+    branches-ignore:
+      - 'ga-ignore-*'
+  pull_request:
+    branches-ignore:
+      - 'ga-ignore-*'
+
+jobs:
+  format-check:
+    name: Clang-Format Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Clang-Format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+
+      - name: Check C++ formatting
+        run: |
+          FILES=$(git ls-files '*.[ch]pp' '*.[ch]')
+          echo "Checking files: $FILES"
+          for file in $FILES; do
+            clang-format --dry-run --Werror "$file"
+          done
