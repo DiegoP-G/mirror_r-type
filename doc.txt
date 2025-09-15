@@ -1,0 +1,120 @@
+PAD Corporation                                       Adrien Gaillard--Lafargue
+Category: Game Documentation                                   Diego Pintat-Gil
+                                                                     April 2025
+
+                        R-Type Protocol and Map Documentation  
+  
+
+Table of Contents  
+-----------------  
+1. Introduction  
+2. Frame Structure  
+3. Opcode Definitions  
+4. Payload Length  
+5. Extended Payload Length  
+6. Payload Data
+7. Security Considerations 
+8. Map Format   
+9. References  
+
+1. Introduction  
+---------------
+
+This document describes the low-level framing format for messages exchanged
+over a socket based communication system. It includes specifications for
+the opcode, payload length, and extended fields, enabling reliable and
+extensible client-server interaction. 
+
+This format exists because we needed to create a network communication protocol
+to use in a multiplayer game inspired by Jetpack Joyride.
+
+Moreover this document contains the format of the files that can be used by the
+server to generate the game's map.
+
+2. Frame Structure  
+------------------
+
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1      ...
++---------------+---------------+-------------------------------+-------------+
+|     opcode    |  Payload len  |      Extended Payload len     |   Payload   |
+|      (8)      |      (8)      |          (16/64) bits         |    Data     |
+|               |               |                               |    (...)    |
+|               |               |                               |             |
++---------------+---------------+-------------------------------+-------------+
+
+Each message consists of the following fields:
+
+- Opcode (8 bits): Instruction or message type identifier.  
+- Payload Length (8 bits): Indicates the size of the Payload field.  
+- Extended Payload Length (optional): Used if Payload Length exceeds 253.  
+- Payload: The actual message data.
+
+3. Opcode Definitions  
+---------------------  
+
+The `Opcode` field defines the type of message being transmitted. The following
+opcodes are currently defined:
+
+- `0x00`: Client Connection Confirmation 
+  - Payload: Integer representing the client ID.
+             Indicates successful connection to the server.  
+- `0xFE`: Client Disconnection Request
+  - Instructs the server to disconnect the sending client.  
+
+- `0xFF`: Incomplete Transmission Notification
+  - Indicates the client's message was not fully received.
+
+4. Payload Length  
+-----------------  
+
+The `Payload Length` field determines how the payload size is encoded:
+
+- Values `0-253`: Actual length in bytes.  
+- Value `254`: Payload length is encoded in the next 2 bytes (16 bits).  
+- Value `255`: Payload length is encoded in the next 8 bytes (64 bits).
+
+This dynamic sizing enables the transmission of both small and large payloads
+efficiently.
+
+5. Extended Payload Length  
+---------------------------  
+
+If the payload exceeds 253 bytes:
+
+- A 16-bit unsigned integer follows when the length is 254–65535 bytes.  
+- A 64-bit unsigned integer follows for payloads larger than 65535 bytes.
+
+This structure ensures compatibility with large datasets while maintaining 
+lightweight overhead for smaller transmissions.
+
+6. Payload Data  
+---------------  
+
+The `Payload` field contains the actual message data relevant to the context 
+established by the Opcode. The interpretation of this field is Opcode-dependent
+and may include numeric data, serialized classes, coordinates, or instructions.
+
+7. Security Considerations  
+--------------------------  
+
+This protocol does not define authentication or encryption mechanisms.
+Implementations SHOULD validate input data and avoid processing
+incomplete payloads to prevent buffer overflows or denial-of-service 
+conditions.
+
+
+
+8. References  
+-------------  
+
+- [RFC 6455] IETF, "The WebSocket Protocol"
+    * https://datatracker.ietf.org/doc/html/rfc6455
+- [RFC 7322] IETF, "RFC Style Guide"
+    * https://datatracker.ietf.org/doc/html/rfc7322  
+
+Author's Address
+----------------  
+
+Diego Pintat-Gil
+diego.pintat-gil@epitech.eu
