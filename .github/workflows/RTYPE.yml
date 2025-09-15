@@ -16,7 +16,6 @@ jobs:
 
 
   push_to_mirror:
-    needs: build
     if: ${{ github.repository }} != MIRROR_REPO && ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
