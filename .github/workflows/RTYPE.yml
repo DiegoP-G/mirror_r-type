@@ -12,9 +12,6 @@ on:
       - 'ga-ignore-*'
 
 jobs:
-
-
-
   push_to_mirror:
     if: ${{ github.repository }} != MIRROR_REPO && ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
