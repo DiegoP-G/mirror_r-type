@@ -1,0 +1,10 @@
+/home/alexiss/delivery/tek3/r-type/mirror_r-type/build/CMakeFiles/rtype_server.dir
+/home/alexiss/delivery/tek3/r-type/mirror_r-type/build/CMakeFiles/rtype_client.dir
+/home/alexiss/delivery/tek3/r-type/mirror_r-type/build/CMakeFiles/rtype_game.dir
+/home/alexiss/delivery/tek3/r-type/mirror_r-type/build/CMakeFiles/test.dir
+/home/alexiss/delivery/tek3/r-type/mirror_r-type/build/CMakeFiles/edit_cache.dir
+/home/alexiss/delivery/tek3/r-type/mirror_r-type/build/CMakeFiles/rebuild_cache.dir
+/home/alexiss/delivery/tek3/r-type/mirror_r-type/build/CMakeFiles/list_install_components.dir
+/home/alexiss/delivery/tek3/r-type/mirror_r-type/build/CMakeFiles/install.dir
+/home/alexiss/delivery/tek3/r-type/mirror_r-type/build/CMakeFiles/install/local.dir
+/home/alexiss/delivery/tek3/r-type/mirror_r-type/build/CMakeFiles/install/strip.dir
