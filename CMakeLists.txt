@@ -24,15 +24,41 @@ pkg_check_modules(SDL2_IMAGE REQUIRED SDL2_image)
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/ecs)
+include_directories(${CMAKE_SOURCE_DIR}/network)
+include_directories(${CMAKE_SOURCE_DIR}/client)
+include_directories(${CMAKE_SOURCE_DIR}/server)
 include_directories(${SDL2_INCLUDE_DIRS})
 
-# Create executable for the game
+# Create server executable
+add_executable(rtype_server
+    server/server.cpp
+)
+
+# Create client executable
+add_executable(rtype_client
+    client/client.cpp
+    game/graphics.cpp
+)
+
+# Create original game executable (for testing)
 add_executable(rtype_game
     game/game.cpp
     game/graphics.cpp
 )
 
-# Link libraries
+# Link libraries for server (no graphics needed, using chrono for timing)
+target_link_libraries(rtype_server 
+    m
+)
+
+# Link libraries for client
+target_link_libraries(rtype_client 
+    m
+    ${SDL2_LIBRARIES}
+    ${SDL2_IMAGE_LIBRARIES}
+)
+
+# Link libraries for original game
 target_link_libraries(rtype_game 
     m
     ${SDL2_LIBRARIES}
@@ -40,12 +66,12 @@ target_link_libraries(rtype_game
 )
 
 # Set output directory
-set_target_properties(rtype_game PROPERTIES
+set_target_properties(rtype_server rtype_client rtype_game PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
 # Optional: Add install targets
-install(TARGETS rtype_game
+install(TARGETS rtype_server rtype_client rtype_game
     RUNTIME DESTINATION bin
 )
 
