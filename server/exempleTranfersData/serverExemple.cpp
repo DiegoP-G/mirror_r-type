@@ -43,7 +43,7 @@ int main()
     data.serialize(ss);
     std::string serializedData = ss.str();
 
-    sendFrame(new_socket, OPCODE_SHIP_INFO, serializedData);
+    sendFrameTCP(new_socket, OPCODE_SHIP_INFO, serializedData);
     std::cout << "Données envoyées au client\n";
     close(new_socket);
     close(server_fd);

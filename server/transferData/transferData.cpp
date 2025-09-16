@@ -5,7 +5,7 @@
 #include <tuple>
 #include <unistd.h>
 
-void sendFrame(int socket, uint8_t opcode, const std::string& payload)
+void sendFrameTCP(int socket, uint8_t opcode, const std::string& payload)
 {
     std::vector<uint8_t> frame;
 
@@ -27,7 +27,7 @@ void sendFrame(int socket, uint8_t opcode, const std::string& payload)
     frame.insert(frame.end(), payload.begin(), payload.end());
     write(socket, frame.data(), frame.size());
 }
-std::tuple<uint8_t, std::string> receiveFrame(int socket, std::string& buffer)
+std::tuple<uint8_t, std::string> receiveFrameTCP(int socket, std::string& buffer)
 {
     char temp[32000];
 
@@ -77,3 +77,32 @@ std::tuple<uint8_t, std::string> receiveFrame(int socket, std::string& buffer)
 
     return std::tuple<uint8_t, std::string>(opcode, payload);
 }
+
+void sendFrameUDP(int sockfd, uint8_t opcode, const std::string& payload,
+                  const struct sockaddr_in& addr, socklen_t addrlen)
+{
+    std::vector<uint8_t> frame;
+    frame.push_back(opcode);                 // 1 octet : opcode
+    frame.insert(frame.end(), payload.begin(), payload.end()); // payload brut
+
+    sendto(sockfd, frame.data(), frame.size(), 0,
+           (const struct sockaddr*)&addr, addrlen);
+}
+
+std::tuple<uint8_t, std::string> receiveFrameUDP(int sockfd,
+                                                 struct sockaddr_in& addr,
+                                                 socklen_t& addrlen)
+{
+    char buffer[32000];
+    ssize_t n = recvfrom(sockfd, buffer, sizeof(buffer), 0,
+                         (struct sockaddr*)&addr, &addrlen);
+
+    if (n <= 0)
+        return {OPCODE_CLOSE_CONNECTION, ""};
+
+    uint8_t opcode = buffer[0];
+    std::string payload(buffer + 1, n - 1);
+    return {opcode, payload};
+}
+
+

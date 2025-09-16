@@ -2,20 +2,21 @@ PAD Corporation                                       Adrien Gaillard--Lafargue
 Category: Game Documentation                                   Diego Pintat-Gil
                                                                      April 2025
 
-                        R-Type Protocol and Map Documentation  
+                               R-Type Protocol
   
 
 Table of Contents  
 -----------------  
 1. Introduction  
-2. Frame Structure  
-3. Opcode Definitions  
-4. Payload Length  
-5. Extended Payload Length  
-6. Payload Data
-7. Security Considerations 
-8. Map Format   
+2. Frame Structure TCP
+3. Frame Structure UDP
+4. Opcode Definitions  
+5. Payload Length  
+6. Extended Payload Length  
+7. Payload Data
+8. Security Considerations 
 9. References  
+
 
 1. Introduction  
 ---------------
@@ -31,7 +32,7 @@ to use in a multiplayer game inspired by Jetpack Joyride.
 Moreover this document contains the format of the files that can be used by the
 server to generate the game's map.
 
-2. Frame Structure  
+2. Frame Structure for TCP
 ------------------
 
  0                   1                   2                   3
@@ -49,6 +50,25 @@ Each message consists of the following fields:
 - Payload Length (8 bits): Indicates the size of the Payload field.  
 - Extended Payload Length (optional): Used if Payload Length exceeds 253.  
 - Payload: The actual message data.
+
+
+9. Frame Structure UDP
+----------------------
+
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1      ...
++---------------+---------------+-------------------------------+-------------+
+|     opcode    |                                                             |
+|      (8)      |                      Payload                                |
+|               |                                                             |
+|               |                                                             |
++---------------+---------------+-------------------------------+-------------+
+
+Each message consists of the following fields:
+
+- Opcode (8 bits): Instruction or message type identifier.  
+- Payload: The actual message data.
+
 
 3. Opcode Definitions  
 ---------------------  

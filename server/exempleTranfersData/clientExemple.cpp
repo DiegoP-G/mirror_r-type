@@ -32,7 +32,7 @@ int main()
     std::string buffer;
 
 
-    std::tuple<uint8_t, std::string> receivedData = receiveFrame(sock, buffer);
+    std::tuple<uint8_t, std::string> receivedData = receiveFrameTCP(sock, buffer);
     uint8_t opcode = std::get<0>(receivedData);
     std::string payloadData = std::get<1>(receivedData);
 

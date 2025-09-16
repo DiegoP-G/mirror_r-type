@@ -26,8 +26,16 @@
 #include <unistd.h>
 
 bool handleOPCode(uint8_t opcode, bool debug = false);
-void sendFrame(int socket, uint8_t opcode, const std::string& payload);
-std::tuple<uint8_t, std::string> receiveFrame(int socket, std::string& buffer);
+
+void sendFrameTCP(int socket, uint8_t opcode, const std::string& payload);
+std::tuple<uint8_t, std::string> receiveFrameTCP(int socket, std::string& buffer);
+
+
+void sendFrameUDP(int sockfd, uint8_t opcode, const std::string& payload,
+                  const struct sockaddr_in& addr, socklen_t addrlen);
+std::tuple<uint8_t, std::string> receiveFrameUDP(int sockfd,
+                                                 struct sockaddr_in& addr,
+                                                 socklen_t& addrlen);
 
 std::string serializeInt(int num);
 int deserializeInt(std::string data);
