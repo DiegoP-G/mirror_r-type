@@ -3,20 +3,20 @@
 #include "NetworkMediator.hpp"
 #include <string>
 
-class ServerNetwork {
+class NetworkManager {
 private:
-    ClientManager clientManager;
-    NetworkMediator* mediator;
-    int listenSocket;
+    ClientManager _clientManager;
+    NetworkMediator* _mediator;
+    int _tcpSocket;
+    int _udpSocket;
 
 public:
-    ServerNetwork(NetworkMediator* med);
-    ~ServerNetwork();
+    NetworkManager(NetworkMediator* med);
+    ~NetworkManager();
 
     bool startListening(int port);
     void acceptClients();
     void receiveData();
-    void sendData(int clientSocket, const std::string& data);
     void disconnectClient(int clientSocket);
     void receive(NetworkMediatorEvent type, const std::string& data);
 };

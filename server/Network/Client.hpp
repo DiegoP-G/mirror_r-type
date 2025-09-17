@@ -8,6 +8,7 @@ class Client {
         bool _connected;
 
     public:
+        Client() = default;
         Client(const std::string& clientName, int sockFd);
         ~Client();
 

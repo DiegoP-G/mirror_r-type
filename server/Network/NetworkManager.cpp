@@ -4,22 +4,22 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <unistd.h>     // For close()
+#include <unistd.h>
 #include <netinet/in.h>
+#include <fcntl.h>
 
-ServerNetwork::ServerNetwork(NetworkMediator* med)
-    : mediator(med), listenSocket(-1) {}
+NetworkManager::NetworkManager(NetworkMediator* med)
+    : _mediator(med), _tcpSocket(-1), _udpSocket(-1) {}
 
-ServerNetwork::~ServerNetwork() {
-    if (listenSocket != -1) {
-        close(listenSocket);
-    }
+NetworkManager::~NetworkManager() {
+    if (_tcpSocket != -1) close(_tcpSocket);
+    if (_udpSocket != -1) close(_udpSocket);
 }
 
-bool ServerNetwork::startListening(int port) {
-    listenSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (listenSocket < 0) {
-        std::cerr << "Failed to create listen socket\n";
+bool NetworkManager::startListening(int port) {
+    _tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (_tcpSocket < 0) {
+        std::cerr << "Failed to create TCP socket\n";
         return false;
     }
 
@@ -28,27 +28,40 @@ bool ServerNetwork::startListening(int port) {
     serverAddr.sin_addr.s_addr = INADDR_ANY;
     serverAddr.sin_port = htons(port);
 
-    if (bind(listenSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+    if (bind(_tcpSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
         std::cerr << "Bind failed\n";
         return false;
     }
 
-    if (listen(listenSocket, 5) < 0) {
+    if (listen(_tcpSocket, 5) < 0) {
         std::cerr << "Listen failed\n";
         return false;
     }
 
-    std::cout << "Server listening on port " << port << "\n";
+    _udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
+    if (_udpSocket < 0) {
+        std::cerr << "Failed to create UDP socket\n";
+        return false;
+    }
+
+    if (bind(_udpSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+        std::cerr << "UDP bind failed\n";
+        return false;
+    }
+
+    fcntl(_udpSocket, F_SETFL, O_NONBLOCK);
+
+    std::cout << "Server listening on port " << port << " (TCP & UDP)\n";
     return true;
 }
 
-void ServerNetwork::acceptClients() {
+void NetworkManager::acceptClients() {
     sockaddr_in clientAddr{};
     socklen_t clientLen = sizeof(clientAddr);
-    int clientSock = accept(listenSocket, (struct sockaddr*)&clientAddr, &clientLen);
+    int clientSock = accept(_tcpSocket, (struct sockaddr*)&clientAddr, &clientLen);
 
     if (clientSock < 0) {
-        std::cerr << "Failed to accept client\n";
+        std::cerr << "Failed to accept TCP client\n";
         return;
     }
 
@@ -56,45 +69,41 @@ void ServerNetwork::acceptClients() {
     newClient.setSocket(clientSock);
     newClient.setConnected(true);
 
-    clientManager.addClient(newClient);
+    _clientManager.addClient(newClient);
 
-    std::cout << "Accepted new client, socket: " << clientSock << "\n";
+    std::cout << "Accepted TCP client, socket: " << clientSock << "\n";
 }
 
-void ServerNetwork::receiveData() {
-    auto& clients = clientManager.getClientsMap();
-
+void NetworkManager::receiveData() {
     char buffer[1024];
+
+    auto& clients = _clientManager.getClientsMap();
     for (auto& [sock, client] : clients) {
         int bytesReceived = recv(sock, buffer, sizeof(buffer) - 1, MSG_DONTWAIT);
         if (bytesReceived > 0) {
             buffer[bytesReceived] = '\0';
             std::string msg(buffer);
-
             receive(NetworkMediatorEvent::TCP, msg);
         }
     }
-}
 
-void ServerNetwork::sendData(int clientSocket, const std::string& data) {
-    Client* client = clientManager.getClient(clientSocket);
-    if (client) {
-        client->sendMessage(data);
+    sockaddr_in udpAddr{};
+    socklen_t addrLen = sizeof(udpAddr);
+    int bytesReceived = recvfrom(_udpSocket, buffer, sizeof(buffer) - 1, 0,
+                                 (struct sockaddr*)&udpAddr, &addrLen);
+    if (bytesReceived > 0) {
+        buffer[bytesReceived] = '\0';
+        std::string msg(buffer);
+        receive(NetworkMediatorEvent::UDP, msg);
     }
 }
 
-void ServerNetwork::disconnectClient(int clientSocket) {
-    clientManager.removeClient(clientSocket);
+void NetworkManager::disconnectClient(int clientSocket) {
+    _clientManager.removeClient(clientSocket);
     close(clientSocket);
     std::cout << "Disconnected client: " << clientSocket << "\n";
 }
 
-void ServerNetwork::receive(NetworkMediatorEvent type, const std::string& data) {
-    if (mediator) {
-        mediator->notify(static_cast<void*>(this), static_cast<int>(type), data);
-    }
-
-    std::cout << "[ServerNetwork] Received (" 
-              << (type == NetworkMediatorEvent::TCP ? "TCP" : "UDP") 
-              << "): " << data << "\n";
+void NetworkManager::receive(NetworkMediatorEvent type, const std::string& data) {
+    // GAMEMEDIATOR
 }

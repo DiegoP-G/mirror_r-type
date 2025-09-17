@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "../Mediator/IMediator.hpp"
-#include "../Mediator/EventUnknow.hpp"
+#include "../Include/Errors/EventUnknown.hpp"
 
 
 enum NetworkMediatorEvent {

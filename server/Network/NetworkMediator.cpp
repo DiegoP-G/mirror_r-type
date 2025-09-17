@@ -6,7 +6,7 @@
 */
 
 #include "NetworkMediator.hpp"
-#include "../Mediator/EventUnknow.hpp"
+#include "../Include/Errors/EventUnknown.hpp"
 
 void NetworkMediator::notify(void* sender, const int& event, const std::string& data)
 {

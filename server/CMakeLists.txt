@@ -1,10 +1,15 @@
 cmake_minimum_required(VERSION 3.16)
 project(GameServer LANGUAGES CXX)
 
+# ----------------------
+# C++ standard
+# ----------------------
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Inclure tous les headers
+# ----------------------
+# Include directories
+# ----------------------
 include_directories(
     ${CMAKE_SOURCE_DIR}/Include
     ${CMAKE_SOURCE_DIR}/Game
@@ -13,9 +18,11 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/transferData
 )
 
-# Récupération de tous les fichiers sources
+# ----------------------
+# Source files
+# ----------------------
+# Only include actual source directories; avoid globbing CMakeFiles/ or root
 file(GLOB_RECURSE SOURCES
-    ${CMAKE_SOURCE_DIR}/*.cpp
     ${CMAKE_SOURCE_DIR}/Game/*.cpp
     ${CMAKE_SOURCE_DIR}/Mediator/*.cpp
     ${CMAKE_SOURCE_DIR}/Network/*.cpp
@@ -24,13 +31,28 @@ file(GLOB_RECURSE SOURCES
     ${CMAKE_SOURCE_DIR}/transferData/*.cpp
 )
 
-# Exclure le dossier exemple
-file(GLOB_RECURSE EXAMPLES ${CMAKE_SOURCE_DIR}/exempleTranfersData/*.cpp)
-list(REMOVE_ITEM SOURCES ${EXAMPLES})
+# Exclude example files
+list(FILTER SOURCES EXCLUDE REGEX ".*/exempleTranfersData/.*")
 
-# Création de l'exécutable principal
-add_executable(${PROJECT_NAME}
-    main.cpp
-    server.cpp
-    ${SOURCES}
-)
+# ----------------------
+# Executable
+# ----------------------
+# Only one main.cpp
+add_executable(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/main.cpp ${SOURCES})
+
+# ----------------------
+# Link libconfig++
+# ----------------------
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBCONFIG REQUIRED libconfig++)
+include_directories(${LIBCONFIG_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} ${LIBCONFIG_LIBRARIES})
+
+# ----------------------
+# Optional: avoid globbing issues in future
+# ----------------------
+message(STATUS "Sources included in build:")
+foreach(src IN LISTS SOURCES)
+    message(STATUS "  ${src}")
+endforeach()
+

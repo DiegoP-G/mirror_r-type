@@ -25,8 +25,8 @@ namespace Orchestrator {
             // NetworkManager* _networkManager;
             
         public:
-            GameLoader();
-            ~GameLoader();
+            GameLoader() {};
+            ~GameLoader() {};
             void initialize(std::string ConfigPath);
             void startServer();
     };
