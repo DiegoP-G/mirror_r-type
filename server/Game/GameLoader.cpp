@@ -7,7 +7,7 @@ void Orchestrator::GameLoader::initialize(std::string ConfigPath)
 {
     _configManager = new ConfigurationManager;
     _configManager->loadConfiguration(ConfigPath);
-    _gameServer = new GameLoop(
+    _gameLoop = new GameLoop(
         // entityManager, 
         // gameMediator, 
         // networkManager,
@@ -41,5 +41,5 @@ void Orchestrator::GameLoader::initialize(std::string ConfigPath)
 
 void Orchestrator::GameLoader::startServer()
 {
-    _gameServer->gameServerLoop();
+    _gameLoop->loop();
 }

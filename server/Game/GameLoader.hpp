@@ -8,7 +8,7 @@ namespace Orchestrator {
         private:
             // Core Services
             ConfigurationManager* _configManager;
-            GameLoop* _gameServer;
+            GameLoop* _gameLoop;
             // EntityManager* _entityManager;
             
             // // Game Managers
