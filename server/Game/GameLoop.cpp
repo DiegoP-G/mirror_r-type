@@ -13,6 +13,8 @@ Orchestrator::GameLoop::~GameLoop()
 
 void Orchestrator::GameLoop::loop()
 {
-    while (1) {
+    std::cout << "in loop game" << std::endl;
+    while (1)
+    {
     }
 }
