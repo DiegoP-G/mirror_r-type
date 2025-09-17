@@ -1,14 +1,8 @@
-/*
-** EPITECH PROJECT, 2025
-** mirror_r-type
-** File description:
-** IMediator
-*/
 
 #pragma once
 
 #include <string>
-#include "EventUnknow.hpp"
+#include "../Include/Errors/EventUnknown.hpp"
 
 class IMediator {
     public:

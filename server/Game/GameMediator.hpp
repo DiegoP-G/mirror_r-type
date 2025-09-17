@@ -3,7 +3,7 @@
     #include <string>
     #include <vector>
     #include "../Mediator/IMediator.hpp"
-    #include "../Mediator/EventUnknow.hpp"
+    #include "../Include/Errors/EventUnknown.hpp"
 
 
 class GameLogic;
@@ -33,5 +33,7 @@ public:
     ~GameMediator()=default;
 
     void notify(void* sender, const int& event, const std::string& data) override;
+    inline void sendMessageToAll(const std::string& data) {return;};
+
 
 };
