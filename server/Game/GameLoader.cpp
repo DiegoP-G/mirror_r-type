@@ -1,13 +1,13 @@
 #include <string>
 #include "GameLoader.hpp"
 #include "ConfigurationManager.hpp"
-#include "GameServer.hpp"
+#include "GameLoop.hpp"
 
 void Orchestrator::GameLoader::initialize(std::string ConfigPath)
 {
     _configManager = new ConfigurationManager;
     _configManager->loadConfiguration(ConfigPath);
-    _gameServer = new GameServer(
+    _gameServer = new GameLoop(
         // entityManager, 
         // gameMediator, 
         // networkManager,

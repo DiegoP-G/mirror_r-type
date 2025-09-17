@@ -1,6 +1,6 @@
 #include <string>
 #include "ConfigurationManager.hpp"
-#include "GameServer.hpp"
+#include "GameLoop.hpp"
 
 namespace Orchestrator {
     class GameLoader
@@ -8,7 +8,7 @@ namespace Orchestrator {
         private:
             // Core Services
             ConfigurationManager* _configManager;
-            GameServer* _gameServer;
+            GameLoop* _gameServer;
             // EntityManager* _entityManager;
             
             // // Game Managers
