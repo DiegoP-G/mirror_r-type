@@ -90,5 +90,5 @@ void GraphicsManager::drawRect(int x, int y, int w, int h, Uint8 r, Uint8 g,
 void GraphicsManager::drawText(const std::string &text, int x, int y, Uint8 r,
                                Uint8 g, Uint8 b) {
   // Placeholder for text rendering (requires SDL_ttf for actual implementation)
-  std::cerr << "Text rendering not implemented: " << text << std::endl;
+  // std::cerr << "Text rendering not implemented: " << text << std::endl;
 }
