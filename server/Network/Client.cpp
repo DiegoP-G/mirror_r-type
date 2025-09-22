@@ -11,26 +11,15 @@ Client::Client(const std::string &clientName, int socketFd) : _socketFd(socketFd
 
 Client::~Client()
 {
-    if (_connected)
-    {
-        close(_socketFd);
-    }
+    close(_socketFd);
 }
 
 void Client::sendMessage(const std::string &msg)
 {
-    if (!_connected)
-    {
-        std::cerr << "Client not _connected.\n";
-        return;
-    }
+    std::cerr << "Client not _connected.\n";
+    return;
 
     send(_socketFd, msg.c_str(), msg.size(), 0);
-}
-
-bool Client::isConnected() const
-{
-    return _connected;
 }
 
 std::string Client::getName() const
@@ -46,9 +35,4 @@ int Client::getSocket() const
 void Client::setSocket(int clientSock)
 {
     _socketFd = clientSock;
-}
-
-void Client::setConnected(bool state)
-{
-    _connected = state;
 }

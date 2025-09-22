@@ -5,13 +5,6 @@ void ClientManager::addClient(const Client &c)
 {
     std::cout << "=== addClient DEBUG START ===" << std::endl;
 
-    if (!c.isConnected())
-    {
-        std::cerr << "[DEBUG] Cannot add client: not connected.\n";
-        std::cout << "=== addClient DEBUG END ===" << std::endl;
-        return;
-    }
-
     int sock = c.getSocket();
     std::cout << "[DEBUG] Client name: " << c.getName() << std::endl;
     std::cout << "[DEBUG] Client socket: " << sock << std::endl;

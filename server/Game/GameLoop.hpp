@@ -7,7 +7,7 @@ namespace Orchestrator
 class GameLoop
 {
   private:
-  GameMediator _gameMediator;
+    GameMediator _gameMediator;
 
   public:
     GameLoop();

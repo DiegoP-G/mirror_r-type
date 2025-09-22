@@ -5,7 +5,7 @@
 #include "UDP/UDPManager.hpp"
 #include <poll.h>
 
-#define SERVER_PORT 8080
+#define SERVER_PORT 8081
 
 class NetworkManager
 {

@@ -6,7 +6,6 @@ class Client
   private:
     int _socketFd;
     std::string _name;
-    bool _connected;
     std::string _buffer;
 
   public:

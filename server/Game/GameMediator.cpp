@@ -11,7 +11,7 @@ GameMediator::GameMediator()
 {
     _mediatorMap = {{GameMediatorEvent::TickLogic, [this]() -> void {}},
                     {GameMediatorEvent::SetupNetwork, [this]() -> void {}},
-                    {GameMediatorEvent::TickNetwork, [this]() -> void {}}};
+                    {GameMediatorEvent::TickNetwork, [this]() -> void { _networkManager.updateAllPoll(); }}};
 }
 
 void GameMediator::notify(const int &event, const std::string &data)

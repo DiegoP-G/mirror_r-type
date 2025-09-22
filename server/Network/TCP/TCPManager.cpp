@@ -1,9 +1,9 @@
 #include "TCPManager.hpp"
+#include "../../transferData/transferData.hpp"
 #include "../Client.hpp"
 #include "../NetworkManager.hpp"
 #include <iostream>
 #include <stdexcept>
-#include "../../transferData/transferData.hpp"
 
 TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
 {
@@ -54,6 +54,7 @@ void TCPManager::update()
         {
             auto [opcode, payload] =
                 receiveFrameTCP(pfd.fd, _networkManagerRef.getClientManager().getClientsMap()[pfd.fd].getBuffer());
+
             char buf[1024];
             ssize_t n = recv(pfd.fd, buf, sizeof(buf), 0);
             if (n <= 0)
@@ -67,7 +68,7 @@ void TCPManager::update()
 
             {
                 // _clients[pfd.fd].append(buf, n);
-                // std::cout << "[TCP] Received: " << _clients[pfd.fd] << "\n";
+                std::cout << "[TCP] Received: " << buf << "\n";
             }
         }
     }
