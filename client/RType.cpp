@@ -126,16 +126,9 @@ public:
     if (gameOver)
       return;
 
-    // Spawn pipes
-    // pipeSpawnTimer -= deltaTime;
-    // if (pipeSpawnTimer <= 0.0f) {
-    //   spawnEnemy();
-    //   pipeSpawnTimer = PIPE_SPAWN_INTERVAL;
-    // }
-
     // Update systems
     movementSystem.update(entityManager, deltaTime);
-    inputSystem.update(entityManager, deltaTime); // Process player input
+    inputSystem.update(entityManager, deltaTime);
     boundarySystem.update(entityManager, deltaTime);
     cleanupSystem.update(entityManager, deltaTime);
     collisionSystem.update(entityManager);
