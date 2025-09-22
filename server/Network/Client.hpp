@@ -2,20 +2,20 @@
 #include <string>
 
 class Client {
-    private:
-        int _socketFd;
-        std::string _name;
-        bool _connected;
+private:
+  int _socketFd;
+  std::string _name;
+  bool _connected;
 
-    public:
-        Client() = default;
-        Client(const std::string& clientName, int sockFd);
-        ~Client();
+public:
+  Client() = default;
+  Client(const std::string &clientName, int sockFd);
+  ~Client();
 
-        void sendMessage(const std::string& msg);
-        int getSocket() const;
-        bool isConnected() const;
-        std::string getName() const;
-        void setSocket(int clientSock);
-        void setConnected(bool state);
+  void sendMessage(const std::string &msg);
+  int getSocket() const;
+  bool isConnected() const;
+  std::string getName() const;
+  void setSocket(int clientSock);
+  void setConnected(bool state);
 };

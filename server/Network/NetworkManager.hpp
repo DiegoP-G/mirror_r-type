@@ -5,18 +5,18 @@
 
 class NetworkManager {
 private:
-    ClientManager _clientManager;
-    NetworkMediator* _mediator;
-    int _tcpSocket;
-    int _udpSocket;
+  ClientManager _clientManager;
+  NetworkMediator *_mediator;
+  int _tcpSocket;
+  int _udpSocket;
 
 public:
-    NetworkManager(NetworkMediator* med);
-    ~NetworkManager();
+  NetworkManager(NetworkMediator *med);
+  ~NetworkManager();
 
-    bool startListening(int port);
-    void acceptClients();
-    void receiveData();
-    void disconnectClient(int clientSocket);
-    void receive(NetworkMediatorEvent type, const std::string& data);
+  bool startListening(int port);
+  void acceptClients();
+  void receiveData();
+  void disconnectClient(int clientSocket);
+  void receive(NetworkMediatorEvent type, const std::string &data);
 };
