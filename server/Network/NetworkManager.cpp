@@ -17,5 +17,6 @@ NetworkManager::~NetworkManager()
 
 void NetworkManager::updateAllPoll()
 {
-    //  _networkMediator.notify(const int &event)
+    // _UDPManager.update();
+    _TCPManager.update();
 }

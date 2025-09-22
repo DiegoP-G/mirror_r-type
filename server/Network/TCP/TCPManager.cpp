@@ -1,6 +1,7 @@
 #include "TCPManager.hpp"
+#include "../Client.hpp"
 #include "../NetworkManager.hpp"
-#include <cstdint>
+#include "../tranferData/transferData.hpp"
 #include <iostream>
 #include <stdexcept>
 
@@ -44,24 +45,21 @@ void TCPManager::update()
             if (cfd >= 0)
             {
                 _pollFds.push_back({cfd, POLLIN, 0});
-                //  _networkManagerRef.requestConnection(cfd);
-
-                //      _networkManagerRef.getCLientManger().addClient();
-                //        _clients[cfd] = Client();
+                Client newClient = Client("caca", cfd);
+                _networkManagerRef.getClientManager().addClient(newClient);
                 std::cout << "[TCP] New client " << cfd << "\n";
             }
         }
         else if (pfd.fd != _listenFd && (pfd.revents & POLLIN))
         {
-            //  auto [opcode, payload] = receiveFrameTCP(pfd.fd, _clients[pfd.fd].getBuffer());
+            auto [opcode, payload] =
+                receiveFrameTCP(pfd.fd, _networkManagerRef.getClientManager().getClientsMap()[pfd.fd].getBuffer());
             char buf[1024];
             ssize_t n = recv(pfd.fd, buf, sizeof(buf), 0);
             if (n <= 0)
             {
                 std::cout << "[TCP] Client " << pfd.fd << " disconnected\n";
-
-                close(pfd.fd);
-                //      _netWorkManagerRef._clientManager._clients.erase(pfd.fd);
+                _networkManagerRef.getClientManager().removeClient(pfd.fd);
                 _pollFds.erase(_pollFds.begin() + i);
                 --i;
             }

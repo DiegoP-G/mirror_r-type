@@ -17,6 +17,10 @@ class NetworkManager
   public:
     NetworkManager();
     ~NetworkManager();
+    inline ClientManager &getClientManager()
+    {
+        return _clientManager;
+    }
 
     void updateAllPoll();
 };
