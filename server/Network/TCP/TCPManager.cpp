@@ -1,7 +1,5 @@
 #include "TCPManager.hpp"
-#include "../NetworkManager.hpp"
-#include "../transferData/transferData.hpp"
-#include <stdexcept>
+#include <cstdint>
 
 TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
 {
@@ -50,9 +48,9 @@ void TCPManager::update()
         }
         else if (pfd.fd != _listenFd && (pfd.revents & POLLIN))
         {
-            //   int OPCODE = receiveFrameTCP(pfd,  _netWorkManegerRef._clientManager._clients[pfd.fd].getBuffer()) char
-            //   buf[1024];
-            ssize_t n = 0; // recv(pfd.fd, buf, sizeof(buf), 0);
+            auto [opcode, payload] = receiveFrameTCP(pfd.fd, _clients[pfd.fd].getBuffer());
+            char buf[1024];
+            ssize_t n = recv(pfd.fd, buf, sizeof(buf), 0);
             if (n <= 0)
             {
                 std::cout << "[TCP] Client " << pfd.fd << " disconnected\n";
@@ -65,9 +63,8 @@ void TCPManager::update()
             else
 
             {
-                //   _netWorkManagerRef._clientManager._clients[pfd.fd].append(buf, n);
-                //    std::cout << "[TCP] Received Dtata: " <<  _netWorkManegerRef._clientManager._clients[pfd.fd] <<
-                //    "\n";
+                // _clients[pfd.fd].append(buf, n);
+                // std::cout << "[TCP] Received: " << _clients[pfd.fd] << "\n";
             }
         }
     }

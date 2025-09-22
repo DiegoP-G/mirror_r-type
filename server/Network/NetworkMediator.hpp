@@ -36,4 +36,8 @@ class NetworkMediator : public IMediator
     ~NetworkMediator() = default;
 
     void notify(const int &event, const std::string &data = "") override;
+    inline void sendMessageToAll(const std::string &data) override
+    {
+        return;
+    };
 };

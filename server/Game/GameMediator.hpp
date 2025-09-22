@@ -22,7 +22,7 @@ class GameMediator : public IMediator
     std::unordered_map<GameMediatorEvent, std::function<void()>> _mediatorMap;
 
   public:
-    GameMediator(NetworkManager &networkManager);
+    GameMediator();
     ~GameMediator() = default;
 
     void notify(const int &event, const std::string &data = "") override;
