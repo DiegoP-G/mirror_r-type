@@ -7,3 +7,4 @@ client_exemple
 client_exemple_UDP
 build
 vgcore.*
+.cache
