@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/alexiss/delivery/tek3/r-type/mirror_r-type -I/home/alexiss/delivery/tek3/r-type/mirror_r-type/ecs -I/home/alexiss/delivery/tek3/r-type/mirror_r-type/network -I/home/alexiss/delivery/tek3/r-type/mirror_r-type/client -I/home/alexiss/delivery/tek3/r-type/mirror_r-type/server -I/usr/include/SDL2
+CXX_INCLUDES = -I/home/alexiss/delivery/tek3/r-type/mirror_r-type -I/home/alexiss/delivery/tek3/r-type/mirror_r-type/ecs -I/home/alexiss/delivery/tek3/r-type/mirror_r-type/network -I/home/alexiss/delivery/tek3/r-type/mirror_r-type/client -I/home/alexiss/delivery/tek3/r-type/mirror_r-type/server
 
 CXX_FLAGS = -O3 -DNDEBUG -std=c++17
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <unordered_map>
 #include <string>
 
@@ -11,6 +12,7 @@ private:
     std::unordered_map<std::string, SDL_Texture*> textures;
     int windowWidth;
     int windowHeight;
+    TTF_Font* font;
     
 public:
     GraphicsManager();

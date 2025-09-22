@@ -39,7 +39,17 @@ bool GraphicsManager::init(const char* title, int width, int height) {
         std::cerr << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << std::endl;
         return false;
     }
-    
+    if (TTF_Init() == -1) {
+        std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        return false;
+    }
+
+    font = TTF_OpenFont("../assets/fonts/upheavtt.ttf", 24);
+    if (!font) {
+        std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        return false;
+    }
+
     return true;
 }
 
@@ -121,9 +131,32 @@ void GraphicsManager::drawRect(int x, int y, int width, int height, Uint8 r, Uin
 }
 
 void GraphicsManager::drawText(const std::string& text, int x, int y, Uint8 r, Uint8 g, Uint8 b) {
-    // Simple text rendering would require SDL_ttf
-    // For now, we'll just draw a placeholder rectangle
-    drawRect(x, y, text.length() * 8, 16, r, g, b);
+    if (!font) return;
+
+    SDL_Color color = {r, g, b};
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), color);
+    if (!textSurface) {
+        std::cerr << "Unable to render text surface! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        return;
+    }
+
+    // Convert the surface to a texture
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    if (!textTexture) {
+        std::cerr << "Unable to create texture from rendered text! SDL Error: " << SDL_GetError() << std::endl;
+        SDL_FreeSurface(textSurface);
+        return;
+    }
+
+    // Define the destination rectangle for rendering the text
+    SDL_Rect destRect = {x, y, textSurface->w, textSurface->h};
+
+    // Render the texture to the screen
+    SDL_RenderCopy(renderer, textTexture, nullptr, &destRect);
+
+    // Clean up
+    SDL_DestroyTexture(textTexture);
+    SDL_FreeSurface(textSurface);
 }
 
 SDL_Texture* GraphicsManager::getTexture(const std::string& name) {

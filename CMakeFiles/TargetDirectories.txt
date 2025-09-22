@@ -1,5 +1,7 @@
 /home/alexiss/delivery/tek3/r-type/mirror_r-type/CMakeFiles/rtype_client.dir
-/home/alexiss/delivery/tek3/r-type/mirror_r-type/CMakeFiles/test.dir
+/home/alexiss/delivery/tek3/r-type/mirror_r-type/CMakeFiles/fclean.dir
+/home/alexiss/delivery/tek3/r-type/mirror_r-type/CMakeFiles/re.dir
+/home/alexiss/delivery/tek3/r-type/mirror_r-type/CMakeFiles/clean_verbose.dir
 /home/alexiss/delivery/tek3/r-type/mirror_r-type/CMakeFiles/edit_cache.dir
 /home/alexiss/delivery/tek3/r-type/mirror_r-type/CMakeFiles/rebuild_cache.dir
 /home/alexiss/delivery/tek3/r-type/mirror_r-type/CMakeFiles/list_install_components.dir

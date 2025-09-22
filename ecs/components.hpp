@@ -98,7 +98,7 @@ struct SpriteComponent : public Component {
     SDL_Texture* texture;
     Rectangle srcRect;  // Source rectangle in texture
     int width, height;  // Render size
-    bool isVisible;
+    bool isVisible;      
     Uint8 r, g, b, a;   // Color modulation
     
     SpriteComponent() : texture(nullptr), isVisible(true), width(32), height(32), 
@@ -115,10 +115,12 @@ struct SpriteComponent : public Component {
 // Component for collision
 struct ColliderComponent : public Component {
     Rectangle hitbox;
+    bool isActive;
     bool isTrigger;
     
-    ColliderComponent() : isTrigger(false) {}
-    ColliderComponent(float w, float h) : hitbox(0, 0, w, h), isTrigger(false) {}
+    ColliderComponent() : isTrigger(false), isActive(true) {}
+    ColliderComponent(float w, float h) : hitbox(0, 0, w, h), isTrigger(false), isActive(true) {}
+    ColliderComponent(float w, float h, bool isAct) : hitbox(0, 0, w, h), isTrigger(false), isActive(isAct) {}
 };
 
 // Component for player/enemy health

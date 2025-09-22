@@ -65,16 +65,6 @@ CMAKE_BINARY_DIR = /home/alexiss/delivery/tek3/r-type/mirror_r-type
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target test
-test:
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running tests..."
-	/usr/bin/ctest --force-new-ctest-process $(ARGS)
-.PHONY : test
-
-# Special rule for the target test
-test/fast: test
-.PHONY : test/fast
-
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake cache editor..."
@@ -184,6 +174,45 @@ rtype_client/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/build
 .PHONY : rtype_client/fast
 
+#=============================================================================
+# Target rules for targets named fclean
+
+# Build rule for target.
+fclean: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 fclean
+.PHONY : fclean
+
+# fast build rule for target.
+fclean/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/fclean.dir/build.make CMakeFiles/fclean.dir/build
+.PHONY : fclean/fast
+
+#=============================================================================
+# Target rules for targets named re
+
+# Build rule for target.
+re: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 re
+.PHONY : re
+
+# fast build rule for target.
+re/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/re.dir/build.make CMakeFiles/re.dir/build
+.PHONY : re/fast
+
+#=============================================================================
+# Target rules for targets named clean_verbose
+
+# Build rule for target.
+clean_verbose: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 clean_verbose
+.PHONY : clean_verbose
+
+# fast build rule for target.
+clean_verbose/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clean_verbose.dir/build.make CMakeFiles/clean_verbose.dir/build
+.PHONY : clean_verbose/fast
+
 client/RType.o: client/RType.cpp.o
 .PHONY : client/RType.o
 
@@ -244,7 +273,9 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
-	@echo "... test"
+	@echo "... clean_verbose"
+	@echo "... fclean"
+	@echo "... re"
 	@echo "... rtype_client"
 	@echo "... client/RType.o"
 	@echo "... client/RType.i"

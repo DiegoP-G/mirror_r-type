@@ -209,8 +209,8 @@ CMakeFiles/rtype_client.dir/game/graphics.cpp.o: \
  /usr/include/SDL2/SDL_system.h /usr/include/SDL2/SDL_timer.h \
  /usr/include/SDL2/SDL_version.h /usr/include/SDL2/SDL_locale.h \
  /usr/include/SDL2/SDL_misc.h /usr/include/SDL2/SDL_image.h \
- /usr/include/SDL2/SDL.h /usr/include/c++/14/unordered_map \
- /usr/include/c++/14/initializer_list \
+ /usr/include/SDL2/SDL.h /usr/include/SDL2/SDL_ttf.h \
+ /usr/include/c++/14/unordered_map /usr/include/c++/14/initializer_list \
  /usr/include/c++/14/bits/unordered_map.h \
  /usr/include/c++/14/bits/hashtable.h \
  /usr/include/c++/14/bits/hashtable_policy.h /usr/include/c++/14/tuple \

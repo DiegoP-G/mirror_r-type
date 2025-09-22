@@ -316,8 +316,8 @@ CMakeFiles/rtype_client.dir/client/RType.cpp.o: \
  /home/alexiss/delivery/tek3/r-type/mirror_r-type/client/../ecs/systems.hpp \
  /home/alexiss/delivery/tek3/r-type/mirror_r-type/client/../ecs/../game/graphics.hpp \
  /usr/include/SDL2/SDL_image.h /usr/include/SDL2/SDL.h \
- /usr/include/c++/14/random /usr/include/c++/14/cstdint \
- /usr/include/c++/14/bits/random.h \
+ /usr/include/SDL2/SDL_ttf.h /usr/include/c++/14/random \
+ /usr/include/c++/14/cstdint /usr/include/c++/14/bits/random.h \
  /usr/include/c++/14/x86_64-redhat-linux/bits/opt_random.h \
  /usr/include/c++/14/bits/random.tcc /usr/include/c++/14/numeric \
  /usr/include/c++/14/bits/stl_numeric.h \

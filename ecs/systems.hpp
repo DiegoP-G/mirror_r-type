@@ -106,15 +106,31 @@ class GameLogicSystem {
         
 private:
     void spawnLaser1(EntityManager& entityManager) {
-        auto& laser = entityManager.createEntity();
-        float width = 900.0f;
-        float height = 20.0f;
+        for (size_t i = 0; i < 8 ; i++) {
+            float width = 900.0f;
+            float height = 50.0f;
+            float x = 450.0f;
+            float y = 0.0f;
+            float waitingTime = 0.0f;
+            if (i < 3) {
+                y = 100.0f + i % 3* 200;
+                waitingTime = 3.0f;
+            } else if (i < 6) {
+                y = 100.0f + i % 3 * 200;
+                waitingTime = 14.0f;
+            } else {
+                y = 200.0f + i % 3 * 200;
+                waitingTime = 8.5f;
+            }
 
-        laser.addComponent<TransformComponent>(width / 2, 100.0f); // Centered horizontally
-        laser.addComponent<CenteredComponent>(width / 2, 0); // Centered
-        laser.addComponent<SpriteComponent>(width, height, 255, 0, 0); // Full height
-        laser.addComponent<LaserWarningComponent>(width, height, 5.0f, 1.0f, 3.0f); // Warning for 2s, active for 3s
-    }
+            auto& laser = entityManager.createEntity();
+            laser.addComponent<TransformComponent>(width / 2, y); // Centered horizontally
+            laser.addComponent<CenteredComponent>(width / 2, height / 2); // Centered
+            laser.addComponent<SpriteComponent>(width, height, 255, 0, 0); // Full height
+            laser.addComponent<ColliderComponent>(width, height, false);
+            laser.addComponent<LaserWarningComponent>(width, height, waitingTime, 1.5f, 3.0f); // Warning for 2s, active for 3s
+        }
+}
 
     void spawnEnemy(EntityManager& entityManager) {
         std::uniform_real_distribution<float> heightDist(50.0f, 550.0f);
@@ -124,7 +140,7 @@ private:
         enemy.addComponent<TransformComponent>(800.0f, enemyHeight);
         enemy.addComponent<VelocityComponent>(ENEMY_SPEED, 0.0f);
         enemy.addComponent<SpriteComponent>(80, static_cast<int>(600 - enemyHeight), 0, 255, 0);
-        enemy.addComponent<ColliderComponent>(80.0f, 600 - enemyHeight);
+        enemy.addComponent<ColliderComponent>(80.0f, 600 - enemyHeight, false);
         enemy.addComponent<EnemyComponent>(0, 0.0f); // Type 0 = basic enemy
     }
     
@@ -151,18 +167,17 @@ private:
 class LaserWarningSystem {
 public:
     void update(EntityManager& entityManager, float deltaTime) {
-        std::cout << "In update Laser" << std::endl;
+        // std::cout << "In update Laser" << std::endl;
         auto entities = entityManager.getEntitiesWithComponents<LaserWarningComponent>();
         for (auto& entity : entities) {
-            std::cout << "Entities founded" << std::endl;
+            // std::cout << "Entities founded" << std::endl;
             auto& laser = entity->getComponent<LaserWarningComponent>();
             auto& sprite = entity->getComponent<SpriteComponent>();
-            try {
-                auto& transform = entity->getComponent<TransformComponent>();
-            } catch (const std::runtime_error& e) {
-                std::cerr << "Error: " << e.what() << std::endl;
-                continue;
+            if (!entity->hasComponent<TransformComponent>()) {
+                std::cerr << "Entity with LaserWarningComponent missing TransformComponent!" << std::endl;
+                continue; // Skip this entity if it doesn't have a TransformComponent
             }
+            auto& transform = entity->getComponent<TransformComponent>();
             if (laser.appearanceTime > 0.0f) {
                 laser.appearanceTime -= deltaTime;
                 sprite.isVisible = false;
@@ -176,17 +191,23 @@ public:
                     sprite.g = 0;
                     sprite.b = 0;
                     sprite.height = laser.height / 4;
+                    transform.position.y += (laser.height - sprite.height) / 2;
                     sprite.width = laser.width;
                 }
                 laser.warningTime -= deltaTime;
                 if (laser.warningTime <= 0.0f) {
                     laser.isActive = true;
+                    if (entity->hasComponent<ColliderComponent>()) {
+                        auto& collider = entity->getComponent<ColliderComponent>();
+                        collider.isActive = true; // Enable collision when laser is active
+                    }
                     sprite.r = 255;
+                    transform.position.y -= (laser.height - sprite.height) / 2;
                     sprite.height = laser.height;
                     
                     // Activer le laser (collision, dégâts, sprite différent, etc.)
                 }
-                printf("Warning time: %.2f\n", laser.warningTime);
+                // printf("Warning time: %.2f\n", laser.warningTime);
             } else {
                 // Phase active
                 laser.activeTime -= deltaTime;
@@ -210,9 +231,12 @@ void update(EntityManager &entityManager) {
       if (!entities[i]->isActive())
         continue;
 
-      // Obtenir la position réelle avec le helper
+        auto &collider1 = entities[i]->getComponent<ColliderComponent>();
+        if (!collider1.isActive)
+            continue;
+        
+        // Obtenir la position réelle avec le helper
       Vector2D position1 = getActualPosition(entities[i]);
-      auto &collider1 = entities[i]->getComponent<ColliderComponent>();
       
       // Mettre à jour la hitbox avec la position calculée
       collider1.hitbox.x = position1.x;
@@ -221,10 +245,11 @@ void update(EntityManager &entityManager) {
       for (size_t j = i + 1; j < entities.size(); j++) {
         if (!entities[j]->isActive())
           continue;
-
+          auto &collider2 = entities[j]->getComponent<ColliderComponent>();
+            if (!collider2.isActive)
+                continue;
         // De même pour la deuxième entité
         Vector2D position2 = getActualPosition(entities[j]);
-        auto &collider2 = entities[j]->getComponent<ColliderComponent>();
         
         collider2.hitbox.x = position2.x;
         collider2.hitbox.y = position2.y;
@@ -239,6 +264,61 @@ void update(EntityManager &entityManager) {
 
 private:
   void handleCollision(Entity *a, Entity *b) {
+    std::cout << "Collision detected between Entity " << a->getID()
+              << " and Entity " << b->getID() << std::endl;
+    // Check for laser collisions first
+    bool aIsLaser = a->hasComponent<LaserWarningComponent>();
+    bool bIsLaser = b->hasComponent<LaserWarningComponent>();
+    bool aIsPlayer = a->hasComponent<PlayerComponent>();
+    bool bIsPlayer = b->hasComponent<PlayerComponent>();
+
+    // Player hit by active laser
+    if ((aIsLaser && bIsPlayer) || (bIsLaser && aIsPlayer)) {
+      Entity *laser = aIsLaser ? a : b;
+      Entity *player = aIsPlayer ? a : b;
+      
+      auto &laserComp = laser->getComponent<LaserWarningComponent>();
+      
+      // Only damage if laser is active (not in warning phase)
+      if (laserComp.isActive && laserComp.appearanceTime <= 0.0f) {
+        std::cout << "Player hit by active laser!" << std::endl;
+        
+        // Damage or destroy player
+        if (player->hasComponent<HealthComponent>()) {
+          auto &health = player->getComponent<HealthComponent>();
+          health.health -= 50.0f; // Heavy laser damage
+          if (health.health <= 0) {
+            player->destroy();
+            std::cout << "Player destroyed by laser!" << std::endl;
+          }
+        } else {
+          // If no health component, destroy immediately
+          player->destroy();
+          std::cout << "Player destroyed by laser (no health)!" << std::endl;
+        }
+      }
+      return; // Exit early to avoid other collision checks
+    }
+
+    // Projectile hit laser (bullets can destroy warning lasers)
+    bool aIsProjectile = a->hasComponent<ProjectileComponent>();
+    bool bIsProjectile = b->hasComponent<ProjectileComponent>();
+    
+    if ((aIsProjectile && bIsLaser) || (bIsProjectile && aIsLaser)) {
+      Entity *projectile = aIsProjectile ? a : b;
+      Entity *laser = aIsLaser ? a : b;
+      
+      auto &laserComp = laser->getComponent<LaserWarningComponent>();
+      
+      // Can only destroy laser if it's still in warning phase
+      if (!laserComp.isActive && laserComp.warningShown) {
+        std::cout << "Laser warning destroyed by projectile!" << std::endl;
+        laser->destroy();
+        projectile->destroy();
+      }
+      return;
+    }
+
     // For Flappy Bird: Check if bird hits pipe
     bool aIsJumper = a->hasComponent<JumpComponent>();
     bool bIsJumper = b->hasComponent<JumpComponent>();
@@ -251,14 +331,8 @@ private:
     }
 
     // Original R-Type collision logic for backwards compatibility
-    bool aIsPlayer =
-        !a->hasComponent<EnemyComponent>() && a->hasComponent<InputComponent>();
-    bool bIsPlayer =
-        !b->hasComponent<EnemyComponent>() && b->hasComponent<InputComponent>();
     bool aIsEnemy = a->hasComponent<EnemyComponent>();
     bool bIsEnemy = b->hasComponent<EnemyComponent>();
-    bool aIsProjectile = a->hasComponent<ProjectileComponent>();
-    bool bIsProjectile = b->hasComponent<ProjectileComponent>();
 
     // Player hit by enemy
     if ((aIsPlayer && bIsEnemy) || (bIsPlayer && aIsEnemy)) {
@@ -269,10 +343,12 @@ private:
         if (health.health <= 0) {
           player->destroy();
         }
+      } else {
+        player->destroy();
       }
     }
 
-    // Projectile hit something
+    // Projectile hit something (but not laser, already handled above)
     if (aIsProjectile || bIsProjectile) {
       Entity *projectile = aIsProjectile ? a : b;
       Entity *target = aIsProjectile ? b : a;
