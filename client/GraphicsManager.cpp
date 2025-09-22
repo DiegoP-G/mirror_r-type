@@ -1,94 +1,116 @@
+/*
+* < Kawabonga ! >
+* ------------------------------
+*    \   ^__^
+*     \  (oo)\_______
+*        (__)\       )\/\
+*            ||----w |
+*            ||     ||
+* 
+*/
+
 #include "GraphicsManager.hpp"
 #include <iostream>
 
 GraphicsManager *g_graphics = nullptr;
 
-GraphicsManager::GraphicsManager() : window(nullptr), renderer(nullptr) {}
+GraphicsManager::GraphicsManager() {}
 
-GraphicsManager::~GraphicsManager() {
-  if (renderer)
-    SDL_DestroyRenderer(renderer);
-  if (window)
-    SDL_DestroyWindow(window);
-  SDL_Quit();
+GraphicsManager::~GraphicsManager() {}
+
+bool GraphicsManager::init(const std::string &title, int width, int height)
+{
+    window.create(sf::VideoMode(width, height), title, sf::Style::Close);
+
+    if (!window.isOpen()) {
+        std::cerr << "Error: SFML Window could not be created" << std::endl;
+        return false;
+    }
+
+    if (!font.loadFromFile("../assets/fonts/upheavtt.ttf")) {
+        std::cerr << "Warning: SFML Failed to load font, using default font" << std::endl;
+        // Continue without custom font - SFML will use default font
+    }
+
+    std::cout << "SFML initialized successfully" << std::endl;
+    return true;
 }
 
-bool GraphicsManager::init(const char *title, int width, int height) {
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-    std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError()
-              << std::endl;
-    return false;
-  }
-
-  window =
-      SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                       width, height, SDL_WINDOW_SHOWN);
-  if (!window) {
-    std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError()
-              << std::endl;
-    return false;
-  }
-
-  renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-  if (!renderer) {
-    std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError()
-              << std::endl;
-    return false;
-  }
-
-  return true;
+void GraphicsManager::clear()
+{
+    window.clear(sf::Color::Black);
 }
 
-void GraphicsManager::clear() {
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  SDL_RenderClear(renderer);
+void GraphicsManager::present()
+{
+    window.display();
 }
 
-void GraphicsManager::present() { SDL_RenderPresent(renderer); }
+sf::Texture &GraphicsManager::createColorTexture(int width, int height,
+    sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a)
+{
+    sf::Image img;
+    img.create(width, height, sf::Color(r, g, b, a));
 
-SDL_Texture *GraphicsManager::createColorTexture(int width, int height, Uint8 r,
-                                                 Uint8 g, Uint8 b, Uint8 a) {
-  SDL_Texture *texture =
-      SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
-                        SDL_TEXTUREACCESS_TARGET, width, height);
-  if (!texture) {
-    std::cerr << "Failed to create texture! SDL_Error: " << SDL_GetError()
-              << std::endl;
-    return nullptr;
-  }
-
-  SDL_SetRenderTarget(renderer, texture);
-  SDL_SetRenderDrawColor(renderer, r, g, b, a);
-  SDL_RenderClear(renderer);
-  SDL_SetRenderTarget(renderer, nullptr);
-
-  return texture;
+    sf::Texture tex;
+    if (!tex.loadFromImage(img)) {
+        std::cerr << "Error: SFML Failed to created texture" << std::endl;
+    }
+    std::string key = "color_" + std::to_string(textures.size());
+    textures[key] = tex;
+    return textures[key];
 }
 
 void GraphicsManager::storeTexture(const std::string &name,
-                                   SDL_Texture *texture) {
-  textures[name] = texture;
+    const sf::Texture &texture)
+{
+    textures[name] = texture;
 }
 
-SDL_Texture *GraphicsManager::getTexture(const std::string &name) {
-  return textures[name];
+sf::Texture *GraphicsManager::getTexture(const std::string &name) {
+    auto it = textures.find(name);
+    if (it != textures.end())
+        return &it->second;
+    return nullptr;
 }
 
-void GraphicsManager::drawTexture(SDL_Texture *texture, int x, int y, int w,
-                                  int h) {
-  SDL_Rect dstRect = {x, y, w, h};
-  SDL_RenderCopy(renderer, texture, nullptr, &dstRect);
+void GraphicsManager::drawTexture(const sf::Texture &texture, int x, int y,
+    int w, int h)
+{
+    sf::Sprite sprite(texture);
+    sprite.setPosition((float)x, (float)y);
+    sprite.setScale(
+        (float)w / texture.getSize().x,
+        (float)h / texture.getSize().y
+    );
+
+    window.draw(sprite);
 }
 
-void GraphicsManager::drawRect(int x, int y, int w, int h, Uint8 r, Uint8 g,
-                               Uint8 b, Uint8 a) {
-  SDL_SetRenderDrawColor(renderer, r, g, b, a);
-  SDL_Rect rect = {x, y, w, h};
-  SDL_RenderFillRect(renderer, &rect);
+void GraphicsManager::drawRect(int x, int y, int w, int h, sf::Uint8 r,
+    sf::Uint8 g, sf::Uint8 b, sf::Uint8 a)
+{
+    sf::RectangleShape rect(sf::Vector2f((float)w, (float)h));
+    rect.setPosition((float)x, (float)y);
+    rect.setFillColor(sf::Color(r, g, b, a));
+
+    window.draw(rect);
 }
 
-void GraphicsManager::drawText(const std::string &text, int x, int y, Uint8 r,
-                               Uint8 g, Uint8 b) {
-  // Placeholder for text rendering (requires SDL_ttf for actual implementation)
-  // std::cerr << "Text rendering not implemented: " << text << std::endl;
+void GraphicsManager::drawText(const std::string& content, int x, int y,
+    sf::Uint8 r, sf::Uint8 g, sf::Uint8 b)
+{
+    sf::Text text;
+    text.setFont(font);
+    text.setString(content);
+    text.setCharacterSize(TEXT_SIZE);
+    text.setFillColor(sf::Color(r, g, b));
+    text.setPosition((float)x, (float)y);
+    
+    window.draw(text);
+}
+
+sf::RenderWindow &GraphicsManager::getWindow()
+{
+    return window;
 }

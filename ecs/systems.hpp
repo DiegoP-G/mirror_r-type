@@ -1,5 +1,5 @@
 #pragma once
-#include "../client/GraphicsManagerSFML.hpp"
+#include "../client/GraphicsManager.hpp"
 #include "components.hpp"
 #include "ecs.hpp"
 #include <random>

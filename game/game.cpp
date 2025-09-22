@@ -1,7 +1,7 @@
 #include "../ecs/ecs.hpp"
 #include "../ecs/components.hpp"
 #include "../ecs/systems.hpp"
-#include "../client/GraphicsManagerSFML.hpp"
+#include "../client/GraphicsManager.hpp"
 #include <iostream>
 #include <random>
 

@@ -32,7 +32,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # Add executable
 add_executable(rtype_client
     client/RType.cpp
-    client/GraphicsManagerSFML.cpp
+    client/GraphicsManager.cpp
 )
 
 # Link SFML libraries
