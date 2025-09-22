@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: clang-format
+        args: [--style=Microsoft]
+        name: Clang-Format
+        entry: clang-format -i
+        language: system
+        files: \.(cpp|hpp)$
