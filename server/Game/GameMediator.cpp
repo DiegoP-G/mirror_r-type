@@ -10,12 +10,8 @@
 GameMediator::GameMediator()
 {
     _mediatorMap = {{GameMediatorEvent::TickLogic, [this]() -> void {}},
-                    {GameMediatorEvent::SetupNetwork,
-                     [this]() -> void {
-                         _networkManager.setupSockets(SERVER_PORT);
-                         _networkManager.setupPolls();
-                     }},
-                    {GameMediatorEvent::TickNetwork, [this]() -> void { _networkManager.pollOnce(); }}};
+                    {GameMediatorEvent::SetupNetwork, [this]() -> void {}},
+                    {GameMediatorEvent::TickNetwork, [this]() -> void {}}};
 }
 
 void GameMediator::notify(const int &event, const std::string &data)
