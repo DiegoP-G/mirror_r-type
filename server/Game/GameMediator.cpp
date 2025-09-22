@@ -7,22 +7,15 @@
 
 #include "GameMediator.hpp"
 
-void GameMediator::notify(void *sender, const int &event,
-                          const std::string &data) {
+void GameMediator::notify(const int &event, const std::string &data) {
   switch (event) {
-  case GameMediatorEvent::PlayerDamaged:
+  case GameMediatorEvent::TickLogic:
     std::cout << "[GameMediator] Handling "
-              << GameMediator::toString(GameMediatorEvent::PlayerDamaged)
-              << "\n";
+              << GameMediator::toString(GameMediatorEvent::TickLogic) << "\n";
     break;
-  case GameMediatorEvent::PlayerJoined:
+  case GameMediatorEvent::TickNetwork:
     std::cout << "[GameMediator] Handling "
-              << GameMediator::toString(GameMediatorEvent::PlayerJoined)
-              << "\n";
-    break;
-  case GameMediatorEvent::ChatMessage:
-    std::cout << "[GameMediator] Handling "
-              << GameMediator::toString(GameMediatorEvent::ChatMessage) << "\n";
+              << GameMediator::toString(GameMediatorEvent::TickNetwork) << "\n";
     break;
   default:
     throw UnknownEventException(event);

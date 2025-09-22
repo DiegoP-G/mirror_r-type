@@ -23,5 +23,5 @@ public:
   NetworkMediator() = default;
   ~NetworkMediator() = default;
 
-  void notify(void *sender, const int &event, const std::string &data) override;
+  void notify(const int &event, const std::string &data = "") override;
 };

@@ -8,8 +8,7 @@
 #include "NetworkMediator.hpp"
 #include "../Include/Errors/EventUnknown.hpp"
 
-void NetworkMediator::notify(void *sender, const int &event,
-                             const std::string &data) {
+void NetworkMediator::notify(const int &event, const std::string &data) {
   switch (event) {
   case NetworkMediatorEvent::TCP:
     std::cout << "[NetworkMediator] Handling "

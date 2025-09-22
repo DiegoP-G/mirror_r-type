@@ -42,4 +42,4 @@ void Orchestrator::GameLoader::initialize(std::string ConfigPath) {
   // entityFactory->createInitialEntities();
 }
 
-void Orchestrator::GameLoader::startServer() { _gameLoop->loop(); }
+void Orchestrator::GameLoader::startGameLoop() { _gameLoop->loop(); }

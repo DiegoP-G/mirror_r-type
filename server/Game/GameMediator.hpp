@@ -10,16 +10,15 @@ class CombatManager;
 class ClientManager;
 class NetworkMediator;
 
+enum GameMediatorEvent { TickNetwork, TickLogic };
+
 class GameMediator : public IMediator {
-  enum GameMediatorEvent { PlayerDamaged, PlayerJoined, ChatMessage };
   std::string toString(GameMediatorEvent event) {
     switch (event) {
-    case PlayerDamaged:
-      return "PlayerDamaged";
-    case PlayerJoined:
-      return "PlayerJoined";
-    case ChatMessage:
-      return "ChatMessage";
+    case TickNetwork:
+      return "Ticked Network";
+    case TickLogic:
+      return "Ticked Logic";
     default:
       return "UnknownEvent";
     }
@@ -29,6 +28,6 @@ public:
   GameMediator() = default;
   ~GameMediator() = default;
 
-  void notify(void *sender, const int &event, const std::string &data) override;
-  inline void sendMessageToAll(const std::string &data) { return; };
+  void notify(const int &event, const std::string &data = "") override;
+  inline void sendMessageToAll(const std::string &data) override { return; };
 };

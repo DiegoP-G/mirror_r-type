@@ -27,6 +27,6 @@ public:
   GameLoader() {};
   ~GameLoader() {};
   void initialize(std::string ConfigPath);
-  void startServer();
+  void startGameLoop();
 };
 } // namespace Orchestrator
