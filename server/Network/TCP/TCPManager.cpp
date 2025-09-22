@@ -11,6 +11,10 @@ TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
     if (_listenFd < 0)
         throw std::runtime_error("TCP socket failed");
 
+    int opt = 1;
+    if (setsockopt(_listenFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+        throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
+
     sockaddr_in addr{};
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
@@ -31,7 +35,7 @@ TCPManager::~TCPManager()
 
 void TCPManager::update()
 {
-    int ret = poll(_pollFds.data(), _pollFds.size(), 0);
+    int ret = poll(_pollFds.data(), _pollFds.size(), 100);
     if (ret < 0)
         throw std::runtime_error("TCP poll failed");
 
@@ -50,25 +54,27 @@ void TCPManager::update()
                 std::cout << "[TCP] New client " << cfd << "\n";
             }
         }
-        else if (pfd.fd != _listenFd && (pfd.revents & POLLIN))
+        else if (pfd.fd != _listenFd)
         {
-            auto [opcode, payload] =
-                receiveFrameTCP(pfd.fd, _networkManagerRef.getClientManager().getClientsMap()[pfd.fd].getBuffer());
-
-            char buf[1024];
-            ssize_t n = recv(pfd.fd, buf, sizeof(buf), 0);
-            if (n <= 0)
+            if (pfd.revents & POLLIN)
             {
-                std::cout << "[TCP] Client " << pfd.fd << " disconnected\n";
-                _networkManagerRef.getClientManager().removeClient(pfd.fd);
-                _pollFds.erase(_pollFds.begin() + i);
-                --i;
-            }
-            else
 
-            {
-                // _clients[pfd.fd].append(buf, n);
-                std::cout << "[TCP] Received: " << buf << "\n";
+                std::cout << "here" << std::endl;
+                // auto [opcode, payload] =
+                //     receiveFrameTCP(pfd.fd,
+                //     _networkManagerRef.getClientManager().getClientsMap()[pfd.fd].getBuffer());
+
+                // if (payload.size() <= 0)
+                // {
+                // std::cout << "[TCP] Client " << pfd.fd << " disconnected\n";
+                // _networkManagerRef.getClientManager().removeClient(pfd.fd);
+                // _pollFds.erase(_pollFds.begin() + i);
+                // --i;
+                // }
+                // else
+                // {
+                //     std::cout << "[TCP] Received: " << payload << "\n";
+                // }
             }
         }
     }
