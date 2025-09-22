@@ -36,11 +36,12 @@ void TCPManager::update() {
       int cfd = accept(_listenFd, nullptr, nullptr);
       if (cfd >= 0) {
         _pollFds.push_back({cfd, POLLIN, 0});
-        _clients[cfd] = "";
+        _clients[cfd] = Client();
         std::cout << "[TCP] New client " << cfd << "\n";
       }
     } else if (pfd.fd != _listenFd && (pfd.revents & POLLIN)) {
-      char buf[1024];
+      int OPCODE =
+          receiveFrameTCP(pfd, _clients[pfd.fd].getBuffer()) char buf[1024];
       ssize_t n = recv(pfd.fd, buf, sizeof(buf), 0);
       if (n <= 0) {
         std::cout << "[TCP] Client " << pfd.fd << " disconnected\n";

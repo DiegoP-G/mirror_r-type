@@ -6,6 +6,7 @@ private:
   int _socketFd;
   std::string _name;
   bool _connected;
+  std::string _buffer;
 
 public:
   Client() = default;
@@ -18,4 +19,5 @@ public:
   std::string getName() const;
   void setSocket(int clientSock);
   void setConnected(bool state);
+  inline std::string &getBuffer() { return _buffer };
 };

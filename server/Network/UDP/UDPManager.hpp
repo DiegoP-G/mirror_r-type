@@ -1,4 +1,14 @@
 #pragma once
+#include "../../transferData/transferData.hpp"
+#include <arpa/inet.h>
+#include <iostream>
+#include <netinet/in.h>
+#include <poll.h>
+#include <string>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <unordered_map>
+#include <vector>
 
 class UDPManager {
 private:

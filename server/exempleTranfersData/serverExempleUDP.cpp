@@ -11,7 +11,6 @@ int main() {
   struct sockaddr_in servaddr, cliaddr;
   socklen_t len = sizeof(cliaddr);
 
-  // Création socket UDP
   sockfd = socket(AF_INET, SOCK_DGRAM, 0);
   if (sockfd < 0) {
     perror("socket failed");
@@ -27,14 +26,22 @@ int main() {
     return -1;
   }
 
-  std::cout << "Serveur UDP simplifié prêt sur port " << PORT << "\n";
+  std::cout << "Serveur UDP prêt sur port " << PORT << "\n";
 
-  // Attente message
-  auto [opcode, payload] = receiveFrameUDP(sockfd, cliaddr, len);
-  std::cout << "Reçu opcode=" << (int)opcode << " payload=" << payload << "\n";
+  // 1️⃣ Attente d’un message du client pour récupérer son adresse
+  auto [recvOpcode, recvPayload] = receiveFrameUDP(sockfd, cliaddr, len);
+  std::cout << "Message reçu du client : opcode=" << (int)recvOpcode
+            << " payload=" << recvPayload << "\n";
 
-  // Réponse
-  sendFrameUDP(sockfd, 42, "Hello UDP Client!", cliaddr, len);
+  // 2️⃣ Préparation d’une réponse sérialisée
+  ship data(0, 10, 10);
+  std::stringstream ss;
+  data.serialize(ss);
+
+  // 3️⃣ Envoi de la réponse avec un opcode cohérent
+  sendFrameUDP(sockfd, OPCODE_SHIP_INFO, ss.str(), cliaddr, len);
+
+  std::cout << "Données envoyées au client\n";
 
   close(sockfd);
   return 0;

@@ -28,6 +28,7 @@ void UDPManager::update() {
       char buf[1024];
       sockaddr_in client{};
       socklen_t len = sizeof(client);
+      receiveFrameUDP(_udpFd, client, len);
       ssize_t n =
           recvfrom(_udpFd, buf, sizeof(buf), 0, (sockaddr *)&client, &len);
       if (n > 0) {

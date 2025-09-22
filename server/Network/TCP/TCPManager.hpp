@@ -1,4 +1,6 @@
 #pragma once
+#include "../../transferData/transferData.hpp"
+#include "../Client.hpp"
 #include <arpa/inet.h>
 #include <iostream>
 #include <netinet/in.h>
@@ -13,7 +15,7 @@ class TCPManager {
 private:
   int _listenFd;
   std::vector<pollfd> _pollFds;
-  std::unordered_map<int, std::string> _clients;
+  std::unordered_map<int, Client> _clients;
 
 public:
   TCPManager(int port);
