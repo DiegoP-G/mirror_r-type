@@ -1,5 +1,5 @@
 #pragma once
-#include "../game/graphics.hpp"
+#include "../client/GraphicsManagerSFML.hpp"
 #include "components.hpp"
 #include "ecs.hpp"
 #include <random>
@@ -41,28 +41,30 @@ Vector2D getActualPosition(Entity* entity) {
 class RenderSystem {
 public:
   void update(EntityManager &entityManager) {
-    if (!g_graphics)
-      return;
+    if (!g_graphics) return;
 
     auto entities = entityManager.getEntitiesWithComponents<TransformComponent, SpriteComponent>();
 
     for (auto &entity : entities) {
-      // Utiliser le même helper
-      Vector2D position = getActualPosition(entity);
+      auto &transform = entity->getComponent<TransformComponent>();
       auto &sprite = entity->getComponent<SpriteComponent>();
 
-      if (sprite.isVisible) {
-        if (sprite.texture) {
-          g_graphics->drawTexture(sprite.texture,
-                                  static_cast<int>(position.x),
-                                  static_cast<int>(position.y),
-                                  sprite.width, sprite.height);
-        } else {
-          g_graphics->drawRect(static_cast<int>(position.x),
+      if (!sprite.isVisible) continue;
+
+      Vector2D position = getActualPosition(entity);
+
+      // If we have a texture, use it; otherwise draw a colored rectangle
+      if (sprite.texture) {
+        g_graphics->drawTexture(*sprite.texture, 
+                               static_cast<int>(position.x), 
                                static_cast<int>(position.y),
-                               sprite.width, sprite.height, sprite.r, sprite.g,
-                               sprite.b, sprite.a);
-        }
+                               sprite.width, sprite.height);
+      } else {
+        // Draw colored rectangle
+        g_graphics->drawRect(static_cast<int>(position.x), 
+                           static_cast<int>(position.y),
+                           sprite.width, sprite.height,
+                           sprite.r, sprite.g, sprite.b, sprite.a);
       }
     }
   }
@@ -167,10 +169,8 @@ private:
 class LaserWarningSystem {
 public:
     void update(EntityManager& entityManager, float deltaTime) {
-        // std::cout << "In update Laser" << std::endl;
         auto entities = entityManager.getEntitiesWithComponents<LaserWarningComponent>();
         for (auto& entity : entities) {
-            // std::cout << "Entities founded" << std::endl;
             auto& laser = entity->getComponent<LaserWarningComponent>();
             auto& sprite = entity->getComponent<SpriteComponent>();
             if (!entity->hasComponent<TransformComponent>()) {
@@ -207,7 +207,6 @@ public:
                     
                     // Activer le laser (collision, dégâts, sprite différent, etc.)
                 }
-                // printf("Warning time: %.2f\n", laser.warningTime);
             } else {
                 // Phase active
                 laser.activeTime -= deltaTime;

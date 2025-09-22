@@ -54,15 +54,13 @@ public:
   }
 
   void createTextures() {
-    SDL_Texture *playerTexture =
+    sf::Texture &playerTexture =
         g_graphics->createColorTexture(32, 32, 255, 255, 0); // Yellow player
-    SDL_Texture *enemyTexture =
+    sf::Texture &enemyTexture =
         g_graphics->createColorTexture(80, 400, 0, 255, 0); // Green enemy
 
-    if (playerTexture)
-      g_graphics->storeTexture("player", playerTexture);
-    if (enemyTexture)
-      g_graphics->storeTexture("enemy", enemyTexture);
+    g_graphics->storeTexture("player", playerTexture);
+    g_graphics->storeTexture("enemy", enemyTexture);
   }
 
   void createPlayer() {
@@ -80,36 +78,34 @@ public:
   }
 
   void handleEvents() {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT) {
+    sf::Event event;
+    while (g_graphics->getWindow().pollEvent(event)) {
+      if (event.type == sf::Event::Closed) {
         running = false;
       }
 
-      if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-        bool isPressed = (event.type == SDL_KEYDOWN);
+      if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased) {
+        bool isPressed = (event.type == sf::Event::KeyPressed);
         if (player && player->hasComponent<InputComponent>()) {
           auto &input = player->getComponent<InputComponent>();
-          switch (event.key.keysym.sym) {
-          case SDLK_UP:
+          switch (event.key.code) {
+          case sf::Keyboard::Up:
             input.up = isPressed;
             break;
-          case SDLK_DOWN:
+          case sf::Keyboard::Down:
             input.down = isPressed;
             break;
-          case SDLK_LEFT:
+          case sf::Keyboard::Left:
             input.left = isPressed;
             break;
-          case SDLK_RIGHT:
+          case sf::Keyboard::Right:
             input.right = isPressed;
             break;
-          case SDLK_SPACE:
+          case sf::Keyboard::Space:
             input.fire = isPressed;
             break;
           default:
             break;
-          }
-          if (event.key.keysym.sym == SDLK_SPACE && isPressed) {
           }
         }
       }
@@ -177,13 +173,11 @@ public:
     const float TARGET_FPS = 60.0f;
     const float FRAME_TIME = 1.0f / TARGET_FPS;
 
-    Uint32 lastTime = SDL_GetTicks();
+    sf::Clock clock;
     float accumulator = 0.0f;
 
     while (running) {
-      Uint32 currentTime = SDL_GetTicks();
-      float deltaTime = (currentTime - lastTime) / 1000.0f;
-      lastTime = currentTime;
+      float deltaTime = clock.restart().asSeconds();
 
       // Cap delta time to prevent large jumps
       if (deltaTime > 0.05f) {

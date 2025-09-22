@@ -16,11 +16,8 @@ if(NOT CMAKE_BUILD_TYPE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-# Find SDL2
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(SDL2 REQUIRED sdl2)
-pkg_check_modules(SDL2_IMAGE REQUIRED SDL2_image)
-pkg_check_modules(SDL2_TTF REQUIRED SDL2_ttf)
+# Find SFML
+find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR})
@@ -35,11 +32,18 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # Add executable
 add_executable(rtype_client
     client/RType.cpp
-    game/graphics.cpp
+    client/GraphicsManagerSFML.cpp
 )
 
-# Link libraries
-target_link_libraries(rtype_client ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${SDL2_TTF_LIBRARIES})
+# Link SFML libraries
+target_link_libraries(rtype_client 
+    sfml-graphics
+    sfml-window
+    sfml-system
+)
+
+# Install target
+install(TARGETS rtype_client DESTINATION bin)
 
 # Install target
 install(TARGETS rtype_client DESTINATION bin)

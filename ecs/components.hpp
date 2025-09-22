@@ -1,6 +1,6 @@
 #pragma once
 #include "ecs.hpp"
-#include <SDL2/SDL.h>
+#include <SFML/Graphics.hpp>
 
 // Vector2D for positions and movements
 struct Vector2D {
@@ -93,18 +93,18 @@ struct CenteredComponent : public Component {
     CenteredComponent(float x = 0, float y = 0) : offsetX(x), offsetY(y) {}
 };
 
-// Component for rendering with SDL
+// Component for rendering with SFML
 struct SpriteComponent : public Component {
-    SDL_Texture* texture;
+    sf::Texture* texture;
     Rectangle srcRect;  // Source rectangle in texture
     int width, height;  // Render size
-    bool isVisible;      
-    Uint8 r, g, b, a;   // Color modulation
+    bool isVisible;
+    sf::Uint8 r, g, b, a;   // Color modulation
     
     SpriteComponent() : texture(nullptr), isVisible(true), width(32), height(32), 
                        r(255), g(255), b(255), a(255) {}
     
-    SpriteComponent(int w, int h, Uint8 red = 255, Uint8 green = 255, Uint8 blue = 255) 
+    SpriteComponent(int w, int h, sf::Uint8 red = 255, sf::Uint8 green = 255, sf::Uint8 blue = 255) 
         : texture(nullptr), isVisible(true), width(w), height(h), r(red), g(green), b(blue), a(255) {}
     
     void render() override {

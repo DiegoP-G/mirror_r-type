@@ -27,10 +27,12 @@ bool GraphicsManager::init(const std::string &title, int width, int height)
         return false;
     }
 
-    if (font.loadFromFile("/assets/fonts/upheatvtt.ttf")) {
-        std::cerr << "Error: SFML Failed to load font" << std::endl;
-        return false;
+    if (!font.loadFromFile("../assets/fonts/upheavtt.ttf")) {
+        std::cerr << "Warning: SFML Failed to load font, using default font" << std::endl;
+        // Continue without custom font - SFML will use default font
     }
+
+    std::cout << "SFML initialized successfully" << std::endl;
     return true;
 }
 
