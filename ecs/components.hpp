@@ -47,6 +47,20 @@ struct TransformComponent : public Component {
     void update(float deltaTime) override {}
 };
 
+struct PlayerComponent : public Component {
+    int score = 0;
+    int lives = 3;
+    float shootCooldown = 0.0f;
+    // Autres propriétés spécifiques au joueur...
+
+    PlayerComponent(int playerID = 0, bool isLocal = true) 
+        : playerID(playerID), isLocal(isLocal) {}
+    
+    int playerID;  // ID du joueur pour le multijoueur
+    bool isLocal;  // Si c'est le joueur local ou un joueur réseau
+};
+
+
 // Component for movement
 struct VelocityComponent : public Component {
     Vector2D velocity;
@@ -55,6 +69,28 @@ struct VelocityComponent : public Component {
     VelocityComponent() : velocity(0, 0), maxSpeed(5.0f) {}
     VelocityComponent(float x, float y) : velocity(x, y), maxSpeed(5.0f) {}
     VelocityComponent(float x, float y, float max) : velocity(x, y), maxSpeed(max) {}
+};
+
+// Component for Laser Warning
+struct LaserWarningComponent : public Component {
+    float appearanceTime; // Temps avant l'apparition du laser
+    float warningTime;      // Temps restant avant activation
+    float activeTime;       // Temps restant d'activation
+    bool isActive;          // Le laser est-il actif ?
+    bool warningShown;      // L'avertissement a-t-il été affiché ?
+    float width;           // Largeur du laser
+    float height;          // Hauteur du laser
+
+    LaserWarningComponent(float w = 10.0f, float h = 300.0f, float app = 1.0f, float warn = 1.0f, float active = 1.0f)
+        : width(w), height(h), appearanceTime(app), warningTime(warn), activeTime(active), isActive(false), warningShown(false) {}
+};
+
+// Component for centering entities on screen
+struct CenteredComponent : public Component {
+    float offsetX;
+    float offsetY;
+
+    CenteredComponent(float x = 0, float y = 0) : offsetX(x), offsetY(y) {}
 };
 
 // Component for rendering with SDL

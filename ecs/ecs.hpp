@@ -97,7 +97,8 @@ public:
 
     // Check if component exists first
     if (!componentMask[componentID]) {
-      throw std::runtime_error("Entity does not have component!");
+      throw std::runtime_error("Entity miss this component : " +
+                               std::to_string(componentID));
     }
 
     // Ensure the components vector is large enough

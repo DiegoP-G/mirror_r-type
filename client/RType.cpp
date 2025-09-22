@@ -15,6 +15,10 @@ private:
   BoundarySystem boundarySystem;        // Generic boundary checking
   OffscreenCleanupSystem cleanupSystem; // Generic cleanup
   InputSystem inputSystem;              // Use existing generic input system
+  PlayerSystem playerSystem;
+  LaserWarningSystem laserWarningSystem;
+  GameLogicSystem gameLogicSystem;
+
 
   Entity *player = nullptr;
   bool gameOver = false;
@@ -23,12 +27,11 @@ private:
 
   int score = 0;
 
-  std::mt19937 rng;
 
   const float ENEMY_SPEED = -200.0f;
 
 public:
-  RTypeGame() : rng(std::random_device{}()){};
+  RTypeGame() = default;
 
   bool init() {
     // Initialize graphics
@@ -65,6 +68,8 @@ public:
   void createPlayer() {
     auto &playerEntity = entityManager.createEntity();
 
+
+    playerEntity.addComponent<PlayerComponent>();
     playerEntity.addComponent<TransformComponent>(100.0f, 300.0f);
     playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
     playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0); // Yellow
@@ -111,28 +116,19 @@ public:
     }
   }
 
-  void spawnEnemy() {
-    float enemyHeight = rng();
-
-    auto &enemy = entityManager.createEntity();
-    enemy.addComponent<TransformComponent>(800.0f, enemyHeight);
-    enemy.addComponent<VelocityComponent>(ENEMY_SPEED, 0.0f);
-    enemy.addComponent<SpriteComponent>(80, static_cast<int>(600 - enemyHeight),
-                                        0, 255, 0); // Green
-    enemy.addComponent<ColliderComponent>(80.0f, 600 - enemyHeight);
-  }
-
   void update(float deltaTime) {
     if (gameOver)
       return;
 
     // Update systems
+    gameLogicSystem.update(entityManager, deltaTime);
     movementSystem.update(entityManager, deltaTime);
+    playerSystem.update(entityManager, deltaTime);
     inputSystem.update(entityManager, deltaTime);
     boundarySystem.update(entityManager, deltaTime);
     cleanupSystem.update(entityManager, deltaTime);
     collisionSystem.update(entityManager);
-
+    laserWarningSystem.update(entityManager, deltaTime);
     // Check game over
     if (player && !player->isActive()) {
       gameOver = true;

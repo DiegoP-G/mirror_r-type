@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/rtype_client.dir/client/RType.cpp.o CMakeFiles/rtype_client.dir/game/graphics.cpp.o -o bin/rtype_client  -lm -lSDL2 -lSDL2_image -lSDL2 -lSDL2_image

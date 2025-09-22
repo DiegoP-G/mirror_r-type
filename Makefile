@@ -172,19 +172,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named rtype_server
-
-# Build rule for target.
-rtype_server: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 rtype_server
-.PHONY : rtype_server
-
-# fast build rule for target.
-rtype_server/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_server.dir/build.make CMakeFiles/rtype_server.dir/build
-.PHONY : rtype_server/fast
-
-#=============================================================================
 # Target rules for targets named rtype_client
 
 # Build rule for target.
@@ -197,66 +184,29 @@ rtype_client/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/build
 .PHONY : rtype_client/fast
 
-#=============================================================================
-# Target rules for targets named rtype_game
-
-# Build rule for target.
-rtype_game: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 rtype_game
-.PHONY : rtype_game
-
-# fast build rule for target.
-rtype_game/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_game.dir/build.make CMakeFiles/rtype_game.dir/build
-.PHONY : rtype_game/fast
-
-client/client.o: client/client.cpp.o
-.PHONY : client/client.o
+client/RType.o: client/RType.cpp.o
+.PHONY : client/RType.o
 
 # target to build an object file
-client/client.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/client/client.cpp.o
-.PHONY : client/client.cpp.o
+client/RType.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/client/RType.cpp.o
+.PHONY : client/RType.cpp.o
 
-client/client.i: client/client.cpp.i
-.PHONY : client/client.i
-
-# target to preprocess a source file
-client/client.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/client/client.cpp.i
-.PHONY : client/client.cpp.i
-
-client/client.s: client/client.cpp.s
-.PHONY : client/client.s
-
-# target to generate assembly for a file
-client/client.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/client/client.cpp.s
-.PHONY : client/client.cpp.s
-
-game/game.o: game/game.cpp.o
-.PHONY : game/game.o
-
-# target to build an object file
-game/game.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_game.dir/build.make CMakeFiles/rtype_game.dir/game/game.cpp.o
-.PHONY : game/game.cpp.o
-
-game/game.i: game/game.cpp.i
-.PHONY : game/game.i
+client/RType.i: client/RType.cpp.i
+.PHONY : client/RType.i
 
 # target to preprocess a source file
-game/game.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_game.dir/build.make CMakeFiles/rtype_game.dir/game/game.cpp.i
-.PHONY : game/game.cpp.i
+client/RType.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/client/RType.cpp.i
+.PHONY : client/RType.cpp.i
 
-game/game.s: game/game.cpp.s
-.PHONY : game/game.s
+client/RType.s: client/RType.cpp.s
+.PHONY : client/RType.s
 
 # target to generate assembly for a file
-game/game.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_game.dir/build.make CMakeFiles/rtype_game.dir/game/game.cpp.s
-.PHONY : game/game.cpp.s
+client/RType.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/client/RType.cpp.s
+.PHONY : client/RType.cpp.s
 
 game/graphics.o: game/graphics.cpp.o
 .PHONY : game/graphics.o
@@ -264,7 +214,6 @@ game/graphics.o: game/graphics.cpp.o
 # target to build an object file
 game/graphics.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/game/graphics.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_game.dir/build.make CMakeFiles/rtype_game.dir/game/graphics.cpp.o
 .PHONY : game/graphics.cpp.o
 
 game/graphics.i: game/graphics.cpp.i
@@ -273,7 +222,6 @@ game/graphics.i: game/graphics.cpp.i
 # target to preprocess a source file
 game/graphics.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/game/graphics.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_game.dir/build.make CMakeFiles/rtype_game.dir/game/graphics.cpp.i
 .PHONY : game/graphics.cpp.i
 
 game/graphics.s: game/graphics.cpp.s
@@ -282,32 +230,7 @@ game/graphics.s: game/graphics.cpp.s
 # target to generate assembly for a file
 game/graphics.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/game/graphics.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_game.dir/build.make CMakeFiles/rtype_game.dir/game/graphics.cpp.s
 .PHONY : game/graphics.cpp.s
-
-server/server.o: server/server.cpp.o
-.PHONY : server/server.o
-
-# target to build an object file
-server/server.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_server.dir/build.make CMakeFiles/rtype_server.dir/server/server.cpp.o
-.PHONY : server/server.cpp.o
-
-server/server.i: server/server.cpp.i
-.PHONY : server/server.i
-
-# target to preprocess a source file
-server/server.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_server.dir/build.make CMakeFiles/rtype_server.dir/server/server.cpp.i
-.PHONY : server/server.cpp.i
-
-server/server.s: server/server.cpp.s
-.PHONY : server/server.s
-
-# target to generate assembly for a file
-server/server.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_server.dir/build.make CMakeFiles/rtype_server.dir/server/server.cpp.s
-.PHONY : server/server.cpp.s
 
 # Help Target
 help:
@@ -323,20 +246,12 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... test"
 	@echo "... rtype_client"
-	@echo "... rtype_game"
-	@echo "... rtype_server"
-	@echo "... client/client.o"
-	@echo "... client/client.i"
-	@echo "... client/client.s"
-	@echo "... game/game.o"
-	@echo "... game/game.i"
-	@echo "... game/game.s"
+	@echo "... client/RType.o"
+	@echo "... client/RType.i"
+	@echo "... client/RType.s"
 	@echo "... game/graphics.o"
 	@echo "... game/graphics.i"
 	@echo "... game/graphics.s"
-	@echo "... server/server.o"
-	@echo "... server/server.i"
-	@echo "... server/server.s"
 .PHONY : help
 
 
