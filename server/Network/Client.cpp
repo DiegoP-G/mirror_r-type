@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-Client::Client(const std::string &clientName, int socketFd) : _socketFd(socketFd), _name(clientName), _connected(false)
+Client::Client(const std::string &clientName, int socketFd) : _socketFd(socketFd), _name(clientName)
 {
 }
 
