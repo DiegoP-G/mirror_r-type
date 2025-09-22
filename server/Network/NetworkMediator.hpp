@@ -1,9 +1,9 @@
 #pragma once
-#include "../Include/Errors/EventUnknown.hpp"
+
 #include "../Mediator/IMediator.hpp"
-#include <iostream>
+#include "TCP/TCPManager.hpp"
+#include "UDP/UDPManager.hpp"
 #include <string>
-#include <vector>
 
 enum NetworkMediatorEvent
 {
@@ -26,8 +26,13 @@ class NetworkMediator : public IMediator
         }
     }
 
+  private:
+    TCPManager _TCPManager;
+    UDPManager _UDPManager;
+    NetworkManager &_netWorkManegerRef;
+
   public:
-    NetworkMediator() = default;
+    NetworkMediator(NetworkManager &ref);
     ~NetworkMediator() = default;
 
     void notify(const int &event, const std::string &data = "") override;

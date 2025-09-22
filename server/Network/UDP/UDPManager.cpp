@@ -1,6 +1,9 @@
 #include "UDPManager.hpp"
+#include "../NetworkManager.hpp"
+#include "../transferData/transferData.hpp"
+#include <stdexcept>
 
-UDPManager::UDPManager(int port)
+UDPManager::UDPManager(NetworkManager &ref) : _NetworkManagerRef(ref)
 {
     _udpFd = socket(AF_INET, SOCK_DGRAM, 0);
     if (_udpFd < 0)
@@ -9,7 +12,7 @@ UDPManager::UDPManager(int port)
     sockaddr_in addr{};
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(port);
+    addr.sin_port = htons(SERVER_PORT);
 
     if (bind(_udpFd, (sockaddr *)&addr, sizeof(addr)) < 0)
         throw std::runtime_error("UDP bind failed");

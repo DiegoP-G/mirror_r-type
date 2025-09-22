@@ -7,6 +7,12 @@
 
 #include "NetworkMediator.hpp"
 #include "../Include/Errors/EventUnknown.hpp"
+#include "UDP/UDPManager.hpp"
+#include <iostream>
+
+NetworkMediator::NetworkMediator(NetworkManager &ref) : _netWorkManegerRef(ref), _UDPManager(ref), _TCPManager(ref)
+{
+}
 
 void NetworkMediator::notify(const int &event, const std::string &data)
 {

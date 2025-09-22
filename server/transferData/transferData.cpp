@@ -1,6 +1,5 @@
 #include "structTransfer.hpp"
 #include <cstring>
-#include <sstream>
 #include <sys/socket.h>
 #include <tuple>
 #include <unistd.h>

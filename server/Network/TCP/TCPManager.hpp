@@ -1,25 +1,24 @@
 #pragma once
-#include "../../transferData/transferData.hpp"
-#include "../Client.hpp"
+
 #include <arpa/inet.h>
-#include <iostream>
 #include <netinet/in.h>
 #include <poll.h>
 #include <string>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <unordered_map>
 #include <vector>
+
+class NetworkManager;
 
 class TCPManager
 {
   private:
     int _listenFd;
     std::vector<pollfd> _pollFds;
-    std::unordered_map<int, Client> _clients;
+    NetworkManager &_networkManagerRef;
 
   public:
-    TCPManager(int port);
+    TCPManager(NetworkManager &ref);
     ~TCPManager();
     void update();
     void sendToClient(int fd, const std::string &msg);

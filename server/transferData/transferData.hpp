@@ -18,11 +18,9 @@
  * ------------------------------------------------------------------------------------
  */
 
-#ifndef INCLUDED_TRANSFERDATA_HPP
-#define INCLUDED_TRANSFERDATA_HPP
+#pragma once
 #include "structTransfer.hpp"
-#include <cstring>
-#include <sstream>
+
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -43,5 +41,3 @@ std::string deserializeString(const std::string &data);
 
 std::string serializeTuple(std::pair<int, int> tuple);
 std::pair<int, int> deserializeTuple(std::string data);
-
-#endif

@@ -1,6 +1,5 @@
 #include "Client.hpp"
 #include <arpa/inet.h>
-#include <cstring>
 #include <iostream>
 #include <sys/socket.h>
 #include <sys/types.h>
