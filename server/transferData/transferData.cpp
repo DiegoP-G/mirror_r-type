@@ -29,8 +29,6 @@ void sendFrameTCP(int socket, uint8_t opcode, const std::string &payload) {
 std::tuple<uint8_t, std::string> receiveFrameTCP(int socket,
                                                  std::string &buffer) {
   char temp[32000];
-
-  // Lire des données jusqu’à avoir au moins 2 octets pour l’en-tête
   while (buffer.size() < 2) {
     ssize_t bytesRead = read(socket, temp, sizeof(temp));
     if (bytesRead <= 0)
