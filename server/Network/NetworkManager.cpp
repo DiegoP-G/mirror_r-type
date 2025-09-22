@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include <fcntl.h>
+#include <poll.h>
 #include <iostream>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -18,11 +19,34 @@ NetworkManager::~NetworkManager() {
     close(_udpSocket);
 }
 
-bool NetworkManager::startListening(int port) {
+void NetworkManager::setupPolls() {
+    if (_tcpSocket != -1) {
+        pollfd pfd{};
+        pfd.fd = _tcpSocket;
+        pfd.events = POLLIN;
+        _fds.push_back(pfd);
+    }
+
+    if (_udpSocket != -1) {
+        pollfd pfd{};
+        pfd.fd = _udpSocket;
+        pfd.events = POLLIN;
+        _fds.push_back(pfd);
+    }
+
+    for (auto &[sock, client] : _clientManager.getClientsMap()) {
+        pollfd pfd{};
+        pfd.fd = sock;
+        pfd.events = POLLIN;
+        _fds.push_back(pfd);
+    }
+}
+
+void NetworkManager::setupSockets(int port) {
   _tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
   if (_tcpSocket < 0) {
     std::cerr << "Failed to create TCP socket\n";
-    return false;
+    return;
   }
 
   sockaddr_in serverAddr{};
@@ -33,30 +57,29 @@ bool NetworkManager::startListening(int port) {
   if (bind(_tcpSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) <
       0) {
     std::cerr << "Bind failed\n";
-    return false;
+    return;
   }
 
   if (listen(_tcpSocket, 5) < 0) {
     std::cerr << "Listen failed\n";
-    return false;
+    return; // throw
   }
 
   _udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
   if (_udpSocket < 0) {
     std::cerr << "Failed to create UDP socket\n";
-    return false;
+    return;
   }
 
   if (bind(_udpSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) <
       0) {
     std::cerr << "UDP bind failed\n";
-    return false;
+    return;
   }
 
   fcntl(_udpSocket, F_SETFL, O_NONBLOCK);
 
   std::cout << "Server listening on port " << port << " (TCP & UDP)\n";
-  return true;
 }
 
 void NetworkManager::acceptClients() {
@@ -75,6 +98,10 @@ void NetworkManager::acceptClients() {
   newClient.setConnected(true);
 
   _clientManager.addClient(newClient);
+  pollfd pfd{};
+  pfd.fd = clientSock;
+  pfd.events = POLLIN;
+  _fds.push_back(pfd);
 
   std::cout << "Accepted TCP client, socket: " << clientSock << "\n";
 }
@@ -109,7 +136,23 @@ void NetworkManager::disconnectClient(int clientSocket) {
   std::cout << "Disconnected client: " << clientSocket << "\n";
 }
 
-void NetworkManager::receive(NetworkMediatorEvent type,
-                             const std::string &data) {
-  // GAMEMEDIATOR
+void NetworkManager::pollOnce() {
+    int ret = poll(_fds.data(), _fds.size(), 1000);
+
+    if (ret < 0) {
+        std::cerr << "poll() failed\n";
+    }
+    if (ret == 0) {
+        return;
+    }
+
+    for (auto &pfd : _fds) {
+        if (pfd.revents & POLLIN) {
+            if (pfd.fd == _tcpSocket) {
+                acceptClients();
+            } else {
+                receiveData();
+            }
+        }
+    }
 }

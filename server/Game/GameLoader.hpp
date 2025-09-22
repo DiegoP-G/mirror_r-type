@@ -20,8 +20,8 @@ private:
   // TimingManager* _timingManager;
 
   // // Communication & Main Server
-  // GameMediator* _gameMediator;
-  // NetworkManager* _networkManager;
+  GameMediator* _gameMediator;
+  NetworkManager* _networkManager;
 
 public:
   GameLoader() {};

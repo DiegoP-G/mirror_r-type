@@ -36,7 +36,7 @@ void Orchestrator::GameLoader::initialize(std::string ConfigPath) {
   //     formationManager
   // );
 
-  // networkManager = new NetworkManager(gameMediator);
+  _networkManager = new NetworkManager(gameMediator);
 
   // // Step 6: Initialize base entities
   // entityFactory->createInitialEntities();

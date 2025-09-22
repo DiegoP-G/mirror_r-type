@@ -7,17 +7,30 @@
 
 #include "GameMediator.hpp"
 
-void GameMediator::notify(const int &event, const std::string &data) {
-  switch (event) {
-  case GameMediatorEvent::TickLogic:
-    std::cout << "[GameMediator] Handling "
-              << GameMediator::toString(GameMediatorEvent::TickLogic) << "\n";
-    break;
-  case GameMediatorEvent::TickNetwork:
-    std::cout << "[GameMediator] Handling "
-              << GameMediator::toString(GameMediatorEvent::TickNetwork) << "\n";
-    break;
-  default:
-    throw UnknownEventException(event);
-  }
+GameMediator::GameMediator(NetworkManager& networkManager)
+:_networkManager(networkManager) {
+  _mediatorMap = {
+    {GameMediatorEvent::TickLogic, [this]() -> void {
+        std::cout << "TickLogic: none" << std::endl;
+    }},
+    {GameMediatorEvent::SetupNetwork, [this]() -> void {
+        _networkManager.setupPolls();
+        _networkManager.setupSockets(SERVER_PORT);
+    }},
+    {GameMediatorEvent::TickNetwork, [this]() -> void {
+        _networkManager.pollOnce();
+    }}
+  };
 }
+
+void GameMediator::notify(const int &event, const std::string &data) {
+    const GameMediatorEvent &gameEvent = static_cast<GameMediatorEvent>(event);
+    auto it = _mediatorMap.find(gameEvent);
+
+    if (it != _mediatorMap.end()) {
+        it->second();
+    } else {
+        throw UnknownEventException(gameEvent);
+    }
+}
+
