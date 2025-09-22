@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/rtype_server.dir/server/server.cpp.o -o bin/rtype_server  -lm

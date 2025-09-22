@@ -6,7 +6,15 @@
 void Orchestrator::GameLoader::initialize(std::string ConfigPath)
 {
     _configManager = new ConfigurationManager;
-    _configManager->loadConfiguration(ConfigPath);
+    try
+    {
+        _configManager->loadConfiguration(ConfigPath);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
     _gameLoop = new GameLoop(
         // entityManager, 
         // gameMediator, 
