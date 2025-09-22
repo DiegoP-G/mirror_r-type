@@ -5,23 +5,30 @@
 #include <string>
 #include <vector>
 
-enum NetworkMediatorEvent { UDP, TCP };
+enum NetworkMediatorEvent
+{
+    UDP,
+    TCP
+};
 
-class NetworkMediator : public IMediator {
-  std::string toString(NetworkMediatorEvent event) {
-    switch (event) {
-    case UDP:
-      return "UdpMessage";
-    case TCP:
-      return "TcpMessage";
-    default:
-      return "UnknownEvent";
+class NetworkMediator : public IMediator
+{
+    std::string toString(NetworkMediatorEvent event)
+    {
+        switch (event)
+        {
+        case UDP:
+            return "UdpMessage";
+        case TCP:
+            return "TcpMessage";
+        default:
+            return "UnknownEvent";
+        }
     }
-  }
 
-public:
-  NetworkMediator() = default;
-  ~NetworkMediator() = default;
+  public:
+    NetworkMediator() = default;
+    ~NetworkMediator() = default;
 
-  void notify(const int &event, const std::string &data = "") override;
+    void notify(const int &event, const std::string &data = "") override;
 };

@@ -7,30 +7,28 @@
 
 #include "GameMediator.hpp"
 
-GameMediator::GameMediator(NetworkManager& networkManager)
-:_networkManager(networkManager) {
-  _mediatorMap = {
-    {GameMediatorEvent::TickLogic, [this]() -> void {
-        std::cout << "TickLogic: none" << std::endl;
-    }},
-    {GameMediatorEvent::SetupNetwork, [this]() -> void {
-        _networkManager.setupPolls();
-        _networkManager.setupSockets(SERVER_PORT);
-    }},
-    {GameMediatorEvent::TickNetwork, [this]() -> void {
-        _networkManager.pollOnce();
-    }}
-  };
+GameMediator::GameMediator(NetworkManager &networkManager) : _networkManager(networkManager)
+{
+    _mediatorMap = {{GameMediatorEvent::TickLogic, [this]() -> void { std::cout << "TickLogic: none" << std::endl; }},
+                    {GameMediatorEvent::SetupNetwork,
+                     [this]() -> void {
+                         _networkManager.setupPolls();
+                         _networkManager.setupSockets(SERVER_PORT);
+                     }},
+                    {GameMediatorEvent::TickNetwork, [this]() -> void { _networkManager.pollOnce(); }}};
 }
 
-void GameMediator::notify(const int &event, const std::string &data) {
+void GameMediator::notify(const int &event, const std::string &data)
+{
     const GameMediatorEvent &gameEvent = static_cast<GameMediatorEvent>(event);
     auto it = _mediatorMap.find(gameEvent);
 
-    if (it != _mediatorMap.end()) {
+    if (it != _mediatorMap.end())
+    {
         it->second();
-    } else {
+    }
+    else
+    {
         throw UnknownEventException(gameEvent);
     }
 }
-

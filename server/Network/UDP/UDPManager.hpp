@@ -10,14 +10,15 @@
 #include <unordered_map>
 #include <vector>
 
-class UDPManager {
-private:
-  int _udpFd;
-  std::vector<pollfd> _pollFds;
+class UDPManager
+{
+  private:
+    int _udpFd;
+    std::vector<pollfd> _pollFds;
 
-public:
-  UDPManager(int port);
-  ~UDPManager();
-  void update();
-  void sendTo(const std::string &ip, int port, const std::string &msg);
+  public:
+    UDPManager(int port);
+    ~UDPManager();
+    void update();
+    void sendTo(const std::string &ip, int port, const std::string &msg);
 };

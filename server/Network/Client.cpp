@@ -6,30 +6,50 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-Client::Client(const std::string &clientName, int socketFd)
-    : _socketFd(socketFd), _name(clientName), _connected(false) {}
-
-Client::~Client() {
-  if (_connected) {
-    close(_socketFd);
-  }
+Client::Client(const std::string &clientName, int socketFd) : _socketFd(socketFd), _name(clientName), _connected(false)
+{
 }
 
-void Client::sendMessage(const std::string &msg) {
-  if (!_connected) {
-    std::cerr << "Client not _connected.\n";
-    return;
-  }
-
-  send(_socketFd, msg.c_str(), msg.size(), 0);
+Client::~Client()
+{
+    if (_connected)
+    {
+        close(_socketFd);
+    }
 }
 
-bool Client::isConnected() const { return _connected; }
+void Client::sendMessage(const std::string &msg)
+{
+    if (!_connected)
+    {
+        std::cerr << "Client not _connected.\n";
+        return;
+    }
 
-std::string Client::getName() const { return _name; }
+    send(_socketFd, msg.c_str(), msg.size(), 0);
+}
 
-int Client::getSocket() const { return _socketFd; }
+bool Client::isConnected() const
+{
+    return _connected;
+}
 
-void Client::setSocket(int clientSock) { _socketFd = clientSock; }
+std::string Client::getName() const
+{
+    return _name;
+}
 
-void Client::setConnected(bool state) { _connected = state; }
+int Client::getSocket() const
+{
+    return _socketFd;
+}
+
+void Client::setSocket(int clientSock)
+{
+    _socketFd = clientSock;
+}
+
+void Client::setConnected(bool state)
+{
+    _connected = state;
+}

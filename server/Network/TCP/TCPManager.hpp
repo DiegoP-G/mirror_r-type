@@ -11,15 +11,16 @@
 #include <unordered_map>
 #include <vector>
 
-class TCPManager {
-private:
-  int _listenFd;
-  std::vector<pollfd> _pollFds;
-  std::unordered_map<int, Client> _clients;
+class TCPManager
+{
+  private:
+    int _listenFd;
+    std::vector<pollfd> _pollFds;
+    std::unordered_map<int, Client> _clients;
 
-public:
-  TCPManager(int port);
-  ~TCPManager();
-  void update();
-  void sendToClient(int fd, const std::string &msg);
+  public:
+    TCPManager(int port);
+    ~TCPManager();
+    void update();
+    void sendToClient(int fd, const std::string &msg);
 };
