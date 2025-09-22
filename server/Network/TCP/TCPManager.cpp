@@ -1,9 +1,9 @@
 #include "TCPManager.hpp"
-#include "../../tranferData/transferData.hpp"
 #include "../Client.hpp"
 #include "../NetworkManager.hpp"
 #include <iostream>
 #include <stdexcept>
+#include "../../transferData/transferData.hpp"
 
 TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
 {
