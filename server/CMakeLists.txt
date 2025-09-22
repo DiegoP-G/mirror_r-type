@@ -41,6 +41,12 @@ list(FILTER SOURCES EXCLUDE REGEX ".*/exempleTranfersData/.*")
 add_executable(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/main.cpp ${SOURCES})
 
 # ----------------------
+# Debug flags (for valgrind, gdb, etc.)
+# ----------------------
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
+
+
+# ----------------------
 # Link libconfig++
 # ----------------------
 find_package(PkgConfig REQUIRED)
