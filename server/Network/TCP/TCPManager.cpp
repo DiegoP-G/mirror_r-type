@@ -44,6 +44,8 @@ void TCPManager::update()
             if (cfd >= 0)
             {
                 _pollFds.push_back({cfd, POLLIN, 0});
+                //  _networkManagerRef.requestConnection(cfd);
+
                 //      _networkManagerRef.getCLientManger().addClient();
                 //        _clients[cfd] = Client();
                 std::cout << "[TCP] New client " << cfd << "\n";

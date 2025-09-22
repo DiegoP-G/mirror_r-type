@@ -1,6 +1,5 @@
 #include "UDPManager.hpp"
 #include "../NetworkManager.hpp"
-#include "../transferData/transferData.hpp"
 #include <stdexcept>
 
 UDPManager::UDPManager(NetworkManager &ref) : _NetworkManagerRef(ref)
@@ -38,13 +37,14 @@ void UDPManager::update()
             char buf[1024];
             sockaddr_in client{};
             socklen_t len = sizeof(client);
-            receiveFrameUDP(_udpFd, client, len);
+            //       receiveFrameUDP(_udpFd, client, len);
             ssize_t n = recvfrom(_udpFd, buf, sizeof(buf), 0, (sockaddr *)&client, &len);
             if (n > 0)
             {
                 std::string msg(buf, n);
-                std::cout << "[UDP] From " << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << " -> "
-                          << msg << "\n";
+                //            std::cout << "[UDP] From " << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port)
+                //            << " -> "
+                //                    << msg << "\n";
             }
         }
     }

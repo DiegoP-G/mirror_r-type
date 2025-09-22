@@ -1,5 +1,4 @@
 #include "NetworkManager.hpp"
-#include "NetworkMediator.hpp"
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -8,7 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-NetworkManager::NetworkManager() : _networkMediator(*this)
+NetworkManager::NetworkManager() : _UDPManager(*this), _TCPManager(*this)
 {
 }
 
