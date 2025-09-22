@@ -95,12 +95,16 @@ class GameLogicSystem {
                 stageStatus = 1;
                 stageCount = 1;
                 spawnLaser1(entityManager);
+            } else if (stageStatus == 1 && stageCount == 1) {
+                if (entityManager.getEntitiesWithComponents<LaserWarningComponent>().empty()) {
+                    stageStatus = 1;
+                    stageCount = 2;
+                    spawnEnemies(entityManager);
+                }
             }
 
-            // Update score based on passed enemies
             updateScore(entityManager);
             
-            // Check for game over conditions
             checkGameOverConditions(entityManager);
         }
         
@@ -132,18 +136,21 @@ private:
             laser.addComponent<ColliderComponent>(width, height, false);
             laser.addComponent<LaserWarningComponent>(width, height, waitingTime, 1.5f, 3.0f); // Warning for 2s, active for 3s
         }
-}
+    }
 
-    void spawnEnemy(EntityManager& entityManager) {
-        std::uniform_real_distribution<float> heightDist(50.0f, 550.0f);
-        float enemyHeight = heightDist(rng);
-        
-        auto& enemy = entityManager.createEntity();
-        enemy.addComponent<TransformComponent>(800.0f, enemyHeight);
-        enemy.addComponent<VelocityComponent>(ENEMY_SPEED, 0.0f);
-        enemy.addComponent<SpriteComponent>(80, static_cast<int>(600 - enemyHeight), 0, 255, 0);
-        enemy.addComponent<ColliderComponent>(80.0f, 600 - enemyHeight, false);
-        enemy.addComponent<EnemyComponent>(0, 0.0f); // Type 0 = basic enemy
+    void spawnEnemies(EntityManager& entityManager) {
+        // float enemyHeight = 20.0f;
+        float y;
+        for (size_t i = 0; i < 10; i++) {
+            y = 100 + i * 50;
+
+            auto& enemy = entityManager.createEntity();
+            enemy.addComponent<TransformComponent>(500, y);
+            // enemy.addComponent<VelocityComponent>(ENEMY_SPEED, 0.0f);
+            enemy.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
+            enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
+            enemy.addComponent<EnemyComponent>(2, 0.2f, 2); // Type 2 = Sine wave movement and 3 bullets
+        }
     }
     
     void updateScore(EntityManager& entityManager) {
@@ -484,15 +491,9 @@ public:
               Vector2D(-50.0f, sinf(time * 2.0f) * 40.0f);
         }
         break;
+    }
 
-      case 2: // Attack pattern
-        enemy.currentCooldown -= deltaTime;
-        if (enemy.currentCooldown <= 0) {
-          enemyFire(entityManager, entity);
-          enemy.currentCooldown = enemy.attackCooldown;
-        }
-        break;
-      }
+    enemyFire(entityManager, entity);
 
       // Destroy enemies that go off screen
       if (transform.position.x < -50.0f) {
@@ -503,26 +504,44 @@ public:
 
 private:
   void enemyFire(EntityManager &entityManager, Entity *enemy) {
-    auto &transform = enemy->getComponent<TransformComponent>();
+    auto& enemyComponent = enemy->getComponent<EnemyComponent>();
+    if (enemyComponent.shootingType == 1) {
 
-    // Create projectile entity
-    auto &projectile = entityManager.createEntity();
+        auto &transform = enemy->getComponent<TransformComponent>();
+        
+        // Create projectile entity
+        auto &projectile = entityManager.createEntity();
 
-    // Position the projectile at the enemy's position
-    projectile.addComponent<TransformComponent>(
-        transform.position.x -
-            20.0f, // Offset to fire from the front of the enemy
-        transform.position.y + 10.0f // Center height
-    );
+        // Position the projectile at the enemy's position
+        projectile.addComponent<TransformComponent>(
+            transform.position.x -
+                20.0f, // Offset to fire from the front of the enemy
+            transform.position.y + 10.0f // Center height
+        );
 
-    // Add projectile components
-    projectile.addComponent<VelocityComponent>(
-        -200.0f, 0.0f);                         // Fast horizontal movement
-    projectile.addComponent<SpriteComponent>(); // Add sprite (different from
-                                                // player projectiles)
-    projectile.addComponent<ColliderComponent>(10.0f, 5.0f); // Small hitbox
-    projectile.addComponent<ProjectileComponent>(
-        5.0f, 3.0f, enemy->getID()); // Damage, lifetime, owner
+        // Add projectile components
+        projectile.addComponent<VelocityComponent>(
+            -200.0f, 0.0f);                         // Fast horizontal movement
+        projectile.addComponent<SpriteComponent>(); // Add sprite (different from
+                                                    // player projectiles)
+        projectile.addComponent<ColliderComponent>(10.0f, 5.0f); // Small hitbox
+        projectile.addComponent<ProjectileComponent>(
+            5.0f, 3.0f, enemy->getID()); // Damage, lifetime, owner
+    } else if (enemyComponent.shootingType == 2) {
+        auto &transform = enemy->getComponent<TransformComponent>();
+
+        for (size_t i = 0; i < 3; i++) {
+            auto &projectile = entityManager.createEntity();
+            projectile.addComponent<TransformComponent>(
+                transform.position.x - 20.0f, // Offset to fire from the front of the enemy
+                transform.position.y + 10.0f   // Center height
+            );
+            projectile.addComponent<SpriteComponent>(10.0f, 5.0f, 255, 255, 0);
+            projectile.addComponent<VelocityComponent>(
+                -200.0f, (i - 1) * 50.0f); // Spread pattern
+            projectile.addComponent<ColliderComponent>(10.0f, 5.0f);    
+        }
+    }
   }
 };
 
