@@ -1,16 +1,23 @@
 #include "NetworkManager.hpp"
+#include "NetworkMediator.hpp"
 #include <arpa/inet.h>
 #include <cstring>
 #include <fcntl.h>
 #include <iostream>
+#include <memory>
 #include <netinet/in.h>
 #include <poll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "ClientManager.hpp"
+#include <algorithm>
 
-NetworkManager::NetworkManager(NetworkMediator *med) : _mediator(med), _tcpSocket(-1), _udpSocket(-1)
+NetworkManager::NetworkManager()
+: _tcpSocket(-1), _udpSocket(-1)
 {
+  _mediator = NetworkMediator();
+  _clientManager = ClientManager();
 }
 
 NetworkManager::~NetworkManager()
@@ -46,6 +53,7 @@ void NetworkManager::setupPolls()
         pfd.events = POLLIN;
         _fds.push_back(pfd);
     }
+    std::cout << " setup sockets" << std::endl;
 }
 
 void NetworkManager::setupSockets(int port)
@@ -97,22 +105,27 @@ void NetworkManager::acceptClients()
     sockaddr_in clientAddr{};
     socklen_t clientLen = sizeof(clientAddr);
     int clientSock = accept(_tcpSocket, (struct sockaddr *)&clientAddr, &clientLen);
+    std::cout << "c" << std::endl;
 
-    if (clientSock < 0)
-    {
-        std::cerr << "Failed to accept TCP client\n";
+    if (clientSock < 0) {
+        perror("accept failed");
         return;
     }
 
+    std::cout << clientSock << std::endl;
     Client newClient("Player", clientSock);
-    newClient.setSocket(clientSock);
+    std::cout << "c" << std::endl;
     newClient.setConnected(true);
-
+    std::cout << "c" << std::endl;
     _clientManager.addClient(newClient);
+    std::cout << "c" << std::endl;
+    std::cout << "c" << std::endl;
+
     pollfd pfd{};
     pfd.fd = clientSock;
     pfd.events = POLLIN;
     _fds.push_back(pfd);
+    std::cout << "c" << std::endl;
 
     std::cout << "Accepted TCP client, socket: " << clientSock << "\n";
 }
@@ -129,7 +142,7 @@ void NetworkManager::receiveData()
         {
             buffer[bytesReceived] = '\0';
             std::string msg(buffer);
-            receive(NetworkMediatorEvent::TCP, msg);
+            std::cout << "received TCP: " << msg << std::endl;
         }
     }
 
@@ -140,7 +153,7 @@ void NetworkManager::receiveData()
     {
         buffer[bytesReceived] = '\0';
         std::string msg(buffer);
-        receive(NetworkMediatorEvent::UDP, msg);
+            std::cout << "received UDP: " << msg << std::endl;
     }
 }
 
@@ -148,6 +161,14 @@ void NetworkManager::disconnectClient(int clientSocket)
 {
     _clientManager.removeClient(clientSocket);
     close(clientSocket);
+
+    // remove from _fds
+    _fds.erase(
+        std::remove_if(_fds.begin(), _fds.end(),
+                       [clientSocket](const pollfd &pfd) { return pfd.fd == clientSocket; }),
+        _fds.end()
+    );
+
     std::cout << "Disconnected client: " << clientSocket << "\n";
 }
 
@@ -161,6 +182,7 @@ void NetworkManager::pollOnce()
     }
     if (ret == 0)
     {
+      std::cout << "0" << std::endl;
         return;
     }
 
@@ -168,14 +190,15 @@ void NetworkManager::pollOnce()
     {
         if (pfd.revents & POLLIN)
         {
+          std::cout << "x" << std::endl;
             if (pfd.fd == _tcpSocket)
             {
                 acceptClients();
             }
-            else
-            {
-                receiveData();
-            }
+            // else
+            // {
+            //     receiveData();
+            // }
         }
     }
 }

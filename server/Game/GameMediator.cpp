@@ -7,13 +7,14 @@
 
 #include "GameMediator.hpp"
 
-GameMediator::GameMediator(NetworkManager &networkManager) : _networkManager(networkManager)
+GameMediator::GameMediator()
 {
-    _mediatorMap = {{GameMediatorEvent::TickLogic, [this]() -> void { std::cout << "TickLogic: none" << std::endl; }},
+    _networkManager = NetworkManager();
+    _mediatorMap = {{GameMediatorEvent::TickLogic, [this]() -> void { }},
                     {GameMediatorEvent::SetupNetwork,
                      [this]() -> void {
-                         _networkManager.setupPolls();
                          _networkManager.setupSockets(SERVER_PORT);
+                         _networkManager.setupPolls();
                      }},
                     {GameMediatorEvent::TickNetwork, [this]() -> void { _networkManager.pollOnce(); }}};
 }

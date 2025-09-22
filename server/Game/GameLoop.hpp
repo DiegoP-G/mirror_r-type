@@ -7,7 +7,7 @@ namespace Orchestrator
 class GameLoop
 {
   private:
-    std::shared_ptr<GameMediator> _GameMediator;
+  GameMediator _gameMediator;
 
   public:
     GameLoop();

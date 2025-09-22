@@ -1,4 +1,5 @@
 #include "TCPManager.hpp"
+#include <cstdint>
 
 TCPManager::TCPManager(int port)
 {
@@ -48,7 +49,8 @@ void TCPManager::update()
         }
         else if (pfd.fd != _listenFd && (pfd.revents & POLLIN))
         {
-            int OPCODE = receiveFrameTCP(pfd, _clients[pfd.fd].getBuffer()) char buf[1024];
+            auto [opcode, payload] = receiveFrameTCP(pfd.fd, _clients[pfd.fd].getBuffer());
+            char buf[1024];
             ssize_t n = recv(pfd.fd, buf, sizeof(buf), 0);
             if (n <= 0)
             {
@@ -60,8 +62,8 @@ void TCPManager::update()
             }
             else
             {
-                _clients[pfd.fd].append(buf, n);
-                std::cout << "[TCP] Received: " << _clients[pfd.fd] << "\n";
+                // _clients[pfd.fd].append(buf, n);
+                // std::cout << "[TCP] Received: " << _clients[pfd.fd] << "\n";
             }
         }
     }
