@@ -1,7 +1,7 @@
 #include "TCPManager.hpp"
+#include "../../tranferData/transferData.hpp"
 #include "../Client.hpp"
 #include "../NetworkManager.hpp"
-#include "../tranferData/transferData.hpp"
 #include <iostream>
 #include <stdexcept>
 

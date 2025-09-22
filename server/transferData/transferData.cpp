@@ -1,4 +1,4 @@
-#include "structTransfer.hpp"
+#include "tranferData.hpp"
 #include <cstring>
 #include <sys/socket.h>
 #include <tuple>

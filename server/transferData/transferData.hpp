@@ -19,8 +19,9 @@
  */
 
 #pragma once
-#include "structTransfer.hpp"
 
+#include <arpa/inet.h>
+#include <iostream>
 #include <sys/socket.h>
 #include <unistd.h>
 
