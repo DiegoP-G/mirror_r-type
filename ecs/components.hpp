@@ -155,11 +155,12 @@ struct ProjectileComponent : public Component {
 
 // Component for enemies
 struct EnemyComponent : public Component {
-    int type;
+    int type; // 1 Basic enemy - moves left; 2 Sine wave movement
+    int shootingType; // 1 basic juste one; 2 shoot 3 bullets 
     float attackCooldown;
     float currentCooldown;
     
-    EnemyComponent(int t, float ac) : type(t), attackCooldown(ac), currentCooldown(0) {}
+    EnemyComponent(int t, float ac, int st) : type(t), shootingType(st), attackCooldown(ac), currentCooldown(0) {}
     
     void update(float deltaTime) override {
         if (currentCooldown > 0) {
