@@ -1,5 +1,7 @@
 #include "NetworkManager.hpp"
+#include "ClientManager.hpp"
 #include "NetworkMediator.hpp"
+#include <algorithm>
 #include <arpa/inet.h>
 #include <cstring>
 #include <fcntl.h>
@@ -10,14 +12,9 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "ClientManager.hpp"
-#include <algorithm>
 
-NetworkManager::NetworkManager()
-: _tcpSocket(-1), _udpSocket(-1)
+NetworkManager::NetworkManager() : _tcpSocket(-1), _udpSocket(-1), _networkMediator(*this)
 {
-  _mediator = NetworkMediator();
-  _clientManager = ClientManager();
 }
 
 NetworkManager::~NetworkManager()
@@ -107,7 +104,8 @@ void NetworkManager::acceptClients()
     int clientSock = accept(_tcpSocket, (struct sockaddr *)&clientAddr, &clientLen);
     std::cout << "c" << std::endl;
 
-    if (clientSock < 0) {
+    if (clientSock < 0)
+    {
         perror("accept failed");
         return;
     }
@@ -153,7 +151,7 @@ void NetworkManager::receiveData()
     {
         buffer[bytesReceived] = '\0';
         std::string msg(buffer);
-            std::cout << "received UDP: " << msg << std::endl;
+        std::cout << "received UDP: " << msg << std::endl;
     }
 }
 
@@ -164,10 +162,8 @@ void NetworkManager::disconnectClient(int clientSocket)
 
     // remove from _fds
     _fds.erase(
-        std::remove_if(_fds.begin(), _fds.end(),
-                       [clientSocket](const pollfd &pfd) { return pfd.fd == clientSocket; }),
-        _fds.end()
-    );
+        std::remove_if(_fds.begin(), _fds.end(), [clientSocket](const pollfd &pfd) { return pfd.fd == clientSocket; }),
+        _fds.end());
 
     std::cout << "Disconnected client: " << clientSocket << "\n";
 }
@@ -182,7 +178,7 @@ void NetworkManager::pollOnce()
     }
     if (ret == 0)
     {
-      std::cout << "0" << std::endl;
+        std::cout << "0" << std::endl;
         return;
     }
 
@@ -190,7 +186,7 @@ void NetworkManager::pollOnce()
     {
         if (pfd.revents & POLLIN)
         {
-          std::cout << "x" << std::endl;
+            std::cout << "x" << std::endl;
             if (pfd.fd == _tcpSocket)
             {
                 acceptClients();

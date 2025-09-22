@@ -12,7 +12,7 @@ class NetworkManager
 {
   private:
     ClientManager _clientManager;
-    NetworkMediator _mediator;
+    NetworkMediator _networkMediator;
     int _tcpSocket;
     int _udpSocket;
     std::vector<pollfd> _fds;

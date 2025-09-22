@@ -1,5 +1,8 @@
 #include "TCPManager.hpp"
+#include "../NetworkManager.hpp"
 #include <cstdint>
+#include <iostream>
+#include <stdexcept>
 
 TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
 {
@@ -48,7 +51,7 @@ void TCPManager::update()
         }
         else if (pfd.fd != _listenFd && (pfd.revents & POLLIN))
         {
-            auto [opcode, payload] = receiveFrameTCP(pfd.fd, _clients[pfd.fd].getBuffer());
+            //  auto [opcode, payload] = receiveFrameTCP(pfd.fd, _clients[pfd.fd].getBuffer());
             char buf[1024];
             ssize_t n = recv(pfd.fd, buf, sizeof(buf), 0);
             if (n <= 0)

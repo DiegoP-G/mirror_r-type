@@ -9,8 +9,7 @@
 
 GameMediator::GameMediator()
 {
-    _networkManager = NetworkManager();
-    _mediatorMap = {{GameMediatorEvent::TickLogic, [this]() -> void { }},
+    _mediatorMap = {{GameMediatorEvent::TickLogic, [this]() -> void {}},
                     {GameMediatorEvent::SetupNetwork,
                      [this]() -> void {
                          _networkManager.setupSockets(SERVER_PORT);

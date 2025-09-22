@@ -1,14 +1,13 @@
 #include "GameLoop.hpp"
 #include "GameMediator.hpp"
-#include <memory>
 
 Orchestrator::GameLoop::GameLoop()
 {
-    _gameMediator = GameMediator();
 }
 
 Orchestrator::GameLoop::~GameLoop()
-{}
+{
+}
 
 void Orchestrator::GameLoop::loop()
 {
