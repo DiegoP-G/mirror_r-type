@@ -51,6 +51,11 @@ void UDPManager::update()
                 {
                     c->setAdress(std::to_string(client.sin_addr.s_addr));
                 }
+                else
+                {
+                    std::cout << "[UDP] Client nor found with UDP code " << std::to_string(deserializeInt(payload))
+                              << "\n";
+                }
             }
             else
             {
@@ -59,7 +64,8 @@ void UDPManager::update()
                 if (c != nullptr)
                     std::cout << "[UDP] Received : " << (payload) << " from: " << c->getName() << "\n";
                 else
-                    std::cout << "[UDP] Received : " << (payload) << " from: " << client.sin_addr.s_addr << "\n";
+                    std::cout << "[UDP] Received from Client Not found: " << (payload)
+                              << " from: " << client.sin_addr.s_addr << "\n";
             }
         }
     }
