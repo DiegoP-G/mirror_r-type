@@ -1,7 +1,7 @@
 #include "../ecs/ecs.hpp"
 #include "../ecs/components.hpp"
 #include "../ecs/systems.hpp"
-#include "graphics.hpp"
+#include "../client/GraphicsManager.hpp"
 #include <iostream>
 #include <random>
 
@@ -58,11 +58,11 @@ public:
     
     void createTextures() {
         // Create colored textures for game objects
-        SDL_Texture* birdTexture = g_graphics->createColorTexture(32, 32, 255, 255, 0); // Yellow bird
-        SDL_Texture* pipeTexture = g_graphics->createColorTexture(80, 400, 0, 255, 0);   // Green pipes
+        sf::Texture& birdTexture = g_graphics->createColorTexture(32, 32, 255, 255, 0); // Yellow bird
+        sf::Texture& pipeTexture = g_graphics->createColorTexture(80, 400, 0, 255, 0);   // Green pipes
         
-        if (birdTexture) g_graphics->storeTexture("bird", birdTexture);
-        if (pipeTexture) g_graphics->storeTexture("pipe", pipeTexture);
+        g_graphics->storeTexture("bird", birdTexture);
+        g_graphics->storeTexture("pipe", pipeTexture);
     }
     
     void createBird() {
@@ -101,14 +101,14 @@ public:
     }
     
     void handleEvents() {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
+        sf::Event event;
+        while (g_graphics->getWindow().pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
                 running = false;
             }
             
             // Handle input generically through InputComponent
-            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
                 if (!gameStarted) {
                     gameStarted = true;
                 } else if (gameOver) {
@@ -119,6 +119,14 @@ public:
                     for (auto& entity : entities) {
                         entity->getComponent<InputComponent>().fire = true;
                     }
+                }
+            }
+            
+            if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Space) {
+                // Reset fire input when space is released
+                auto entities = entityManager.getEntitiesWithComponents<InputComponent>();
+                for (auto& entity : entities) {
+                    entity->getComponent<InputComponent>().fire = false;
                 }
             }
         }
@@ -204,29 +212,27 @@ public:
         const float TARGET_FPS = 60.0f;
         const float FRAME_TIME = 1.0f / TARGET_FPS;
         
-        Uint32 lastTime = SDL_GetTicks();
+        sf::Clock clock;
         float accumulator = 0.0f;
         
         while (running) {
-            Uint32 currentTime = SDL_GetTicks();
-            float deltaTime = (currentTime - lastTime) / 1000.0f;
-            lastTime = currentTime;
-            
+            float deltaTime = clock.restart().asSeconds();
+
             // Cap delta time to prevent large jumps
             if (deltaTime > 0.05f) {
                 deltaTime = 0.05f;
             }
-            
+
             accumulator += deltaTime;
-            
+
             handleEvents();
-            
+
             // Fixed timestep update
             while (accumulator >= FRAME_TIME) {
                 update(FRAME_TIME);
                 accumulator -= FRAME_TIME;
             }
-            
+
             render();
         }
         
