@@ -1,6 +1,6 @@
 // === Client.cpp ===
-#include "../transferData/structTransfer.hpp"
-#include "../transferData/transferData.hpp"
+#include "../../transferData/structTransfer.hpp"
+#include "../../transferData/transferData.hpp"
 #include <arpa/inet.h>
 
 #define PORT 8081

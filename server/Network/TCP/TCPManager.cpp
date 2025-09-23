@@ -1,6 +1,6 @@
 #include "TCPManager.hpp"
-#include "../../transferData/opcode.hpp"
-#include "../../transferData/transferData.hpp"
+#include "../../../transferData/opcode.hpp"
+#include "../../../transferData/transferData.hpp"
 #include "../Client.hpp"
 #include "../NetworkManager.hpp"
 #include <cstddef>
