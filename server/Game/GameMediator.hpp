@@ -8,12 +8,16 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <chrono>
 
 enum GameMediatorEvent
 {
     TickNetwork,
     TickLogic,
-    SetupNetwork
+    AddPlayer,
+    SetupNetwork,
+    UpdateEntities,
+    PlayerInput,
 };
 
 class GameMediator : public IMediator

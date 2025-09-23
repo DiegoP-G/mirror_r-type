@@ -24,7 +24,7 @@ public:
   }
 };
 
-Vector2D getActualPosition(Entity *entity)
+inline Vector2D getActualPosition(Entity *entity)
 {
   auto &transform = entity->getComponent<TransformComponent>();
   Vector2D position = transform.position;
@@ -532,6 +532,8 @@ public:
           input.fire = false; // Reset fire input
         }
 
+        if (!entity->hasComponent<AnimatedSpriteComponent>())
+          continue;
         auto &animatedSprite =
             entity->getComponent<AnimatedSpriteComponent>();
         // Determine direction based on input

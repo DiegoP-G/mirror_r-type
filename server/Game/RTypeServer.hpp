@@ -1,13 +1,14 @@
 #include "../../ecs/components.hpp"
 #include "../../ecs/ecs.hpp"
 #include "../../ecs/systems.hpp"
-#include "assetsPath.hpp"
+#include "GameMediator.hpp"
 #include <iostream>
 #include <random>
 
 class RTypeServer
 {
 private:
+  GameMediator &mediator;
   EntityManager entityManager;
 
   MovementSystem movementSystem;
@@ -31,11 +32,11 @@ private:
   const float ENEMY_SPEED = -200.0f;
 
 public:
-  RTypeServer() = default;
+  RTypeServer(GameMediator &mediator) : mediator(mediator) {}
 
   bool init();
 
-  void createPlayer();
+  void createPlayer(const std::string &);
 
   void update(float deltaTime);
 
@@ -43,5 +44,5 @@ public:
 
   void cleanup();
 
-  void run();
+  void run(float deltaTime);
 };

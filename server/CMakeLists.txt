@@ -45,6 +45,14 @@ add_executable(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/main.cpp ${SOURCES})
 # ----------------------
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
 
+# ----------------------
+# Link SFML libraries
+# ----------------------
+target_link_libraries(${PROJECT_NAME} 
+    sfml-graphics
+    sfml-window
+    sfml-system
+)
 
 # ----------------------
 # Link libconfig++
@@ -61,4 +69,3 @@ message(STATUS "Sources included in build:")
 foreach(src IN LISTS SOURCES)
     message(STATUS "  ${src}")
 endforeach()
-

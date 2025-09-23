@@ -7,11 +7,15 @@
 
 #include "GameMediator.hpp"
 
-GameMediator::GameMediator()
+GameMediator::GameMediator() : _rTypeServer(*this)
 {
-    _mediatorMap = {{GameMediatorEvent::TickLogic, [this](const std::string& data) -> void { _rTypeServer.update(std::stof(data));}},
+    _mediatorMap = {{GameMediatorEvent::TickLogic, [this](const std::string& data) -> void { _rTypeServer.run(std::stof(data));}},
                     {GameMediatorEvent::SetupNetwork, [this](const std::string& data) -> void {}},
-                    {GameMediatorEvent::TickNetwork, [this](const std::string& data) -> void { _networkManager.updateAllPoll(); }}};
+                    {GameMediatorEvent::TickNetwork, [this](const std::string& data) -> void { _networkManager.updateAllPoll(); }},
+                    {GameMediatorEvent::AddPlayer, [this](const std::string& data) -> void { _rTypeServer.createPlayer(data); }},
+                    {GameMediatorEvent::UpdateEntities, [this](const std::string& data) -> void { _networkManager.updateEntities(data); }},
+                    {GameMediatorEvent::PlayerInput, [this](const std::string& data) -> void { _rTypeServer.handlePlayerInput(data); }},
+                 };
 }
 
 void GameMediator::notify(const int &event, const std::string &data)
