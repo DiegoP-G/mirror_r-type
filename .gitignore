@@ -8,3 +8,5 @@ client_exemple_UDP
 build
 vgcore.*
 .cache
+CMakeFiles
+cmake_install.cmake
