@@ -19,14 +19,12 @@ private:
   LaserWarningSystem laserWarningSystem;
   GameLogicSystem gameLogicSystem;
 
-
   Entity *player = nullptr;
   bool gameOver = false;
 
   bool running = false;
 
   int score = 0;
-
 
   const float ENEMY_SPEED = -200.0f;
 
@@ -66,13 +64,19 @@ public:
   void createPlayer() {
     auto &playerEntity = entityManager.createEntity();
 
-
     playerEntity.addComponent<PlayerComponent>();
     playerEntity.addComponent<TransformComponent>(100.0f, 300.0f);
     playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
     playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0); // Yellow
     playerEntity.addComponent<ColliderComponent>(32.0f, 32.0f);
     playerEntity.addComponent<InputComponent>();
+
+    // Load texture and initialize AnimatedSpriteComponent
+    sf::Texture *playerTexture = g_graphics->getTexture("player");
+    if (playerTexture) {
+      playerEntity.addComponent<AnimatedSpriteComponent>(*playerTexture, 33,
+                                                         17.5, 0.05f);
+    }
 
     player = &playerEntity;
   }
@@ -84,7 +88,8 @@ public:
         running = false;
       }
 
-      if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased) {
+      if (event.type == sf::Event::KeyPressed ||
+          event.type == sf::Event::KeyReleased) {
         bool isPressed = (event.type == sf::Event::KeyPressed);
         if (player && player->hasComponent<InputComponent>()) {
           auto &input = player->getComponent<InputComponent>();
