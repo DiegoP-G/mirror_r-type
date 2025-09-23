@@ -5,7 +5,7 @@
 ## Makefile
 ##
 
-SRC_TRANSFER_DATA :=	$(wildcard ../transferData/*.cpp)
+SRC_TRANSFER_DATA :=	$(wildcard ../../transferData/*.cpp)
 OBJ_TRANSFER_DATA := 	$(SRC_TRANSFER_DATA:.cpp=.o)
 
 SERVER := server_exemple
