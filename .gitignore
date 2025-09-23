@@ -3,3 +3,6 @@
 build
 client_app
 bin
+CMakeCache.txt
+Makefile
+cmake_install.cmake

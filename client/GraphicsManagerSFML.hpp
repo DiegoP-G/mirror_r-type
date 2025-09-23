@@ -12,7 +12,6 @@
 #ifndef GRAPHICS_HPP
 #define GRAPHICS_HPP
 
-#include "components.hpp"
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <unordered_map>
@@ -38,18 +37,14 @@ public:
   void storeTexture(const std::string &name, const sf::Texture &texture);
   sf::Texture *getTexture(const std::string &name);
 
-  void drawTexture(const sf::Texture &texture, float x, float y, float w,
-                   float h);
-  void drawRect(float x, float y, float w, float h, sf::Uint8 r, sf::Uint8 g,
+  void drawTexture(const sf::Texture &texture, int x, int y, int w, int h);
+  void drawRect(int x, int y, int w, int h, sf::Uint8 r, sf::Uint8 g,
                 sf::Uint8 b, sf::Uint8 a = 255);
-  void drawText(const std::string &content, float x, float y, sf::Uint8 r = 255,
+  void drawText(const std::string &content, int x, int y, sf::Uint8 r = 255,
                 sf::Uint8 g = 255, sf::Uint8 b = 255);
 
   sf::RenderWindow &getWindow();
-  void drawAnimatedSprite(AnimatedSpriteComponent &animatedSprite, float,
-                          float);
-  sf::Texture &createTextureFromPath(const std::string &filePath,
-                                     const std::string &name);
+  void drawAnimatedSprite(const AnimatedSpriteComponent &animatedSprite);
 };
 
 extern GraphicsManager *g_graphics;

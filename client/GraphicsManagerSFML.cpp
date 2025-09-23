@@ -9,7 +9,8 @@
  *
  */
 
-#include "GraphicsManager.hpp"
+#include "GraphicsManagerSFML.hpp"
+#include "../ecs/components.hpp"
 #include <iostream>
 
 GraphicsManager *g_graphics = nullptr;
@@ -67,16 +68,17 @@ sf::Texture *GraphicsManager::getTexture(const std::string &name) {
   return nullptr;
 }
 
-void GraphicsManager::drawTexture(const sf::Texture &texture, float x, float y,
-                                  float w, float h) {
+void GraphicsManager::drawTexture(const sf::Texture &texture, int x, int y,
+                                  int w, int h) {
   sf::Sprite sprite(texture);
-  sprite.setPosition(x, y);
-  sprite.setScale(w / texture.getSize().x, h / texture.getSize().y);
+  sprite.setPosition((float)x, (float)y);
+  sprite.setScale((float)w / texture.getSize().x,
+                  (float)h / texture.getSize().y);
 
   window.draw(sprite);
 }
 
-void GraphicsManager::drawRect(float x, float y, float w, float h, sf::Uint8 r,
+void GraphicsManager::drawRect(int x, int y, int w, int h, sf::Uint8 r,
                                sf::Uint8 g, sf::Uint8 b, sf::Uint8 a) {
   sf::RectangleShape rect(sf::Vector2f((float)w, (float)h));
   rect.setPosition((float)x, (float)y);
@@ -85,7 +87,7 @@ void GraphicsManager::drawRect(float x, float y, float w, float h, sf::Uint8 r,
   window.draw(rect);
 }
 
-void GraphicsManager::drawText(const std::string &content, float x, float y,
+void GraphicsManager::drawText(const std::string &content, int x, int y,
                                sf::Uint8 r, sf::Uint8 g, sf::Uint8 b) {
   sf::Text text;
   text.setFont(font);
@@ -97,23 +99,9 @@ void GraphicsManager::drawText(const std::string &content, float x, float y,
   window.draw(text);
 }
 
-sf::RenderWindow &GraphicsManager::getWindow() { return window; }
-
 void GraphicsManager::drawAnimatedSprite(
-    AnimatedSpriteComponent &animatedSprite, float x, float y) {
-  animatedSprite.sprite.setPosition(x, y);
+    const AnimatedSpriteComponent &animatedSprite) {
   window.draw(animatedSprite.sprite);
 }
 
-sf::Texture &GraphicsManager::createTextureFromPath(const std::string &filePath,
-                                                    const std::string &name) {
-  sf::Texture tex;
-  if (!tex.loadFromFile(filePath)) {
-    std::cerr << "Error: SFML Failed to load texture from file: " << filePath
-              << std::endl;
-    return createColorTexture(32, 32, 255, 255, 0); // Yellow player;
-  }
-
-  textures[name] = tex;
-  return textures[name];
-}
+sf::RenderWindow &GraphicsManager::getWindow() { return window; }

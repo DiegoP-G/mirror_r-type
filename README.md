@@ -25,6 +25,8 @@ R-Type is a classic 1987 side-scrolling shoot ’em up where players pilot the R
 pre-commit install
 
 mkdir build
+rm CMakeCache.txt
 cmake .
+make
 ```
 ---
