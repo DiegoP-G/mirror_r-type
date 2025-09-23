@@ -230,8 +230,6 @@ struct LaserWarningComponent : public Component {
 struct CenteredComponent : public Component {
   float offsetX;
   float offsetY;
-  float offsetX;
-  float offsetY;
 
   CenteredComponent(float x = 0, float y = 0) : offsetX(x), offsetY(y) {}
 
@@ -664,49 +662,4 @@ struct AnimatedSpriteComponent : public Component {
 
   // Override init method from Component
   void init() override {}
-};
-
-struct AnimatedSpriteComponent {
-  sf::Sprite sprite;
-  sf::Texture texture;
-  int currentFrame = 2;            // Default frame
-  const int frameWidth = 33;       // Width of each frame
-  const int frameHeight = 17.5;    // Height of each frame
-  float animationInterval = 0.05f; // Time between frame changes
-  sf::Clock animationClock;
-  enum Direction { Default, Up, Down } currentDirection = Default;
-
-  AnimatedSpriteComponent(const sf::Texture &tex, int frameWidth,
-                          int frameHeight, float interval)
-      : texture(tex), frameWidth(frameWidth), frameHeight(frameHeight),
-        animationInterval(interval) {
-    sprite.setTexture(texture);
-    setFrame(currentFrame); // Set default frame
-  }
-
-  void setFrame(int frame) {
-    sprite.setTextureRect(
-        sf::IntRect(frameWidth * frame, 0, frameWidth, frameHeight));
-  }
-
-  void updateAnimation(Direction newDirection) {
-    if (newDirection != currentDirection) {
-      currentDirection = newDirection;
-    }
-
-    if (animationClock.getElapsedTime().asSeconds() >= animationInterval) {
-      if (currentDirection == Up && currentFrame < 4) {
-        currentFrame++;
-      } else if (currentDirection == Down && currentFrame > 0) {
-        currentFrame--;
-      } else if (currentDirection == Default) {
-        if (currentFrame > 2)
-          currentFrame--;
-        else if (currentFrame < 2)
-          currentFrame++;
-      }
-      setFrame(currentFrame);
-      animationClock.restart();
-    }
-  }
 };
