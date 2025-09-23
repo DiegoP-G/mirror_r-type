@@ -44,7 +44,7 @@ bool GraphicsManager::init(const char* title, int width, int height) {
         return false;
     }
 
-    font = TTF_OpenFont("../assets/fonts/upheavtt.ttf", 24);
+    font = TTF_OpenFont("./assets/fonts/upheavtt.ttf", 24);
     if (!font) {
         std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;
         return false;

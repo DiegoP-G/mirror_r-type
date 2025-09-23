@@ -16,6 +16,7 @@ private:
   OffscreenCleanupSystem cleanupSystem; // Generic cleanup
   InputSystem inputSystem;              // Use existing generic input system
   PlayerSystem playerSystem;
+  EnemySystem enemySystem;
   LaserWarningSystem laserWarningSystem;
   GameLogicSystem gameLogicSystem;
 
@@ -127,6 +128,7 @@ public:
     inputSystem.update(entityManager, deltaTime);
     boundarySystem.update(entityManager, deltaTime);
     cleanupSystem.update(entityManager, deltaTime);
+    enemySystem.update(entityManager, deltaTime);
     collisionSystem.update(entityManager);
     laserWarningSystem.update(entityManager, deltaTime);
     // Check game over

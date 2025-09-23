@@ -16,7 +16,6 @@ public:
     for (auto &entity : entities) {
       auto &transform = entity->getComponent<TransformComponent>();
       auto &velocity = entity->getComponent<VelocityComponent>();
-
       transform.position += velocity.velocity * deltaTime;
     }
   }
@@ -92,12 +91,12 @@ class GameLogicSystem {
             if (stageStatus == 0) {
                 stageStatus = 1;
                 stageCount = 1;
-                spawnLaser1(entityManager);
+                // spawnLaser1(entityManager);
+                spawnEnemies(entityManager);
             } else if (stageStatus == 1 && stageCount == 1) {
                 if (entityManager.getEntitiesWithComponents<LaserWarningComponent>().empty()) {
                     stageStatus = 1;
                     stageCount = 2;
-                    spawnEnemies(entityManager);
                 }
             }
 
@@ -143,11 +142,11 @@ private:
             y = 100 + i * 50;
 
             auto& enemy = entityManager.createEntity();
-            enemy.addComponent<TransformComponent>(500, y);
-            // enemy.addComponent<VelocityComponent>(ENEMY_SPEED, 0.0f);
+            enemy.addComponent<TransformComponent>(700, y);
+            enemy.addComponent<VelocityComponent>(0.0f, 0.0f);
             enemy.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
             enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
-            enemy.addComponent<EnemyComponent>(2, 0.2f, 2); // Type 2 = Sine wave movement and 3 bullets
+            enemy.addComponent<EnemyComponent>(1, 0.2f, 2); // Type 2 = Sine wave movement and 3 bullets
         }
     }
     
@@ -271,8 +270,8 @@ void update(EntityManager &entityManager) {
 
 private:
   void handleCollision(Entity *a, Entity *b) {
-    std::cout << "Collision detected between Entity " << a->getID()
-              << " and Entity " << b->getID() << std::endl;
+    // std::cout << "Collision detected between Entity " << a->getID()
+            //   << " and Entity " << b->getID() << std::endl;
     // Check for laser collisions first
     bool aIsLaser = a->hasComponent<LaserWarningComponent>();
     bool bIsLaser = b->hasComponent<LaserWarningComponent>();
@@ -489,12 +488,16 @@ public:
           static float time = 0;
           time += deltaTime;
           entity->getComponent<VelocityComponent>().velocity =
-              Vector2D(-50.0f, sinf(time * 2.0f) * 40.0f);
+              Vector2D(-50.0f, sinf(time * 1.0f) * 500.0f);
         }
         break;
-    }
-
-    enemyFire(entityManager, entity);
+      }
+    if (enemy.currentCooldown > 0) {
+        enemy.currentCooldown -= deltaTime;
+      } else {
+        enemy.currentCooldown = enemy.attackCooldown;
+        enemyFire(entityManager, entity);
+      }
 
       // Destroy enemies that go off screen
       if (transform.position.x < -50.0f) {
@@ -531,7 +534,8 @@ private:
     } else if (enemyComponent.shootingType == 2) {
         auto &transform = enemy->getComponent<TransformComponent>();
 
-        for (size_t i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
+            // std::cout << "i = " << i;
             auto &projectile = entityManager.createEntity();
             projectile.addComponent<TransformComponent>(
                 transform.position.x - 20.0f, // Offset to fire from the front of the enemy
@@ -542,6 +546,7 @@ private:
                 -200.0f, (i - 1) * 50.0f); // Spread pattern
             projectile.addComponent<ColliderComponent>(10.0f, 5.0f);    
         }
+        // std::cout << std::endl;
     }
   }
 };
