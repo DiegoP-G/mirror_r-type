@@ -1,4 +1,6 @@
 #include <string>
+#include "Network/Receiver.hpp"
+#include "Network/Sender.hpp"
 
 #pragma once
 
@@ -10,8 +12,8 @@ enum NetworkECSMediatorEvent {
 class NetworkECSMediator {
     private:
         // ECS
-        // Sender
-        // Receiver
+        Sender _sender;
+        Receiver _receiver;
     public:
         void notify(const NetworkECSMediator &event, const std::string &data);
 };

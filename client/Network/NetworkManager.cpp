@@ -1,10 +1,8 @@
 #include "NetworkManager.hpp"
 #include "../../transferData/opcode.hpp"
-#include "../../transferData/transferData.hpp"
 #include <arpa/inet.h>
 #include <cstring>
 #include <iostream>
-#include <string>
 #include <unistd.h>
 
 NetworkManager::NetworkManager() : _tcpSocket(-1), _udpSocket(-1)
@@ -56,6 +54,10 @@ bool NetworkManager::setup(const char *serverIp, int port)
         return false;
     }
 
+    _receiver.setServerAddr(_serverAddr);
+    _receiver.setTcpSocket(_tcpSocket);
+    _receiver.setUdpSocket(_udpSocket);
+
     _pollFds.clear();
     _pollFds.push_back({_tcpSocket, POLLIN, 0});
     _pollFds.push_back({_udpSocket, POLLIN, 0});
@@ -88,29 +90,11 @@ void NetworkManager::loop()
             {
                 if (pfd.fd == _tcpSocket)
                 {
-                    std::string buffer;
-                    auto [opcode, paylod] = receiveFrameTCP(_tcpSocket, buffer);
-                    std::cout << "message tcp: " << std::to_string(opcode) << " | " << paylod << std::endl;
-                    if (opcode == OPCODE_CODE_UDP) {
-                        std::cout << "code: " << std::to_string(deserializeInt(paylod)) << std::endl;
-                    }
-                    sendFrameUDP(_udpSocket, OPCODE_UDP_AUTH, paylod, _serverAddr, sizeof(_serverAddr));
-                    sendFrameUDP(_udpSocket, 25, "hello", _serverAddr, sizeof(_serverAddr));
-                    // _receiver.handleTCP(buffer, n);
-                    if (opcode == OPCODE_CLOSE_CONNECTION)
-                    {
-                        std::cerr << "Server closed TCP connection" << std::endl;
-                        close(_tcpSocket);
-                        _tcpSocket = -1;
-                        return;
-                    }
+                    _receiver.receiveTCPMessage();
                 }
                 else if (pfd.fd == _udpSocket)
                 {
-                    sockaddr_in client{};
-                    socklen_t len = sizeof(client);
-                    auto [opcode, paylod] = receiveFrameUDP(_udpSocket, client, len);
-                    std::cout << "message udp: " << paylod << std::endl;
+                    _receiver.receiveUDPMessage();
                 }
             }
         }

@@ -23,6 +23,9 @@ public:
 
     bool setup(const char* serverIp = "127.0.0.1", int port = 8080);
     void loop();
+
+    void handleReceival();
+    void handleSend();
     Sender& getSender();
     Receiver& getReceiver();
 };
