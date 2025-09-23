@@ -1,0 +1,22 @@
+#include "NetworkManager.hpp"
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <poll.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+NetworkManager::NetworkManager() : _UDPManager(*this), _TCPManager(*this)
+{
+}
+
+NetworkManager::~NetworkManager()
+{
+}
+
+void NetworkManager::updateAllPoll()
+{
+    _UDPManager.update();
+    _TCPManager.update();
+}

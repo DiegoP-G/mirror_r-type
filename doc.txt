@@ -52,7 +52,7 @@ Each message consists of the following fields:
 - Payload: The actual message data.
 
 
-9. Frame Structure UDP
+3. Frame Structure UDP
 ----------------------
 
  0                   1                   2                   3

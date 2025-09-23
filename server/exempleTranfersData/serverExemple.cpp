@@ -2,6 +2,7 @@
 #include "../transferData/structTransfer.hpp"
 #include "../transferData/transferData.hpp"
 #include <arpa/inet.h>
+#include <sstream>
 
 #define PORT 8080
 
@@ -11,7 +12,8 @@ int main()
     struct sockaddr_in address;
     int addrlen = sizeof(address);
 
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+    {
         perror("socket failed");
         return -1;
     }
@@ -20,25 +22,27 @@ int main()
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
 
-    if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
+    {
         perror("bind failed");
         return -1;
     }
 
-    if (listen(server_fd, 3) < 0) {
+    if (listen(server_fd, 3) < 0)
+    {
         perror("listen failed");
         return -1;
     }
 
     std::cout << "Serveur prêt, en attente de connexion...\n";
 
-    if ((new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) {
+    if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0)
+    {
         perror("accept failed");
         return -1;
     }
 
-
-    ship data(0, 10 , 10);
+    ship data(0, 10, 10);
     std::stringstream ss;
     data.serialize(ss);
     std::string serializedData = ss.str();
