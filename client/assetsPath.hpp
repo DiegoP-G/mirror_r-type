@@ -3,11 +3,24 @@
 #include <string>
 
 const char playerSpritePath[] = "assets/sprites/playerSpritesheet.png";
+const char fontPath[] = "assets/fonts/upheavtt.ttf";
 
-class PathFormater {
-public:
-  static std::string formatAssetPath(const std::string &relativePath) {
-    std::string basePath = std::filesystem::current_path().string();
-    return basePath + "/" + relativePath;
-  }
+class PathFormater
+{
+  public:
+    static std::string formatAssetPath(const std::string &relativePath)
+    {
+        std::filesystem::path currentPath = std::filesystem::current_path();
+        while (!std::filesystem::exists(currentPath / ".git") && currentPath.has_parent_path())
+        {
+            currentPath = currentPath.parent_path();
+        }
+
+        if (std::filesystem::exists(currentPath / ".git"))
+        {
+            return (currentPath / relativePath).string();
+        }
+
+        return relativePath;
+    }
 };

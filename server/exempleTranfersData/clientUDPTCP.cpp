@@ -7,8 +7,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include "../transferData/opcode.hpp"
-#include "../transferData/transferData.hpp"
+#include "../../transferData/opcode.hpp"
+#include "../../transferData/transferData.hpp"
 
 int main()
 {

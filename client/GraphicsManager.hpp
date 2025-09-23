@@ -12,9 +12,9 @@
 #ifndef GRAPHICS_HPP
 #define GRAPHICS_HPP
 
-#include "components.hpp"
 #include <SFML/Graphics.hpp>
 #include <string>
+#include "../ecs/components.hpp"
 #include <unordered_map>
 
 #define TEXT_SIZE 24
