@@ -9,9 +9,9 @@
 
 GameMediator::GameMediator()
 {
-    _mediatorMap = {{GameMediatorEvent::TickLogic, [this]() -> void {}},
-                    {GameMediatorEvent::SetupNetwork, [this]() -> void {}},
-                    {GameMediatorEvent::TickNetwork, [this]() -> void { _networkManager.updateAllPoll(); }}};
+    _mediatorMap = {{GameMediatorEvent::TickLogic, [this](const std::string& data) -> void { _rTypeServer.update(std::stof(data));}},
+                    {GameMediatorEvent::SetupNetwork, [this](const std::string& data) -> void {}},
+                    {GameMediatorEvent::TickNetwork, [this](const std::string& data) -> void { _networkManager.updateAllPoll(); }}};
 }
 
 void GameMediator::notify(const int &event, const std::string &data)
@@ -21,7 +21,7 @@ void GameMediator::notify(const int &event, const std::string &data)
 
     if (it != _mediatorMap.end())
     {
-        it->second();
+        it->second(data);
     }
     else
     {
