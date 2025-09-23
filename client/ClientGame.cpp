@@ -31,7 +31,7 @@ void ClientGame::stop() {
 }
 
 void ClientGame::networkLoop() {
-    while (_running) {
-        _networkManager.loop(); 
-    }
+    // while (_running) {
+    _networkManager.loop(); 
+    // }
 }
