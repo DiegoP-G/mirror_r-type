@@ -236,7 +236,8 @@ CMakeFiles/rtype_client.dir/client/RType.cpp.o: \
  /usr/include/SFML/Graphics/Glsl.hpp /usr/include/SFML/Graphics/Glsl.inl \
  /usr/include/SFML/Graphics/Sprite.hpp \
  /usr/include/SFML/Graphics/Text.hpp \
- /usr/include/SFML/Graphics/VertexBuffer.hpp \
+ /usr/include/SFML/Graphics/VertexBuffer.hpp /usr/include/c++/14/cstring \
+ /usr/include/string.h /usr/include/strings.h \
  /home/alexiss/delivery/tek3/r-type/mirror_r-type/client/../ecs/systems.hpp \
  /home/alexiss/delivery/tek3/r-type/mirror_r-type/client/../ecs/../client/GraphicsManager.hpp \
  /usr/include/c++/14/random /usr/include/c++/14/cmath /usr/include/math.h \
