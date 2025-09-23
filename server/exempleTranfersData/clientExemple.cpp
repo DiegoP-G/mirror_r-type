@@ -3,7 +3,7 @@
 #include "../transferData/transferData.hpp"
 #include <arpa/inet.h>
 
-#define PORT 8080
+#define PORT 8081
 
 int main()
 {
@@ -34,19 +34,24 @@ int main()
     std::cout << "Connecté au serveur\n";
     std::string buffer;
 
-    std::tuple<uint8_t, std::string> receivedData = receiveFrameTCP(sock, buffer);
-    uint8_t opcode = std::get<0>(receivedData);
-    std::string payloadData = std::get<1>(receivedData);
-
-    if (opcode == OPCODE_SHIP_INFO)
+    sendFrameTCP(sock, 10, "hello");
+    while (1)
     {
-        std::stringstream ss(payloadData);
-        ship receivedTranferData;
-        receivedTranferData.deserialize(ss);
-
-        std::cout << "\n=== Données après désérialisation ===\n";
-        receivedTranferData.print();
     }
+
+    // std::tuple<uint8_t, std::string> receivedData = receiveFrameTCP(sock, buffer);
+    // uint8_t opcode = std::get<0>(receivedData);
+    // std::string payloadData = std::get<1>(receivedData);
+
+    // if (opcode == OPCODE_SHIP_INFO)
+    // {
+    //     std::stringstream ss(payloadData);
+    //     ship receivedTranferData;
+    //     receivedTranferData.deserialize(ss);
+
+    //     std::cout << "\n=== Données après désérialisation ===\n";
+    //     receivedTranferData.print();
+    // }
 
     close(sock);
     return 0;

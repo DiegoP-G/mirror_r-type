@@ -8,7 +8,11 @@
 int main()
 {
     int server_fd, new_socket;
-    struct sockaddr_in address;
+    struct sockaddr_in struct sockaddr_in address;
+    int addrlen = sizeof(address);
+    sockaddr_in address;
+    int addrlen = sizeof(address);
+    ess;
     int addrlen = sizeof(address);
 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)

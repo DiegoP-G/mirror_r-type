@@ -1,5 +1,6 @@
 #include "ClientManager.hpp"
 #include <iostream>
+#include <unistd.h>
 
 void ClientManager::addClient(const Client &c)
 {
@@ -25,12 +26,16 @@ void ClientManager::addClient(const Client &c)
         return;
     }
 
+    std::cout << " before emplace" << std::endl;
+
     // Insert client
     auto result = _clients.emplace(sock, c);
     if (result.second)
         std::cout << "[DEBUG] Client successfully added." << std::endl;
     else
         std::cerr << "[DEBUG] Failed to add client!" << std::endl;
+
+    std::cout << " after emplace" << std::endl;
 
     // Print map keys after insertion
     std::cout << "[DEBUG] Clients after insertion:";
@@ -50,6 +55,7 @@ void ClientManager::removeClient(int socket)
     {
         std::cout << "Removing client: " << it->second.getName() << " (socket " << socket << ")\n";
         _clients.erase(it);
+        close(socket);
     }
     else
     {

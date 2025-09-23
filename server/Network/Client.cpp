@@ -3,7 +3,6 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 Client::Client(const std::string &clientName, int socketFd) : _socketFd(socketFd), _name(clientName)
 {
@@ -11,7 +10,6 @@ Client::Client(const std::string &clientName, int socketFd) : _socketFd(socketFd
 
 Client::~Client()
 {
-    close(_socketFd);
 }
 
 void Client::sendMessage(const std::string &msg)

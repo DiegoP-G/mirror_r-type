@@ -11,7 +11,7 @@ class NetworkManager
 {
   private:
     ClientManager _clientManager;
-    UDPManager _UDPManager;
+    // UDPManager _UDPManager;
     TCPManager _TCPManager;
 
   public:

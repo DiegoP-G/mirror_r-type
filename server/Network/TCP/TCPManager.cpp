@@ -2,8 +2,11 @@
 #include "../../transferData/transferData.hpp"
 #include "../Client.hpp"
 #include "../NetworkManager.hpp"
+#include <cstddef>
 #include <iostream>
 #include <stdexcept>
+#include <string>
+#include <sys/poll.h>
 
 TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
 {
@@ -15,12 +18,11 @@ TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
     if (setsockopt(_listenFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
         throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
 
-    sockaddr_in addr{};
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(SERVER_PORT);
+    _addr.sin_family = AF_INET;
+    _addr.sin_addr.s_addr = INADDR_ANY;
+    _addr.sin_port = htons(SERVER_PORT);
 
-    if (bind(_listenFd, (sockaddr *)&addr, sizeof(addr)) < 0)
+    if (bind(_listenFd, (sockaddr *)&_addr, sizeof(_addr)) < 0)
         throw std::runtime_error("TCP bind failed");
     if (listen(_listenFd, 16) < 0)
         throw std::runtime_error("TCP listen failed");
@@ -33,6 +35,44 @@ TCPManager::~TCPManager()
     close(_listenFd);
 }
 
+void TCPManager::acceptConnection()
+{
+    int addrlen = sizeof(_addr);
+
+    int cfd = accept(_listenFd, (struct sockaddr *)&_addr, (socklen_t *)&addrlen);
+    if (cfd < 0)
+    {
+        perror("accept failed");
+    }
+    else
+    {
+        _pollFds.push_back({cfd, POLLIN, 0});
+        _networkManagerRef.getClientManager().addClient(Client("caca", cfd));
+        std::cout << "[TCP] New client " << cfd << "\n";
+    }
+}
+
+void TCPManager::handlePollin(size_t &i, pollfd &pfd)
+{
+    if (pfd.revents & POLLIN)
+    {
+        auto [opcode, payload] =
+            receiveFrameTCP(pfd.fd, _networkManagerRef.getClientManager().getClientsMap()[pfd.fd].getBuffer());
+
+        if (payload.size() <= 0)
+        {
+            std::cout << "[TCP] Client " << pfd.fd << " disconnected\n";
+            _networkManagerRef.getClientManager().removeClient(pfd.fd);
+            _pollFds.erase(_pollFds.begin() + i);
+            --i;
+        }
+        else
+        {
+            std::cout << "[TCP] Received: " << payload << "\n";
+        }
+    }
+}
+
 void TCPManager::update()
 {
     int ret = poll(_pollFds.data(), _pollFds.size(), 100);
@@ -41,41 +81,15 @@ void TCPManager::update()
 
     for (size_t i = 0; i < _pollFds.size(); i++)
     {
-        auto &pfd = _pollFds[i];
+        pollfd &pfd = _pollFds[i];
 
         if (pfd.fd == _listenFd && (pfd.revents & POLLIN))
         {
-            int cfd = accept(_listenFd, nullptr, nullptr);
-            if (cfd >= 0)
-            {
-                _pollFds.push_back({cfd, POLLIN, 0});
-                Client newClient = Client("caca", cfd);
-                _networkManagerRef.getClientManager().addClient(newClient);
-                std::cout << "[TCP] New client " << cfd << "\n";
-            }
+            acceptConnection();
         }
         else if (pfd.fd != _listenFd)
         {
-            if (pfd.revents & POLLIN)
-            {
-
-                std::cout << "here" << std::endl;
-                // auto [opcode, payload] =
-                //     receiveFrameTCP(pfd.fd,
-                //     _networkManagerRef.getClientManager().getClientsMap()[pfd.fd].getBuffer());
-
-                // if (payload.size() <= 0)
-                // {
-                // std::cout << "[TCP] Client " << pfd.fd << " disconnected\n";
-                // _networkManagerRef.getClientManager().removeClient(pfd.fd);
-                // _pollFds.erase(_pollFds.begin() + i);
-                // --i;
-                // }
-                // else
-                // {
-                //     std::cout << "[TCP] Received: " << payload << "\n";
-                // }
-            }
+            handlePollin(i, pfd);
         }
     }
 }

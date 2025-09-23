@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-NetworkManager::NetworkManager() : _UDPManager(*this), _TCPManager(*this)
+NetworkManager::NetworkManager() : _TCPManager(*this)
 {
 }
 

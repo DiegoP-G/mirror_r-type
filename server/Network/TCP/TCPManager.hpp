@@ -1,6 +1,7 @@
 #pragma once
 
 #include <arpa/inet.h>
+#include <cstddef>
 #include <netinet/in.h>
 #include <poll.h>
 #include <string>
@@ -16,10 +17,13 @@ class TCPManager
     int _listenFd;
     std::vector<pollfd> _pollFds;
     NetworkManager &_networkManagerRef;
+    struct sockaddr_in _addr;
 
   public:
     TCPManager(NetworkManager &ref);
     ~TCPManager();
     void update();
     void sendToClient(int fd, const std::string &msg);
+    void acceptConnection();
+    void handlePollin(size_t &i, pollfd &pfd);
 };
