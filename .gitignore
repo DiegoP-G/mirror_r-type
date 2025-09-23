@@ -1,5 +1,7 @@
 # ;p
-.vscode
-build
-client_app
-bin
+*.o
+*.vscode
+server_exemple
+server_exemple_UDP
+client_exemple
+client_exemple_UDP
