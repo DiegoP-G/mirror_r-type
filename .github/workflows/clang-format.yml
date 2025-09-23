@@ -25,5 +25,5 @@ jobs:
           FILES=$(git ls-files '*.[ch]pp' '*.[ch]')
           echo "Checking files: $FILES"
           for file in $FILES; do
-            clang-format --dry-run --Werror "$file"
+            clang-format --style=Microsoft --dry-run --Werror "$file"
           done
