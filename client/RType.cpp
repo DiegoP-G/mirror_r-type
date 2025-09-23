@@ -238,9 +238,9 @@ public:
   }
 };
 
-int main()
-{
-  RTypeGame game;
-  game.run();
-  return 0;
-}
+// int main()
+// {
+//   RTypeGame game;
+//   game.run();
+//   return 0;
+// }
