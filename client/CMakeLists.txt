@@ -8,23 +8,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(
     ${CMAKE_SOURCE_DIR}          # For headers in root
     ${CMAKE_SOURCE_DIR}/Network  # Network headers
+	${CMAKE_SOURCE_DIR}/../transferData
 )
 
 # Source files (exclude RType.cpp and GraphicsManager*)
-set(SOURCES
-    main.cpp
-    ClientGame.cpp
-    ClientGame.hpp
-    assetsPath.hpp
-    Network/NetworkManager.cpp
-    Network/NetworkManager.hpp
-    Network/Receiver.cpp
-    Network/Receiver.hpp
-    Network/Sender.cpp
-    Network/Sender.hpp
-    NetworkECSMediator.cpp
-    NetworkECSMediator.hpp
-    Graphics                      # Optional if you have .cpp inside, otherwise remove
+file(GLOB_RECURSE SOURCES
+    "${CMAKE_SOURCE_DIR}/*.cpp"
+    "${CMAKE_SOURCE_DIR}/*.hpp"
 )
 
 # Add executable
