@@ -1,4 +1,5 @@
 #include "ClientManager.hpp"
+#include "Client.hpp"
 #include <iostream>
 #include <unistd.h>
 
@@ -77,6 +78,25 @@ Client *ClientManager::getClient(int socket)
     if (it != _clients.end())
     {
         return &(it->second);
+    }
+    return nullptr;
+}
+
+Client *ClientManager::getClientByCodeUDP(int code)
+{
+    for (auto &c : _clients)
+    {
+        if (c.second.getCodeUDP() == code)
+            return &(c.second);
+    }
+    return nullptr;
+}
+Client *ClientManager::getClientByAdress(std::string adress)
+{
+    for (auto &c : _clients)
+    {
+        if (c.second.getAdress() == adress)
+            return &(c.second);
     }
     return nullptr;
 }

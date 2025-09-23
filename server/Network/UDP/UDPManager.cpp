@@ -1,6 +1,10 @@
 #include "UDPManager.hpp"
+#include "../../transferData/opcode.hpp"
+#include "../../transferData/transferData.hpp"
 #include "../NetworkManager.hpp"
+#include <cstddef>
 #include <stdexcept>
+#include <string>
 
 UDPManager::UDPManager(NetworkManager &ref) : _NetworkManagerRef(ref)
 {
@@ -34,17 +38,28 @@ void UDPManager::update()
     {
         if (pfd.revents & POLLIN)
         {
-            char buf[1024];
             sockaddr_in client{};
             socklen_t len = sizeof(client);
-            //       receiveFrameUDP(_udpFd, client, len);
-            ssize_t n = recvfrom(_udpFd, buf, sizeof(buf), 0, (sockaddr *)&client, &len);
-            if (n > 0)
+            auto [opcode, payload] = receiveFrameUDP(_udpFd, client, len);
+
+            if (opcode == OPCODE_UDP_AUTH)
             {
-                std::string msg(buf, n);
-                //            std::cout << "[UDP] From " << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port)
-                //            << " -> "
-                //                    << msg << "\n";
+                std::cout << "[UDP] Received OPCODE_UDP_AUTH : " << deserializeInt(payload)
+                          << " from: " << client.sin_addr.s_addr << "\n";
+                Client *c = _NetworkManagerRef.getClientManager().getClientByCodeUDP(deserializeInt(payload));
+                if (c != nullptr)
+                {
+                    c->setAdress(std::to_string(client.sin_addr.s_addr));
+                }
+            }
+            else
+            {
+                Client *c =
+                    _NetworkManagerRef.getClientManager().getClientByAdress((std::to_string(client.sin_addr.s_addr)));
+                if (c != nullptr)
+                    std::cout << "[UDP] Received : " << (payload) << " from: " << c->getName() << "\n";
+                else
+                    std::cout << "[UDP] Received : " << (payload) << " from: " << client.sin_addr.s_addr << "\n";
             }
         }
     }

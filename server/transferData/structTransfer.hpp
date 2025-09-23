@@ -1,15 +1,8 @@
 #ifndef STRUCTTRANFERT_HPP_
 #define STRUCTTRANFERT_HPP_
 #include <arpa/inet.h>
-#include <cstring>
 #include <iostream>
-#include <sstream>
 #include <unistd.h>
-#include <vector>
-
-#define OPCODE_CONNECTION_SUCCESSFUL 0x00 // Sent by server when connection is established
-#define OPCODE_CLOSE_CONNECTION 0x01      // Close connection with sender
-#define OPCODE_INCOMPLETE_DATA 0x02       // Incomplete data was
 
 #define OPCODE_SHIP_INFO 0x03 // Sent by server give ship info
 

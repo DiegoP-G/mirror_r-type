@@ -1,4 +1,5 @@
 #include "TCPManager.hpp"
+#include "../../transferData/opcode.hpp"
 #include "../../transferData/transferData.hpp"
 #include "../Client.hpp"
 #include "../NetworkManager.hpp"
@@ -49,6 +50,11 @@ void TCPManager::acceptConnection()
         _pollFds.push_back({cfd, POLLIN, 0});
         _networkManagerRef.getClientManager().addClient(Client("caca", cfd));
         std::cout << "[TCP] New client " << cfd << "\n";
+        int code_udp = rand();
+        _networkManagerRef.getClientManager().getClient(cfd)->setCodeUDP(code_udp);
+        std::cout << "[TCP] TCP sent UDP code: " << std::to_string(code_udp) << "to caca \n";
+
+        sendFrameTCP(cfd, OPCODE_CODE_UDP, serializeInt(code_udp));
     }
 }
 
@@ -59,7 +65,7 @@ void TCPManager::handlePollin(size_t &i, pollfd &pfd)
         auto [opcode, payload] =
             receiveFrameTCP(pfd.fd, _networkManagerRef.getClientManager().getClientsMap()[pfd.fd].getBuffer());
 
-        if (payload.size() <= 0)
+        if (opcode == OPCODE_CLOSE_CONNECTION)
         {
             std::cout << "[TCP] Client " << pfd.fd << " disconnected\n";
             _networkManagerRef.getClientManager().removeClient(pfd.fd);

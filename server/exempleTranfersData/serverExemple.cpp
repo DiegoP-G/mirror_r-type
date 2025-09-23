@@ -2,17 +2,14 @@
 #include "../transferData/structTransfer.hpp"
 #include "../transferData/transferData.hpp"
 #include <arpa/inet.h>
+#include <sstream>
 
 #define PORT 8080
 
 int main()
 {
     int server_fd, new_socket;
-    struct sockaddr_in struct sockaddr_in address;
-    int addrlen = sizeof(address);
-    sockaddr_in address;
-    int addrlen = sizeof(address);
-    ess;
+    struct sockaddr_in address;
     int addrlen = sizeof(address);
 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)

@@ -1,9 +1,10 @@
 #include "transferData.hpp"
-#include "structTransfer.hpp"
+#include "opcode.hpp"
 #include <cstring>
 #include <sys/socket.h>
 #include <tuple>
 #include <unistd.h>
+#include <vector>
 
 void sendFrameTCP(int socket, uint8_t opcode, const std::string &payload)
 {

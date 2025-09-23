@@ -15,5 +15,8 @@ class ClientManager
     void removeClient(int socket);
     void broadcast(const std::string &message);
     Client *getClient(int socket);
+    Client *getClientByCodeUDP(int code);
+    Client *getClientByAdress(std::string adress);
+
     std::unordered_map<int, Client> &getClientsMap();
 };

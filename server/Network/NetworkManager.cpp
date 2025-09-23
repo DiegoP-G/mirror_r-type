@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-NetworkManager::NetworkManager() : _TCPManager(*this)
+NetworkManager::NetworkManager() : _UDPManager(*this), _TCPManager(*this)
 {
 }
 
@@ -17,6 +17,6 @@ NetworkManager::~NetworkManager()
 
 void NetworkManager::updateAllPoll()
 {
-    // _UDPManager.update();
+    _UDPManager.update();
     _TCPManager.update();
 }
