@@ -15,6 +15,8 @@ private:
     int _udpSocket;
     std::vector<struct pollfd> _pollFds;
 
+    sockaddr_in _serverAddr;
+
 public:
     NetworkManager();
     ~NetworkManager();

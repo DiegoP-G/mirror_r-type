@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include <iostream>
+#include <string>
 #include <unistd.h>
 
 NetworkManager::NetworkManager() : _tcpSocket(-1), _udpSocket(-1)
@@ -20,10 +21,10 @@ NetworkManager::~NetworkManager()
 
 bool NetworkManager::setup(const char *serverIp, int port)
 {
-    sockaddr_in serverAddr{};
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(port);
-    if (inet_pton(AF_INET, serverIp, &serverAddr.sin_addr) <= 0)
+    _serverAddr = {};
+    _serverAddr.sin_family = AF_INET;
+    _serverAddr.sin_port = htons(port);
+    if (inet_pton(AF_INET, serverIp, &_serverAddr.sin_addr) <= 0)
     {
         perror("inet_pton");
         return false;
@@ -36,7 +37,7 @@ bool NetworkManager::setup(const char *serverIp, int port)
         return false;
     }
 
-    if (connect(_tcpSocket, (sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
+    if (connect(_tcpSocket, (sockaddr *)&_serverAddr, sizeof(_serverAddr)) < 0)
     {
         perror("TCP connect");
         return false;
@@ -49,7 +50,7 @@ bool NetworkManager::setup(const char *serverIp, int port)
         return false;
     }
 
-    if (connect(_udpSocket, (sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
+    if (connect(_udpSocket, (sockaddr *)&_serverAddr, sizeof(_serverAddr)) < 0)
     {
         perror("UDP connect");
         return false;
@@ -89,9 +90,13 @@ void NetworkManager::loop()
                 {
                     std::string buffer;
                     auto [opcode, paylod] = receiveFrameTCP(_tcpSocket, buffer);
-                    std::cout << "message tcp: " << buffer << std::endl;
+                    std::cout << "message tcp: " << std::to_string(opcode) << " | " << paylod << std::endl;
+                    if (opcode == OPCODE_CODE_UDP) {
+                        std::cout << "code: " << std::to_string(deserializeInt(paylod)) << std::endl;
+                    }
+                    sendFrameUDP(_udpSocket, OPCODE_UDP_AUTH, paylod, _serverAddr, sizeof(_serverAddr));
+                    sendFrameUDP(_udpSocket, 25, "hello", _serverAddr, sizeof(_serverAddr));
                     // _receiver.handleTCP(buffer, n);
-
                     if (opcode == OPCODE_CLOSE_CONNECTION)
                     {
                         std::cerr << "Server closed TCP connection" << std::endl;
