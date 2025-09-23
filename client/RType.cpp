@@ -93,125 +93,127 @@ public:
 
       if (event.type == sf::Event::KeyPressed ||
           event.type == sf::Event::KeyReleased) {
-        bool isPressed = (event.type == sf::Event::KeyPressed);
-        if (player && player->hasComponent<InputComponent>()) {
-          auto &input = player->getComponent<InputComponent>();
-          switch (event.key.code) {
-          case sf::Keyboard::Up:
-            input.up = isPressed;
-            break;
-          case sf::Keyboard::Down:
-            input.down = isPressed;
-            break;
-          case sf::Keyboard::Left:
-            input.left = isPressed;
-            break;
-          case sf::Keyboard::Right:
-            input.right = isPressed;
-            break;
-          case sf::Keyboard::Space:
-            input.fire = isPressed;
-            break;
-          default:
-            break;
+        if (event.type == sf::Event::KeyPressed ||
+            event.type == sf::Event::KeyReleased) {
+          bool isPressed = (event.type == sf::Event::KeyPressed);
+          if (player && player->hasComponent<InputComponent>()) {
+            auto &input = player->getComponent<InputComponent>();
+            switch (event.key.code) {
+            case sf::Keyboard::Up:
+              input.up = isPressed;
+              break;
+            case sf::Keyboard::Down:
+              input.down = isPressed;
+              break;
+            case sf::Keyboard::Left:
+              input.left = isPressed;
+              break;
+            case sf::Keyboard::Right:
+              input.right = isPressed;
+              break;
+            case sf::Keyboard::Space:
+              input.fire = isPressed;
+              break;
+            default:
+              break;
+            }
           }
         }
       }
     }
-  }
 
-  void update(float deltaTime) {
-    if (gameOver)
-      return;
+    void update(float deltaTime) {
+      if (gameOver)
+        return;
 
-    // Update systems
-    gameLogicSystem.update(entityManager, deltaTime);
-    movementSystem.update(entityManager, deltaTime);
-    playerSystem.update(entityManager, deltaTime);
-    inputSystem.update(entityManager, deltaTime);
-    boundarySystem.update(entityManager, deltaTime);
-    cleanupSystem.update(entityManager, deltaTime);
-    enemySystem.update(entityManager, deltaTime);
-    collisionSystem.update(entityManager);
-    laserWarningSystem.update(entityManager, deltaTime);
-    // Check game over
-    if (player && !player->isActive()) {
-      gameOver = true;
-    }
-
-    entityManager.refresh();
-  }
-
-  void render() {
-    g_graphics->clear();
-
-    // Render all entities
-    renderSystem.update(entityManager);
-
-    if (gameOver) {
-      g_graphics->drawText("Game Over! Press SPACE to restart", 250, 250);
-    }
-
-    std::string scoreText = "Score: " + std::to_string(score);
-    g_graphics->drawText(scoreText, 10, 10);
-
-    g_graphics->present();
-  }
-
-  void restart() {
-    entityManager = EntityManager();
-
-    score = 0;
-    gameOver = false;
-
-    createPlayer();
-  }
-
-  void cleanup() {
-    if (g_graphics) {
-      delete g_graphics;
-      g_graphics = nullptr;
-    }
-  }
-
-  void run() {
-    if (!init()) {
-      return;
-    }
-
-    const float TARGET_FPS = 60.0f;
-    const float FRAME_TIME = 1.0f / TARGET_FPS;
-
-    sf::Clock clock;
-    float accumulator = 0.0f;
-
-    while (running) {
-      float deltaTime = clock.restart().asSeconds();
-
-      // Cap delta time to prevent large jumps
-      if (deltaTime > 0.05f) {
-        deltaTime = 0.05f;
+      // Update systems
+      gameLogicSystem.update(entityManager, deltaTime);
+      movementSystem.update(entityManager, deltaTime);
+      playerSystem.update(entityManager, deltaTime);
+      inputSystem.update(entityManager, deltaTime);
+      boundarySystem.update(entityManager, deltaTime);
+      cleanupSystem.update(entityManager, deltaTime);
+      enemySystem.update(entityManager, deltaTime);
+      collisionSystem.update(entityManager);
+      laserWarningSystem.update(entityManager, deltaTime);
+      // Check game over
+      if (player && !player->isActive()) {
+        gameOver = true;
       }
 
-      accumulator += deltaTime;
-
-      handleEvents();
-
-      // Fixed timestep update
-      while (accumulator >= FRAME_TIME) {
-        update(FRAME_TIME);
-        accumulator -= FRAME_TIME;
-      }
-
-      render();
+      entityManager.refresh();
     }
 
-    cleanup();
-  }
-};
+    void render() {
+      g_graphics->clear();
 
-int main() {
-  RTypeGame game;
-  game.run();
-  return 0;
-}
+      // Render all entities
+      renderSystem.update(entityManager);
+
+      if (gameOver) {
+        g_graphics->drawText("Game Over! Press SPACE to restart", 250, 250);
+      }
+
+      std::string scoreText = "Score: " + std::to_string(score);
+      g_graphics->drawText(scoreText, 10, 10);
+
+      g_graphics->present();
+    }
+
+    void restart() {
+      entityManager = EntityManager();
+
+      score = 0;
+      gameOver = false;
+
+      createPlayer();
+    }
+
+    void cleanup() {
+      if (g_graphics) {
+        delete g_graphics;
+        g_graphics = nullptr;
+      }
+    }
+
+    void run() {
+      if (!init()) {
+        return;
+      }
+
+      const float TARGET_FPS = 60.0f;
+      const float FRAME_TIME = 1.0f / TARGET_FPS;
+
+      sf::Clock clock;
+      float accumulator = 0.0f;
+
+      while (running) {
+        float deltaTime = clock.restart().asSeconds();
+
+        // Cap delta time to prevent large jumps
+        if (deltaTime > 0.05f) {
+          deltaTime = 0.05f;
+        }
+
+        accumulator += deltaTime;
+
+        handleEvents();
+
+        // Fixed timestep update
+        while (accumulator >= FRAME_TIME) {
+          update(FRAME_TIME);
+          accumulator -= FRAME_TIME;
+        }
+
+        render();
+      }
+
+      cleanup();
+    }
+  };
+
+  int main() {
+    RTypeGame game;
+    game.run();
+    return 0;
+  }
