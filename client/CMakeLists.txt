@@ -18,6 +18,7 @@ file(GLOB_RECURSE SOURCES
 	"${CMAKE_SOURCE_DIR}/../transferData/*.cpp"
 )
 
+list(FILTER SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
 # # Exclude unwanted files
 # list(FILTER SOURCES EXCLUDE REGEX ".*RType\\.cpp")
 # list(FILTER SOURCES EXCLUDE REGEX ".*GraphicsManager.*\\.cpp")
