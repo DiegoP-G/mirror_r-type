@@ -4,8 +4,8 @@
 #include <tuple>
 #include <unistd.h>
 
-#include "../transferData/structTransfer.hpp"
-#include "../transferData/transferData.hpp"
+#include "../../transferData/structTransfer.hpp"
+#include "../../transferData/transferData.hpp"
 
 #define SERVER_PORT 8081
 

@@ -15,7 +15,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Game
     ${CMAKE_SOURCE_DIR}/Mediator
     ${CMAKE_SOURCE_DIR}/Network
-    ${CMAKE_SOURCE_DIR}/transferData
+    ${CMAKE_SOURCE_DIR}/../transferData
 )
 
 # ----------------------
@@ -28,7 +28,7 @@ file(GLOB_RECURSE SOURCES
     ${CMAKE_SOURCE_DIR}/Network/*.cpp
     ${CMAKE_SOURCE_DIR}/Network/TCP/*.cpp
     ${CMAKE_SOURCE_DIR}/Network/UDP/*.cpp
-    ${CMAKE_SOURCE_DIR}/transferData/*.cpp
+    ${CMAKE_SOURCE_DIR}/../transferData/*.cpp
 )
 
 # Exclude example files

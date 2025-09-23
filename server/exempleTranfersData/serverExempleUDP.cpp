@@ -1,5 +1,5 @@
-#include "../transferData/structTransfer.hpp"
-#include "../transferData/transferData.hpp"
+#include "../../transferData/structTransfer.hpp"
+#include "../../transferData/transferData.hpp"
 #include <arpa/inet.h>
 #include <iostream>
 #include <sstream>
