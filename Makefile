@@ -213,6 +213,30 @@ clean_verbose/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/clean_verbose.dir/build.make CMakeFiles/clean_verbose.dir/build
 .PHONY : clean_verbose/fast
 
+client/GraphicsManager.o: client/GraphicsManager.cpp.o
+.PHONY : client/GraphicsManager.o
+
+# target to build an object file
+client/GraphicsManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.o
+.PHONY : client/GraphicsManager.cpp.o
+
+client/GraphicsManager.i: client/GraphicsManager.cpp.i
+.PHONY : client/GraphicsManager.i
+
+# target to preprocess a source file
+client/GraphicsManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.i
+.PHONY : client/GraphicsManager.cpp.i
+
+client/GraphicsManager.s: client/GraphicsManager.cpp.s
+.PHONY : client/GraphicsManager.s
+
+# target to generate assembly for a file
+client/GraphicsManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.s
+.PHONY : client/GraphicsManager.cpp.s
+
 client/RType.o: client/RType.cpp.o
 .PHONY : client/RType.o
 
@@ -237,30 +261,6 @@ client/RType.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/client/RType.cpp.s
 .PHONY : client/RType.cpp.s
 
-game/graphics.o: game/graphics.cpp.o
-.PHONY : game/graphics.o
-
-# target to build an object file
-game/graphics.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/game/graphics.cpp.o
-.PHONY : game/graphics.cpp.o
-
-game/graphics.i: game/graphics.cpp.i
-.PHONY : game/graphics.i
-
-# target to preprocess a source file
-game/graphics.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/game/graphics.cpp.i
-.PHONY : game/graphics.cpp.i
-
-game/graphics.s: game/graphics.cpp.s
-.PHONY : game/graphics.s
-
-# target to generate assembly for a file
-game/graphics.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rtype_client.dir/build.make CMakeFiles/rtype_client.dir/game/graphics.cpp.s
-.PHONY : game/graphics.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -277,12 +277,12 @@ help:
 	@echo "... fclean"
 	@echo "... re"
 	@echo "... rtype_client"
+	@echo "... client/GraphicsManager.o"
+	@echo "... client/GraphicsManager.i"
+	@echo "... client/GraphicsManager.s"
 	@echo "... client/RType.o"
 	@echo "... client/RType.i"
 	@echo "... client/RType.s"
-	@echo "... game/graphics.o"
-	@echo "... game/graphics.i"
-	@echo "... game/graphics.s"
 .PHONY : help
 
 

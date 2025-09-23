@@ -83,31 +83,34 @@ CMakeFiles/rtype_client.dir/client/RType.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/rtype_client.dir/client/RType.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/alexiss/delivery/tek3/r-type/mirror_r-type/client/RType.cpp -o CMakeFiles/rtype_client.dir/client/RType.cpp.s
 
-CMakeFiles/rtype_client.dir/game/graphics.cpp.o: CMakeFiles/rtype_client.dir/flags.make
-CMakeFiles/rtype_client.dir/game/graphics.cpp.o: game/graphics.cpp
-CMakeFiles/rtype_client.dir/game/graphics.cpp.o: CMakeFiles/rtype_client.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/alexiss/delivery/tek3/r-type/mirror_r-type/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/rtype_client.dir/game/graphics.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/rtype_client.dir/game/graphics.cpp.o -MF CMakeFiles/rtype_client.dir/game/graphics.cpp.o.d -o CMakeFiles/rtype_client.dir/game/graphics.cpp.o -c /home/alexiss/delivery/tek3/r-type/mirror_r-type/game/graphics.cpp
+CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.o: CMakeFiles/rtype_client.dir/flags.make
+CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.o: client/GraphicsManager.cpp
+CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.o: CMakeFiles/rtype_client.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/alexiss/delivery/tek3/r-type/mirror_r-type/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.o -MF CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.o.d -o CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.o -c /home/alexiss/delivery/tek3/r-type/mirror_r-type/client/GraphicsManager.cpp
 
-CMakeFiles/rtype_client.dir/game/graphics.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/rtype_client.dir/game/graphics.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/alexiss/delivery/tek3/r-type/mirror_r-type/game/graphics.cpp > CMakeFiles/rtype_client.dir/game/graphics.cpp.i
+CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/alexiss/delivery/tek3/r-type/mirror_r-type/client/GraphicsManager.cpp > CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.i
 
-CMakeFiles/rtype_client.dir/game/graphics.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/rtype_client.dir/game/graphics.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/alexiss/delivery/tek3/r-type/mirror_r-type/game/graphics.cpp -o CMakeFiles/rtype_client.dir/game/graphics.cpp.s
+CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/alexiss/delivery/tek3/r-type/mirror_r-type/client/GraphicsManager.cpp -o CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.s
 
 # Object files for target rtype_client
 rtype_client_OBJECTS = \
 "CMakeFiles/rtype_client.dir/client/RType.cpp.o" \
-"CMakeFiles/rtype_client.dir/game/graphics.cpp.o"
+"CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.o"
 
 # External object files for target rtype_client
 rtype_client_EXTERNAL_OBJECTS =
 
 bin/rtype_client: CMakeFiles/rtype_client.dir/client/RType.cpp.o
-bin/rtype_client: CMakeFiles/rtype_client.dir/game/graphics.cpp.o
+bin/rtype_client: CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.o
 bin/rtype_client: CMakeFiles/rtype_client.dir/build.make
+bin/rtype_client: /usr/lib64/libsfml-graphics.so.2.6.2
+bin/rtype_client: /usr/lib64/libsfml-window.so.2.6.2
+bin/rtype_client: /usr/lib64/libsfml-system.so.2.6.2
 bin/rtype_client: CMakeFiles/rtype_client.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/alexiss/delivery/tek3/r-type/mirror_r-type/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable bin/rtype_client"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/rtype_client.dir/link.txt --verbose=$(VERBOSE)

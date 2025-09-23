@@ -8,8 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/home/alexiss/delivery/tek3/r-type/mirror_r-type/client/GraphicsManager.cpp" "CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.o" "gcc" "CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.o.d"
   "/home/alexiss/delivery/tek3/r-type/mirror_r-type/client/RType.cpp" "CMakeFiles/rtype_client.dir/client/RType.cpp.o" "gcc" "CMakeFiles/rtype_client.dir/client/RType.cpp.o.d"
-  "/home/alexiss/delivery/tek3/r-type/mirror_r-type/game/graphics.cpp" "CMakeFiles/rtype_client.dir/game/graphics.cpp.o" "gcc" "CMakeFiles/rtype_client.dir/game/graphics.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

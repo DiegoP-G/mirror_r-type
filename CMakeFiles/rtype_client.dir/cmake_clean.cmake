@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.o"
+  "CMakeFiles/rtype_client.dir/client/GraphicsManager.cpp.o.d"
   "CMakeFiles/rtype_client.dir/client/RType.cpp.o"
   "CMakeFiles/rtype_client.dir/client/RType.cpp.o.d"
-  "CMakeFiles/rtype_client.dir/game/graphics.cpp.o"
-  "CMakeFiles/rtype_client.dir/game/graphics.cpp.o.d"
   "bin/rtype_client"
   "bin/rtype_client.pdb"
 )

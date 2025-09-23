@@ -218,6 +218,12 @@ RType_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 RType_SOURCE_DIR:STATIC=/home/alexiss/delivery/tek3/r-type/mirror_r-type
 
+//The directory containing a CMake configuration file for SFML.
+SFML_DIR:PATH=/usr/lib64/cmake/SFML
+
+//Path to a file.
+SFML_DOC_DIR:PATH=/usr/share/doc/SFML
+
 //Path to a library.
 pkgcfg_lib_SDL2_IMAGE_SDL2:FILEPATH=/usr/lib64/libSDL2.so
 
