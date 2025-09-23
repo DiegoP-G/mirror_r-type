@@ -2,8 +2,8 @@
 #include "../client/GraphicsManager.hpp"
 #include "components.hpp"
 #include "ecs.hpp"
-#include <random>
 #include <cmath>
+#include <random>
 
 // System for movement
 class MovementSystem {
@@ -21,228 +21,245 @@ public:
   }
 };
 
+Vector2D getActualPosition(Entity *entity) {
+  auto &transform = entity->getComponent<TransformComponent>();
+  Vector2D position = transform.position;
 
-Vector2D getActualPosition(Entity* entity) {
-    auto& transform = entity->getComponent<TransformComponent>();
-    Vector2D position = transform.position;
-    
-    // Utiliser hasComponent au lieu d'un try-catch
-    if (entity->hasComponent<CenteredComponent>()) {
-        auto& centered = entity->getComponent<CenteredComponent>();
-        position.x -= centered.offsetX;
-        position.y -= centered.offsetY;
-    }
-    
-    return position;
+  // Utiliser hasComponent au lieu d'un try-catch
+  if (entity->hasComponent<CenteredComponent>()) {
+    auto &centered = entity->getComponent<CenteredComponent>();
+    position.x -= centered.offsetX;
+    position.y -= centered.offsetY;
+  }
+
+  return position;
 }
 
 // System for rendering
 class RenderSystem {
 public:
   void update(EntityManager &entityManager) {
-    if (!g_graphics) return;
+    if (!g_graphics)
+      return;
 
-    auto entities = entityManager.getEntitiesWithComponents<TransformComponent, SpriteComponent>();
+    auto entities =
+        entityManager
+            .getEntitiesWithComponents<TransformComponent, SpriteComponent>();
 
     for (auto &entity : entities) {
       auto &transform = entity->getComponent<TransformComponent>();
+      Vector2D position = getActualPosition(entity);
+
+      if (entity->hasComponent<AnimatedSpriteComponent>()) {
+        auto &animatedSprite = entity->getComponent<AnimatedSpriteComponent>();
+        g_graphics->drawAnimatedSprite(animatedSprite, position.x, position.y);
+        continue;
+      }
+
       auto &sprite = entity->getComponent<SpriteComponent>();
 
-      if (!sprite.isVisible) continue;
-
-      Vector2D position = getActualPosition(entity);
+      if (!sprite.isVisible)
+        continue;
 
       // If we have a texture, use it; otherwise draw a colored rectangle
       if (sprite.texture) {
-        g_graphics->drawTexture(*sprite.texture, 
-                               static_cast<int>(position.x), 
-                               static_cast<int>(position.y),
-                               sprite.width, sprite.height);
+        g_graphics->drawTexture(*sprite.texture, position.x, position.y,
+                                sprite.width, sprite.height);
       } else {
         // Draw colored rectangle
-        g_graphics->drawRect(static_cast<int>(position.x), 
-                           static_cast<int>(position.y),
-                           sprite.width, sprite.height,
-                           sprite.r, sprite.g, sprite.b, sprite.a);
+        g_graphics->drawRect(position.x, position.y, sprite.width,
+                             sprite.height, sprite.r, sprite.g, sprite.b,
+                             sprite.a);
       }
     }
   }
 };
 
-
 // System for game rules and logic
 class GameLogicSystem {
-    private:
-        float enemySpawnTimer = 0.0f;
-        const float ENEMY_SPAWN_INTERVAL = 2.0f;
-        const float ENEMY_SPEED = -200.0f;
-        std::mt19937 rng;
-        int score = 0;
-        int stageCount = 0; // 0 = normal, 1 = stage 1, 2 = stage 2, 3 = 1vs 1;
-        int stageStatus = 0; // 0 = not started, 1 = in progress, 2 = ended;
-    public:
-        GameLogicSystem() : rng(std::random_device{}()) {}
-
-        void update(EntityManager& entityManager, float deltaTime) {
-            // Spawn enemies
-            enemySpawnTimer += deltaTime;
-            // if (enemySpawnTimer >= ENEMY_SPAWN_INTERVAL) {
-            //     spawnEnemy(entityManager);
-            //     enemySpawnTimer = 0.0f;
-            // }   
-            if (stageStatus == 0) {
-                stageStatus = 1;
-                stageCount = 1;
-                // spawnLaser1(entityManager);
-                spawnEnemies(entityManager);
-            } else if (stageStatus == 1 && stageCount == 1) {
-                if (entityManager.getEntitiesWithComponents<LaserWarningComponent>().empty()) {
-                    stageStatus = 1;
-                    stageCount = 2;
-                }
-            }
-
-            updateScore(entityManager);
-            
-            checkGameOverConditions(entityManager);
-        }
-        
-        int getScore() const { return score; }
-        
 private:
-    void spawnLaser1(EntityManager& entityManager) {
-        for (size_t i = 0; i < 8 ; i++) {
-            float width = 900.0f;
-            float height = 50.0f;
-            float x = 450.0f;
-            float y = 0.0f;
-            float waitingTime = 0.0f;
-            if (i < 3) {
-                y = 100.0f + i % 3* 200;
-                waitingTime = 3.0f;
-            } else if (i < 6) {
-                y = 100.0f + i % 3 * 200;
-                waitingTime = 14.0f;
-            } else {
-                y = 200.0f + i % 3 * 200;
-                waitingTime = 8.5f;
-            }
+  float enemySpawnTimer = 0.0f;
+  const float ENEMY_SPAWN_INTERVAL = 2.0f;
+  const float ENEMY_SPEED = -200.0f;
+  std::mt19937 rng;
+  int score = 0;
+  int stageCount = 0;  // 0 = normal, 1 = stage 1, 2 = stage 2, 3 = 1vs 1;
+  int stageStatus = 0; // 0 = not started, 1 = in progress, 2 = ended;
+public:
+  GameLogicSystem() : rng(std::random_device{}()) {}
 
-            auto& laser = entityManager.createEntity();
-            laser.addComponent<TransformComponent>(width / 2, y); // Centered horizontally
-            laser.addComponent<CenteredComponent>(width / 2, height / 2); // Centered
-            laser.addComponent<SpriteComponent>(width, height, 255, 0, 0); // Full height
-            laser.addComponent<ColliderComponent>(width, height, false);
-            laser.addComponent<LaserWarningComponent>(width, height, waitingTime, 1.5f, 3.0f); // Warning for 2s, active for 3s
-        }
+  void update(EntityManager &entityManager, float deltaTime) {
+    // Spawn enemies
+    enemySpawnTimer += deltaTime;
+    // if (enemySpawnTimer >= ENEMY_SPAWN_INTERVAL) {
+    //     spawnEnemy(entityManager);
+    //     enemySpawnTimer = 0.0f;
+    // }
+    if (stageStatus == 0) {
+      stageStatus = 1;
+      stageCount = 1;
+      // spawnLaser1(entityManager);
+      spawnEnemies(entityManager);
+    } else if (stageStatus == 1 && stageCount == 1) {
+      if (entityManager.getEntitiesWithComponents<LaserWarningComponent>()
+              .empty()) {
+        stageStatus = 1;
+        stageCount = 2;
+      }
     }
 
-    void spawnEnemies(EntityManager& entityManager) {
-        // float enemyHeight = 20.0f;
-        float y;
-        for (size_t i = 0; i < 10; i++) {
-            y = 100 + i * 50;
+    updateScore(entityManager);
 
-            auto& enemy = entityManager.createEntity();
-            enemy.addComponent<TransformComponent>(700, y);
-            enemy.addComponent<VelocityComponent>(0.0f, 0.0f);
-            enemy.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
-            enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
-            enemy.addComponent<EnemyComponent>(1, 0.2f, 2); // Type 2 = Sine wave movement and 3 bullets
-        }
+    checkGameOverConditions(entityManager);
+  }
+
+  int getScore() const { return score; }
+
+private:
+  void spawnLaser1(EntityManager &entityManager) {
+    for (size_t i = 0; i < 8; i++) {
+      float width = 900.0f;
+      float height = 50.0f;
+      float x = 450.0f;
+      float y = 0.0f;
+      float waitingTime = 0.0f;
+      if (i < 3) {
+        y = 100.0f + i % 3 * 200;
+        waitingTime = 3.0f;
+      } else if (i < 6) {
+        y = 100.0f + i % 3 * 200;
+        waitingTime = 14.0f;
+      } else {
+        y = 200.0f + i % 3 * 200;
+        waitingTime = 8.5f;
+      }
+
+      auto &laser = entityManager.createEntity();
+      laser.addComponent<TransformComponent>(width / 2,
+                                             y); // Centered horizontally
+      laser.addComponent<CenteredComponent>(width / 2, height / 2); // Centered
+      laser.addComponent<SpriteComponent>(width, height, 255, 0,
+                                          0); // Full height
+      laser.addComponent<ColliderComponent>(width, height, false);
+      laser.addComponent<LaserWarningComponent>(
+          width, height, waitingTime, 1.5f,
+          3.0f); // Warning for 2s, active for 3s
     }
-    
-    void updateScore(EntityManager& entityManager) {
-        // Score logic here - e.g., increment score when enemy passes player
-        auto enemies = entityManager.getEntitiesWithComponents<EnemyComponent, TransformComponent>();
-        for (auto& enemy : enemies) {
-            auto& transform = enemy->getComponent<TransformComponent>();
-            auto& enemyComp = enemy->getComponent<EnemyComponent>();
-            
-            // If enemy passed player position and wasn't counted yet
-            // if (transform.position.x < 80.0f && !enemyComp.counted) {
-            //     enemyComp.counted = true;
-            //     score++;
-            // }
-        }
+  }
+
+  void spawnEnemies(EntityManager &entityManager) {
+    // float enemyHeight = 20.0f;
+    float y;
+    for (size_t i = 0; i < 10; i++) {
+      y = 100 + i * 50;
+
+      auto &enemy = entityManager.createEntity();
+      enemy.addComponent<TransformComponent>(700, y);
+      enemy.addComponent<VelocityComponent>(0.0f, 0.0f);
+      enemy.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
+      enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
+      enemy.addComponent<EnemyComponent>(
+          1, 0.2f, 2); // Type 2 = Sine wave movement and 3 bullets
     }
-    
-    void checkGameOverConditions(EntityManager& entityManager) {
-        // Additional game over logic here
+  }
+
+  void updateScore(EntityManager &entityManager) {
+    // Score logic here - e.g., increment score when enemy passes player
+    auto enemies =
+        entityManager
+            .getEntitiesWithComponents<EnemyComponent, TransformComponent>();
+    for (auto &enemy : enemies) {
+      auto &transform = enemy->getComponent<TransformComponent>();
+      auto &enemyComp = enemy->getComponent<EnemyComponent>();
+
+      // If enemy passed player position and wasn't counted yet
+      // if (transform.position.x < 80.0f && !enemyComp.counted) {
+      //     enemyComp.counted = true;
+      //     score++;
+      // }
     }
+  }
+
+  void checkGameOverConditions(EntityManager &entityManager) {
+    // Additional game over logic here
+  }
 };
 
 class LaserWarningSystem {
 public:
-    void update(EntityManager& entityManager, float deltaTime) {
-        auto entities = entityManager.getEntitiesWithComponents<LaserWarningComponent>();
-        for (auto& entity : entities) {
-            auto& laser = entity->getComponent<LaserWarningComponent>();
-            auto& sprite = entity->getComponent<SpriteComponent>();
-            if (!entity->hasComponent<TransformComponent>()) {
-                std::cerr << "Entity with LaserWarningComponent missing TransformComponent!" << std::endl;
-                continue; // Skip this entity if it doesn't have a TransformComponent
-            }
-            auto& transform = entity->getComponent<TransformComponent>();
-            if (laser.appearanceTime > 0.0f) {
-                laser.appearanceTime -= deltaTime;
-                sprite.isVisible = false;
-                continue; // Wait until appearance time is over
-            }
-            if (!laser.isActive) {
-                if (!laser.warningShown) {
-                    laser.warningShown = true;
-                    sprite.isVisible = true;
-                    sprite.r = 200; // Red color for warning
-                    sprite.g = 0;
-                    sprite.b = 0;
-                    sprite.height = laser.height / 4;
-                    transform.position.y += (laser.height - sprite.height) / 2;
-                    sprite.width = laser.width;
-                }
-                laser.warningTime -= deltaTime;
-                if (laser.warningTime <= 0.0f) {
-                    laser.isActive = true;
-                    if (entity->hasComponent<ColliderComponent>()) {
-                        auto& collider = entity->getComponent<ColliderComponent>();
-                        collider.isActive = true; // Enable collision when laser is active
-                    }
-                    sprite.r = 255;
-                    transform.position.y -= (laser.height - sprite.height) / 2;
-                    sprite.height = laser.height;
-                    
-                    // Activer le laser (collision, dégâts, sprite différent, etc.)
-                }
-            } else {
-                // Phase active
-                laser.activeTime -= deltaTime;
-                if (laser.activeTime <= 0.0f) {
-                    // Désactiver ou détruire le laser
-                    entity->destroy();
-                }
-            }
+  void update(EntityManager &entityManager, float deltaTime) {
+    auto entities =
+        entityManager.getEntitiesWithComponents<LaserWarningComponent>();
+    for (auto &entity : entities) {
+      auto &laser = entity->getComponent<LaserWarningComponent>();
+      auto &sprite = entity->getComponent<SpriteComponent>();
+      if (!entity->hasComponent<TransformComponent>()) {
+        std::cerr
+            << "Entity with LaserWarningComponent missing TransformComponent!"
+            << std::endl;
+        continue; // Skip this entity if it doesn't have a TransformComponent
+      }
+      auto &transform = entity->getComponent<TransformComponent>();
+      if (laser.appearanceTime > 0.0f) {
+        laser.appearanceTime -= deltaTime;
+        sprite.isVisible = false;
+        continue; // Wait until appearance time is over
+      }
+      if (!laser.isActive) {
+        if (!laser.warningShown) {
+          laser.warningShown = true;
+          sprite.isVisible = true;
+          sprite.r = 200; // Red color for warning
+          sprite.g = 0;
+          sprite.b = 0;
+          sprite.height = laser.height / 4;
+          transform.position.y += (laser.height - sprite.height) / 2;
+          sprite.width = laser.width;
         }
-    }
-};
+        laser.warningTime -= deltaTime;
+        if (laser.warningTime <= 0.0f) {
+          laser.isActive = true;
+          if (entity->hasComponent<ColliderComponent>()) {
+            auto &collider = entity->getComponent<ColliderComponent>();
+            collider.isActive = true; // Enable collision when laser is active
+          }
+          sprite.r = 255;
+          transform.position.y -= (laser.height - sprite.height) / 2;
+          sprite.height = laser.height;
 
+          // Activer le laser (collision, dégâts, sprite différent, etc.)
+        }
+      } else {
+        // Phase active
+        laser.activeTime -= deltaTime;
+        if (laser.activeTime <= 0.0f) {
+          // Désactiver ou détruire le laser
+          entity->destroy();
+        }
+      }
+    }
+  }
+};
 
 // System for collision detection
 class CollisionSystem {
 public:
-void update(EntityManager &entityManager) {
-    auto entities = entityManager.getEntitiesWithComponents<TransformComponent, ColliderComponent>();
+  void update(EntityManager &entityManager) {
+    auto entities =
+        entityManager
+            .getEntitiesWithComponents<TransformComponent, ColliderComponent>();
 
     for (size_t i = 0; i < entities.size(); i++) {
       if (!entities[i]->isActive())
         continue;
 
-        auto &collider1 = entities[i]->getComponent<ColliderComponent>();
-        if (!collider1.isActive)
-            continue;
-        
-        // Obtenir la position réelle avec le helper
+      auto &collider1 = entities[i]->getComponent<ColliderComponent>();
+      if (!collider1.isActive)
+        continue;
+
+      // Obtenir la position réelle avec le helper
       Vector2D position1 = getActualPosition(entities[i]);
-      
+
       // Mettre à jour la hitbox avec la position calculée
       collider1.hitbox.x = position1.x;
       collider1.hitbox.y = position1.y;
@@ -250,12 +267,12 @@ void update(EntityManager &entityManager) {
       for (size_t j = i + 1; j < entities.size(); j++) {
         if (!entities[j]->isActive())
           continue;
-          auto &collider2 = entities[j]->getComponent<ColliderComponent>();
-            if (!collider2.isActive)
-                continue;
+        auto &collider2 = entities[j]->getComponent<ColliderComponent>();
+        if (!collider2.isActive)
+          continue;
         // De même pour la deuxième entité
         Vector2D position2 = getActualPosition(entities[j]);
-        
+
         collider2.hitbox.x = position2.x;
         collider2.hitbox.y = position2.y;
 
@@ -270,7 +287,7 @@ void update(EntityManager &entityManager) {
 private:
   void handleCollision(Entity *a, Entity *b) {
     // std::cout << "Collision detected between Entity " << a->getID()
-            //   << " and Entity " << b->getID() << std::endl;
+    //   << " and Entity " << b->getID() << std::endl;
     // Check for laser collisions first
     bool aIsLaser = a->hasComponent<LaserWarningComponent>();
     bool bIsLaser = b->hasComponent<LaserWarningComponent>();
@@ -281,13 +298,13 @@ private:
     if ((aIsLaser && bIsPlayer) || (bIsLaser && aIsPlayer)) {
       Entity *laser = aIsLaser ? a : b;
       Entity *player = aIsPlayer ? a : b;
-      
+
       auto &laserComp = laser->getComponent<LaserWarningComponent>();
-      
+
       // Only damage if laser is active (not in warning phase)
       if (laserComp.isActive && laserComp.appearanceTime <= 0.0f) {
         std::cout << "Player hit by active laser!" << std::endl;
-        
+
         // Damage or destroy player
         if (player->hasComponent<HealthComponent>()) {
           auto &health = player->getComponent<HealthComponent>();
@@ -308,13 +325,13 @@ private:
     // Projectile hit laser (bullets can destroy warning lasers)
     bool aIsProjectile = a->hasComponent<ProjectileComponent>();
     bool bIsProjectile = b->hasComponent<ProjectileComponent>();
-    
+
     if ((aIsProjectile && bIsLaser) || (bIsProjectile && aIsLaser)) {
       Entity *projectile = aIsProjectile ? a : b;
       Entity *laser = aIsLaser ? a : b;
-      
+
       auto &laserComp = laser->getComponent<LaserWarningComponent>();
-      
+
       // Can only destroy laser if it's still in warning phase
       if (!laserComp.isActive && laserComp.warningShown) {
         std::cout << "Laser warning destroyed by projectile!" << std::endl;
@@ -380,11 +397,14 @@ private:
   }
 };
 
-// InputSystem - se contente de traduire les entrées en modifications de composants
+// InputSystem - se contente de traduire les entrées en modifications de
+// composants
 class InputSystem {
 public:
   void update(EntityManager &entityManager, float deltaTime) {
-    auto entities = entityManager.getEntitiesWithComponents<InputComponent, VelocityComponent>();
+    auto entities =
+        entityManager
+            .getEntitiesWithComponents<InputComponent, VelocityComponent>();
     for (auto &entity : entities) {
       auto &input = entity->getComponent<InputComponent>();
       auto &velocity = entity->getComponent<VelocityComponent>();
@@ -395,28 +415,46 @@ public:
 
       // Update velocity based on input
       const float PLAYER_SPEED = 200.0f;
-      if (input.up) velocity.velocity.y = -PLAYER_SPEED;
-      if (input.down) velocity.velocity.y = PLAYER_SPEED;
-      if (input.left) velocity.velocity.x = -PLAYER_SPEED;
-      if (input.right) velocity.velocity.x = PLAYER_SPEED;
+      if (input.up)
+        velocity.velocity.y = -PLAYER_SPEED;
+      if (input.down)
+        velocity.velocity.y = PLAYER_SPEED;
+      if (input.left)
+        velocity.velocity.x = -PLAYER_SPEED;
+      if (input.right)
+        velocity.velocity.x = PLAYER_SPEED;
     }
   }
 };
-
 
 // PlayerSystem - gère les comportements spécifiques au joueur
 class PlayerSystem {
 public:
   void update(EntityManager &entityManager, float deltaTime) {
-    auto entities = entityManager.getEntitiesWithComponents<InputComponent, PlayerComponent>();
+    auto entities =
+        entityManager
+            .getEntitiesWithComponents<InputComponent, PlayerComponent>();
     for (auto &entity : entities) {
       auto &input = entity->getComponent<InputComponent>();
-      
+
       // Fire a bullet when space is pressed
       if (input.fire) {
         fire(entityManager, entity);
         input.fire = false; // Reset fire input
       }
+
+      auto &animatedSprite = entity->getComponent<AnimatedSpriteComponent>();
+      // Determine direction based on input
+      AnimatedSpriteComponent::Direction direction =
+          AnimatedSpriteComponent::Default;
+      if (input.up) {
+        direction = AnimatedSpriteComponent::Up;
+      } else if (input.down) {
+        direction = AnimatedSpriteComponent::Down;
+      }
+
+      // Update animation based on direction
+      animatedSprite.updateAnimation(direction);
     }
   }
 
@@ -491,7 +529,7 @@ public:
         }
         break;
       }
-    if (enemy.currentCooldown > 0) {
+      if (enemy.currentCooldown > 0) {
         enemy.currentCooldown -= deltaTime;
       } else {
         enemy.currentCooldown = enemy.attackCooldown;
@@ -507,45 +545,46 @@ public:
 
 private:
   void enemyFire(EntityManager &entityManager, Entity *enemy) {
-    auto& enemyComponent = enemy->getComponent<EnemyComponent>();
+    auto &enemyComponent = enemy->getComponent<EnemyComponent>();
     if (enemyComponent.shootingType == 1) {
 
-        auto &transform = enemy->getComponent<TransformComponent>();
-        
-        // Create projectile entity
-        auto &projectile = entityManager.createEntity();
+      auto &transform = enemy->getComponent<TransformComponent>();
 
-        // Position the projectile at the enemy's position
+      // Create projectile entity
+      auto &projectile = entityManager.createEntity();
+
+      // Position the projectile at the enemy's position
+      projectile.addComponent<TransformComponent>(
+          transform.position.x -
+              20.0f, // Offset to fire from the front of the enemy
+          transform.position.y + 10.0f // Center height
+      );
+
+      // Add projectile components
+      projectile.addComponent<VelocityComponent>(
+          -200.0f, 0.0f);                         // Fast horizontal movement
+      projectile.addComponent<SpriteComponent>(); // Add sprite (different from
+                                                  // player projectiles)
+      projectile.addComponent<ColliderComponent>(10.0f, 5.0f); // Small hitbox
+      projectile.addComponent<ProjectileComponent>(
+          5.0f, 3.0f, enemy->getID()); // Damage, lifetime, owner
+    } else if (enemyComponent.shootingType == 2) {
+      auto &transform = enemy->getComponent<TransformComponent>();
+
+      for (int i = 0; i < 3; i++) {
+        // std::cout << "i = " << i;
+        auto &projectile = entityManager.createEntity();
         projectile.addComponent<TransformComponent>(
             transform.position.x -
                 20.0f, // Offset to fire from the front of the enemy
             transform.position.y + 10.0f // Center height
         );
-
-        // Add projectile components
+        projectile.addComponent<SpriteComponent>(10.0f, 5.0f, 255, 255, 0);
         projectile.addComponent<VelocityComponent>(
-            -200.0f, 0.0f);                         // Fast horizontal movement
-        projectile.addComponent<SpriteComponent>(); // Add sprite (different from
-                                                    // player projectiles)
-        projectile.addComponent<ColliderComponent>(10.0f, 5.0f); // Small hitbox
-        projectile.addComponent<ProjectileComponent>(
-            5.0f, 3.0f, enemy->getID()); // Damage, lifetime, owner
-    } else if (enemyComponent.shootingType == 2) {
-        auto &transform = enemy->getComponent<TransformComponent>();
-
-        for (int i = 0; i < 3; i++) {
-            // std::cout << "i = " << i;
-            auto &projectile = entityManager.createEntity();
-            projectile.addComponent<TransformComponent>(
-                transform.position.x - 20.0f, // Offset to fire from the front of the enemy
-                transform.position.y + 10.0f   // Center height
-            );
-            projectile.addComponent<SpriteComponent>(10.0f, 5.0f, 255, 255, 0);
-            projectile.addComponent<VelocityComponent>(
-                -200.0f, (i - 1) * 50.0f); // Spread pattern
-            projectile.addComponent<ColliderComponent>(10.0f, 5.0f);    
-        }
-        // std::cout << std::endl;
+            -200.0f, (i - 1) * 50.0f); // Spread pattern
+        projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
+      }
+      // std::cout << std::endl;
     }
   }
 };
