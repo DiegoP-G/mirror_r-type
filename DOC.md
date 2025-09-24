@@ -8,6 +8,9 @@ This game engine uses a distributed client-server architecture with an Entity-Co
 
 ### Client Component Diagram
 
+This diagram shows the main client-side components and their relationships.
+The NetworkECSMediator bridges network communication with the ECS system for seamless game state updates.
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                      Client Application                         │
@@ -54,6 +57,9 @@ This game engine uses a distributed client-server architecture with an Entity-Co
 
 ### Client Data Flow
 
+This diagram illustrates the data flow between client components during gameplay.
+Messages flow from ClientGame through NetworkManager to the server, with ECS handling game state updates.
+
 ```
 ClientGame ─┐
             │
@@ -80,6 +86,9 @@ ClientGame ─┐
 ## 2. Server Architecture
 
 ### Server Component Diagram
+
+This diagram shows the server architecture with separate TCP/UDP managers for different communication needs.
+GameMediator coordinates between network events and game logic, while ClientManager tracks connected players.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -124,6 +133,9 @@ ClientGame ─┐
 
 ### Server Data Flow
 
+This diagram shows how data flows through the server during game operations.
+The GameLoop drives ECS updates, which trigger network broadcasts to all connected clients via UDP.
+
 ```
 GameLoop ──┐
            │
@@ -146,6 +158,9 @@ GameLoop ──┐
 ## 3. ECS System Details
 
 ### Component Hierarchy
+
+This diagram displays the inheritance structure of all ECS components in the game engine.
+Each specialized component extends the base Component class with game-specific data and behavior.
 
 ```
                     ┌─────────────┐
@@ -174,6 +189,9 @@ GameLoop ──┐
 ```
 
 ### System Architecture
+
+This diagram shows the organization of ECS systems into core engine systems and game-specific logic.
+All systems query the EntityManager to process entities with relevant component combinations.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
