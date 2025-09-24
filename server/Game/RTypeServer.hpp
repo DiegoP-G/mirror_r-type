@@ -45,4 +45,8 @@ public:
   void cleanup();
 
   void run(float deltaTime);
+
+  void sendEntities();
+
+  void handlePlayerInput(const std::string&);
 };
