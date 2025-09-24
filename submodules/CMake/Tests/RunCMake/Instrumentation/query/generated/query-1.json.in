@@ -1,0 +1,15 @@
+{
+  "callbacks" :
+  [
+    "\"@CMAKE_COMMAND@\" \"-E\" \"echo\" \"callback1\""
+  ],
+  "hooks" :
+  [
+    "postGenerate"
+  ],
+  "options" : [
+    "cdashSubmit",
+    "cdashVerbose"
+  ],
+  "version" : 1
+}

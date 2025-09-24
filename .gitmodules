@@ -1,0 +1,6 @@
+[submodule "SFML"]
+	path = submodules/SFML
+	url = https://github.com/SFML/SFML.git
+[submodule "CMake"]
+	path = submodules/CMake
+	url = https://github.com/Kitware/CMake.git
