@@ -5,9 +5,10 @@
 ** GameMediator
 */
 
+#include "../Network/NetworkManager.hpp"
 #include "GameMediator.hpp"
 
-GameMediator::GameMediator() : _rTypeServer(*this), _networkManager(*this)
+GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTypeServer(*new RTypeServer(*this))
 {
     _mediatorMap = {
         {GameMediatorEvent::TickLogic, [this](const std::string &data) -> void { _rTypeServer.run(std::stof(data)); }},

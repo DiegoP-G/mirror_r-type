@@ -48,8 +48,13 @@ class Component
     Entity *entity;
 
     virtual ~Component() = default;
+  
     virtual void init()
     {
+    }
+    virtual std::vector<uint8_t> serialize() const
+    {
+        return {};
     }
     virtual void update(float deltaTime)
     {
@@ -74,6 +79,16 @@ class Entity
   public:
     Entity(EntityManager &manager, EntityID id) : manager(manager), id(id)
     {
+    }
+
+
+    inline std::vector<uint8_t> serializeComponent(ComponentID compId) const
+    {
+        if (compId < components.size() && components[compId])
+        {
+            return components[compId]->serialize();
+        }
+        return {};
     }
 
     void update(float deltaTime)

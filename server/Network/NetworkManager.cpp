@@ -1,5 +1,5 @@
 #include "NetworkManager.hpp"
-#include "../../transferData/transferData.cpp"
+#include "../../transferData/transferData.hpp"
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <netinet/in.h>

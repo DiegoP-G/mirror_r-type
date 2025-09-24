@@ -1,9 +1,15 @@
+#pragma once
 #include "../../ecs/components.hpp"
 #include "../../ecs/ecs.hpp"
 #include "../../ecs/systems.hpp"
+#include "../../transferData/transferData.hpp"
 #include "GameMediator.hpp"
+
 #include <iostream>
 #include <random>
+
+class GameMediator;
+
 
 class RTypeServer
 {

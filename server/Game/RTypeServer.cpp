@@ -1,6 +1,5 @@
 
 #include "RTypeServer.hpp"
-#include "../../transferData/transferData.hpp"
 
 bool RTypeServer::init()
 {
@@ -16,7 +15,7 @@ void RTypeServer::createPlayer(const std::string &id)
     auto &playerEntity = entityManager.createEntity();
 
     int playerId = deserializeInt(id);
-    playerEntity.addComponent<PlayerComponent>(id);
+    playerEntity.addComponent<PlayerComponent>(playerId);
     playerEntity.addComponent<TransformComponent>(100.0f, 300.0f);
     playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
     playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0);

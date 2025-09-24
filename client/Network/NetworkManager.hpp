@@ -6,6 +6,9 @@
 #include <poll.h>
 #include <netinet/in.h>
 
+
+class GameMediator;
+
 class NetworkManager {
 private:
     Sender _sender;

@@ -10,6 +10,7 @@
 #include <vector>
 #include <chrono>
 
+
 enum GameMediatorEvent
 {
     TickNetwork,
@@ -20,11 +21,14 @@ enum GameMediatorEvent
     PlayerInput,
 };
 
+class NetworkManager;
+class RTypeServer;
+
 class GameMediator : public IMediator
 {
   private:
-    NetworkManager _networkManager;
-    RTypeServer _rTypeServer;
+    NetworkManager &_networkManager;
+    RTypeServer &_rTypeServer;
 
     std::unordered_map<GameMediatorEvent, std::function<void(const std::string&)>> _mediatorMap;
 
