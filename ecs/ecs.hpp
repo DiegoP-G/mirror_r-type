@@ -3,6 +3,7 @@
 #include "using.hpp"
 #include <iostream>
 #include <stdint.h>
+#include "components/InputComponent.hpp"
 
 // Component ID generator
 inline ComponentID getNextComponentID()
@@ -23,3 +24,5 @@ template <typename T> inline ComponentID getComponentTypeID()
     }
     return typeID;
 }
+const std::string &serializePlayerInput(const InputComponent &player, int playerId);
+int deserializePlayerInput(const std::string &data, InputComponent &input);

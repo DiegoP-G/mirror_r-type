@@ -49,6 +49,7 @@ class EntityManager
         return matchingEntities;
     }
 
+    Entity *getEntityByID(EntityID id);
 
     size_t getEntityCount() const;
 

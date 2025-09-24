@@ -137,6 +137,19 @@
         return count;
     }
 
+
+    Entity *EntityManager::getEntityByID(EntityID id)
+    {
+        for (const auto &entity : entities)
+        {
+            if (entity && entity->getID() == id)
+            {
+                return entity.get();
+            }
+        }
+        return nullptr;
+    }
+
     void EntityManager::clear()
     {
         entities.clear();

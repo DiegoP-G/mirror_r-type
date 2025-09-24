@@ -75,17 +75,18 @@ void RTypeServer::run(float deltaTime)
 
 void RTypeServer::handlePlayerInput(const std::string &input)
 {
-    auto entities = entityManager.getEntitiesWithComponent<InputComponent>();
+    InputComponent inputComp;
 
-    auto newInputComponent = InputComponent();
-    const uint8_t *inputData = reinterpret_cast<const uint8_t *>(input.data());
+    int playerId = deserializePlayerInput(input, inputComp);
 
-    newInputComponent.deserialize(inputData);
-
-    for (auto &entity : entities)
+    // Now you can use playerId to find the right player entity
+    if (playerId != -1)
     {
-
-        // Now it need to get the right player with player id and change the input.
+        auto playerEntity = entityManager.getEntityByID(playerId);
+        if (playerEntity)
+        {
+            playerEntity->addComponent(inputComp);
+        }
     }
 }
 

@@ -40,6 +40,7 @@ class Entity
 
     EntityID getID() const;
 
+    // Ajoute un composant de type T à l'entité. Le remplace s'il existe déjà.
     template <typename T, typename... TArgs> T &addComponent(TArgs &&...args)
         {
         ComponentID componentID = getComponentTypeID<T>();
@@ -53,8 +54,7 @@ class Entity
         T *c = new T(std::forward<TArgs>(args)...);
         c->entity = this;
 
-        std::unique_ptr<Component> uPtr(c);
-        components[componentID] = std::move(uPtr);
+        components[componentID].reset(c);
         componentMask.set(componentID);
 
         c->init();
