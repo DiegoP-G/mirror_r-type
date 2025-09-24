@@ -17,3 +17,6 @@ client_exemple_UDP_TCP
 _deps
 CPackConfig.cmake
 CPackSourceConfig.cmake
+submodules
+GameServer
+RTypeClient

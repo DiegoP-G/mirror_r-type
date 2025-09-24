@@ -1,0 +1,44 @@
+name: Check C++ Formatting and push to mirror repository
+
+env:
+  MIRROR_URL: "git@github.com:EpitechPGE3-2025/G-CPP-500-TLS-5-1-rtype-4.git"
+  MIRROR_REPO: "EpitechPGE3-2025/G-CPP-500-TLS-5-1-rtype-4"
+
+on:
+  push:
+    branches-ignore:
+      - 'ga-ignore-*'
+  pull_request:
+    branches-ignore:
+      - 'ga-ignore-*'
+
+jobs:
+  format-check:
+    name: Clang-Format Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Clang-Format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+
+      - name: Check C++ formatting
+        run: |
+          git ls-files '*.[ch]pp' '*.[ch]' -z | while IFS= read -r -d '' file; do
+            clang-format --style=Microsoft --dry-run --Werror "$file"
+          done
+  push_to_mirror:
+    if: ${{ github.repository != '${{ env.MIRROR_REPO }}' && github.event_name == 'push' }}
+    needs: [format-check]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Push to mirror
+        uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url: ${{ env.MIRROR_URL }}
+          ssh_private_key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
