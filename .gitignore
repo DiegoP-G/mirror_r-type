@@ -14,3 +14,6 @@ Makefile
 CMakeCache.txt
 bin
 client_exemple_UDP_TCP
+_deps
+CPackConfig.cmake
+CPackSourceConfig.cmake
