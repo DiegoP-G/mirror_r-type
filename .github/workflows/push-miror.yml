@@ -1,18 +1,19 @@
 name: Push to Mirror Repository
 
+jobs:
 env:
   MIRROR_URL: "git@github.com:EpitechPGE3-2025/G-CPP-500-TLS-5-1-rtype-4.git"
   MIRROR_REPO: "EpitechPGE3-2025/G-CPP-500-TLS-5-1-rtype-4"
 on:
   workflow_run:
     workflows:
-      - "Check_C++_Formatting"
+      - "Check C++ Formatting"
     types:
       - completed
 
-jobs:
+
   push_to_mirror:
-    if: ${{ github.repository }} != MIRROR_REPO && ${{ github.event_name == 'push' }}
+    if: github.repository != env.MIRROR_REPO
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
