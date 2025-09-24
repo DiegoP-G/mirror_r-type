@@ -41,24 +41,7 @@
 
 // ---- Game data ----
 
-#define OPCODE_PLAYER_STATE 0x20
+#define OPCODE_ENTITIES_STATE 0x20
 // [CLIENT → SERVER, UDP]
 // Sends the current player state.
 // Payload: [ x (float) | y (float) | angle (float) | speed (float) ]
-
-#define OPCODE_WORLD_UPDATE 0x21
-// [SERVER → CLIENT, UDP]
-// Sends the updated world state (positions of other players, entities, etc).
-// Payload: compressed list of visible entities.
-
-// ---- Chat / Messaging ----
-
-#define OPCODE_CHAT_MESSAGE 0x30
-// [CLIENT → SERVER, TCP]
-// Sends a text message (global or private).
-// Payload: [ target (1 byte: 0 = global, 1 = private) | msg (string) ]
-
-#define OPCODE_CHAT_BROADCAST 0x31
-// [SERVER → CLIENT, TCP]
-// Broadcast chat message to all players.
-// Payload: [ sender_id (4 bytes) | msg (string) ]

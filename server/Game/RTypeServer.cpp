@@ -1,21 +1,21 @@
 
 #include "RTypeServer.hpp"
+#include "../../transferData/transferData.hpp"
 
-
-  bool RTypeServer::init()
-  {
+bool RTypeServer::init()
+{
 
     running = true;
 
     std::cout << "R-Type Server initialized!" << std::endl;
     return true;
-  }
+}
 
-  void RTypeServer::createPlayer(const std::string &id)
-  {
+void RTypeServer::createPlayer(const std::string &id)
+{
     auto &playerEntity = entityManager.createEntity();
 
-    int playerId = std::stoi(id);
+    int playerId = deserializeInt(id);
     playerEntity.addComponent<PlayerComponent>();
     playerEntity.addComponent<TransformComponent>(100.0f, 300.0f);
     playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
@@ -23,13 +23,13 @@
     playerEntity.addComponent<ColliderComponent>(32.0f, 32.0f);
     playerEntity.addComponent<InputComponent>();
 
-    player = &playerEntity; 
-  }
+    player = &playerEntity;
+}
 
-  void RTypeServer::update(float deltaTime)
-  {
+void RTypeServer::update(float deltaTime)
+{
     if (gameOver)
-      return;
+        return;
 
     gameLogicSystem.update(entityManager, deltaTime);
     movementSystem.update(entityManager, deltaTime);
@@ -42,37 +42,34 @@
     laserWarningSystem.update(entityManager, deltaTime);
     if (player && !player->isActive())
     {
-      gameOver = true;
+        gameOver = true;
     }
 
     entityManager.refresh();
-  }
+}
 
-
-  void RTypeServer::restart()
-  {
+void RTypeServer::restart()
+{
     entityManager = EntityManager();
 
     score = 0;
     gameOver = false;
 
     createPlayer();
-  }
+}
 
-  void RTypeServer::cleanup()
-  {
+void RTypeServer::cleanup()
+{
     return;
-  };
+};
 
-
-
-  void RTypeServer::run(float deltaTime)
-  {
+void RTypeServer::run(float deltaTime)
+{
     std::cout << "Server ecs running..." << std::endl;
     if (!init())
     {
-      return;
+        return;
     }
 
     update(deltaTime);
-  }
+}

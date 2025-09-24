@@ -15,10 +15,11 @@ class UDPManager
     int _udpFd;
     std::vector<pollfd> _pollFds;
     NetworkManager &_NetworkManagerRef;
+    sockaddr_in _addr;
 
   public:
     UDPManager(NetworkManager &ref);
     ~UDPManager();
     void update();
-    void sendTo(const std::string &ip, int port, const std::string &msg);
+    void sendTo(std::vector<int> sockets, int opcode, const std::string &msg);
 };

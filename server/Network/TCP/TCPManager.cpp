@@ -53,7 +53,7 @@ void TCPManager::acceptConnection()
         int code_udp = rand();
         _networkManagerRef.getClientManager().getClient(cfd)->setCodeUDP(code_udp);
         std::cout << "[TCP] TCP sent UDP code: " << std::to_string(code_udp) << "to caca \n";
-
+        _networkManagerRef.addNewPlayer(cfd);
         sendFrameTCP(cfd, OPCODE_CODE_UDP, serializeInt(code_udp));
     }
 }
