@@ -1,48 +1,13 @@
-#include "../ecs/components.hpp"
-#include "../ecs/ecs.hpp"
-#include "../ecs/systems.hpp"
-#include "../ecs/GraphicsManager.hpp"
-#include "assetsPath.hpp"
-#include <iostream>
-#include <random>
+#include "RType.hpp"
 
-class RTypeGame
+bool RTypeGame::init()
 {
-private:
-  EntityManager entityManager;
-
-  // Systems
-  MovementSystem movementSystem;
-  RenderSystem renderSystem;
-  CollisionSystem collisionSystem;
-  BoundarySystem boundarySystem;        // Generic boundary checking
-  OffscreenCleanupSystem cleanupSystem; // Generic cleanup
-  InputSystem inputSystem;              // Use existing generic input system
-  PlayerSystem playerSystem;
-  EnemySystem enemySystem;
-  LaserWarningSystem laserWarningSystem;
-  GameLogicSystem gameLogicSystem;
-
-  Entity *player = nullptr;
-  bool gameOver = false;
-
-  bool running = false;
-
-  int score = 0;
-
-  const float ENEMY_SPEED = -200.0f;
-
-public:
-  RTypeGame() = default;
-
-  bool init()
-  {
     // Initialize graphics
     g_graphics = new GraphicsManager();
     if (!g_graphics->init("R-Type", 800, 600))
     {
-      std::cerr << "Failed to initialize graphics!" << std::endl;
-      return false;
+        std::cerr << "Failed to initialize graphics!" << std::endl;
+        return false;
     }
 
     // Create textures
@@ -55,22 +20,20 @@ public:
 
     std::cout << "R-Type initialized!" << std::endl;
     return true;
-  }
+}
 
-  void createTextures()
-  {
-    sf::Texture &playerTexture = g_graphics->createTextureFromPath(
-        PathFormater::formatAssetPath(playerSpritePath),
-        "player"); // Yellow player
-    sf::Texture &enemyTexture =
-        g_graphics->createColorTexture(80, 400, 0, 255, 0); // Green enemy
+void RTypeGame::createTextures()
+{
+    sf::Texture &playerTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath(playerSpritePath),
+                                                                   "player");       // Yellow player
+    sf::Texture &enemyTexture = g_graphics->createColorTexture(80, 400, 0, 255, 0); // Green enemy
 
     g_graphics->storeTexture("player", playerTexture);
     g_graphics->storeTexture("enemy", enemyTexture);
-  }
+}
 
-  void createPlayer()
-  {
+void RTypeGame::createPlayer()
+{
     auto &playerEntity = entityManager.createEntity();
 
     playerEntity.addComponent<PlayerComponent>();
@@ -84,63 +47,60 @@ public:
     sf::Texture *playerTexture = g_graphics->getTexture("player");
     if (playerTexture)
     {
-      playerEntity.addComponent<AnimatedSpriteComponent>(
-          *playerTexture, 33, 17.5, 0.05f, Vector2D(2.0f, 2.0f));
+        playerEntity.addComponent<AnimatedSpriteComponent>(*playerTexture, 33, 17.5, 0.05f, Vector2D(2.0f, 2.0f));
     }
 
     player = &playerEntity;
-  }
+}
 
-  void handleEvents()
-  {
+void RTypeGame::handleEvents()
+{
     sf::Event event;
     while (g_graphics->getWindow().pollEvent(event))
     {
-      if (event.type == sf::Event::Closed)
-      {
-        running = false;
-      }
-
-      if (event.type == sf::Event::KeyPressed ||
-          event.type == sf::Event::KeyReleased)
-      {
-        if (event.type == sf::Event::KeyPressed ||
-            event.type == sf::Event::KeyReleased)
+        if (event.type == sf::Event::Closed)
         {
-          bool isPressed = (event.type == sf::Event::KeyPressed);
-          if (player && player->hasComponent<InputComponent>())
-          {
-            auto &input = player->getComponent<InputComponent>();
-            switch (event.key.code)
-            {
-            case sf::Keyboard::Up:
-              input.up = isPressed;
-              break;
-            case sf::Keyboard::Down:
-              input.down = isPressed;
-              break;
-            case sf::Keyboard::Left:
-              input.left = isPressed;
-              break;
-            case sf::Keyboard::Right:
-              input.right = isPressed;
-              break;
-            case sf::Keyboard::Space:
-              input.fire = isPressed;
-              break;
-            default:
-              break;
-            }
-          }
+            running = false;
         }
-      }
-    }
-  }
 
-  void update(float deltaTime)
-  {
+        if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
+        {
+            if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
+            {
+                bool isPressed = (event.type == sf::Event::KeyPressed);
+                if (player && player->hasComponent<InputComponent>())
+                {
+                    auto &input = player->getComponent<InputComponent>();
+                    switch (event.key.code)
+                    {
+                    case sf::Keyboard::Up:
+                        input.up = isPressed;
+                        break;
+                    case sf::Keyboard::Down:
+                        input.down = isPressed;
+                        break;
+                    case sf::Keyboard::Left:
+                        input.left = isPressed;
+                        break;
+                    case sf::Keyboard::Right:
+                        input.right = isPressed;
+                        break;
+                    case sf::Keyboard::Space:
+                        input.fire = isPressed;
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void RTypeGame::update(float deltaTime)
+{
     if (gameOver)
-      return;
+        return;
 
     // Update systems
     gameLogicSystem.update(entityManager, deltaTime);
@@ -155,14 +115,14 @@ public:
     // Check game over
     if (player && !player->isActive())
     {
-      gameOver = true;
+        gameOver = true;
     }
 
     entityManager.refresh();
-  }
+}
 
-  void render()
-  {
+void RTypeGame::render()
+{
     g_graphics->clear();
 
     // Render all entities
@@ -170,39 +130,39 @@ public:
 
     if (gameOver)
     {
-      g_graphics->drawText("Game Over! Press SPACE to restart", 250, 250);
+        g_graphics->drawText("Game Over! Press SPACE to restart", 250, 250);
     }
 
     std::string scoreText = "Score: " + std::to_string(score);
     g_graphics->drawText(scoreText, 10, 10);
 
     g_graphics->present();
-  }
+}
 
-  void restart()
-  {
+void RTypeGame::restart()
+{
     entityManager = EntityManager();
 
     score = 0;
     gameOver = false;
 
     createPlayer();
-  }
+}
 
-  void cleanup()
-  {
+void cleanup()
+{
     if (g_graphics)
     {
-      delete g_graphics;
-      g_graphics = nullptr;
+        delete g_graphics;
+        g_graphics = nullptr;
     }
-  }
+}
 
-  void run()
-  {
+void RTypeGame::run()
+{
     if (!init())
     {
-      return;
+        return;
     }
 
     const float TARGET_FPS = 60.0f;
@@ -213,35 +173,27 @@ public:
 
     while (running)
     {
-      float deltaTime = clock.restart().asSeconds();
+        float deltaTime = clock.restart().asSeconds();
 
-      // Cap delta time to prevent large jumps
-      if (deltaTime > 0.05f)
-      {
-        deltaTime = 0.05f;
-      }
+        // Cap delta time to prevent large jumps
+        if (deltaTime > 0.05f)
+        {
+            deltaTime = 0.05f;
+        }
 
-      accumulator += deltaTime;
+        accumulator += deltaTime;
 
-      handleEvents();
+        handleEvents();
 
-      // Fixed timestep update
-      while (accumulator >= FRAME_TIME)
-      {
-        update(FRAME_TIME);
-        accumulator -= FRAME_TIME;
-      }
+        // Fixed timestep update
+        while (accumulator >= FRAME_TIME)
+        {
+            update(FRAME_TIME);
+            accumulator -= FRAME_TIME;
+        }
 
-      render();
+        render();
     }
 
     cleanup();
-  }
-};
-
-// int main()
-// {
-//   RTypeGame game;
-//   game.run();
-//   return 0;
-// }
+}
