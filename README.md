@@ -23,7 +23,7 @@ A C++ multiplayer game engine built with Entity-Component-System (ECS) architect
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone git@github.com:DiegoP-G/mirror_r-type.git
 cd game-engine
 
 # Create build directory
