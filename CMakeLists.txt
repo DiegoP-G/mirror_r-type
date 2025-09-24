@@ -22,6 +22,7 @@ find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/ecs)
+include_directories(${CMAKE_SOURCE_DIR}/ecs/components)
 include_directories(${CMAKE_SOURCE_DIR}/network)
 include_directories(${CMAKE_SOURCE_DIR}/client)
 include_directories(${CMAKE_SOURCE_DIR}/server)
