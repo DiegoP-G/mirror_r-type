@@ -18,7 +18,7 @@ template <typename T> inline ComponentID getComponentTypeID()
     static bool printed = false;
     if (!printed)
     {
-        std::cout << "Component " << typeid(T).name() << " assigned ID: " << static_cast<int>(typeID) << std::endl;
+        // std::cout << "Component " << typeid(T).name() << " assigned ID: " << static_cast<int>(typeID) << std::endl;
         printed = true;
     }
     return typeID;

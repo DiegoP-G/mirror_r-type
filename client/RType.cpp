@@ -1,7 +1,7 @@
 #include "../ecs/components.hpp"
 #include "../ecs/ecs.hpp"
 #include "../ecs/systems.hpp"
-#include "GraphicsManager.hpp"
+#include "../ecs/GraphicsManager.hpp"
 #include "assetsPath.hpp"
 #include <iostream>
 #include <random>
