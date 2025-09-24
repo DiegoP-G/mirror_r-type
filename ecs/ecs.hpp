@@ -41,6 +41,7 @@ template <typename T> inline ComponentID getComponentTypeID()
     }
     return typeID;
 }
+
 // Base Component class
 class Component
 {
@@ -90,6 +91,121 @@ class Entity
         }
         return {};
     }
+
+
+    inline void Entity::deserializeComponent(ComponentID compId, const uint8_t *data, size_t dataSize)
+{
+    (void)dataSize; // dataSize is not used as deserialize methods know their size
+    switch (compId)
+    {
+    case getComponentTypeID<TransformComponent>():
+        if (hasComponent<TransformComponent>())
+            getComponent<TransformComponent>() = TransformComponent::deserialize(data);
+        else
+            addComponent<TransformComponent>(TransformComponent::deserialize(data));
+        break;
+    case getComponentTypeID<PlayerComponent>():
+        if (hasComponent<PlayerComponent>())
+            getComponent<PlayerComponent>() = PlayerComponent::deserialize(data);
+        else
+            addComponent<PlayerComponent>(PlayerComponent::deserialize(data));
+        break;
+    case getComponentTypeID<VelocityComponent>():
+        if (hasComponent<VelocityComponent>())
+            getComponent<VelocityComponent>() = VelocityComponent::deserialize(data);
+        else
+            addComponent<VelocityComponent>(VelocityComponent::deserialize(data));
+        break;
+    case getComponentTypeID<LaserWarningComponent>():
+        if (hasComponent<LaserWarningComponent>())
+            getComponent<LaserWarningComponent>() = LaserWarningComponent::deserialize(data);
+        else
+            addComponent<LaserWarningComponent>(LaserWarningComponent::deserialize(data));
+        break;
+    case getComponentTypeID<CenteredComponent>():
+        if (hasComponent<CenteredComponent>())
+            getComponent<CenteredComponent>() = CenteredComponent::deserialize(data);
+        else
+            addComponent<CenteredComponent>(CenteredComponent::deserialize(data));
+        break;
+    case getComponentTypeID<SpriteComponent>():
+        if (hasComponent<SpriteComponent>())
+            getComponent<SpriteComponent>() = SpriteComponent::deserialize(data);
+        else
+            addComponent<SpriteComponent>(SpriteComponent::deserialize(data));
+        break;
+    case getComponentTypeID<ColliderComponent>():
+        if (hasComponent<ColliderComponent>())
+            getComponent<ColliderComponent>() = ColliderComponent::deserialize(data);
+        else
+            addComponent<ColliderComponent>(ColliderComponent::deserialize(data));
+        break;
+    case getComponentTypeID<HealthComponent>():
+        if (hasComponent<HealthComponent>())
+            getComponent<HealthComponent>() = HealthComponent::deserialize(data);
+        else
+            addComponent<HealthComponent>(HealthComponent::deserialize(data));
+        break;
+    case getComponentTypeID<InputComponent>():
+        if (hasComponent<InputComponent>())
+            getComponent<InputComponent>() = InputComponent::deserialize(data);
+        else
+            addComponent<InputComponent>(InputComponent::deserialize(data));
+        break;
+    case getComponentTypeID<ProjectileComponent>():
+        if (hasComponent<ProjectileComponent>())
+            getComponent<ProjectileComponent>() = ProjectileComponent::deserialize(data);
+        else
+            addComponent<ProjectileComponent>(ProjectileComponent::deserialize(data));
+        break;
+    case getComponentTypeID<EnemyComponent>():
+        if (hasComponent<EnemyComponent>())
+            getComponent<EnemyComponent>() = EnemyComponent::deserialize(data);
+        else
+            addComponent<EnemyComponent>(EnemyComponent::deserialize(data));
+        break;
+    case getComponentTypeID<BirdComponent>():
+        if (hasComponent<BirdComponent>())
+            getComponent<BirdComponent>() = BirdComponent::deserialize(data);
+        else
+            addComponent<BirdComponent>(BirdComponent::deserialize(data));
+        break;
+    case getComponentTypeID<PipeComponent>():
+        if (hasComponent<PipeComponent>())
+            getComponent<PipeComponent>() = PipeComponent::deserialize(data);
+        else
+            addComponent<PipeComponent>(PipeComponent::deserialize(data));
+        break;
+    case getComponentTypeID<GravityComponent>():
+        if (hasComponent<GravityComponent>())
+            getComponent<GravityComponent>() = GravityComponent::deserialize(data);
+        else
+            addComponent<GravityComponent>(GravityComponent::deserialize(data));
+        break;
+    case getComponentTypeID<JumpComponent>():
+        if (hasComponent<JumpComponent>())
+            getComponent<JumpComponent>() = JumpComponent::deserialize(data);
+        else
+            addComponent<JumpComponent>(JumpComponent::deserialize(data));
+        break;
+    case getComponentTypeID<GameStateComponent>():
+        if (hasComponent<GameStateComponent>())
+            getComponent<GameStateComponent>() = GameStateComponent::deserialize(data);
+        else
+            addComponent<GameStateComponent>(GameStateComponent::deserialize(data));
+        break;
+    case getComponentTypeID<AnimatedSpriteComponent>():
+        // This component has a constructor that requires a texture reference,
+        // which we don't have during deserialization.
+        // We can't properly deserialize it without a more complex system
+        // that involves the GraphicsManager.
+        // For now, we can't add it.
+        break;
+    default:
+        // Unknown component ID, maybe log an error
+        break;
+    }
+}
 
     void update(float deltaTime)
     {
