@@ -1,28 +1,8 @@
 #pragma once
-#include "entity.hpp"
-#include "components.hpp"
-#include <algorithm>
-#include <array>
-#include <bitset>
-#include <cstring>
+
+#include "using.hpp"
 #include <iostream>
-#include <memory>
-#include <set>
 #include <stdint.h>
-#include <unordered_map>
-#include <vector>
-
-
-// Forward declarations des composants
-
-
-// Types
-using ComponentID = int8_t;
-using EntityID = int32_t;
-
-// Maximum number of components and entities
-constexpr std::size_t MAX_COMPONENTS = 32;
-using ComponentMask = std::bitset<MAX_COMPONENTS>;
 
 // Component ID generator
 inline ComponentID getNextComponentID()

@@ -1,12 +1,13 @@
 #pragma once
 
-#include <vector>
-#include <memory>
+#include "components.hpp"
+#include "using.hpp"
 #include <cstdint>
 #include <cstring>
-#include "ecs.hpp"
-#include "entityManager.hpp"
-#include "components.hpp"
+#include <memory>
+#include <vector>
+
+class EntityManager;
 
 class Entity
 {

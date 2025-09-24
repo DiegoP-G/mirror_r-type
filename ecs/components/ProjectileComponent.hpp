@@ -1,5 +1,6 @@
 #pragma once
 #include "../components.hpp"
+#include "../using.hpp"
 
 class ProjectileComponent : public Component
 {

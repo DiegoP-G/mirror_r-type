@@ -1,7 +1,8 @@
 #pragma once
-#include "ecs.hpp"
+#include <stdint.h>
+#include <vector>
 
-
+class Entity;
 
 // Base Component class
 class Component

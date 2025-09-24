@@ -1,10 +1,9 @@
 #pragma once
-#include <vector>
+#include "entity.hpp"
 #include <array>
 #include <memory>
-#include "entity.hpp"
-#include "ecs.hpp"
-// Entity Manager
+#include <vector>
+
 class EntityManager
 {
   private:
