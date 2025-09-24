@@ -1,1 +1,0 @@
-  Set CURLOPT_SSL_VERIFYPEER to off

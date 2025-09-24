@@ -1,3 +1,0 @@
--- The following features have been enabled:
-
- \* Foo, Foo\.

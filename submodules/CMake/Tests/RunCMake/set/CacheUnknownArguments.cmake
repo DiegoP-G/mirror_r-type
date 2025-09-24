@@ -1,2 +1,0 @@
-
-set(CACHE{VAR} TYPE STRING FOO HELP "help" VALUE)

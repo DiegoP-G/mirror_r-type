@@ -1,6 +1,0 @@
-Name: Charlie
-Description: Charlie
-Version: 1.0.0
-
-Cflags: Charlie
-Requires: bravo

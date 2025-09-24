@@ -1,1 +1,0 @@
-Warning: C-STAT static analysis reported diagnostics.*Severity

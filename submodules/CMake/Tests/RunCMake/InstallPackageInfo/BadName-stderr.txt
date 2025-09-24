@@ -1,4 +1,0 @@
-CMake Error at BadName\.cmake:3 \(install\):
-  install PACKAGE_INFO given invalid package name "%foo"\.
-Call Stack \(most recent call first\):
-  CMakeLists\.txt:3 \(include\)

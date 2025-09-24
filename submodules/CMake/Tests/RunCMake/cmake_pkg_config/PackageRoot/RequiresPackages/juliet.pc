@@ -1,6 +1,0 @@
-Name: Juliet
-Description: Juliet
-Version: 1.0.0
-
-Cflags: Juliet
-Requires: golf

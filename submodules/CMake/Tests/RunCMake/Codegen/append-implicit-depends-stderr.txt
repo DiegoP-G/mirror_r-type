@@ -1,2 +1,0 @@
-CMake Error:
-  Cannot append IMPLICIT_DEPENDS to existing CODEGEN custom command\.

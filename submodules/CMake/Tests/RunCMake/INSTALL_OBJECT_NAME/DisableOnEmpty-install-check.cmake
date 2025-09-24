@@ -1,5 +1,0 @@
-set(ext_suffix ".c")
-if (RunCMake_GENERATOR MATCHES "(Visual Studio|Xcode)")
-  set(ext_suffix "")
-endif ()
-check_installed_object("${RunCMake_TEST_BINARY_DIR}/real_install/lib/objlib/objects-Debug/objlib/lib${ext_suffix}${CMAKE_C_OUTPUT_EXTENSION}")

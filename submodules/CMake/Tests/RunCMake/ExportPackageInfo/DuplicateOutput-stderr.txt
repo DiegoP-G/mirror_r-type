@@ -1,4 +1,0 @@
-CMake Error at DuplicateOutput\.cmake:4 \(export\):
-  export command already specified for the file foo\.cps\.
-Call Stack \(most recent call first\):
-  CMakeLists\.txt:3 \(include\)

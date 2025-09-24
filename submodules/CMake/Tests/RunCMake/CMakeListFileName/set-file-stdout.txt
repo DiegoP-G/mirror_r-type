@@ -1,3 +1,0 @@
-\-\- Processing: other.cmake
-\-\- Processing: subdir-1/other.cmake
-\-\- Processing: subdir-2/CMakeLists.txt

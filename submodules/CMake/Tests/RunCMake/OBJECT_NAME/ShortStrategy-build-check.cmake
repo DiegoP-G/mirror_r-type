@@ -1,1 +1,0 @@
-check_short_build_object(fbbbd702 d33a1361)

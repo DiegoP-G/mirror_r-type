@@ -1,4 +1,0 @@
-CMake Error:
-  Erroneous value\(s\) for 'LINK_WARNING_AS_ERROR' property of target 'main':
-
-    FOO

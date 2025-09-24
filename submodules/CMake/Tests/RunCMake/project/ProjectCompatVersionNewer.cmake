@@ -1,1 +1,0 @@
-project(ProjectCompatVersionTest VERSION 1.0.0 COMPAT_VERSION 1.5.0 LANGUAGES)

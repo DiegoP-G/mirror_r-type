@@ -1,3 +1,0 @@
-Name: Foo
-Description: Foo Description
-Version: 1.0.0

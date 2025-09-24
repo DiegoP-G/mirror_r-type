@@ -1,5 +1,0 @@
-Name: Alpha
-Description: Alpha
-Version: 1.0.0
-
-Cflags: Alpha

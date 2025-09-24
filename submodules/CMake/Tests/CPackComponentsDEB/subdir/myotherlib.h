@@ -1,1 +1,0 @@
-void myotherlib_function();

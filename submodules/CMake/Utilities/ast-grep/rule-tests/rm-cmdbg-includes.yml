@@ -1,8 +1,0 @@
----
-id: rm-cmdbg-includes
-valid:
-  - '#include "NotcmDebugTools.h"'
-  - '#include <NotcmDebugTools.h>'
-invalid:
-  - '#include "cmDebugTools.h"'
-  - '#include <cmDebugTools.h>'

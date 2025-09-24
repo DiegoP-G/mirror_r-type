@@ -1,4 +1,0 @@
-SetCTestConfigurationFromCMakeVariable:TLSVersion:CTEST_TLS_VERSION
-SetCTestConfiguration:TLSVersion:1\.1
-.*
-  Set CURLOPT_SSLVERSION to CURL_SSLVERSION_TLSv1_1

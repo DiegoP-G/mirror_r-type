@@ -1,2 +1,0 @@
-
-set(CACHE{VAR} TYPE FOO VALUE)

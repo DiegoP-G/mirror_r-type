@@ -1,5 +1,0 @@
-cmake_minimum_required(VERSION 3.31)
-project(test)
-message(STATUS "Processing: other.cmake")
-add_subdirectory(subdir-1)
-add_subdirectory(subdir-2)

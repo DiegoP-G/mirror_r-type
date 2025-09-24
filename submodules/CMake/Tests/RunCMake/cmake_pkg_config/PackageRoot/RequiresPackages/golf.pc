@@ -1,6 +1,0 @@
-Name: Golf
-Description: Golf
-Version: 1.0.0
-
-Cflags: Golf
-Requires: foxtrot

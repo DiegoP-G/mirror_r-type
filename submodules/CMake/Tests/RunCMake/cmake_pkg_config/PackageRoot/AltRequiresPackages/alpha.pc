@@ -1,5 +1,0 @@
-Name: AltAlpha
-Description: AltAlpha
-Version: 1.0.0
-
-Cflags: AltAlpha

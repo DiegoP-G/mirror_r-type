@@ -1,4 +1,0 @@
-^CMake Warning at SarifFileArgument\.cmake:1 \(message\):
-  SARIF file test
-Call Stack \(most recent call first\):
-  CMakeLists\.txt:[0-9]+ \(include\)$
