@@ -117,30 +117,6 @@
         return *e;
     }
 
-    template <typename T> std::vector<Entity *> &EntityManager::getEntitiesWithComponent()
-    {
-        return entitiesByComponent[getComponentTypeID<T>()];
-    }
-
-    template <typename... Ts> std::vector<Entity *> EntityManager::getEntitiesWithComponents()
-    {
-        std::vector<Entity *> matchingEntities;
-
-        if constexpr (sizeof...(Ts) > 0)
-        {
-            ComponentMask mask;
-            (mask.set(getComponentTypeID<Ts>()), ...);
-
-            for (auto &entity : entities)
-            {
-                if (entity && (entity->getComponentMask() & mask) == mask)
-                {
-                    matchingEntities.push_back(entity.get());
-                }
-            }
-        }
-        return matchingEntities;
-    }
 
     // Méthodes utilitaires pour la gestion des entités
     size_t EntityManager::getEntityCount() const

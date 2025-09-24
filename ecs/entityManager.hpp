@@ -24,9 +24,31 @@ class EntityManager
 
     Entity &createEntity();
 
-    template <typename T> std::vector<Entity *> &getEntitiesWithComponent();
+    template <typename T> std::vector<Entity *> &getEntitiesWithComponent()
+    {
+        return entitiesByComponent[getComponentTypeID<T>()];
+    };
 
-    template <typename... Ts> std::vector<Entity *> getEntitiesWithComponents();
+    template <typename... Ts> std::vector<Entity *> getEntitiesWithComponents()
+        {
+        std::vector<Entity *> matchingEntities;
+
+        if constexpr (sizeof...(Ts) > 0)
+        {
+            ComponentMask mask;
+            (mask.set(getComponentTypeID<Ts>()), ...);
+
+            for (auto &entity : entities)
+            {
+                if (entity && (entity->getComponentMask() & mask) == mask)
+                {
+                    matchingEntities.push_back(entity.get());
+                }
+            }
+        }
+        return matchingEntities;
+    }
+
 
     size_t getEntityCount() const;
 

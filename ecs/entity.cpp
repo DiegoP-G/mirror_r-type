@@ -262,53 +262,6 @@
         return id;
     }
 
-    template <typename T, typename... TArgs> T &Entity::addComponent(TArgs &&...args)
-    {
-        ComponentID componentID = getComponentTypeID<T>();
-
-        // S'assurer que le vecteur components est assez grand
-        if (components.size() <= componentID)
-        {
-            components.resize(componentID + 1);
-        }
-
-        T *c = new T(std::forward<TArgs>(args)...);
-        c->entity = this;
-
-        std::unique_ptr<Component> uPtr(c);
-        components[componentID] = std::move(uPtr);
-        componentMask.set(componentID);
-
-        c->init();
-        return *c;
-    }
-
-    template <typename T> bool Entity::hasComponent() const
-    {
-        ComponentID componentID = getComponentTypeID<T>();
-        return componentID < componentMask.size() && componentMask[componentID];
-    }
-
-    template <typename T> T &Entity::getComponent()
-    {
-        ComponentID componentID = getComponentTypeID<T>();
-
-        // Vérifier si le composant existe d'abord
-        if (componentID >= componentMask.size() || !componentMask[componentID])
-        {
-            throw std::runtime_error("Entity miss this component : " + std::to_string(componentID));
-        }
-
-        // S'assurer que le vecteur components est assez grand
-        if (componentID >= components.size() || !components[componentID])
-        {
-            throw std::runtime_error("Component not found in storage!");
-        }
-
-        // Accès direct par ID de composant au lieu de recherche linéaire
-        return *static_cast<T *>(components[componentID].get());
-    }
-
     ComponentMask Entity::getComponentMask() const
     {
         return componentMask;

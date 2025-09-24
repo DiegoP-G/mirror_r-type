@@ -1,7 +1,8 @@
 #pragma once
-#include "../../ecs/components.hpp"
-#include "../../ecs/ecs.hpp"
+#include "../../ecs/entity.hpp"
+#include "../../ecs/entityManager.hpp"
 #include "../../ecs/systems.hpp"
+#include "../../ecs/entity.hpp"
 #include "../../transferData/transferData.hpp"
 #include "GameMediator.hpp"
 

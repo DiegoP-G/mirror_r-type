@@ -1,9 +1,9 @@
 
 #include "RTypeServer.hpp"
+#include "../../ecs/allComponentsInclude.hpp"
 
 bool RTypeServer::init()
 {
-
     running = true;
 
     std::cout << "R-Type Server initialized!" << std::endl;
@@ -12,7 +12,7 @@ bool RTypeServer::init()
 
 void RTypeServer::createPlayer(const std::string &id)
 {
-    auto &playerEntity = entityManager.createEntity();
+    Entity &playerEntity = entityManager.createEntity();
 
     int playerId = deserializeInt(id);
     playerEntity.addComponent<PlayerComponent>(playerId);
@@ -33,7 +33,7 @@ void RTypeServer::update(float deltaTime)
     gameLogicSystem.update(entityManager, deltaTime);
     movementSystem.update(entityManager, deltaTime);
     playerSystem.update(entityManager, deltaTime);
-    inputSystem.update(entityManager, deltaTime);
+    // inputSystem.update(entityManager, deltaTime);
     boundarySystem.update(entityManager, deltaTime);
     cleanupSystem.update(entityManager, deltaTime);
     enemySystem.update(entityManager, deltaTime);

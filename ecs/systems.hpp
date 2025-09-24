@@ -1,6 +1,8 @@
 #pragma once
-#include "../client/GraphicsManager.hpp"
+#include "GraphicsManager.hpp"
 #include "components.hpp"
+#include "entityManager.hpp"
+#include "allComponentsInclude.hpp"
 #include "ecs.hpp"
 #include <cmath>
 #include <random>
