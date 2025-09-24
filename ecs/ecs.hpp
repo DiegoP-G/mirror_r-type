@@ -1,4 +1,5 @@
 #pragma once
+#include "entity.hpp"
 #include "components.hpp"
 #include <algorithm>
 #include <array>
@@ -11,10 +12,6 @@
 #include <unordered_map>
 #include <vector>
 
-// Forward declarations
-class Component;
-class Entity;
-class EntityManager;
 
 // Forward declarations des composants
 

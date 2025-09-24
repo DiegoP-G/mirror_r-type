@@ -1,4 +1,6 @@
 #include "entity.hpp"
+#include "allComponentsInclude.hpp"
+
 
 
     std::vector<uint8_t> Entity::serializeComponent(ComponentID compId) const

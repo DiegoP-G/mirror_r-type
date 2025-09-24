@@ -2,7 +2,6 @@
 #include <vector>
 #include <array>
 #include <memory>
-#include <algorithm>
 #include "entity.hpp"
 #include "ecs.hpp"
 // Entity Manager

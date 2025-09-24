@@ -2,12 +2,11 @@
 
 #include <vector>
 #include <memory>
-#include <bitset>
 #include <cstdint>
 #include <cstring>
 #include "ecs.hpp"
 #include "entityManager.hpp"
-#include "allComponentsInclude.hpp"
+#include "components.hpp"
 
 class Entity
 {
@@ -23,16 +22,9 @@ class Entity
     void deserializeComponent(ComponentID compId, const uint8_t *data, size_t dataSize);
 
   public:
-    Entity(EntityManager &manager, EntityID id) : manager(manager), id(id)
-    {
-    }
+    Entity(EntityManager &manager, EntityID id);
 
-    void update(float deltaTime)
-    {
-        for (auto &c : components)
-            if (c)
-                c->update(deltaTime);
-    }
+    void update(float deltaTime);
 
     std::vector<uint8_t> serialize() const;
 

@@ -1,7 +1,6 @@
 #pragma once
-#include "../ecs.hpp"
+#include "ecs.hpp"
 
-// Include all component headers
 
 
 // Base Component class

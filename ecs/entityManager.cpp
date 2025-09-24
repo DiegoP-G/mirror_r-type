@@ -1,4 +1,6 @@
 #include "entityManager.hpp"
+#include <algorithm>
+
     void EntityManager::update(float deltaTime)
     {
         for (auto &e : entities)
