@@ -18,3 +18,5 @@ _deps
 CPackConfig.cmake
 CPackSourceConfig.cmake
 submodules
+GameServer
+RTypeClient
