@@ -85,7 +85,7 @@ void RTypeServer::handlePlayerInput(const std::string &input)
     for (auto &entity : entities)
     {
 
-        // Now it neeed to get the right player with player id and change the input.
+        // Now it need to get the right player with player id and change the input.
     }
 }
 

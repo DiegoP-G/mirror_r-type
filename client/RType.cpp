@@ -21,7 +21,7 @@ private:
   PlayerSystem playerSystem;
   EnemySystem enemySystem;
   LaserWarningSystem laserWarningSystem;
-  GameLogicSystem gameLogicSystem;
+  // GameLogicSystem gameLogicSystem;
 
   Entity *player = nullptr;
   bool gameOver = false;
