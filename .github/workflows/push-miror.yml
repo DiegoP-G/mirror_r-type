@@ -6,7 +6,7 @@ env:
 
 jobs:
   push_to_mirror:
-    if: ${{ github.repository != env.MIRROR_REPO }}
+    if: ${{ github.repository != '${{ env.MIRROR_REPO }}' && github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
