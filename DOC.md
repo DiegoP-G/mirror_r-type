@@ -233,6 +233,9 @@ All systems query the EntityManager to process entities with relevant component 
 
 ### Message Flow Protocol
 
+This diagram shows the complete network communication sequence from connection to disconnection.
+TCP handles reliable messaging (auth, chat) while UDP manages fast-paced game state updates.
+
 ```
 Client          Server TCP       Server UDP
   │                  │               │
