@@ -1,77 +1,96 @@
 cmake_minimum_required(VERSION 3.16)
-project(RType VERSION 1.0.0 LANGUAGES CXX)
+project(RTypeProject)
 
-# Set C++ standard
-set(CMAKE_CXX_STANDARD 17)
+# ---- C++ standards ----
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Compiler flags
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall -Wextra -Wpedantic")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+# ---- Output directory for binaries (root of project) ----
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
 
-# Set default build type to Release if not specified
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
-endif()
-
-# Find SFML
+# ---- Find required packages ----
 find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBCONFIG REQUIRED libconfig++)
 
-# Include directories
-include_directories(${CMAKE_SOURCE_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/ecs)
-include_directories(${CMAKE_SOURCE_DIR}/network)
-include_directories(${CMAKE_SOURCE_DIR}/client)
-include_directories(${CMAKE_SOURCE_DIR}/server)
-
-# Set output directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-# Add executable
-add_executable(rtype_client
-    client/RType.cpp
-    client/GraphicsManager.cpp
+# ---- transferData library ----
+add_library(transferData
+    transferData/transferData.cpp
+    transferData/serializers.cpp
+)
+target_include_directories(transferData PUBLIC 
+    transferData
+    ecs  # Include ECS headers
 )
 
-# Link SFML libraries
-target_link_libraries(rtype_client 
-    sfml-graphics
-    sfml-window
+# ---- Client executable ----
+# Include directories for client
+set(CLIENT_INCLUDE_DIRS
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/client
+    ${CMAKE_SOURCE_DIR}/client/Network
+    ${CMAKE_SOURCE_DIR}/transferData
+    ${CMAKE_SOURCE_DIR}/ecs
+)
+
+# Client source files
+file(GLOB_RECURSE CLIENT_SOURCES
+    "client/*.cpp"
+)
+# Exclude build directories and unwanted files
+list(FILTER CLIENT_SOURCES EXCLUDE REGEX ".*build.*")
+list(FILTER CLIENT_SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
+
+add_executable(RTypeClient ${CLIENT_SOURCES})
+target_include_directories(RTypeClient PRIVATE ${CLIENT_INCLUDE_DIRS})
+target_link_libraries(RTypeClient 
+    transferData 
+    sfml-graphics 
+    sfml-window 
     sfml-system
 )
 
-# Install target
-install(TARGETS rtype_client DESTINATION bin)
-
-# Install target
-install(TARGETS rtype_client DESTINATION bin)
-
-# Custom targets for traditional Makefile commands
-add_custom_target(fclean
-    COMMAND ${CMAKE_COMMAND} --build . --target clean
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/CMakeFiles
-    COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/CMakeCache.txt
-    COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/cmake_install.cmake
-    COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/Makefile
-    COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_BINARY_DIR}/CTestTestfile.cmake
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Full clean: removing all build files and directories"
+# ---- Server executable ----
+# Include directories for server
+set(SERVER_INCLUDE_DIRS
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/server
+    ${CMAKE_SOURCE_DIR}/server/Game
+    ${CMAKE_SOURCE_DIR}/server/Network
+    ${CMAKE_SOURCE_DIR}/server/Network/TCP
+    ${CMAKE_SOURCE_DIR}/server/Network/UDP
+    ${CMAKE_SOURCE_DIR}/server/Mediator
+    ${CMAKE_SOURCE_DIR}/server/Include
+    ${CMAKE_SOURCE_DIR}/transferData
+    ${CMAKE_SOURCE_DIR}/ecs
 )
 
-add_custom_target(re
-    COMMAND ${CMAKE_COMMAND} --build . --target fclean
-    COMMAND ${CMAKE_COMMAND} --build . --target all
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Rebuild: full clean and build"
-    DEPENDS fclean
+# Server source files
+file(GLOB_RECURSE SERVER_SOURCES
+    "server/*.cpp"
 )
+# Exclude build directories, example files, and unwanted files
+list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*build.*")
+list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
+list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*exempleTranfersData.*")
 
-# Override default clean to be more verbose
-add_custom_target(clean_verbose
-    COMMAND ${CMAKE_COMMAND} --build . --target clean
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Cleaning object files and executables"
+add_executable(GameServer ${SERVER_SOURCES})
+target_include_directories(GameServer PRIVATE ${SERVER_INCLUDE_DIRS})
+target_link_libraries(GameServer 
+    transferData 
+    ${LIBCONFIG_LIBRARIES}
+)
+target_compile_options(GameServer PRIVATE ${LIBCONFIG_CFLAGS_OTHER})
+
+# ---- Custom targets for convenience ----
+add_custom_target(client DEPENDS RTypeClient)
+add_custom_target(server DEPENDS GameServer)
+add_custom_target(all_binaries DEPENDS RTypeClient GameServer)
+
+# ---- Clean up build artifacts ----
+set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
+    "${CMAKE_SOURCE_DIR}/RTypeClient"
+    "${CMAKE_SOURCE_DIR}/GameServer"
 )
