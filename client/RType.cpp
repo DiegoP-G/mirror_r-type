@@ -21,6 +21,7 @@ private:
   EnemySystem enemySystem;
   LaserWarningSystem laserWarningSystem;
   GameLogicSystem gameLogicSystem;
+  BackgroundSystem backgroundSystem;
 
   Entity *player = nullptr;
   bool gameOver = false;
@@ -47,6 +48,9 @@ public:
     // Create textures
     createTextures();
 
+    // Cretae background
+    createBackground();
+
     // Create player
     createPlayer();
 
@@ -58,14 +62,40 @@ public:
 
   void createTextures()
   {
+    sf::Texture &backgroundTexture = g_graphics->createTextureFromPath(
+      PathFormater::formatAssetPath(backgroundSpritePath), "background");
     sf::Texture &playerTexture = g_graphics->createTextureFromPath(
         PathFormater::formatAssetPath(playerSpritePath),
         "player"); // Yellow player
     sf::Texture &enemyTexture =
         g_graphics->createColorTexture(80, 400, 0, 255, 0); // Green enemy
 
+    g_graphics->storeTexture("background", backgroundTexture);
     g_graphics->storeTexture("player", playerTexture);
     g_graphics->storeTexture("enemy", enemyTexture);
+  }
+
+  void createBackground()
+  {
+    sf::Texture *backgroundTexture = g_graphics->getTexture("background");
+    int tileWidth = (int)backgroundTexture->getSize().x;
+    int tileHeight = (int)backgroundTexture->getSize().y;
+
+    auto createBackgroundEntity = [&](float x) -> Entity& {
+      auto &backgroundEntity = entityManager.createEntity();
+
+      backgroundEntity.addComponent<TransformComponent>
+        (x, 0.0f, 1.0f, 1.0f, 0.0f);
+      backgroundEntity.addComponent<SpriteComponent>(tileWidth, tileHeight,
+        255, 255, 255, backgroundTexture);
+      backgroundEntity.addComponent<BackgroundScrollComponent>
+        (-300.0f, true);
+
+      return backgroundEntity;
+    };
+
+    createBackgroundEntity(0.0f);
+    createBackgroundEntity((float)tileWidth);
   }
 
   void createPlayer()
@@ -143,6 +173,7 @@ public:
 
     // Update systems
     gameLogicSystem.update(entityManager, deltaTime);
+    backgroundSystem.update(entityManager, deltaTime);
     movementSystem.update(entityManager, deltaTime);
     playerSystem.update(entityManager, deltaTime);
     inputSystem.update(entityManager, deltaTime);

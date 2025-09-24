@@ -262,8 +262,8 @@ struct SpriteComponent : public Component {
         g(255), b(255), a(255) {}
 
   SpriteComponent(int w, int h, uint8_t red = 255, uint8_t green = 255,
-                  uint8_t blue = 255)
-      : texture(nullptr), isVisible(true), width(w), height(h), r(red),
+                  uint8_t blue = 255, sf::Texture *texture = nullptr)
+      : texture(texture), isVisible(true), width(w), height(h), r(red),
         g(green), b(blue), a(255) {}
 
   void render() override {}
@@ -662,4 +662,14 @@ struct AnimatedSpriteComponent : public Component {
 
   // Override init method from Component
   void init() override {}
+};
+
+struct BackgroundScrollComponent : public Component {
+    float scrollSpeed = 0.0f;
+    bool active = false;
+
+    BackgroundScrollComponent() = default;
+
+    BackgroundScrollComponent(float scrollSpeed, bool active)
+        : scrollSpeed(scrollSpeed), active(active) {}
 };
