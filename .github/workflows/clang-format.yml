@@ -1,4 +1,4 @@
-name: Check_C++_Formatting
+name: Check C++ Formatting
 
 on:
   push:
