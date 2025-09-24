@@ -328,6 +328,8 @@ Client          Server TCP       Server UDP
 | 0x30 | CHAT_MESSAGE | Client→Server | TCP | Send chat message |
 | 0x31 | CHAT_BROADCAST | Server→Client | TCP | Broadcast chat message |
 
+For more details on the protocol, see [`doc/protocol.txt`](doc/protocol.txt).
+
 ## 5. Data Serialization
 
 ### Serialization Interface
