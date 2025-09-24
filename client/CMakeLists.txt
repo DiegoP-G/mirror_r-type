@@ -38,3 +38,5 @@ add_executable(RTypeClient ${SOURCES})
 # Link SFML libraries
 find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 target_link_libraries(RTypeClient sfml-graphics sfml-window sfml-system)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -O0")
+

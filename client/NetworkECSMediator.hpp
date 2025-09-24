@@ -20,22 +20,21 @@ class Receiver;
 class NetworkECSMediator
 {
   private:
-    Sender *_sender = nullptr;
-    Receiver *_receiver = nullptr;
+    Sender *_sender{nullptr};
+    Receiver *_receiver{nullptr};
 
     std::unordered_map<int, std::function<void(const std::string &, int)>> _mediatorMap;
 
   public:
     NetworkECSMediator();
+    void setSender(Sender *s)
+    {
+        _sender = s;
+    }
+    void setReceiver(Receiver *r)
+    {
+        _receiver = r;
+    }
 
     void notify(NetworkECSMediatorEvent event, const std::string &data, int opcode = -1);
-
-    void setSender(Sender &sender)
-    {
-        _sender = &sender;
-    }
-    void setReceiver(Receiver &receiver)
-    {
-        _receiver = &receiver;
-    }
 };

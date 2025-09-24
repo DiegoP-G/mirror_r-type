@@ -1,10 +1,16 @@
 #include "ClientGame.hpp"
 #include "Network/NetworkManager.hpp"
+#include "Network/Receiver.hpp"
+#include "Network/Sender.hpp"
 #include "NetworkECSMediator.hpp"
 #include <iostream>
 
-ClientGame::ClientGame(NetworkECSMediator &med) : _networkManager(med), _running(false)
+ClientGame::ClientGame()
+    : _med(), _sender(Sender(_med)), _receiver(Receiver(_med)),
+      _networkManager(NetworkManager(_med, _sender, _receiver)), _running(false)
 {
+    _med.setSender(&_sender);
+    _med.setReceiver(&_receiver);
 }
 
 ClientGame::~ClientGame()

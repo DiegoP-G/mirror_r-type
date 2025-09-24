@@ -27,18 +27,12 @@ void ClientManager::addClient(const Client &c)
         return;
     }
 
-    std::cout << " before emplace" << std::endl;
-
-    // Insert client
     auto result = _clients.emplace(sock, c);
     if (result.second)
         std::cout << "[DEBUG] Client successfully added." << std::endl;
     else
         std::cerr << "[DEBUG] Failed to add client!" << std::endl;
 
-    std::cout << " after emplace" << std::endl;
-
-    // Print map keys after insertion
     std::cout << "[DEBUG] Clients after insertion:";
     for (const auto &pair : _clients)
     {

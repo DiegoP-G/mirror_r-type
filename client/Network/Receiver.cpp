@@ -12,13 +12,10 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
     _handlers[OPCODE_CODE_UDP] = [this](const std::string &payload, int opcode) { onCodeUdp(payload); };
     _handlers[OPCODE_CLOSE_CONNECTION] = [this](const std::string &payload, int opcode) { onCloseConnection(payload); };
     _handlers[OPCODE_CHAT_BROADCAST] = [this](const std::string &payload, int opcode) { onChatBroadcast(payload); };
-    _handlers[OPCODE_WORLD_UPDATE] = [this](const std::string &payload, int opcode) {
-        std::cout << payload << std::endl;
+    _handlers[OPCODE_WORLD_UPDATE] = [this](const std::string &payload, int opcode) { // THIS IS FOR TESTING
         _med.notify(UPDATE_DATA, payload, opcode);
-        std::cout << "got it" << std::endl;
         _med.notify(SEND_DATA_TCP, "coucouTCP", opcode);
-        std::cout << "got it" << std::endl;
-        // _med->notify(SEND_DATA_UDP, "coucouUDP");
+        _med.notify(SEND_DATA_UDP, "coucouUDP", opcode);
     };
 }
 
@@ -90,7 +87,7 @@ void Receiver::receiveTCPMessage()
         }
 
         if (_tcpBuffer.size() < headerLen + payloadLen)
-            break; // incomplete frame
+            break;
 
         std::string payload = _tcpBuffer.substr(headerLen, payloadLen);
 
