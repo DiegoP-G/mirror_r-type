@@ -2,15 +2,18 @@
 #include <netinet/in.h>
 #include <string>
 
+class NetworkManager;
+
 class Sender
 {
   private:
+    NetworkManager &_networkManagerRef;
     int _tcpSocket{-1};
     int _udpSocket{-1};
     sockaddr_in _serverAddr{};
 
   public:
-    Sender() = default;
+    Sender(NetworkManager &ref) : _networkManagerRef(ref) {};
 
     void setTcpSocket(int socket)
     {

@@ -1,12 +1,13 @@
 #include "Receiver.hpp"
 #include "../../transferData/opcode.hpp"
 #include "../../transferData/transferData.hpp"
+#include "NetworkManager.hpp"
 #include <arpa/inet.h>
 #include <iostream>
 #include <string>
 #include <unistd.h>
 
-Receiver::Receiver()
+Receiver::Receiver(NetworkManager &ref) : _networkManagerRef(ref)
 {
     _handlers[OPCODE_CODE_UDP] = [this](const std::string &payload) { onCodeUdp(payload); };
     _handlers[OPCODE_CLOSE_CONNECTION] = [this](const std::string &payload) { onCloseConnection(payload); };
@@ -37,6 +38,7 @@ void Receiver::onCloseConnection(const std::string &)
 void Receiver::onChatBroadcast(const std::string &payload)
 {
     std::cout << "[RECEIVER] [CHAT] " << payload << std::endl;
+    _networkManagerRef.getClientGame();
 }
 
 void Receiver::receiveTCPMessage()

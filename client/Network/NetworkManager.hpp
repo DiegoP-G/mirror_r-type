@@ -6,9 +6,12 @@
 #include <poll.h>
 #include <vector>
 
+class ClientGame;
+
 class NetworkManager
 {
   private:
+    ClientGame &_clientGameRef;
     Sender _sender;
     Receiver _receiver;
 
@@ -19,7 +22,7 @@ class NetworkManager
     sockaddr_in _serverAddr;
 
   public:
-    NetworkManager();
+    NetworkManager(ClientGame &ref);
     ~NetworkManager();
 
     bool setup(const char *serverIp = "127.0.0.1", int port = 8080);
@@ -29,4 +32,8 @@ class NetworkManager
     void handleSend();
     Sender &getSender();
     Receiver &getReceiver();
+    ClientGame &getClientGame()
+    {
+        return _clientGameRef;
+    };
 };

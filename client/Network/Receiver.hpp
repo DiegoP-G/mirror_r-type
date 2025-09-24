@@ -4,10 +4,13 @@
 #include <string>
 #include <unordered_map>
 
+class NetworkManager;
+
 class Receiver
 {
   private:
     /* data */
+    NetworkManager &_networkManagerRef;
     int _tcpSocket;
     int _udpSocket;
     sockaddr_in _serverAddr;
@@ -15,7 +18,7 @@ class Receiver
     std::unordered_map<int, std::function<void(const std::string &)>> _handlers;
 
   public:
-    Receiver();
+    Receiver(NetworkManager &ref);
 
     void receiveTCPMessage();
     void receiveUDPMessage();

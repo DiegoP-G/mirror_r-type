@@ -1,7 +1,7 @@
 #include "ClientGame.hpp"
 #include <iostream>
 
-ClientGame::ClientGame() : _running(false)
+ClientGame::ClientGame() : _networkManager(*this), _running(false)
 {
 }
 

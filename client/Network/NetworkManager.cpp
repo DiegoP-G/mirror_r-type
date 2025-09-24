@@ -5,7 +5,8 @@
 #include <iostream>
 #include <unistd.h>
 
-NetworkManager::NetworkManager() : _tcpSocket(-1), _udpSocket(-1)
+NetworkManager::NetworkManager(ClientGame &ref)
+    : _clientGameRef(ref), _sender(*this), _receiver(*this), _tcpSocket(-1), _udpSocket(-1)
 {
 }
 
