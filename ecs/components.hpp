@@ -102,10 +102,9 @@ struct PlayerComponent : public Component {
   int lives = 3;
   float shootCooldown = 0.0f;
   int playerID;
-  bool isLocal;
 
-  PlayerComponent(int playerID = 0, bool isLocal = true)
-      : playerID(playerID), isLocal(isLocal) {}
+  PlayerComponent(int playerID = 0)
+      : playerID(playerID) {}
 
   // Serialization
   std::vector<uint8_t> serialize() const {
@@ -120,7 +119,6 @@ struct PlayerComponent : public Component {
     offset += sizeof(float);
     std::memcpy(data.data() + offset, &playerID, sizeof(int));
     offset += sizeof(int);
-    std::memcpy(data.data() + offset, &isLocal, sizeof(bool));
     return data;
   }
 
@@ -136,7 +134,6 @@ struct PlayerComponent : public Component {
     offset += sizeof(float);
     std::memcpy(&comp.playerID, data + offset, sizeof(int));
     offset += sizeof(int);
-    std::memcpy(&comp.isLocal, data + offset, sizeof(bool));
     return comp;
   }
 };

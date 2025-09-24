@@ -163,6 +163,7 @@ class Entity
 
         return offset;
     }
+
     bool isActive() const
     {
         return active;

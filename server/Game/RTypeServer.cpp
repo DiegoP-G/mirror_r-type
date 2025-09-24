@@ -16,7 +16,7 @@ void RTypeServer::createPlayer(const std::string &id)
     auto &playerEntity = entityManager.createEntity();
 
     int playerId = deserializeInt(id);
-    playerEntity.addComponent<PlayerComponent>();
+    playerEntity.addComponent<PlayerComponent>(id);
     playerEntity.addComponent<TransformComponent>(100.0f, 300.0f);
     playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
     playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0);
@@ -54,8 +54,6 @@ void RTypeServer::restart()
 
     score = 0;
     gameOver = false;
-
-    createPlayer();
 }
 
 void RTypeServer::cleanup()
@@ -72,4 +70,29 @@ void RTypeServer::run(float deltaTime)
     }
 
     update(deltaTime);
+}
+
+// NEED TO ADD THE PLAYER ID TO THE INPUT
+
+void RTypeServer::handlePlayerInput(const std::string &input)
+{
+    auto entities = entityManager.getEntitiesWithComponent<InputComponent>();
+
+    auto newInputComponent = InputComponent();
+    const uint8_t *inputData = reinterpret_cast<const uint8_t *>(input.data());
+
+    newInputComponent.deserialize(inputData);
+
+    for (auto &entity : entities)
+    {
+
+        // Now it neeed to get the right player with player id and change the input.
+    }
+}
+
+void RTypeServer::sendEntities()
+{
+    auto data = entityManager.serializeAllEntities();
+    std::string serializedData(data.begin(), data.end());
+    mediator.notify(GameMediatorEvent::UpdateEntities, serializedData);
 }
