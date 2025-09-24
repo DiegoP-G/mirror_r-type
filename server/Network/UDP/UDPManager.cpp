@@ -17,6 +17,9 @@ UDPManager::UDPManager(NetworkManager &ref) : _NetworkManagerRef(ref)
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(SERVER_PORT);
 
+    int opt = 1;
+    if (setsockopt(_udpFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+        throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
     if (bind(_udpFd, (sockaddr *)&addr, sizeof(addr)) < 0)
         throw std::runtime_error("UDP bind failed");
 
@@ -53,7 +56,7 @@ void UDPManager::update()
                 }
                 else
                 {
-                    std::cout << "[UDP] Client nor found with UDP code " << std::to_string(deserializeInt(payload))
+                    std::cout << "[UDP] Client not found with UDP code " << std::to_string(deserializeInt(payload))
                               << "\n";
                 }
             }

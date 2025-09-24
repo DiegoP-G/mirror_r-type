@@ -1,16 +1,25 @@
 #include "Receiver.hpp"
 #include "../../transferData/opcode.hpp"
 #include "../../transferData/transferData.hpp"
+#include "../NetworkECSMediator.hpp"
 #include <arpa/inet.h>
 #include <iostream>
 #include <string>
 #include <unistd.h>
 
-Receiver::Receiver()
+Receiver::Receiver(NetworkECSMediator &med) : _med(med)
 {
-    _handlers[OPCODE_CODE_UDP] = [this](const std::string &payload) { onCodeUdp(payload); };
-    _handlers[OPCODE_CLOSE_CONNECTION] = [this](const std::string &payload) { onCloseConnection(payload); };
-    _handlers[OPCODE_CHAT_BROADCAST] = [this](const std::string &payload) { onChatBroadcast(payload); };
+    _handlers[OPCODE_CODE_UDP] = [this](const std::string &payload, int opcode) { onCodeUdp(payload); };
+    _handlers[OPCODE_CLOSE_CONNECTION] = [this](const std::string &payload, int opcode) { onCloseConnection(payload); };
+    _handlers[OPCODE_CHAT_BROADCAST] = [this](const std::string &payload, int opcode) { onChatBroadcast(payload); };
+    _handlers[OPCODE_WORLD_UPDATE] = [this](const std::string &payload, int opcode) {
+        std::cout << payload << std::endl;
+        _med.notify(UPDATE_DATA, payload, opcode);
+        std::cout << "got it" << std::endl;
+        _med.notify(SEND_DATA_TCP, "coucouTCP", opcode);
+        std::cout << "got it" << std::endl;
+        // _med->notify(SEND_DATA_UDP, "coucouUDP");
+    };
 }
 
 void Receiver::onCodeUdp(const std::string &payload)
@@ -42,25 +51,56 @@ void Receiver::onChatBroadcast(const std::string &payload)
 void Receiver::receiveTCPMessage()
 {
     if (_tcpSocket == -1)
-    {
-        std::cerr << "[RECEIVER] Cannot receive TCP message, TCP socket is invalid!" << std::endl;
         return;
-    }
 
-    std::string buffer;
-    auto [opcode, payload] = receiveFrameTCP(_tcpSocket, buffer);
+    char tmp[4096];
+    ssize_t bytes = read(_tcpSocket, tmp, sizeof(tmp));
+    if (bytes <= 0)
+        return;
 
-    std::cout << "[RECEIVER] TCP message received: opcode=" << std::to_string(opcode) << " | payload=" << payload
-              << std::endl;
+    _tcpBuffer.append(tmp, bytes);
 
-    auto it = _handlers.find(opcode);
-    if (it != _handlers.end())
+    while (true)
     {
-        it->second(payload);
-    }
-    else
-    {
-        std::cerr << "[RECEIVER] No handler registered for opcode " << std::to_string(opcode) << std::endl;
+        if (_tcpBuffer.size() < 2)
+            break; // need at least opcode + length
+        uint8_t opcode = _tcpBuffer[0];
+        size_t payloadLen = 0;
+
+        uint8_t lenByte = _tcpBuffer[1];
+        size_t headerLen = 2;
+
+        if (lenByte <= 253)
+            payloadLen = lenByte;
+        else if (lenByte == 254)
+        {
+            if (_tcpBuffer.size() < 4)
+                break;
+            payloadLen = (_tcpBuffer[2] << 8) | _tcpBuffer[3];
+            headerLen = 4;
+        }
+        else if (lenByte == 255)
+        {
+            if (_tcpBuffer.size() < 10)
+                break;
+            payloadLen = 0;
+            for (int i = 0; i < 8; ++i)
+                payloadLen = (payloadLen << 8) | (uint8_t)_tcpBuffer[2 + i];
+            headerLen = 10;
+        }
+
+        if (_tcpBuffer.size() < headerLen + payloadLen)
+            break; // incomplete frame
+
+        std::string payload = _tcpBuffer.substr(headerLen, payloadLen);
+
+        _tcpBuffer.erase(0, headerLen + payloadLen);
+
+        auto it = _handlers.find(opcode);
+        if (it != _handlers.end())
+            it->second(payload, opcode);
+        else
+            std::cerr << "[RECEIVER] No handler for opcode " << (int)opcode << std::endl;
     }
 }
 
@@ -82,7 +122,7 @@ void Receiver::receiveUDPMessage()
     auto it = _handlers.find(opcode);
     if (it != _handlers.end())
     {
-        it->second(payload);
+        it->second(payload, opcode);
     }
     else
     {

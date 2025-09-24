@@ -4,18 +4,22 @@
 #include <string>
 #include <unordered_map>
 
+class NetworkECSMediator;
+
 class Receiver
 {
   private:
     /* data */
+    std::string _tcpBuffer;
     int _tcpSocket;
     int _udpSocket;
     sockaddr_in _serverAddr;
+    NetworkECSMediator &_med;
 
-    std::unordered_map<int, std::function<void(const std::string &)>> _handlers;
+    std::unordered_map<int, std::function<void(const std::string &, int opcode)>> _handlers;
 
   public:
-    Receiver();
+    Receiver(NetworkECSMediator &med);
 
     void receiveTCPMessage();
     void receiveUDPMessage();

@@ -1,4 +1,5 @@
 #include "ClientGame.hpp"
+#include "NetworkECSMediator.hpp"
 #include "iostream"
 
 int main()
@@ -6,7 +7,8 @@ int main()
 
     try
     {
-        ClientGame clientGame;
+        NetworkECSMediator med;
+        ClientGame clientGame(med);
 
         clientGame.init("127.0.0.1", 8081);
         clientGame.start();

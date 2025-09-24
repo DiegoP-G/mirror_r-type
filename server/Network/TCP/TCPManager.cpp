@@ -3,11 +3,13 @@
 #include "../../../transferData/transferData.hpp"
 #include "../Client.hpp"
 #include "../NetworkManager.hpp"
+#include <chrono>
 #include <cstddef>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <sys/poll.h>
+#include <unistd.h>
 
 TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
 {
@@ -55,6 +57,9 @@ void TCPManager::acceptConnection()
         std::cout << "[TCP] TCP sent UDP code: " << std::to_string(code_udp) << "to caca \n";
 
         sendFrameTCP(cfd, OPCODE_CODE_UDP, serializeInt(code_udp));
+        std::cout << "h" << std::endl;
+        // sleep(1);
+        sendFrameTCP(cfd, OPCODE_WORLD_UPDATE, "sss");
     }
 }
 
@@ -98,9 +103,4 @@ void TCPManager::update()
             handlePollin(i, pfd);
         }
     }
-}
-
-void TCPManager::sendToClient(int fd, const std::string &msg)
-{
-    send(fd, msg.data(), msg.size(), 0);
 }

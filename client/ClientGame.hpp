@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Network/NetworkManager.hpp"
+#include "NetworkECSMediator.hpp"
 #include <atomic>
 #include <thread>
 
@@ -14,7 +15,7 @@ class ClientGame
     void networkLoop();
 
   public:
-    ClientGame();
+    ClientGame(NetworkECSMediator &med);
     ~ClientGame();
 
     bool init(const char *serverIp = "127.0.0.1", int port = 8080);

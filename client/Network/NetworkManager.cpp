@@ -1,11 +1,14 @@
 #include "NetworkManager.hpp"
 #include "../../transferData/opcode.hpp"
+#include "../NetworkECSMediator.hpp"
+#include "Sender.hpp"
 #include <arpa/inet.h>
 #include <cstring>
 #include <iostream>
 #include <unistd.h>
 
-NetworkManager::NetworkManager() : _tcpSocket(-1), _udpSocket(-1)
+NetworkManager::NetworkManager(NetworkECSMediator &med)
+    : _med(med), _sender(med), _receiver(med), _tcpSocket(-1), _udpSocket(-1)
 {
 }
 
@@ -54,9 +57,16 @@ bool NetworkManager::setup(const char *serverIp, int port)
         return false;
     }
 
+    _med.setSender(_sender);
+    // med.setReceiver(_receiver);
+
     _receiver.setServerAddr(_serverAddr);
     _receiver.setTcpSocket(_tcpSocket);
     _receiver.setUdpSocket(_udpSocket);
+
+    _sender.setServerAddr(_serverAddr);
+    _sender.setTcpSocket(_tcpSocket);
+    _sender.setUdpSocket(_udpSocket);
 
     _pollFds.clear();
     _pollFds.push_back({_tcpSocket, POLLIN, 0});

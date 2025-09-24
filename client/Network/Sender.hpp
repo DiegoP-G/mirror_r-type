@@ -1,6 +1,10 @@
 #pragma once
+#include "../NetworkECSMediator.hpp"
+#include <iostream>
 #include <netinet/in.h>
 #include <string>
+
+class NetworkECSMediator;
 
 class Sender
 {
@@ -9,15 +13,19 @@ class Sender
     int _udpSocket{-1};
     sockaddr_in _serverAddr{};
 
+    NetworkECSMediator &_med;
+
   public:
-    Sender() = default;
+    Sender(NetworkECSMediator &med);
 
     void setTcpSocket(int socket)
     {
+        std::cout << "TCP" << socket << std::endl;
         _tcpSocket = socket;
     }
     void setUdpSocket(int socket)
     {
+        std::cout << "UDP" << socket << std::endl;
         _udpSocket = socket;
     }
     void setServerAddr(const sockaddr_in &addr)
@@ -25,6 +33,6 @@ class Sender
         _serverAddr = addr;
     }
 
-    void sendTcp(uint8_t opcode, const std::string &payload);
-    void sendUdp(uint8_t opcode, const std::string &payload);
+    void sendTcp(int opcode, const std::string &payload);
+    void sendUdp(int opcode, const std::string &payload);
 };

@@ -12,11 +12,19 @@ include_directories(
 )
 
 # Source files (all .cpp and .hpp recursively)
-file(GLOB_RECURSE SOURCES
-    "${CMAKE_SOURCE_DIR}/*.cpp"
-	"${CMAKE_SOURCE_DIR}/Network/*.cpp"
-	"${CMAKE_SOURCE_DIR}/../transferData/*.cpp"
+set(SOURCES
+    main.cpp
+    ClientGame.cpp
+    GraphicsManager.cpp
+    Network/NetworkManager.cpp
+    Network/Receiver.cpp
+    Network/Sender.cpp
+    NetworkECSMediator.cpp
+    RType.cpp
+    ../transferData/transferData.cpp
+    ../transferData/serializers.cpp
 )
+
 
 list(FILTER SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
 # # Exclude unwanted files
@@ -30,4 +38,3 @@ add_executable(RTypeClient ${SOURCES})
 # Link SFML libraries
 find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 target_link_libraries(RTypeClient sfml-graphics sfml-window sfml-system)
-

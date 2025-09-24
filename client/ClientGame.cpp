@@ -1,7 +1,9 @@
 #include "ClientGame.hpp"
+#include "Network/NetworkManager.hpp"
+#include "NetworkECSMediator.hpp"
 #include <iostream>
 
-ClientGame::ClientGame() : _running(false)
+ClientGame::ClientGame(NetworkECSMediator &med) : _networkManager(med), _running(false)
 {
 }
 

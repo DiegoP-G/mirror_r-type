@@ -1,22 +1,41 @@
+#pragma once
+
+#include "../transferData/opcode.hpp"
 #include "Network/Receiver.hpp"
 #include "Network/Sender.hpp"
+#include <functional>
 #include <string>
-
-#pragma once
+#include <unordered_map>
 
 enum NetworkECSMediatorEvent
 {
-    SendData,
-    UpdateData
+    SEND_DATA_TCP,
+    SEND_DATA_UDP,
+    UPDATE_DATA
 };
+
+class Sender;
+class Receiver;
 
 class NetworkECSMediator
 {
   private:
-    // ECS
-    Sender _sender;
-    Receiver _receiver;
+    Sender *_sender = nullptr;
+    Receiver *_receiver = nullptr;
+
+    std::unordered_map<int, std::function<void(const std::string &, int)>> _mediatorMap;
 
   public:
-    void notify(const NetworkECSMediator &event, const std::string &data);
+    NetworkECSMediator();
+
+    void notify(NetworkECSMediatorEvent event, const std::string &data, int opcode = -1);
+
+    void setSender(Sender &sender)
+    {
+        _sender = &sender;
+    }
+    void setReceiver(Receiver &receiver)
+    {
+        _receiver = &receiver;
+    }
 };
