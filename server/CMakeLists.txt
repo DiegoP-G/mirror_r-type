@@ -16,6 +16,8 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Mediator
     ${CMAKE_SOURCE_DIR}/Network
     ${CMAKE_SOURCE_DIR}/../transferData
+    ${CMAKE_SOURCE_DIR}/../ecs
+    ${CMAKE_SOURCE_DIR}/../ecs/components
 )
 
 # ----------------------
@@ -29,6 +31,8 @@ file(GLOB_RECURSE SOURCES
     ${CMAKE_SOURCE_DIR}/Network/TCP/*.cpp
     ${CMAKE_SOURCE_DIR}/Network/UDP/*.cpp
     ${CMAKE_SOURCE_DIR}/../transferData/*.cpp
+    ${CMAKE_SOURCE_DIR}/../ecs/*.cpp
+    ${CMAKE_SOURCE_DIR}/../ecs/components/*.cpp
 )
 
 # Exclude example files
@@ -41,6 +45,14 @@ list(FILTER SOURCES EXCLUDE REGEX ".*/exempleTranfersData/.*")
 add_executable(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/main.cpp ${SOURCES})
 
 
+# ----------------------
+# Link SFML libraries
+# ----------------------
+target_link_libraries(${PROJECT_NAME} 
+    sfml-graphics
+    sfml-window
+    sfml-system
+)
 
 # ----------------------
 # Link libconfig++
@@ -57,4 +69,3 @@ message(STATUS "Sources included in build:")
 foreach(src IN LISTS SOURCES)
     message(STATUS "  ${src}")
 endforeach()
-

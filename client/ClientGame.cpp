@@ -32,6 +32,9 @@ void ClientGame::start()
     _networkThread = std::thread(&ClientGame::networkLoop, this);
 
     std::cout << "ClientGame started (network running in background)" << std::endl;
+
+    _graphic.init();
+    _graphic.run();
 }
 
 void ClientGame::stop()

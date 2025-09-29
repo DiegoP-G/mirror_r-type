@@ -12,15 +12,18 @@ UDPManager::UDPManager(NetworkManager &ref) : _NetworkManagerRef(ref)
     if (_udpFd < 0)
         throw std::runtime_error("UDP socket failed");
 
-    sockaddr_in addr{};
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(SERVER_PORT);
+    _addr.sin_family = AF_INET;
+    _addr.sin_addr.s_addr = INADDR_ANY;
+    _addr.sin_port = htons(SERVER_PORT);
 
+<<<<<<< HEAD
     int opt = 1;
     if (setsockopt(_udpFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
         throw std::runtime_error("setsockopt(SO_REUSEADDR) failed");
     if (bind(_udpFd, (sockaddr *)&addr, sizeof(addr)) < 0)
+=======
+    if (bind(_udpFd, (sockaddr *)&_addr, sizeof(_addr)) < 0)
+>>>>>>> server_ecs
         throw std::runtime_error("UDP bind failed");
 
     _pollFds.push_back({_udpFd, POLLIN, 0});
@@ -74,12 +77,10 @@ void UDPManager::update()
     }
 }
 
-void UDPManager::sendTo(const std::string &ip, int port, const std::string &msg)
+void UDPManager::sendTo(std::vector<int> sockets, int opcode, const std::string &data)
 {
-    sockaddr_in dest{};
-    dest.sin_family = AF_INET;
-    dest.sin_port = htons(port);
-    inet_pton(AF_INET, ip.c_str(), &dest.sin_addr);
-
-    sendto(_udpFd, msg.data(), msg.size(), 0, (sockaddr *)&dest, sizeof(dest));
+    for (int socket : sockets)
+    {
+        sendFrameUDP(socket, opcode, data, _addr, sizeof(_addr));
+    }
 }

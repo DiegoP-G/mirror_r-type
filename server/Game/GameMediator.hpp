@@ -2,24 +2,36 @@
 #include "../Include/Errors/EventUnknown.hpp"
 #include "../Mediator/IMediator.hpp"
 #include "../Network/NetworkManager.hpp"
+#include "RTypeServer.hpp"
 #include <functional>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <chrono>
+
 
 enum GameMediatorEvent
 {
     TickNetwork,
     TickLogic,
-    SetupNetwork
+    AddPlayer,
+    SetupNetwork,
+    UpdateEntities,
+    PlayerInput,
 };
+
+class NetworkManager;
+class RTypeServer;
 
 class GameMediator : public IMediator
 {
   private:
-    NetworkManager _networkManager;
-    std::unordered_map<GameMediatorEvent, std::function<void()>> _mediatorMap;
+    NetworkManager &_networkManager;
+    RTypeServer &_rTypeServer;
+
+    std::unordered_map<GameMediatorEvent, std::function<void(const std::string&)>> _mediatorMap;
+
 
   public:
     GameMediator();

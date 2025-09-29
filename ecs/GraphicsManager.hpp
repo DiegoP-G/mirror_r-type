@@ -9,12 +9,12 @@
  *
  */
 
-#ifndef GRAPHICS_HPP
-#define GRAPHICS_HPP
+#pragma once
 
 #include "../ecs/components.hpp"
 #include <SFML/Graphics.hpp>
 #include <string>
+#include "../ecs/components/AnimatedSpriteComponent.hpp"
 #include <unordered_map>
 
 #define TEXT_SIZE 24
@@ -49,5 +49,3 @@ class GraphicsManager
 };
 
 extern GraphicsManager *g_graphics;
-
-#endif // GRAPHICS_HPP
