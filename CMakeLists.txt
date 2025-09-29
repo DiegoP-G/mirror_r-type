@@ -5,7 +5,7 @@ project(RTypeProject)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# ---- Output directory for binaries (root of project) ----
+# ---- Output directory for binaries ----
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
@@ -20,14 +20,35 @@ add_library(transferData
     transferData/transferData.cpp
     transferData/serializers.cpp
 )
-target_include_directories(transferData PUBLIC 
+target_include_directories(transferData PUBLIC
     transferData
-    ecs  # Include ECS headers
+    ecs
+)
+
+# ---- ECS + Components library ----
+file(GLOB_RECURSE ECS_SOURCES
+    ecs/*.cpp
+)
+add_library(ecs ${ECS_SOURCES})
+target_include_directories(ecs PUBLIC ecs)
+
+# ECS depends on SFML
+target_link_libraries(ecs PUBLIC
+    sfml-graphics
+    sfml-window
+    sfml-system
 )
 
 # ---- Client executable ----
-# Include directories for client
-set(CLIENT_INCLUDE_DIRS
+file(GLOB_RECURSE CLIENT_SOURCES
+    client/*.cpp
+)
+list(FILTER CLIENT_SOURCES EXCLUDE REGEX ".*build.*")
+list(FILTER CLIENT_SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
+
+add_executable(RTypeClient ${CLIENT_SOURCES})
+
+target_include_directories(RTypeClient PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/client
     ${CMAKE_SOURCE_DIR}/client/Network
@@ -35,26 +56,25 @@ set(CLIENT_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/ecs
 )
 
-# Client source files
-file(GLOB_RECURSE CLIENT_SOURCES
-    "client/*.cpp"
-)
-# Exclude build directories and unwanted files
-list(FILTER CLIENT_SOURCES EXCLUDE REGEX ".*build.*")
-list(FILTER CLIENT_SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
-
-add_executable(RTypeClient ${CLIENT_SOURCES})
-target_include_directories(RTypeClient PRIVATE ${CLIENT_INCLUDE_DIRS})
-target_link_libraries(RTypeClient 
-    transferData 
-    sfml-graphics 
-    sfml-window 
+target_link_libraries(RTypeClient
+    transferData
+    ecs
+    sfml-graphics
+    sfml-window
     sfml-system
 )
 
 # ---- Server executable ----
-# Include directories for server
-set(SERVER_INCLUDE_DIRS
+file(GLOB_RECURSE SERVER_SOURCES
+    server/*.cpp
+)
+list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*build.*")
+list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
+list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*exempleTranfersData.*")
+
+add_executable(GameServer ${SERVER_SOURCES})
+
+target_include_directories(GameServer PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/server
     ${CMAKE_SOURCE_DIR}/server/Game
@@ -67,20 +87,13 @@ set(SERVER_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/ecs
 )
 
-# Server source files
-file(GLOB_RECURSE SERVER_SOURCES
-    "server/*.cpp"
-)
-# Exclude build directories, example files, and unwanted files
-list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*build.*")
-list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
-list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*exempleTranfersData.*")
-
-add_executable(GameServer ${SERVER_SOURCES})
-target_include_directories(GameServer PRIVATE ${SERVER_INCLUDE_DIRS})
-target_link_libraries(GameServer 
-    transferData 
+target_link_libraries(GameServer
+    transferData
+    ecs
     ${LIBCONFIG_LIBRARIES}
+    sfml-graphics
+    sfml-window
+    sfml-system
 )
 target_compile_options(GameServer PRIVATE ${LIBCONFIG_CFLAGS_OTHER})
 
@@ -94,3 +107,4 @@ set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
     "${CMAKE_SOURCE_DIR}/RTypeClient"
     "${CMAKE_SOURCE_DIR}/GameServer"
 )
+
