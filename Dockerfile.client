@@ -1,0 +1,24 @@
+FROM fedora:39
+
+# Install dependencies
+RUN dnf -y update && \
+    dnf -y install \
+        make \
+        gcc \
+        gcc-c++ \
+        cmake \
+        libconfig-devel \
+        pkg-config \
+        SFML-devel
+
+# Copy source code
+
+WORKDIR /app
+COPY . .
+
+RUN rm -rf build
+
+# Build the client
+RUN mkdir -p build && cd build && \
+    cmake .. && \
+    make client
