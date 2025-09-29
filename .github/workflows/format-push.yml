@@ -32,6 +32,7 @@ jobs:
           done
   build-server-docker:
     name: Build Docker image for server
+    needs: [format-check]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -40,8 +41,9 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -f Dockerfile.server -t rtype-server .
-  build-server-client:
+  build-client-server:
     name: Build Docker image for client
+    needs: [build-server-docker]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -52,7 +54,7 @@ jobs:
           docker build -f Dockerfile.client -t rtype-client .
   push-to-mirror:
     if: ${{ github.repository != '${{ env.MIRROR_REPO }}' && github.event_name == 'push' }}
-    needs: [format-check]
+    needs: [build-client-server]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
