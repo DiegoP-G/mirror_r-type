@@ -31,7 +31,6 @@ jobs:
           git ls-files '*.[ch]pp' '*.[ch]' -z | while IFS= read -r -d '' file; do
             clang-format --style=Microsoft --dry-run --Werror "$file"
           done
-
   build-server-docker:
   - name: Build Docker image for server
     runs-on: ubuntu-latest
@@ -42,7 +41,6 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -f Dockerfile.server -t rtype-server .
-
   build-server-client:
   - name: Build Docker image for client
     runs-on: ubuntu-latest
@@ -53,7 +51,6 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -f Dockerfile.client -t rtype-client .
-
   push-to-mirror:
     if: ${{ github.repository != '${{ env.MIRROR_REPO }}' && github.event_name == 'push' }}
     needs: [format-check]
