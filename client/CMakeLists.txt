@@ -9,6 +9,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}          # For headers in root
     ${CMAKE_SOURCE_DIR}/Network  # Network headers
     ${CMAKE_SOURCE_DIR}/../transferData
+    ${CMAKE_SOURCE_DIR}/../ecs
 )
 
 # Source files (all .cpp and .hpp recursively)
@@ -23,6 +24,10 @@ set(SOURCES
     RType.cpp
     ../transferData/transferData.cpp
     ../transferData/serializers.cpp
+    ../ecs/ecs.cpp
+    ../ecs/systems.cpp
+    ../ecs/GraphicsManager.cpp
+    ../ecs/entityManager.cpp
 )
 
 

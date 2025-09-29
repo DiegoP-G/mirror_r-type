@@ -30,7 +30,7 @@ void NetworkManager::addNewPlayer(int socket)
 
 void NetworkManager::updateEntities(std::string data)
 {
-    int opcode = OPCODE_ENTITIES_STATE;
+    int opcode = OPCODE_WORLD_UPDATE;
     auto map = _clientManager.getClientsMap();
 
     std::vector<int> socketsClients;

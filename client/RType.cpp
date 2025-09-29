@@ -1,9 +1,14 @@
 #include "RType.hpp"
+#include "../ecs/GraphicsManager.hpp"
+#include "assetsPath.hpp"
+#include "../ecs/ecs.hpp"
+#include <iostream>
+
+
 
 bool RTypeGame::init()
 {
     // Initialize graphics
-    g_graphics = new GraphicsManager();
     if (!g_graphics->init("R-Type", 800, 600))
     {
         std::cerr << "Failed to initialize graphics!" << std::endl;

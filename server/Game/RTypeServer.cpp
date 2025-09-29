@@ -85,7 +85,7 @@ void RTypeServer::handlePlayerInput(const std::string &input)
         auto playerEntity = entityManager.getEntityByID(playerId);
         if (playerEntity)
         {
-            playerEntity->addComponent(inputComp);
+            playerEntity->addComponent<InputComponent>(inputComp);
         }
     }
 }
