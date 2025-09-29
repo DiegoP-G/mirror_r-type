@@ -9,7 +9,8 @@ ColliderComponent::ColliderComponent(float w, float h) : hitbox(0, 0, w, h), isT
 {
 }
 
-ColliderComponent::ColliderComponent(float w, float h, bool isAct) : hitbox(0, 0, w, h), isTrigger(false), isActive(isAct)
+ColliderComponent::ColliderComponent(float w, float h, bool isAct)
+    : hitbox(0, 0, w, h), isTrigger(false), isActive(isAct)
 {
 }
 

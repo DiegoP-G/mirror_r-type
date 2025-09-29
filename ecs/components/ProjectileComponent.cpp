@@ -1,7 +1,8 @@
 #include "ProjectileComponent.hpp"
 #include <cstring>
 
-ProjectileComponent::ProjectileComponent(float d, float lt, EntityID o) : damage(d), lifeTime(lt), remainingLife(lt), owner(o)
+ProjectileComponent::ProjectileComponent(float d, float lt, EntityID o)
+    : damage(d), lifeTime(lt), remainingLife(lt), owner(o)
 {
 }
 

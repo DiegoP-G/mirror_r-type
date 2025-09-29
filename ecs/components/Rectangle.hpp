@@ -1,8 +1,8 @@
 #pragma once
 #include "../components.hpp"
 
-#include <vector>
 #include <cstdint>
+#include <vector>
 
 class Rectangle
 {

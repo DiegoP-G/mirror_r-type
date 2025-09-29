@@ -2,7 +2,6 @@
 #include "GameMediator.hpp"
 #include <chrono>
 
-
 Orchestrator::GameLoop::GameLoop()
 {
 }
@@ -21,7 +20,9 @@ void Orchestrator::GameLoop::loop()
 
         _gameMediator.notify(GameMediatorEvent::TickNetwork);
 
-        _gameMediator.notify(GameMediatorEvent::TickLogic, std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - startTime).count()));
-
+        _gameMediator.notify(GameMediatorEvent::TickLogic,
+                             std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(
+                                                std::chrono::high_resolution_clock::now() - startTime)
+                                                .count()));
     }
 }

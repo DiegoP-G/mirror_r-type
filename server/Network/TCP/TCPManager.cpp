@@ -57,9 +57,7 @@ void TCPManager::acceptConnection()
         std::cout << "[TCP] TCP sent UDP code: " << std::to_string(code_udp) << "to caca \n";
         _networkManagerRef.addNewPlayer(cfd);
         sendFrameTCP(cfd, OPCODE_CODE_UDP, serializeInt(code_udp));
-        std::cout << "h" << std::endl;
         // sleep(1);
-        sendFrameTCP(cfd, OPCODE_WORLD_UPDATE, "sss");
     }
 }
 
@@ -79,7 +77,7 @@ void TCPManager::handlePollin(size_t &i, pollfd &pfd)
         }
         else
         {
-            std::cout << "[TCP] Received: " << payload << "\n";
+            std::cout << "[TCP] Received: " << static_cast<int>(opcode) << "payload:" << payload << "\n";
         }
     }
 }

@@ -5,8 +5,8 @@
 ** GameMediator
 */
 
-#include "../Network/NetworkManager.hpp"
 #include "GameMediator.hpp"
+#include "../Network/NetworkManager.hpp"
 
 GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTypeServer(*new RTypeServer(*this))
 {

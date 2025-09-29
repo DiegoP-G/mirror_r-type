@@ -1,7 +1,8 @@
 #include "EnemyComponent.hpp"
 #include <cstring>
 
-EnemyComponent::EnemyComponent(int t, float ac, int st) : type(t), shootingType(st), attackCooldown(ac), currentCooldown(0)
+EnemyComponent::EnemyComponent(int t, float ac, int st)
+    : type(t), shootingType(st), attackCooldown(ac), currentCooldown(0)
 {
 }
 

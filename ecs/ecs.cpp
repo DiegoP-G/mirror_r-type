@@ -17,7 +17,6 @@ const std::string &serializePlayerInput(const InputComponent &player, int player
     return serializedData;
 }
 
-
 int deserializePlayerInput(const std::string &data, InputComponent &input)
 {
     size_t playerIdPos = data.find("PlayerID:");
@@ -36,9 +35,7 @@ int deserializePlayerInput(const std::string &data, InputComponent &input)
     std::string inputData = data.substr(inputCompPos + 15);
     int up, down, left, right, fire;
 
-
-    sscanf(inputData.c_str(), " up=%d down=%d left=%d right=%d fire=%d",
-           &up, &down, &left, &right, &fire);
+    sscanf(inputData.c_str(), " up=%d down=%d left=%d right=%d fire=%d", &up, &down, &left, &right, &fire);
 
     input.up = up;
     input.down = down;

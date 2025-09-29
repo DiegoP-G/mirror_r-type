@@ -1,13 +1,15 @@
 #include "RType.hpp"
+#include "../client/NetworkECSMediator.hpp"
 #include "../ecs/GraphicsManager.hpp"
-#include "assetsPath.hpp"
 #include "../ecs/ecs.hpp"
+#include "../transferData/opcode.hpp"
+#include "assetsPath.hpp"
 #include <iostream>
 
-
-
-bool RTypeGame::init()
+bool RTypeGame::init(NetworkECSMediator med)
 {
+    _med = med;
+    g_graphics = new GraphicsManager(med);
     // Initialize graphics
     if (!g_graphics->init("R-Type", 800, 600))
     {
@@ -168,15 +170,19 @@ void RTypeGame::sendInputPlayer()
     if (player && player->hasComponent<InputComponent>())
     {
         auto &input = player->getComponent<InputComponent>();
-        std::string serializedData = serializePlayerInput(input, player->getID());
-        // networkManager.sendPlayerInput(serializedData);
-    }
 
+        if (input.down == 1 || input.fire == 1 || input.right == 1 || input.left == 1 | input.up == 1)
+        {
+            std::string serializedData = serializePlayerInput(input, player->getID());
+            std::cout << "sending" << serializedData << std::endl;
+            _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, serializedData, OPCODE_PLAYER_STATE);
+        }
+    }
 }
 
 void RTypeGame::run()
 {
-    if (!init())
+    if (!init(_med))
     {
         return;
     }
@@ -202,7 +208,7 @@ void RTypeGame::run()
         handleEvents();
 
         sendInputPlayer();
-        
+
         // Fixed timestep update
         while (accumulator >= FRAME_TIME)
         {

@@ -20,7 +20,11 @@ ClientGame::~ClientGame()
 
 bool ClientGame::init(const char *serverIp, int port)
 {
-    return _networkManager.setup(serverIp, port);
+    if (!_networkManager.setup(serverIp, port))
+        return false;
+    if (!_graphic.init(_med))
+        return false;
+    return true;
 }
 
 void ClientGame::start()
@@ -33,7 +37,7 @@ void ClientGame::start()
 
     std::cout << "ClientGame started (network running in background)" << std::endl;
 
-    _graphic.init();
+    std::cout << "entrypoint" << std::endl;
     _graphic.run();
 }
 

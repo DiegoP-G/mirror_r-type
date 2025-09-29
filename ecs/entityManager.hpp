@@ -30,7 +30,7 @@ class EntityManager
     };
 
     template <typename... Ts> std::vector<Entity *> getEntitiesWithComponents()
-        {
+    {
         std::vector<Entity *> matchingEntities;
 
         if constexpr (sizeof...(Ts) > 0)

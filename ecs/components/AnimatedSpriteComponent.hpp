@@ -14,7 +14,7 @@ class AnimatedSpriteComponent : public Component
     float animationInterval;
     Vector2D scale;
     sf::Clock animationClock;
-    
+
     enum Direction
     {
         Default,

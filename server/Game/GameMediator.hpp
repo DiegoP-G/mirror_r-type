@@ -3,13 +3,12 @@
 #include "../Mediator/IMediator.hpp"
 #include "../Network/NetworkManager.hpp"
 #include "RTypeServer.hpp"
+#include <chrono>
 #include <functional>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <chrono>
-
 
 enum GameMediatorEvent
 {
@@ -30,8 +29,7 @@ class GameMediator : public IMediator
     NetworkManager &_networkManager;
     RTypeServer &_rTypeServer;
 
-    std::unordered_map<GameMediatorEvent, std::function<void(const std::string&)>> _mediatorMap;
-
+    std::unordered_map<GameMediatorEvent, std::function<void(const std::string &)>> _mediatorMap;
 
   public:
     GameMediator();

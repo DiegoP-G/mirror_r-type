@@ -1,6 +1,6 @@
 #include "../ecs/components.hpp"
 #include "../ecs/systems.hpp"
-
+#include "NetworkECSMediator.hpp"
 
 class RTypeGame
 {
@@ -19,6 +19,8 @@ class RTypeGame
     LaserWarningSystem laserWarningSystem;
     // GameLogicSystem gameLogicSystem;
 
+    NetworkECSMediator _med;
+
     Entity *player = nullptr;
     bool gameOver = false;
 
@@ -31,7 +33,7 @@ class RTypeGame
   public:
     RTypeGame() = default;
 
-    bool init();
+    bool init(NetworkECSMediator med);
 
     void createTextures();
 
@@ -40,7 +42,6 @@ class RTypeGame
     void handleEvents();
 
     void sendInputPlayer();
-
 
     void update(float deltaTime);
 

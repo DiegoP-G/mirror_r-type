@@ -1,6 +1,6 @@
 #pragma once
-#include <vector>
 #include "../components.hpp"
+#include <vector>
 
 #include <cstdint>
 

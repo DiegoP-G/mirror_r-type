@@ -2,7 +2,6 @@
 #include "../../ecs/entity.hpp"
 #include "../../ecs/entityManager.hpp"
 #include "../../ecs/systems.hpp"
-#include "../../ecs/entity.hpp"
 #include "../../transferData/transferData.hpp"
 #include "GameMediator.hpp"
 
@@ -11,49 +10,50 @@
 
 class GameMediator;
 
-
 class RTypeServer
 {
-private:
-  GameMediator &mediator;
-  EntityManager entityManager;
+  private:
+    GameMediator &mediator;
+    EntityManager entityManager;
 
-  MovementSystem movementSystem;
-  RenderSystem renderSystem;
-  CollisionSystem collisionSystem;
-  BoundarySystem boundarySystem;
-  OffscreenCleanupSystem cleanupSystem;
-  InputSystem inputSystem;
-  PlayerSystem playerSystem;
-  EnemySystem enemySystem;
-  LaserWarningSystem laserWarningSystem;
-  GameLogicSystem gameLogicSystem;
+    MovementSystem movementSystem;
+    RenderSystem renderSystem;
+    CollisionSystem collisionSystem;
+    BoundarySystem boundarySystem;
+    OffscreenCleanupSystem cleanupSystem;
+    InputSystem inputSystem;
+    PlayerSystem playerSystem;
+    EnemySystem enemySystem;
+    LaserWarningSystem laserWarningSystem;
+    GameLogicSystem gameLogicSystem;
 
-  Entity *player = nullptr;
-  bool gameOver = false;
+    Entity *player = nullptr;
+    bool gameOver = false;
 
-  bool running = false;
+    bool running = false;
 
-  int score = 0;
+    int score = 0;
 
-  const float ENEMY_SPEED = -200.0f;
+    const float ENEMY_SPEED = -200.0f;
 
-public:
-  RTypeServer(GameMediator &mediator) : mediator(mediator) {}
+  public:
+    RTypeServer(GameMediator &mediator) : mediator(mediator)
+    {
+    }
 
-  bool init();
+    bool init();
 
-  void createPlayer(const std::string &);
+    void createPlayer(const std::string &);
 
-  void update(float deltaTime);
+    void update(float deltaTime);
 
-  void restart();
+    void restart();
 
-  void cleanup();
+    void cleanup();
 
-  void run(float deltaTime);
+    void run(float deltaTime);
 
-  void sendEntities();
+    void sendEntities();
 
-  void handlePlayerInput(const std::string&);
+    void handlePlayerInput(const std::string &);
 };

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "components.hpp"
-#include "using.hpp"
 #include "ecs.hpp"
+#include "using.hpp"
 #include <cstdint>
 #include <cstring>
 #include <memory>
@@ -42,7 +42,7 @@ class Entity
 
     // Ajoute un composant de type T à l'entité. Le remplace s'il existe déjà.
     template <typename T, typename... TArgs> T &addComponent(TArgs &&...args)
-        {
+    {
         ComponentID componentID = getComponentTypeID<T>();
 
         // S'assurer que le vecteur components est assez grand
@@ -62,13 +62,13 @@ class Entity
     };
 
     template <typename T> bool hasComponent() const
-        {
+    {
         ComponentID componentID = getComponentTypeID<T>();
         return componentID < componentMask.size() && componentMask[componentID];
     }
 
     template <typename T> T &getComponent()
-        {
+    {
         ComponentID componentID = getComponentTypeID<T>();
 
         // Vérifier si le composant existe d'abord

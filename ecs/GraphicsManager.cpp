@@ -10,13 +10,15 @@
  */
 
 #include "GraphicsManager.hpp"
+#include "../client/NetworkECSMediator.hpp"
 #include "../client/assetsPath.hpp"
 #include <iostream>
 
 GraphicsManager *g_graphics = nullptr;
 
-GraphicsManager::GraphicsManager()
+GraphicsManager::GraphicsManager(NetworkECSMediator med)
 {
+    _med = med;
 }
 
 GraphicsManager::~GraphicsManager()
@@ -25,7 +27,10 @@ GraphicsManager::~GraphicsManager()
 
 bool GraphicsManager::init(const std::string &title, int width, int height)
 {
+    std::cout << "caca" << std::endl;
     window.create(sf::VideoMode(width, height), title, sf::Style::Close);
+
+    std::cout << "caca" << std::endl;
 
     if (!window.isOpen())
     {

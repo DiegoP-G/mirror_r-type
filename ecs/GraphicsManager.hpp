@@ -11,10 +11,11 @@
 
 #pragma once
 
+#include "../client/NetworkECSMediator.hpp"
 #include "../ecs/components.hpp"
+#include "../ecs/components/AnimatedSpriteComponent.hpp"
 #include <SFML/Graphics.hpp>
 #include <string>
-#include "../ecs/components/AnimatedSpriteComponent.hpp"
 #include <unordered_map>
 
 #define TEXT_SIZE 24
@@ -25,9 +26,10 @@ class GraphicsManager
     sf::RenderWindow window;
     std::unordered_map<std::string, sf::Texture> textures;
     sf::Font font;
+    NetworkECSMediator _med;
 
   public:
-    GraphicsManager();
+    GraphicsManager(NetworkECSMediator med);
     ~GraphicsManager();
 
     bool init(const std::string &title, int width, int height);

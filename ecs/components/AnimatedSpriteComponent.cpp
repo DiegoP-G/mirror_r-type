@@ -1,10 +1,10 @@
 #include "AnimatedSpriteComponent.hpp"
 #include <cstring>
 
-AnimatedSpriteComponent::AnimatedSpriteComponent(const sf::Texture &tex, int frameWidth, int frameHeight, float interval,
-                        Vector2D scale)
-    : texture(&tex), currentFrame(2), frameWidth(frameWidth), frameHeight(frameHeight), 
-      animationInterval(interval), scale(scale), currentDirection(Default)
+AnimatedSpriteComponent::AnimatedSpriteComponent(const sf::Texture &tex, int frameWidth, int frameHeight,
+                                                 float interval, Vector2D scale)
+    : texture(&tex), currentFrame(2), frameWidth(frameWidth), frameHeight(frameHeight), animationInterval(interval),
+      scale(scale), currentDirection(Default)
 {
     sprite.setTexture(*texture);
     sprite.setScale(scale.x, scale.y);
@@ -56,7 +56,7 @@ void AnimatedSpriteComponent::init()
 std::vector<uint8_t> AnimatedSpriteComponent::serialize() const
 {
     std::vector<uint8_t> data;
-    
+
     data.insert(data.end(), reinterpret_cast<const uint8_t *>(&currentFrame),
                 reinterpret_cast<const uint8_t *>(&currentFrame) + sizeof(int));
     data.insert(data.end(), reinterpret_cast<const uint8_t *>(&frameWidth),
@@ -65,13 +65,13 @@ std::vector<uint8_t> AnimatedSpriteComponent::serialize() const
                 reinterpret_cast<const uint8_t *>(&frameHeight) + sizeof(int));
     data.insert(data.end(), reinterpret_cast<const uint8_t *>(&animationInterval),
                 reinterpret_cast<const uint8_t *>(&animationInterval) + sizeof(float));
-    
+
     auto scaleData = scale.serialize();
     data.insert(data.end(), scaleData.begin(), scaleData.end());
-    
+
     data.insert(data.end(), reinterpret_cast<const uint8_t *>(&currentDirection),
                 reinterpret_cast<const uint8_t *>(&currentDirection) + sizeof(Direction));
-    
+
     return data;
 }
 
@@ -79,7 +79,7 @@ AnimatedSpriteComponent AnimatedSpriteComponent::deserialize(const uint8_t *data
 {
     static sf::Texture defaultTexture;
     AnimatedSpriteComponent comp(defaultTexture, 32, 32, 0.1f);
-    
+
     size_t offset = 0;
     std::memcpy(&comp.currentFrame, data + offset, sizeof(int));
     offset += sizeof(int) * 3; // Skip frameWidth and frameHeight (const)
@@ -88,6 +88,6 @@ AnimatedSpriteComponent AnimatedSpriteComponent::deserialize(const uint8_t *data
     comp.scale = Vector2D::deserialize(data + offset);
     offset += sizeof(Vector2D);
     std::memcpy(&comp.currentDirection, data + offset, sizeof(Direction));
-    
+
     return comp;
 }

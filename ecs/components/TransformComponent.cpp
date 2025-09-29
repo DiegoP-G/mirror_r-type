@@ -9,7 +9,8 @@ TransformComponent::TransformComponent(float x, float y) : position(x, y), scale
 {
 }
 
-TransformComponent::TransformComponent(float x, float y, float sx, float sy, float r) : position(x, y), scale(sx, sy), rotation(r)
+TransformComponent::TransformComponent(float x, float y, float sx, float sy, float r)
+    : position(x, y), scale(sx, sy), rotation(r)
 {
 }
 

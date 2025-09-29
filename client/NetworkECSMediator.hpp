@@ -3,6 +3,7 @@
 #include "../transferData/opcode.hpp"
 #include "Network/Receiver.hpp"
 #include "Network/Sender.hpp"
+#include <cstdint>
 #include <functional>
 #include <string>
 #include <unordered_map>
@@ -23,7 +24,7 @@ class NetworkECSMediator
     Sender *_sender{nullptr};
     Receiver *_receiver{nullptr};
 
-    std::unordered_map<int, std::function<void(const std::string &, int)>> _mediatorMap;
+    std::unordered_map<int, std::function<void(const std::string &, uint8_t)>> _mediatorMap;
 
   public:
     NetworkECSMediator();
@@ -36,5 +37,5 @@ class NetworkECSMediator
         _receiver = r;
     }
 
-    void notify(NetworkECSMediatorEvent event, const std::string &data, int opcode = -1);
+    void notify(NetworkECSMediatorEvent event, const std::string &data, uint8_t opcode = -1);
 };
