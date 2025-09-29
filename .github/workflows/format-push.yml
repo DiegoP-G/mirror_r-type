@@ -32,25 +32,25 @@ jobs:
             clang-format --style=Microsoft --dry-run --Werror "$file"
           done
   build-server-docker:
-  - name: Build Docker image for server
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Build Docker image for server
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
 
-      - name: Build Docker image
-        run: |
-          docker build -f Dockerfile.server -t rtype-server .
+        - name: Build Docker image
+          run: |
+            docker build -f Dockerfile.server -t rtype-server .
   build-server-client:
-  - name: Build Docker image for client
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Build Docker image for client
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
 
-      - name: Build Docker image
-        run: |
-          docker build -f Dockerfile.client -t rtype-client .
+        - name: Build Docker image
+          run: |
+            docker build -f Dockerfile.client -t rtype-client .
   push-to-mirror:
     if: ${{ github.repository != '${{ env.MIRROR_REPO }}' && github.event_name == 'push' }}
     needs: [format-check]
