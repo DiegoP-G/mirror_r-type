@@ -13,7 +13,7 @@ class ship
     int posX;
     int posY;
 
-    ship(int _id = 0, int _posX = 0, int _posY = 0) : id(_id), posX(_posX), posY(_posY){};
+    ship(int _id = 0, int _posX = 0, int _posY = 0) : id(_id), posX(_posX), posY(_posY) {};
 
     void serialize(std::ostream &os) const
     {
