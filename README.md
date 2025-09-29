@@ -34,14 +34,24 @@ cmake ..
 make -j$(nproc)
 ```
 
+**Using Docker:**
+```bash
+# Client
+(sudo) docker build -f Dockerfile.client  -t rtype-client
+
+# Server
+(sudo) docker build -f Dockerfile.server  -t rtype-server
+
+```
+
 ### Running
 
 ```bash
 # Start the server
-./bin/rtype_server
+./GameServer
 
 # Start a client (in another terminal)
-./bin/rtype_client
+./RTypeClient
 ```
 
 ## Project Structure
