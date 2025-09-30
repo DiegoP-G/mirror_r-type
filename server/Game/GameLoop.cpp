@@ -19,6 +19,7 @@ void Orchestrator::GameLoop::loop()
         auto startTime = std::chrono::high_resolution_clock::now();
 
         _gameMediator.notify(GameMediatorEvent::TickNetwork);
+        std::cout << "hello\n";
 
         _gameMediator.notify(GameMediatorEvent::TickLogic,
                              std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(

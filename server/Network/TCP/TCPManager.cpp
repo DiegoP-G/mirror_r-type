@@ -85,7 +85,7 @@ void TCPManager::handlePollin(size_t &i, pollfd &pfd)
 
 void TCPManager::update()
 {
-    int ret = poll(_pollFds.data(), _pollFds.size(), 100);
+    int ret = poll(_pollFds.data(), _pollFds.size(), 0);
     if (ret < 0)
         throw std::runtime_error("TCP poll failed");
 

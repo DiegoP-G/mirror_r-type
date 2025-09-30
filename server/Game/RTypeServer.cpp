@@ -6,7 +6,6 @@ bool RTypeServer::init()
 {
     running = true;
 
-    std::cout << "R-Type Server initialized!" << std::endl;
     return true;
 }
 
@@ -39,6 +38,7 @@ void RTypeServer::update(float deltaTime)
     enemySystem.update(entityManager, deltaTime);
     collisionSystem.update(entityManager);
     laserWarningSystem.update(entityManager, deltaTime);
+
     if (player && !player->isActive())
     {
         gameOver = true;
