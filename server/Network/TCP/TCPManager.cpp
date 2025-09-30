@@ -77,6 +77,7 @@ void TCPManager::handlePollin(size_t &i, pollfd &pfd)
         }
         else
         {
+            _networkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload);
             std::cout << "[TCP] Received: " << static_cast<int>(opcode) << "payload:" << payload << "\n";
         }
     }

@@ -175,7 +175,7 @@ void RTypeGame::sendInputPlayer()
         {
             std::string serializedData = serializePlayerInput(input, player->getID());
             std::cout << "sending" << serializedData << std::endl;
-            _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, serializedData, OPCODE_PLAYER_STATE);
+            _med.notify(NetworkECSMediatorEvent::SEND_DATA_UDP, serializedData, OPCODE_PLAYER_INPUT);
         }
     }
 }

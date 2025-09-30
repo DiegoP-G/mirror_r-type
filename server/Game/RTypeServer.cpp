@@ -80,11 +80,14 @@ void RTypeServer::handlePlayerInput(const std::string &input)
     int playerId = deserializePlayerInput(input, inputComp);
 
     // Now you can use playerId to find the right player entity
+    std::cout << input << std::endl;
+    std::cout << playerId << std::endl;
     if (playerId != -1)
     {
         auto playerEntity = entityManager.getEntityByID(playerId);
         if (playerEntity)
         {
+            std::cout << "x" << std::endl;
             playerEntity->addComponent<InputComponent>(inputComp);
         }
     }

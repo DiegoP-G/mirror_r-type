@@ -5,6 +5,7 @@
 #include <string>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <unordered_map>
 #include <vector>
 
 class NetworkManager;
@@ -22,4 +23,5 @@ class UDPManager
     ~UDPManager();
     void update();
     void sendTo(std::vector<int> sockets, int opcode, const std::string &msg);
+    void handleReceival(uint8_t opcode, const std::string &data);
 };
