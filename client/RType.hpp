@@ -17,7 +17,7 @@ class RTypeGame
     PlayerSystem playerSystem;
     EnemySystem enemySystem;
     LaserWarningSystem laserWarningSystem;
-    // GameLogicSystem gameLogicSystem;
+    GameLogicSystem gameLogicSystem;
 
     NetworkECSMediator _med;
 

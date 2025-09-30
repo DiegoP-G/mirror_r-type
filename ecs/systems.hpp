@@ -108,6 +108,7 @@ class GameLogicSystem
         //     spawnEnemy(entityManager);
         //     enemySpawnTimer = 0.0f;
         // }
+        std::cout << "stageStatus: " << stageStatus << ", stageCount: " << stageCount << std::endl;
         if (stageStatus == 0)
         {
             stageStatus = 1;

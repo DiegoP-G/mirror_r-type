@@ -2,6 +2,7 @@
 #include "../client/NetworkECSMediator.hpp"
 #include "../ecs/GraphicsManager.hpp"
 #include "../ecs/ecs.hpp"
+#include "../ecs/systems.hpp"
 #include "../transferData/opcode.hpp"
 #include "assetsPath.hpp"
 #include <iostream>
@@ -110,7 +111,7 @@ void RTypeGame::update(float deltaTime)
         return;
 
     // Update systems
-    // gameLogicSystem.update(entityManager, deltaTime);
+    gameLogicSystem.update(entityManager, deltaTime);
     movementSystem.update(entityManager, deltaTime);
     playerSystem.update(entityManager, deltaTime);
     inputSystem.update(entityManager, deltaTime);
