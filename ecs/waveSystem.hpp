@@ -151,7 +151,7 @@ class WaveSystem
             enemy.addComponent<VelocityComponent>(-50.0f, 0.0f);
             enemy.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
             enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
-            enemy.addComponent<EnemyComponent>(wave.enemyType, 0.2f, 1);
+            enemy.addComponent<EnemyComponent>(wave.enemyType, 0.2f, 2);
         }
     }
 };
