@@ -4,6 +4,7 @@
 #include "../ecs/ecs.hpp"
 #include "../transferData/opcode.hpp"
 #include "assetsPath.hpp"
+#include "../ecs/systems.hpp"
 #include <iostream>
 
 bool RTypeGame::init(NetworkECSMediator med)
@@ -110,7 +111,7 @@ void RTypeGame::update(float deltaTime)
         return;
 
     // Update systems
-    // gameLogicSystem.update(entityManager, deltaTime);
+    gameLogicSystem.update(entityManager, deltaTime);
     movementSystem.update(entityManager, deltaTime);
     playerSystem.update(entityManager, deltaTime);
     inputSystem.update(entityManager, deltaTime);
@@ -174,7 +175,7 @@ void RTypeGame::sendInputPlayer()
         if (input.down == 1 || input.fire == 1 || input.right == 1 || input.left == 1 | input.up == 1)
         {
             std::string serializedData = serializePlayerInput(input, player->getID());
-            std::cout << "sending" << serializedData << std::endl;
+            // std::cout << "sending " << serializedData << std::endl;
             _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, serializedData, OPCODE_PLAYER_STATE);
         }
     }
