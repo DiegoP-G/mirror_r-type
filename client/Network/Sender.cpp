@@ -27,24 +27,20 @@ void Sender::sendTcp(uint8_t opcode, const std::string &payload)
 
 void Sender::sendUdp(uint8_t opcode, const std::string &payload)
 {
-    std::cout << "HERE" << std::endl;
     // std::cout << (int)opcode << "|" << payload << "|" << std::endl;
-    std::cout << _udpSocket << std::endl;
-    // if (_udpSocket == -1)
-    // {
-    //     std::cerr << "[Sender] UDP socket not set!" << std::endl;
-    //     return;
-    // }
+    // std::cout << _udpSocket << std::endl;
+    if (_udpSocket == -1)
+    {
+        std::cerr << "[Sender] UDP socket not set!" << std::endl;
+        return;
+    }
 
-    // std::cout << "x" << std::endl;
-    // try
-    // {
-    // std::cout << "x" << std::endl;
-    // std::cout << payload << std::endl;
-    //     sendFrameUDP(_udpSocket, opcode, payload, _serverAddr, sizeof(_serverAddr));
-    // }
-    // catch (const std::exception &e)
-    // {
-    //     std::cerr << "[Sender] Error sending UDP frame: " << e.what() << std::endl;
-    // }
+    try
+    {
+        sendFrameUDP(_udpSocket, opcode, payload, _serverAddr, sizeof(_serverAddr));
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "[Sender] Error sending UDP frame: " << e.what() << std::endl;
+    }
 }

@@ -67,9 +67,7 @@ void RTypeServer::run(float deltaTime)
     {
         return;
     }
-    std::cout << "In update" << std::endl;
     update(deltaTime);
-    std::cout << "Finish update" << std::endl;
 }
 
 // NEED TO ADD THE PLAYER ID TO THE INPUT

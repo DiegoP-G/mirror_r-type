@@ -8,7 +8,7 @@
 
 ClientGame::ClientGame()
     : _med(), _sender(Sender(_med)), _receiver(Receiver(_med)), _game(RTypeGame()),
-      _networkManager(NetworkManager(_med, _sender, _receiver, _game)), _running(false)
+      _networkManager(NetworkManager(_med, _sender, _receiver)), _running(false)
 {
     _med.setSender(&_sender);
     _med.setReceiver(&_receiver);

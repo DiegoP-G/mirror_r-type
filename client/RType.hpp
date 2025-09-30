@@ -36,9 +36,9 @@ class RTypeGame
   public:
     RTypeGame() = default;
 
-    std::mutex& getMutex()
+    std::mutex &getMutex()
     {
-      return _mutex;
+        return _mutex;
     }
 
     EntityManager &getEntityManager()

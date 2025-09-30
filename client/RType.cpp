@@ -202,7 +202,6 @@ void RTypeGame::sendInputPlayer()
         if (input.down == 1 || input.fire == 1 || input.right == 1 || input.left == 1 | input.up == 1)
         {
             std::string serializedData = serializePlayerInput(input, player->getID());
-            std::cout << "sending" << serializedData << std::endl;
             _med.notify(NetworkECSMediatorEvent::SEND_DATA_UDP, serializedData, OPCODE_PLAYER_INPUT);
         }
     }

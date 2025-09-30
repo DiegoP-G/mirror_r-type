@@ -1,10 +1,10 @@
 #pragma once
 
+#include "../ecs/GraphicsManager.hpp"
 #include "Network/NetworkManager.hpp"
 #include "Network/Receiver.hpp"
 #include "Network/Sender.hpp"
 #include "NetworkECSMediator.hpp"
-#include "../ecs/GraphicsManager.hpp"
 #include <atomic>
 #include <thread>
 

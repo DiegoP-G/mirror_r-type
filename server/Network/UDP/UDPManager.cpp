@@ -64,7 +64,6 @@ void UDPManager::update()
             }
             else
             {
-                std::cout << "Get client" << std::endl;
                 Client *c =
                     _NetworkManagerRef.getClientManager().getClientByAdress((std::to_string(client.sin_addr.s_addr)));
                 if (c != nullptr)
