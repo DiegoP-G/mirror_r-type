@@ -9,7 +9,10 @@
 
 Receiver::Receiver(NetworkECSMediator &med) : _med(med)
 {
-    _handlers[OPCODE_CODE_UDP] = [this](const std::string &payload, int opcode) { onCodeUdp(payload); };
+    _handlers[OPCODE_CODE_UDP] = [this](const std::string &payload, int opcode) {
+        std::cout << "caca" << std::endl;
+        onCodeUdp(payload);
+    };
     _handlers[OPCODE_CLOSE_CONNECTION] = [this](const std::string &payload, int opcode) { onCloseConnection(payload); };
     _handlers[OPCODE_CHAT_BROADCAST] = [this](const std::string &payload, int opcode) { onChatBroadcast(payload); };
     _handlers[OPCODE_WORLD_UPDATE] = [this](const std::string &payload, int opcode) {
@@ -19,7 +22,10 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
 
 void Receiver::onCodeUdp(const std::string &payload)
 {
-    std::cout << "[RECEIVER] Received UDP code: " << std::to_string(deserializeInt(payload)) << std::endl;
+    // std::cout << "[RECEIVER] Received UDP code: " << std::to_string(deserializeInt(payload)) << std::endl;
+    // std::cout << payload.length() << std::endl;
+    if (payload.length() == 0)
+        return;
     if (_udpSocket == -1)
     {
         std::cerr << "[RECEIVER] Cannot send UDP auth, UDP socket is invalid!" << std::endl;
@@ -51,6 +57,7 @@ void Receiver::receiveTCPMessage()
     std::string tmp;
     auto [opcode, payload] = receiveFrameTCP(_tcpSocket, tmp);
 
+    // std::cout << payload.length() << std::endl;
     auto it = _handlers.find(opcode);
     // std::cout << "PAYLOAD TCP: " << payload << " OPCODE: " << static_cast<int>(opcode) << std::endl;
     if (it != _handlers.end())
@@ -69,6 +76,7 @@ void Receiver::receiveUDPMessage()
 
     sockaddr_in client{};
     socklen_t len = sizeof(client);
+    std::cout << "x" << std::endl;
     auto [opcode, payload] = receiveFrameUDP(_udpSocket, client, len);
 
     std::cout << "[RECEIVER] UDP message received: opcode=" << std::to_string(opcode) << " | payload=" << payload

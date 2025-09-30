@@ -68,8 +68,8 @@ void UDPManager::update()
                 if (c != nullptr)
                     _NetworkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload);
                 else
-                std::cout << "[UDP] Received from Client Not found: " << (payload)
-                          << " from: " << client.sin_addr.s_addr << "\n";
+                    std::cout << "[UDP] Received from Client Not found: " << (payload)
+                              << " from: " << client.sin_addr.s_addr << "\n";
                 if (opcode == OPCODE_PLAYER_INPUT)
                     std::cout << "[UDP] Received player input " << std::endl;
             }
@@ -81,6 +81,6 @@ void UDPManager::sendTo(std::vector<int> sockets, int opcode, const std::string 
 {
     for (int socket : sockets)
     {
-        sendFrameUDP(socket, opcode, data, _addr, sizeof(_addr));
+        sendFrameUDP(_udpFd, opcode, data, _addr, sizeof(_addr));
     }
 }

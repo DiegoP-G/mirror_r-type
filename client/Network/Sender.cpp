@@ -1,10 +1,11 @@
 #include "Sender.hpp"
 #include "../../transferData/transferData.hpp"
 #include "../NetworkECSMediator.hpp"
+#include <cstdint>
 #include <iostream>
 #include <unistd.h>
 
-void Sender::sendTcp(int opcode, const std::string &payload)
+void Sender::sendTcp(uint8_t opcode, const std::string &payload)
 {
     if (_tcpSocket == -1)
     {
@@ -24,22 +25,26 @@ void Sender::sendTcp(int opcode, const std::string &payload)
     }
 }
 
-void Sender::sendUdp(int opcode, const std::string &payload)
+void Sender::sendUdp(uint8_t opcode, const std::string &payload)
 {
-    if (_udpSocket == -1)
-    {
-        std::cerr << "[Sender] UDP socket not set!" << std::endl;
-        return;
-    }
+    std::cout << "HERE" << std::endl;
+    // std::cout << (int)opcode << "|" << payload << "|" << std::endl;
+    std::cout << _udpSocket << std::endl;
+    // if (_udpSocket == -1)
+    // {
+    //     std::cerr << "[Sender] UDP socket not set!" << std::endl;
+    //     return;
+    // }
 
-    try
-    {
-        sendFrameUDP(_udpSocket, opcode, payload, _serverAddr, sizeof(_serverAddr));
-        std::cout << "[Sender] Sent UDP frame (opcode=" << std::to_string(opcode) << ", size=" << payload.size() << ")"
-                  << std::endl;
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "[Sender] Error sending UDP frame: " << e.what() << std::endl;
-    }
+    // std::cout << "x" << std::endl;
+    // try
+    // {
+    // std::cout << "x" << std::endl;
+    // std::cout << payload << std::endl;
+    //     sendFrameUDP(_udpSocket, opcode, payload, _serverAddr, sizeof(_serverAddr));
+    // }
+    // catch (const std::exception &e)
+    // {
+    //     std::cerr << "[Sender] Error sending UDP frame: " << e.what() << std::endl;
+    // }
 }

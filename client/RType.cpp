@@ -35,8 +35,8 @@ bool RTypeGame::init(NetworkECSMediator med)
 
 void RTypeGame::createTextures()
 {
-    sf::Texture &backgroundTexture = g_graphics->createTextureFromPath
-        (PathFormater::formatAssetPath(backgroundSpritePath), "background");
+    sf::Texture &backgroundTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(backgroundSpritePath), "background");
     sf::Texture &playerTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath(playerSpritePath),
                                                                    "player");       // Yellow player
     sf::Texture &enemyTexture = g_graphics->createColorTexture(80, 400, 0, 255, 0); // Green enemy
@@ -52,16 +52,13 @@ void RTypeGame::createBackground()
     int tileWidth = (int)backgroundTexture->getSize().x;
     int tileHeight = (int)backgroundTexture->getSize().y;
 
-    auto createBackgroundEntity = [&](float x) -> Entity& {
+    auto createBackgroundEntity = [&](float x) -> Entity & {
         auto &backgroundEntity = entityManager.createEntity();
 
-        backgroundEntity.addComponent<TransformComponent>
-            (x, 0.0f, 1.0f, 1.0f, 0.0f);
-        backgroundEntity.addComponent<SpriteComponent>
-            (tileWidth, tileHeight, 255, 255, 255, backgroundTexture);
-        backgroundEntity.addComponent<BackgroundScrollComponent>
-            (-300.0f, true);
-        
+        backgroundEntity.addComponent<TransformComponent>(x, 0.0f, 1.0f, 1.0f, 0.0f);
+        backgroundEntity.addComponent<SpriteComponent>(tileWidth, tileHeight, 255, 255, 255, backgroundTexture);
+        backgroundEntity.addComponent<BackgroundScrollComponent>(-300.0f, true);
+
         return backgroundEntity;
     };
 
