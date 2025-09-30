@@ -3,14 +3,16 @@
 #include "Network/Receiver.hpp"
 #include "Network/Sender.hpp"
 #include "NetworkECSMediator.hpp"
+#include "../ecs/GraphicsManager.hpp"
 #include <iostream>
 
 ClientGame::ClientGame()
-    : _med(), _sender(Sender(_med)), _receiver(Receiver(_med)),
-      _networkManager(NetworkManager(_med, _sender, _receiver)), _running(false)
+    : _med(), _sender(Sender(_med)), _receiver(Receiver(_med)), _game(RTypeGame()),
+      _networkManager(NetworkManager(_med, _sender, _receiver, _game)), _running(false)
 {
     _med.setSender(&_sender);
     _med.setReceiver(&_receiver);
+    _med.setRTypeGame(&_game);
 }
 
 ClientGame::~ClientGame()
@@ -38,7 +40,7 @@ void ClientGame::start()
     std::cout << "ClientGame started (network running in background)" << std::endl;
 
     std::cout << "entrypoint" << std::endl;
-    _graphic.run();
+    _game.run();
 }
 
 void ClientGame::stop()
