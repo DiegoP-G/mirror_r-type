@@ -1,3 +1,4 @@
+#include <iostream>
 #include "RType.hpp"
 #include "../client/NetworkECSMediator.hpp"
 #include "../ecs/GraphicsManager.hpp"
@@ -5,14 +6,14 @@
 #include "../transferData/opcode.hpp"
 #include "assetsPath.hpp"
 #include "../ecs/systems.hpp"
-#include <iostream>
+#include "windowSize.hpp"
 
 bool RTypeGame::init(NetworkECSMediator med)
 {
     _med = med;
     g_graphics = new GraphicsManager(med);
     // Initialize graphics
-    if (!g_graphics->init("R-Type", 800, 600))
+    if (!g_graphics->init("R-Type", windowWidth, windowHeight))
     {
         std::cerr << "Failed to initialize graphics!" << std::endl;
         return false;
@@ -118,6 +119,7 @@ void RTypeGame::update(float deltaTime)
     boundarySystem.update(entityManager, deltaTime);
     cleanupSystem.update(entityManager, deltaTime);
     enemySystem.update(entityManager, deltaTime);
+    waveSystem.update(entityManager, deltaTime);
     collisionSystem.update(entityManager);
     laserWarningSystem.update(entityManager, deltaTime);
     // Check game over

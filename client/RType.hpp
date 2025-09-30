@@ -1,6 +1,7 @@
 #include "../ecs/components.hpp"
 #include "../ecs/systems.hpp"
 #include "NetworkECSMediator.hpp"
+#include "../ecs/waveSystem.hpp"
 
 class RTypeGame
 {
@@ -16,6 +17,7 @@ class RTypeGame
     InputSystem inputSystem;              // Use existing generic input system
     PlayerSystem playerSystem;
     EnemySystem enemySystem;
+    WaveSystem waveSystem;
     LaserWarningSystem laserWarningSystem;
     GameLogicSystem gameLogicSystem;
 
