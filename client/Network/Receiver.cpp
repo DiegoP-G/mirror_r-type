@@ -24,6 +24,7 @@ void Receiver::onCodeUdp(const std::string &payload)
 {
     // std::cout << "[RECEIVER] Received UDP code: " << std::to_string(deserializeInt(payload)) << std::endl;
     // std::cout << payload.length() << std::endl;
+    std::cout << "penis" << std::endl;
     if (payload.length() == 0)
         return;
     if (_udpSocket == -1)

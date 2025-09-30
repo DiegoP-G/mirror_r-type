@@ -99,13 +99,15 @@ void NetworkManager::loop()
         {
             if (pfd.revents & POLLIN)
             {
-                if (pfd.fd == _tcpSocket)
+                if (pfd.fd == _udpSocket)
                 {
-                    _receiver.receiveTCPMessage();
-                }
-                else if (pfd.fd == _udpSocket)
-                {
+                    std::cout << "hi udp" << std::endl;
                     _receiver.receiveUDPMessage();
+                }
+                else if (pfd.fd == _tcpSocket)
+                {
+                    std::cout << "hi tcp" << std::endl;
+                    _receiver.receiveTCPMessage();
                 }
             }
         }

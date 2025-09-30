@@ -1,4 +1,5 @@
 #pragma once
+#include <netinet/in.h>
 #include <string>
 
 class Client
@@ -8,6 +9,7 @@ class Client
     std::string _name;
     std::string _buffer;
     std::string _adress;
+    sockaddr_in _trueAddr;
     int _code_UDP;
 
   public:
@@ -27,6 +29,10 @@ class Client
     {
         return _adress;
     };
+    inline sockaddr_in getTrueAddr()
+    {
+        return _trueAddr;
+    };
     inline void setAdress(std::string s)
     {
         _adress = s;
@@ -41,5 +47,9 @@ class Client
     inline std::string &getBuffer()
     {
         return _buffer;
+    };
+    inline void setTrueAddr(sockaddr_in *addr)
+    {
+        _trueAddr = *addr;
     };
 };
