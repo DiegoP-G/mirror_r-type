@@ -17,6 +17,7 @@ NetworkECSMediator::NetworkECSMediator()
          [this](const std::string &data, uint8_t opcode) {
              std::cout << "SENDING UDP" << std::endl;
              _sender->sendUdp(opcode, data);
+             std::cout << "FINISH UDP" << std::endl;
          }},
         {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), [this](const std::string &data, uint8_t opcode) {
              std::cout << "RECEIVED DATA: " << data << std::endl;
