@@ -21,7 +21,9 @@ NetworkManager::~NetworkManager()
 
 void NetworkManager::updateAllPoll()
 {
+    std::cout << "Udpdate all poll" << std::endl;
     _UDPManager.update();
+    std::cout << "Update tcp " << std::endl;
     _TCPManager.update();
 }
 

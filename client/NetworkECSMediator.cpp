@@ -1,5 +1,6 @@
 #include "NetworkECSMediator.hpp"
 #include "Network/Receiver.hpp"
+#include "RType.hpp"
 #include <cstdint>
 #include <exception>
 #include <iostream>
@@ -20,8 +21,13 @@ NetworkECSMediator::NetworkECSMediator()
              _sender->sendUdp(opcode, data);
              //  std::cout << "FINISH UDP" << std::endl;
          }},
-        {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA),
-         [this](const std::string &data, uint8_t opcode) { std::cout << "RECEIVED DATA: " << data << std::endl; }}};
+        {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), [this](const std::string &data, uint8_t opcode) {
+             std::cout << "RECEIVED DATA: " << data << std::endl;
+             _game->getMutex().lock();
+             std::vector<uint8_t> bytes(data.begin(), data.end());
+             _game->getEntityManager().deserializeAllEntities(bytes);
+             _game->getMutex().unlock();
+         }}};
 }
 
 void NetworkECSMediator::notify(NetworkECSMediatorEvent event, const std::string &data, uint8_t opcode)

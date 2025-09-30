@@ -45,7 +45,8 @@ void UDPManager::update()
             sockaddr_in client{};
             socklen_t len = sizeof(client);
             auto [opcode, payload] = receiveFrameUDP(_udpFd, client, len);
-
+            int ca = opcode;
+            std::cout << "Opcode : " << ca << std::endl;
             if (opcode == OPCODE_UDP_AUTH)
             {
                 std::cout << "[UDP] Received OPCODE_UDP_AUTH : " << deserializeInt(payload)
@@ -63,6 +64,7 @@ void UDPManager::update()
             }
             else
             {
+                std::cout << "Get client" << std::endl;
                 Client *c =
                     _NetworkManagerRef.getClientManager().getClientByAdress((std::to_string(client.sin_addr.s_addr)));
                 if (c != nullptr)

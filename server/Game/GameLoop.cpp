@@ -18,6 +18,7 @@ void Orchestrator::GameLoop::loop()
         // auto frameTime = std::chrono::milliseconds(16); // ~60 FPS (1000ms/60 ≈ 16.67ms)
         auto startTime = std::chrono::high_resolution_clock::now();
 
+        std::cout << "Tick network" << std::endl;
         _gameMediator.notify(GameMediatorEvent::TickNetwork);
 
         _gameMediator.notify(GameMediatorEvent::TickLogic,

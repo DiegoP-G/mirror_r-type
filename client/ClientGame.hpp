@@ -4,7 +4,7 @@
 #include "Network/Receiver.hpp"
 #include "Network/Sender.hpp"
 #include "NetworkECSMediator.hpp"
-#include "RType.hpp"
+#include "../ecs/GraphicsManager.hpp"
 #include <atomic>
 #include <thread>
 
@@ -14,8 +14,8 @@ class ClientGame
     NetworkECSMediator _med;
     Sender _sender;
     Receiver _receiver;
+    RTypeGame _game;
     NetworkManager _networkManager;
-    RTypeGame _graphic;
     std::thread _networkThread;
     std::atomic<bool> _running;
 
