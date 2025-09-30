@@ -10,7 +10,7 @@
  */
 
 #include "GraphicsManager.hpp"
-#include "assetsPath.hpp"
+#include "../client/assetsPath.hpp"
 #include <iostream>
 
 GraphicsManager *g_graphics = nullptr;
