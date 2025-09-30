@@ -20,7 +20,6 @@ void Orchestrator::GameLoop::loop()
 
         std::cout << "Tick network" << std::endl;
         _gameMediator.notify(GameMediatorEvent::TickNetwork);
-        std::cout << "hello\n";
 
         _gameMediator.notify(GameMediatorEvent::TickLogic,
                              std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(

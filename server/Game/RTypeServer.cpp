@@ -63,7 +63,6 @@ void RTypeServer::cleanup()
 
 void RTypeServer::run(float deltaTime)
 {
-    std::cout << "Server ecs running..." << std::endl;
     if (!init())
     {
         return;
