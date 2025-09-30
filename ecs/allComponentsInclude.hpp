@@ -1,6 +1,7 @@
 #pragma once
 
 #include "components/AnimatedSpriteComponent.hpp"
+#include "components/BackgroundScrollComponent.hpp"
 #include "components/BirdComponent.hpp"
 #include "components/CenteredComponent.hpp"
 #include "components/ColliderComponent.hpp"

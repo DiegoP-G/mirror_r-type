@@ -18,6 +18,7 @@ class RTypeGame
     EnemySystem enemySystem;
     LaserWarningSystem laserWarningSystem;
     GameLogicSystem gameLogicSystem;
+    BackgroundSystem backgroundSystem;
 
     NetworkECSMediator _med;
 
@@ -36,6 +37,8 @@ class RTypeGame
     bool init(NetworkECSMediator med);
 
     void createTextures();
+
+    void createBackground();
 
     void createPlayer();
 

@@ -27,10 +27,7 @@ GraphicsManager::~GraphicsManager()
 
 bool GraphicsManager::init(const std::string &title, int width, int height)
 {
-    std::cout << "caca" << std::endl;
     window.create(sf::VideoMode(width, height), title, sf::Style::Close);
-
-    std::cout << "caca" << std::endl;
 
     if (!window.isOpen())
     {

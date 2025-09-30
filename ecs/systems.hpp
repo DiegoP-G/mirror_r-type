@@ -108,7 +108,7 @@ class GameLogicSystem
         //     spawnEnemy(entityManager);
         //     enemySpawnTimer = 0.0f;
         // }
-        std::cout << "stageStatus: " << stageStatus << ", stageCount: " << stageCount << std::endl;
+        //std::cout << "stageStatus: " << stageStatus << ", stageCount: " << stageCount << std::endl;
         if (stageStatus == 0)
         {
             stageStatus = 1;
@@ -804,6 +804,8 @@ class OffscreenCleanupSystem
         {
             auto &transform = entity->getComponent<TransformComponent>();
 
+            if (entity->hasComponent<BackgroundScrollComponent>()) continue;
+
             // Generic offscreen cleanup
             if (transform.position.x < -100.0f)
             {
@@ -811,4 +813,31 @@ class OffscreenCleanupSystem
             }
         }
     }
+};
+
+// System to display scrolling background
+class BackgroundSystem
+{
+    public:
+        void update(EntityManager &entityManager, float deltaTime)
+        {
+            auto entities =
+                entityManager.getEntitiesWithComponents<TransformComponent,
+                SpriteComponent, BackgroundScrollComponent>();
+            
+            for (auto &entity : entities) {
+                auto &transform = entity->getComponent<TransformComponent>();
+                auto &sprite = entity->getComponent<SpriteComponent>();
+                auto &background = entity->getComponent<BackgroundScrollComponent>();
+
+                if (!background.active) continue;
+
+                transform.position.x += background.scrollSpeed * deltaTime;
+
+                float tileWidth = (float)sprite.width;
+
+                if (transform.position.x <= -tileWidth)
+                    transform.position.x += 2.0 * tileWidth;
+            }
+        }
 };

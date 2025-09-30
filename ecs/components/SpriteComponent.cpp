@@ -6,8 +6,8 @@ SpriteComponent::SpriteComponent()
 {
 }
 
-SpriteComponent::SpriteComponent(int w, int h, uint8_t red, uint8_t green, uint8_t blue)
-    : texture(nullptr), isVisible(true), width(w), height(h), r(red), g(green), b(blue), a(255)
+SpriteComponent::SpriteComponent(int w, int h, uint8_t red, uint8_t green, uint8_t blue, sf::Texture *texture)
+    : texture(texture), isVisible(true), width(w), height(h), r(red), g(green), b(blue), a(255)
 {
 }
 
