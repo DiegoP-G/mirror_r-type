@@ -20,7 +20,7 @@ NetworkECSMediator::NetworkECSMediator()
          }},
         {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), [this](const std::string &data, uint8_t opcode) {
              std::cout << "RECEIVED DATA: " << data << std::endl;
-             // Call ECS update functions here
+             
          }}};
 }
 

@@ -45,6 +45,7 @@ void RTypeServer::update(float deltaTime)
     }
 
     entityManager.refresh();
+    sendEntities();
 }
 
 void RTypeServer::restart()
@@ -87,7 +88,6 @@ void RTypeServer::handlePlayerInput(const std::string &input)
         auto playerEntity = entityManager.getEntityByID(playerId);
         if (playerEntity)
         {
-            std::cout << "x" << std::endl;
             playerEntity->addComponent<InputComponent>(inputComp);
         }
     }

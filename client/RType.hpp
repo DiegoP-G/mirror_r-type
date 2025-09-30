@@ -1,10 +1,12 @@
 #include "../ecs/components.hpp"
 #include "../ecs/systems.hpp"
 #include "NetworkECSMediator.hpp"
+#include <mutex>
 
 class RTypeGame
 {
   private:
+    std::mutex _mutex;
     EntityManager entityManager;
 
     // Systems
@@ -32,6 +34,11 @@ class RTypeGame
 
   public:
     RTypeGame() = default;
+
+    EntityManager &getEntityManager()
+    {
+        return entityManager;
+    }
 
     bool init(NetworkECSMediator med);
 

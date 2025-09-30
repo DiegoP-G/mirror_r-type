@@ -7,6 +7,7 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
+#include "RType.hpp"
 
 enum NetworkECSMediatorEvent
 {
@@ -23,7 +24,7 @@ class NetworkECSMediator
   private:
     Sender *_sender{nullptr};
     Receiver *_receiver{nullptr};
-
+    RTypeGame &_game;
     std::unordered_map<int, std::function<void(const std::string &, uint8_t)>> _mediatorMap;
 
   public:
