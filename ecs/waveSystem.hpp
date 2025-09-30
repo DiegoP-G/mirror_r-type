@@ -106,11 +106,12 @@ class WaveSystem
         {2.5f, 7, 0, vPattern},
     };
 
-    size_t currentWave = 0;
     float waveTimer = 0.0f;
     bool waveActive = false;
 
   public:
+    size_t currentWave = 0;
+
     void update(EntityManager &entityManager, float deltaTime)
     {
         if (currentWave >= waves.size())

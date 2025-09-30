@@ -146,6 +146,9 @@ void RTypeGame::render()
     std::string scoreText = "Score: " + std::to_string(score);
     g_graphics->drawText(scoreText, 10, 10);
 
+    std::string waveText = "Wave: " + std::to_string(waveSystem.currentWave + 1);
+    g_graphics->drawText(waveText, windowWidth - 100, 10);
+
     g_graphics->present();
 }
 
