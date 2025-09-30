@@ -6,7 +6,6 @@ bool RTypeServer::init()
 {
     running = true;
 
-    std::cout << "R-Type Server initialized!" << std::endl;
     return true;
 }
 
@@ -39,12 +38,14 @@ void RTypeServer::update(float deltaTime)
     enemySystem.update(entityManager, deltaTime);
     collisionSystem.update(entityManager);
     laserWarningSystem.update(entityManager, deltaTime);
+
     if (player && !player->isActive())
     {
         gameOver = true;
     }
 
     entityManager.refresh();
+    sendEntities();
 }
 
 void RTypeServer::restart()
@@ -80,6 +81,8 @@ void RTypeServer::handlePlayerInput(const std::string &input)
     int playerId = deserializePlayerInput(input, inputComp);
 
     // Now you can use playerId to find the right player entity
+    std::cout << input << std::endl;
+    std::cout << playerId << std::endl;
     if (playerId != -1)
     {
         auto playerEntity = entityManager.getEntityByID(playerId);

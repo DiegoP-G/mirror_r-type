@@ -43,6 +43,7 @@ class Entity
     // Ajoute un composant de type T à l'entité. Le remplace s'il existe déjà.
     template <typename T, typename... TArgs> T &addComponent(TArgs &&...args)
     {
+
         ComponentID componentID = getComponentTypeID<T>();
 
         // S'assurer que le vecteur components est assez grand

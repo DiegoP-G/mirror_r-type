@@ -1,6 +1,8 @@
 #include "NetworkManager.hpp"
+#include "../../transferData/opcode.hpp"
 #include "../../transferData/transferData.hpp"
 #include <arpa/inet.h>
+#include <cstdint>
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <poll.h>

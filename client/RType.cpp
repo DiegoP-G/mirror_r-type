@@ -2,9 +2,9 @@
 #include "../client/NetworkECSMediator.hpp"
 #include "../ecs/GraphicsManager.hpp"
 #include "../ecs/ecs.hpp"
+#include "../ecs/systems.hpp"
 #include "../transferData/opcode.hpp"
 #include "assetsPath.hpp"
-#include "../ecs/systems.hpp"
 #include <iostream>
 
 bool RTypeGame::init(NetworkECSMediator med)
@@ -205,8 +205,8 @@ void RTypeGame::sendInputPlayer()
         if (input.down == 1 || input.fire == 1 || input.right == 1 || input.left == 1 | input.up == 1)
         {
             std::string serializedData = serializePlayerInput(input, player->getID());
-            // std::cout << "sending " << serializedData << std::endl;
-            _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, serializedData, OPCODE_PLAYER_STATE);
+            std::cout << "sending" << serializedData << std::endl;
+            _med.notify(NetworkECSMediatorEvent::SEND_DATA_UDP, serializedData, OPCODE_PLAYER_INPUT);
         }
     }
 }

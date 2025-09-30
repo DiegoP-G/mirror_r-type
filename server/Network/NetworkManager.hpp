@@ -6,8 +6,11 @@
 #include "ClientManager.hpp"
 #include "TCP/TCPManager.hpp"
 #include "UDP/UDPManager.hpp"
+#include <cstdint>
+#include <functional>
 #include <poll.h>
 #include <unistd.h>
+#include <unordered_map>
 #include <vector>
 
 #define SERVER_PORT 8081
@@ -28,6 +31,11 @@ class NetworkManager
     inline ClientManager &getClientManager()
     {
         return _clientManager;
+    }
+
+    inline GameMediator &getGameMediator()
+    {
+        return _gameMediator;
     }
 
     void updateAllPoll();

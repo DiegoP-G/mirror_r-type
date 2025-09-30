@@ -24,6 +24,7 @@ bool ClientGame::init(const char *serverIp, int port)
         return false;
     if (!_graphic.init(_med))
         return false;
+    _med.setRTypeGame(&_graphic);
     return true;
 }
 

@@ -51,6 +51,10 @@
 // Sends the updated world state (positions of other players, entities, etc).
 // Payload: compressed list of visible entities.
 
+#define OPCODE_PLAYER_INPUT 0x22
+// [CLIENT → SERVER, UDP]
+// Sends the client kb input.
+
 // ---- Chat / Messaging ----
 
 #define OPCODE_CHAT_MESSAGE 0x30
