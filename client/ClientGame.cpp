@@ -22,9 +22,8 @@ bool ClientGame::init(const char *serverIp, int port)
 {
     if (!_networkManager.setup(serverIp, port))
         return false;
-    if (!_graphic.init(_med))
-        return false;
-    _med.setRTypeGame(&_graphic);
+    // if (!_graphic.init(_med))
+    //     return false;
     return true;
 }
 
