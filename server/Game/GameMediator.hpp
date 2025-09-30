@@ -16,7 +16,7 @@ enum GameMediatorEvent
     TickLogic,
     AddPlayer,
     SetupNetwork,
-    UpdateEntities,
+    UpdateEntities = 0x21,
     PlayerInput = 0x22,
 };
 
