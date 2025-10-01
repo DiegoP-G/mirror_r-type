@@ -158,7 +158,7 @@ void RTypeGame::update(float deltaTime)
     // }
 
     entityManager.applyPendingChanges();
-    std::cout << "UPT END\n";
+    // std::cout << "UPT END\n";
 }
 
 void RTypeGame::render()
@@ -202,7 +202,7 @@ void cleanup()
 
 void RTypeGame::sendInputPlayer()
 {
-    std::cout << "in send input\n";
+    // std::cout << "in send input\n";
     
     _mutex.lock();
     

@@ -3,6 +3,7 @@
 #include "../../transferData/transferData.hpp"
 #include "../NetworkECSMediator.hpp"
 #include <arpa/inet.h>
+#include <cstdio>
 #include <iostream>
 #include <string>
 #include <unistd.h>
@@ -39,6 +40,7 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
     _handlers[OPCODE_PLAYER_ID] = [this](const std::string &payload, int opcode) {
+        std::cout << "[RECEIVER] Received OPCODE_PLAYER_ID" << std::endl;
         _med.notify(PLAYER_ID, payload, opcode);
     };
 }
@@ -46,16 +48,17 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
 
 void Receiver::onCodeUdp(const std::string &payload)
 {
-    // std::cout << "[RECEIVER] Received UDP code: " << std::to_string(deserializeInt(payload)) << std::endl;
-    // std::cout << payload.length() << std::endl;
-    std::cout << "penis" << std::endl;
-    if (payload.length() == 0)
-        return;
+    std::cout << "[RECEIVER] Processing UDP code, payload length: " << payload.length() << std::endl;
+
     if (_udpSocket == -1)
     {
         std::cerr << "[RECEIVER] Cannot send UDP auth, UDP socket is invalid!" << std::endl;
         return;
     }
+
+    int udpCode = deserializeInt(payload);
+    std::cout << "[RECEIVER] Sending UDP auth with code: " << udpCode << std::endl;
+
     sendFrameUDP(_udpSocket, OPCODE_UDP_AUTH, payload, _serverAddr, sizeof(_serverAddr));
 }
 
@@ -80,38 +83,60 @@ void Receiver::receiveTCPMessage()
     
     if (opcode == OPCODE_INCOMPLETE_DATA)
         return;
-    
-    if (opcode == OPCODE_CLOSE_CONNECTION)
+
+    while (true)
     {
-        std::cout << "[TCP] Server closed connection" << std::endl;
-        return;
-    }
-    
-    std::cout << "[TCP] Received opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
-    
-    // Router vers le handler approprié
-    auto it = _handlers.find(opcode);
-    if (it != _handlers.end())
-    {
-        it->second(payload, opcode);
-    }
-    else
-    {
-        std::cout << "[TCP] Unhandled opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
+        auto [opcode, payload] = receiveFrameTCP(_tcpSocket, _tcpBuffer);
+        std::cout << _tcpBuffer << std::endl;
+
+        // Si données incomplètes, on attend le prochain appel
+        if (opcode == OPCODE_INCOMPLETE_DATA)
+        {
+            std::cout << "[RECEIVER] Incomplete data, waiting for more..." << std::endl;
+            break;
+        }
+
+        // Si connexion fermée
+        if (opcode == OPCODE_CLOSE_CONNECTION)
+        {
+            std::cout << "[RECEIVER] Connection closed by server" << std::endl;
+            onCloseConnection("");
+            break;
+        }
+
+        // Traiter le message
+        std::cout << "[RECEIVER] TCP message: opcode=" << static_cast<int>(opcode)
+                  << ", payload_length=" << payload.length() << std::endl;
+
+        auto it = _handlers.find(opcode);
+        if (it != _handlers.end())
+        {
+            it->second(payload, opcode);
+        }
+        else
+        {
+            std::cerr << "[RECEIVER] No handler for opcode " << static_cast<int>(opcode) << std::endl;
+        }
+
+        // Si le buffer est vide, on sort de la boucle
+        if (_tcpBuffer.empty())
+            break;
     }
 }
 
 void Receiver::receiveUDPMessage()
 {
-    sockaddr_in from;
-    socklen_t len = sizeof(from);
-    
-    auto [opcode, payload] = receiveFrameUDP(_udpSocket, from, len);
-    
-    if (opcode == 0)
+    if (_udpSocket == -1)
+    {
+        std::cerr << "[RECEIVER] Cannot receive UDP message, UDP socket is invalid!" << std::endl;
         return;
-    
-    // Router vers le handler approprié
+    }
+
+    sockaddr_in client{};
+    socklen_t len = sizeof(client);
+
+    auto [opcode, payload] = receiveFrameUDP(_udpSocket, client, len);
+
     auto it = _handlers.find(opcode);
     if (it != _handlers.end())
     {
@@ -119,6 +144,6 @@ void Receiver::receiveUDPMessage()
     }
     else
     {
-        std::cout << "[UDP] Unhandled opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
+        std::cerr << "[RECEIVER] No handler registered for opcode " << std::to_string(opcode) << std::endl;
     }
 }
