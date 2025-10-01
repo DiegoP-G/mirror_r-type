@@ -3,6 +3,7 @@
 #include "../../transferData/transferData.hpp"
 #include "../NetworkECSMediator.hpp"
 #include <arpa/inet.h>
+#include <cstdio>
 #include <iostream>
 #include <string>
 #include <unistd.h>
@@ -10,7 +11,7 @@
 Receiver::Receiver(NetworkECSMediator &med) : _med(med)
 {
     _handlers[OPCODE_CODE_UDP] = [this](const std::string &payload, int opcode) {
-        std::cout << "caca" << std::endl;
+        std::cout << "[RECEIVER] Received OPCODE_CODE_UDP" << std::endl;
         onCodeUdp(payload);
     };
     _handlers[OPCODE_CLOSE_CONNECTION] = [this](const std::string &payload, int opcode) { onCloseConnection(payload); };
@@ -28,22 +29,24 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
         _med.notify(UPDATE_DATA, payload, opcode);
     };
     _handlers[OPCODE_PLAYER_ID] = [this](const std::string &payload, int opcode) {
+        std::cout << "[RECEIVER] Received OPCODE_PLAYER_ID" << std::endl;
         _med.notify(PLAYER_ID, payload, opcode);
     };
 }
 
 void Receiver::onCodeUdp(const std::string &payload)
 {
-    // std::cout << "[RECEIVER] Received UDP code: " << std::to_string(deserializeInt(payload)) << std::endl;
-    // std::cout << payload.length() << std::endl;
-    std::cout << "penis" << std::endl;
-    if (payload.length() == 0)
-        return;
+    std::cout << "[RECEIVER] Processing UDP code, payload length: " << payload.length() << std::endl;
+
     if (_udpSocket == -1)
     {
         std::cerr << "[RECEIVER] Cannot send UDP auth, UDP socket is invalid!" << std::endl;
         return;
     }
+
+    int udpCode = deserializeInt(payload);
+    std::cout << "[RECEIVER] Sending UDP auth with code: " << udpCode << std::endl;
+
     sendFrameUDP(_udpSocket, OPCODE_UDP_AUTH, payload, _serverAddr, sizeof(_serverAddr));
 }
 
@@ -67,16 +70,44 @@ void Receiver::receiveTCPMessage()
     if (_tcpSocket == -1)
         return;
 
-    std::string tmp;
-    auto [opcode, payload] = receiveFrameTCP(_tcpSocket, tmp);
+    while (true)
+    {
+        auto [opcode, payload] = receiveFrameTCP(_tcpSocket, _tcpBuffer);
+        std::cout << _tcpBuffer << std::endl;
 
-    // std::cout << payload.length() << std::endl;
-    auto it = _handlers.find(opcode);
-    // std::cout << "PAYLOAD TCP: " << payload << " OPCODE: " << static_cast<int>(opcode) << std::endl;
-    if (it != _handlers.end())
-        it->second(payload, opcode);
-    else
-        std::cerr << "[RECEIVER] No handler for opcode " << (int)opcode << std::endl;
+        // Si données incomplètes, on attend le prochain appel
+        if (opcode == OPCODE_INCOMPLETE_DATA)
+        {
+            std::cout << "[RECEIVER] Incomplete data, waiting for more..." << std::endl;
+            break;
+        }
+
+        // Si connexion fermée
+        if (opcode == OPCODE_CLOSE_CONNECTION)
+        {
+            std::cout << "[RECEIVER] Connection closed by server" << std::endl;
+            onCloseConnection("");
+            break;
+        }
+
+        // Traiter le message
+        std::cout << "[RECEIVER] TCP message: opcode=" << static_cast<int>(opcode)
+                  << ", payload_length=" << payload.length() << std::endl;
+
+        auto it = _handlers.find(opcode);
+        if (it != _handlers.end())
+        {
+            it->second(payload, opcode);
+        }
+        else
+        {
+            std::cerr << "[RECEIVER] No handler for opcode " << static_cast<int>(opcode) << std::endl;
+        }
+
+        // Si le buffer est vide, on sort de la boucle
+        if (_tcpBuffer.empty())
+            break;
+    }
 }
 
 void Receiver::receiveUDPMessage()
@@ -89,11 +120,8 @@ void Receiver::receiveUDPMessage()
 
     sockaddr_in client{};
     socklen_t len = sizeof(client);
-    // std::cout << "x" << std::endl;
-    auto [opcode, payload] = receiveFrameUDP(_udpSocket, client, len);
 
-    // std::cout << "[RECEIVER] UDP message received: opcode=" << std::to_string(opcode) << " | payload=" << payload
-    //   << std::endl;
+    auto [opcode, payload] = receiveFrameUDP(_udpSocket, client, len);
 
     auto it = _handlers.find(opcode);
     if (it != _handlers.end())

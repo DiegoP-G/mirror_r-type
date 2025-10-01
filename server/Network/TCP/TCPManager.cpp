@@ -64,8 +64,8 @@ void TCPManager::acceptConnection()
     _networkManagerRef.addNewPlayer(cfd);
 
     // Mettre les messages en file d'attente au lieu de les envoyer immédiatement
-    queueMessage(cfd, OPCODE_PLAYER_ID, serializeInt(cfd));
     queueMessage(cfd, OPCODE_CODE_UDP, serializeInt(code_udp));
+    queueMessage(cfd, OPCODE_PLAYER_ID, "bonjour sale merde");
 
     // Activer POLLOUT pour ce client pour envoyer les messages
     setPollOut(cfd, true);
@@ -107,20 +107,32 @@ void TCPManager::handlePollout(size_t i, pollfd &pfd)
         {
             auto [opcode, payload] = _pendingMessages[pfd.fd].front();
 
-            sendFrameTCP(pfd.fd, opcode, payload);
+            // Essayer d'envoyer le message
+            if (sendFrameTCP(pfd.fd, opcode, payload))
+            {
+                // Envoi réussi, retirer le message de la queue
+                _pendingMessages[pfd.fd].pop();
+                std::cout << "[TCP] Message sent, " << _pendingMessages[pfd.fd].size() << " remaining in queue for fd "
+                          << pfd.fd << "\n";
+            }
+            else
+            {
+                // Envoi échoué (buffer plein), on réessaiera au prochain poll
+                std::cout << "[TCP] Failed to send, will retry later\n";
+                return;
+            }
 
-            _pendingMessages[pfd.fd].pop();
-            std::cout << "[TCP] Message sent, " << _pendingMessages[pfd.fd].size() << " remaining in queue for fd "
-                      << pfd.fd << "\n";
-
+            // Si plus de messages en attente, désactiver POLLOUT
             if (_pendingMessages[pfd.fd].empty())
             {
                 setPollOut(pfd.fd, false);
+                // Nettoyer la map si la queue est vide
                 _pendingMessages.erase(pfd.fd);
             }
         }
         else
         {
+            // Pas de messages en attente, désactiver POLLOUT
             setPollOut(pfd.fd, false);
         }
     }

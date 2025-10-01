@@ -224,7 +224,7 @@ void EntityManager::deserializePlayerEntities(const std::vector<uint8_t> &data)
         if (newEntity.hasComponent<PlayerComponent>())
         {
             auto &playerComp = newEntity.getComponent<PlayerComponent>();
-            //  std::cout << "Nouveau joueur désérialisé avec playerID = " << playerComp.playerID << std::endl;
+            std::cout << "Nouveau joueur désérialisé avec playerID = " << playerComp.playerID << std::endl;
         }
     }
     refresh();

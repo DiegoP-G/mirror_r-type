@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <vector>
 
-void sendFrameTCP(int socket, uint8_t opcode, const std::string &payload)
+bool sendFrameTCP(int fd, uint8_t opcode, const std::string &payload)
 {
     std::vector<uint8_t> frame;
 
@@ -31,7 +31,32 @@ void sendFrameTCP(int socket, uint8_t opcode, const std::string &payload)
     }
 
     frame.insert(frame.end(), payload.begin(), payload.end());
-    write(socket, frame.data(), frame.size());
+
+    // Envoi avec gestion des écritures partielles
+    ssize_t sent = 0;
+    ssize_t total = frame.size();
+
+    while (sent < total)
+    {
+        ssize_t n = write(fd, frame.data() + sent, total - sent);
+
+        if (n < 0)
+        {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+            {
+                // Socket buffer plein, on réessaiera plus tard
+                std::cout << "[TCP] Socket " << fd << " buffer full (EAGAIN), will retry later\n";
+                return false;
+            }
+            perror("write failed");
+            return false;
+        }
+        sent += n;
+    }
+
+    std::cout << "[TCP] Sent frame (opcode: " << static_cast<int>(opcode) << ", payload size: " << payloadLen
+              << ", total frame size: " << total << ") to client " << fd << "\n";
+    return true;
 }
 
 std::tuple<uint8_t, std::string> receiveFrameTCP(int socket, std::string &buffer)
