@@ -7,6 +7,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstring>
+#include <fcntl.h>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -27,6 +28,10 @@ TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
     _addr.sin_addr.s_addr = INADDR_ANY;
     _addr.sin_port = htons(SERVER_PORT);
 
+    // Juste après socket() ou connect()
+    int flags = fcntl(_listenFd, F_GETFL, 0);
+    fcntl(_listenFd, F_SETFL, flags | O_NONBLOCK);
+
     if (bind(_listenFd, (sockaddr *)&_addr, sizeof(_addr)) < 0)
         throw std::runtime_error("TCP bind failed");
     if (listen(_listenFd, 16) < 0)
@@ -45,11 +50,14 @@ void TCPManager::acceptConnection()
     int addrlen = sizeof(_addr);
 
     int cfd = accept(_listenFd, (struct sockaddr *)&_addr, (socklen_t *)&addrlen);
+
     if (cfd < 0)
     {
         perror("accept failed");
         return;
     }
+    int flags = fcntl(cfd, F_GETFL, 0);
+    fcntl(cfd, F_SETFL, flags | O_NONBLOCK);
 
     // Ajouter le client avec POLLIN (POLLOUT sera ajouté si besoin)
     _pollFds.push_back({cfd, POLLIN, 0});
