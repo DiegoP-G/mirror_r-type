@@ -10,12 +10,12 @@ NetworkECSMediator::NetworkECSMediator()
     _mediatorMap = {
         {static_cast<int>(NetworkECSMediatorEvent::SEND_DATA_TCP),
          [this](const std::string &data, uint8_t opcode) {
-             std::cout << "SENDING TCP" << std::endl;
+             //  std::cout << "SENDING TCP" << std::endl;
              _sender->sendTcp(opcode, data);
          }},
         {static_cast<int>(NetworkECSMediatorEvent::SEND_DATA_UDP),
          [this](const std::string &data, uint8_t opcode) {
-             std::cout << "SENDING UDP" << std::endl;
+             //  std::cout << "SENDING UDP" << std::endl;
              _sender->sendUdp(opcode, data);
          }},
         {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), [this](const std::string &data, uint8_t opcode) {

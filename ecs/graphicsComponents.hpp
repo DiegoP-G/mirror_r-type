@@ -21,7 +21,7 @@ struct AnimatedPlayerSpriteComponent : public Component
     } currentDirection = Default;
 
     AnimatedPlayerSpriteComponent(const sf::Texture &tex, int frameWidth, int frameHeight, float interval,
-                            Vector2D scale = {1.0f, 1.0f})
+                                  Vector2D scale = {1.0f, 1.0f})
         : texture(&tex), frameWidth(frameWidth), frameHeight(frameHeight), animationInterval(interval), scale(scale)
     {
         sprite.setTexture(*texture); // Use the texture pointer

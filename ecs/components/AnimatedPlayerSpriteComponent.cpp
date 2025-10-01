@@ -2,7 +2,7 @@
 #include <cstring>
 
 AnimatedPlayerSpriteComponent::AnimatedPlayerSpriteComponent(const sf::Texture &tex, int frameWidth, int frameHeight,
-                                                 float interval, Vector2D scale)
+                                                             float interval, Vector2D scale)
     : texture(&tex), currentFrame(2), frameWidth(frameWidth), frameHeight(frameHeight), animationInterval(interval),
       scale(scale), currentDirection(Default)
 {

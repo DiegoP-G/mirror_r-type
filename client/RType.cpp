@@ -1,12 +1,12 @@
-#include <iostream>
 #include "RType.hpp"
 #include "../client/NetworkECSMediator.hpp"
 #include "../ecs/GraphicsManager.hpp"
 #include "../ecs/ecs.hpp"
+#include "../ecs/systems.hpp"
 #include "../transferData/opcode.hpp"
 #include "assetsPath.hpp"
-#include "../ecs/systems.hpp"
 #include "windowSize.hpp"
+#include <iostream>
 
 bool RTypeGame::init(NetworkECSMediator med)
 {

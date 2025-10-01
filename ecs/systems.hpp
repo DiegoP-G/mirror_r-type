@@ -1,10 +1,10 @@
 #pragma once
+#include "../client/assetsPath.hpp"
 #include "GraphicsManager.hpp"
 #include "allComponentsInclude.hpp"
 #include "components.hpp"
 #include "ecs.hpp"
 #include "entityManager.hpp"
-#include "../client/assetsPath.hpp"
 #include <cmath>
 #include <random>
 
@@ -51,8 +51,8 @@ class RenderSystem
         if (!g_graphics)
             return;
 
+        // update default sprite
         auto entities = entityManager.getEntitiesWithComponents<TransformComponent, SpriteComponent>();
-
         for (auto &entity : entities)
         {
             auto &transform = entity->getComponent<TransformComponent>();
@@ -60,7 +60,7 @@ class RenderSystem
 
             if (entity->hasComponent<AnimatedPlayerSpriteComponent>())
             {
-                auto &animatedSprite = entity->getComponent<AnimatedPlayerSpriteComponent>();
+                AnimatedPlayerSpriteComponent &animatedSprite = entity->getComponent<AnimatedPlayerSpriteComponent>();
                 g_graphics->drawAnimatedSprite(animatedSprite, position.x, position.y);
                 continue;
             }
@@ -82,6 +82,28 @@ class RenderSystem
                                      sprite.a);
             }
         }
+
+        // Update animated sprites
+        auto animatedEntities = entityManager.getEntitiesWithComponents<TransformComponent, AnimatedSpriteComponent>();
+        for (auto &entity : animatedEntities)
+        {
+            auto &transform = entity->getComponent<TransformComponent>();
+            Vector2D position = getActualPosition(entity);
+
+            AnimatedSpriteComponent &animatedSprite = entity->getComponent<AnimatedSpriteComponent>();
+            g_graphics->drawAnimatedSprite(animatedSprite, position.x, position.y);
+        }
+
+        // // Update animated player sprites
+        // auto animatedEntities = entityManager.getEntitiesWithComponents<TransformComponent,
+        // AnimatedPlayerSpriteComponent>(); for (auto &entity : animatedEntities)
+        // {
+        //     auto &transform = entity->getComponent<TransformComponent>();
+        //     Vector2D position = getActualPosition(entity);
+
+        //     AnimatedPlayerSpriteComponent &animatedSprite = entity->getComponent<AnimatedPlayerSpriteComponent>();
+        //     g_graphics->drawAnimatedSprite(animatedSprite, position.x, position.y);
+        // }
     }
 };
 
@@ -562,22 +584,29 @@ class PlayerSystem
                 input.fire = false; // Reset fire input
             }
 
-            if (!entity->hasComponent<AnimatedPlayerSpriteComponent>())
-                continue;
-            auto &animatedSprite = entity->getComponent<AnimatedPlayerSpriteComponent>();
-            // Determine direction based on input
-            AnimatedPlayerSpriteComponent::Direction direction = AnimatedPlayerSpriteComponent::Default;
-            if (input.up)
+            if (entity->hasComponent<AnimatedPlayerSpriteComponent>())
             {
-                direction = AnimatedPlayerSpriteComponent::Up;
-            }
-            else if (input.down)
-            {
-                direction = AnimatedPlayerSpriteComponent::Down;
+                auto &playerAnimatedSprite = entity->getComponent<AnimatedPlayerSpriteComponent>();
+                // Determine direction based on input
+                AnimatedPlayerSpriteComponent::Direction direction = AnimatedPlayerSpriteComponent::Default;
+                if (input.up)
+                {
+                    direction = AnimatedPlayerSpriteComponent::Up;
+                }
+                else if (input.down)
+                {
+                    direction = AnimatedPlayerSpriteComponent::Down;
+                }
+
+                // Update animation based on direction
+                playerAnimatedSprite.updateAnimation(direction);
             }
 
-            // Update animation based on direction
-            animatedSprite.updateAnimation(direction);
+            if (entity->hasComponent<AnimatedSpriteComponent>())
+            {
+                auto animatedSprite = entity->getComponent<AnimatedSpriteComponent>();
+                animatedSprite.update(deltaTime);
+            }
         }
     }
 
@@ -696,15 +725,17 @@ class EnemySystem
             projectile.addComponent<VelocityComponent>(-200.0f, 0.0f); // Fast horizontal movement
             // projectile.addComponent<SpriteComponent>();                // Add sprite (different from
             //                                                            // player projectiles)
-            sf::Texture bulletTexture;
-            if (!bulletTexture.loadFromFile(PathFormater::formatAssetPath(bulletSpritePath))) {
+            static sf::Texture bulletTexture;
+            if (!bulletTexture.loadFromFile(PathFormater::formatAssetPath(bulletSpritePath)))
+            {
                 std::cerr << "Failed to load bullet texture!" << std::endl;
                 projectile.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
-            } else {
-                projectile.addComponent<AnimatedPlayerSpriteComponent>(bulletTexture, 9, 17, 0.0f);                                                           
-            
             }
-    
+            else
+            {
+                projectile.addComponent<AnimatedSpriteComponent>(bulletTexture, 179, 175, 9, 17, 1, 1);
+            }
+
             projectile.addComponent<ColliderComponent>(10.0f,
                                                        5.0f);                         // Small hitbox
             projectile.addComponent<ProjectileComponent>(5.0f, 3.0f, enemy->getID()); // Damage, lifetime, owner
@@ -721,20 +752,21 @@ class EnemySystem
                     transform.position.x - 20.0f, // Offset to fire from the front of the enemy
                     transform.position.y + 10.0f  // Center height
                 );
-                
+
                 // projectile.addComponent<SpriteComponent>(10.0f, 5.0f, 255, 255, 0);
-                sf::Texture bulletTexture;
-                if (!bulletTexture.loadFromFile(PathFormater::formatAssetPath(bulletSpritePath))) {
+                static sf::Texture bulletTexture;
+                if (!bulletTexture.loadFromFile(PathFormater::formatAssetPath(bulletSpritePath)))
+                {
                     std::cerr << "Failed to load bullet texture!" << std::endl;
                     projectile.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
-                } else {
-                    projectile.addComponent<AnimatedPlayerSpriteComponent>(bulletTexture, 9, 17, 0.0f);                                                           
-                
+                }
+                else
+                {
+                    projectile.addComponent<AnimatedSpriteComponent>(bulletTexture, 179, 175, 9, 17, 1, 1);
                 }
                 projectile.addComponent<VelocityComponent>(-200.0f, (i - 1) * 50.0f); // Spread pattern
                 projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
             }
-            // std::cout << std::endl;
         }
     }
 };

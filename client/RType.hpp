@@ -1,7 +1,7 @@
 #include "../ecs/components.hpp"
 #include "../ecs/systems.hpp"
-#include "NetworkECSMediator.hpp"
 #include "../ecs/waveSystem.hpp"
+#include "NetworkECSMediator.hpp"
 
 class RTypeGame
 {

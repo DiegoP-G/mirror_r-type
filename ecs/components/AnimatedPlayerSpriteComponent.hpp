@@ -23,7 +23,7 @@ class AnimatedPlayerSpriteComponent : public Component
     } currentDirection;
 
     AnimatedPlayerSpriteComponent(const sf::Texture &tex, int frameWidth, int frameHeight, float interval,
-                            Vector2D scale = {1.0f, 1.0f});
+                                  Vector2D scale = {1.0f, 1.0f});
 
     void setFrame(int frame);
     void updateAnimation(Direction newDirection);

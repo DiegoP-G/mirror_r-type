@@ -15,8 +15,9 @@ void Sender::sendTcp(int opcode, const std::string &payload)
     try
     {
         sendFrameTCP(_tcpSocket, opcode, payload);
-        std::cout << "[Sender] Sent TCP frame (opcode=" << std::to_string(opcode) << ", size=" << payload.size() << ")"
-                  << std::endl;
+        // std::cout << "[Sender] Sent TCP frame (opcode=" << std::to_string(opcode) << ", size=" << payload.size() <<
+        // ")"
+        //           << std::endl;
     }
     catch (const std::exception &e)
     {
@@ -35,8 +36,9 @@ void Sender::sendUdp(int opcode, const std::string &payload)
     try
     {
         sendFrameUDP(_udpSocket, opcode, payload, _serverAddr, sizeof(_serverAddr));
-        std::cout << "[Sender] Sent UDP frame (opcode=" << std::to_string(opcode) << ", size=" << payload.size() << ")"
-                  << std::endl;
+        // std::cout << "[Sender] Sent UDP frame (opcode=" << std::to_string(opcode) << ", size=" << payload.size() <<
+        // ")"
+        //           << std::endl;
     }
     catch (const std::exception &e)
     {
