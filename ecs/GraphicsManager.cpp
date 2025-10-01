@@ -18,6 +18,7 @@ GraphicsManager *g_graphics = nullptr;
 
 GraphicsManager::GraphicsManager(NetworkECSMediator med) : _med(med)
 {
+    
 }
 
 GraphicsManager::~GraphicsManager()

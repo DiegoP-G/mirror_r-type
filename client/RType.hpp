@@ -6,6 +6,7 @@
 class RTypeGame
 {
   private:
+    int _playerId;
     std::mutex _mutex;
     EntityManager entityManager;
 
@@ -45,6 +46,10 @@ class RTypeGame
     {
         return entityManager;
     }
+    void setPlayerId(int id)
+    {
+        _playerId = id;
+    };
 
     bool init(NetworkECSMediator med);
 
@@ -61,6 +66,7 @@ class RTypeGame
     void update(float deltaTime);
 
     void render();
+    
 
     void restart();
 

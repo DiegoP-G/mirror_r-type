@@ -1,11 +1,13 @@
 #include "NetworkECSMediator.hpp"
 #include "../transferData/opcode.hpp"
+#include "../transferData/transferData.hpp"
 #include "Network/Receiver.hpp"
 #include "RType.hpp"
 #include <cstdint>
 #include <exception>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 
 NetworkECSMediator::NetworkECSMediator()
 {
@@ -21,6 +23,15 @@ NetworkECSMediator::NetworkECSMediator()
          [this](const std::string &data, uint8_t opcode) {
              _sender->sendUdp(opcode, data);
          }},
+        
+        
+        {static_cast<int>(NetworkECSMediatorEvent::PLAYER_ID),
+        [this](const std::string &data, uint8_t opcode) {
+            std::cout << "[Client] Received PLAYER_ID" << std::endl;
+            int playerId = deserializeInt(data);
+            if (_game)
+                _game->setPlayerId(playerId);
+        }},
         
         // === RÉCEPTION DEPUIS LE SERVEUR ===
         {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), 

@@ -11,6 +11,7 @@
 bool RTypeGame::init(NetworkECSMediator med)
 {
     _med = med;
+
     g_graphics = new GraphicsManager(med);
     // Initialize graphics
     if (!g_graphics->init("R-Type", 800, 600))
@@ -26,7 +27,7 @@ bool RTypeGame::init(NetworkECSMediator med)
     createBackground();
 
     // Create player
-    createPlayer();
+    //  createPlayer();
 
     running = true;
 
@@ -139,8 +140,6 @@ void RTypeGame::update(float deltaTime)
     if (gameOver)
         return;
 
-    std::cout << "UPT\n";
-
     // Update systems
     // gameLogicSystem.update(entityManager, deltaTime);
     backgroundSystem.update(entityManager, deltaTime);
@@ -164,7 +163,6 @@ void RTypeGame::update(float deltaTime)
 
 void RTypeGame::render()
 {
-    std::cout << "RENDER " << std::endl;
 
     g_graphics->clear();
 
@@ -180,7 +178,6 @@ void RTypeGame::render()
     g_graphics->drawText(scoreText, 10, 10);
 
     g_graphics->present();
-    std::cout << "RENDER END " << std::endl;
 }
 
 void RTypeGame::restart()
@@ -190,19 +187,17 @@ void RTypeGame::restart()
     score = 0;
     gameOver = false;
 
-    createPlayer();
+    // createPlayer();
 }
 
 void cleanup()
 {
-    std::cout << "clean UP " << std::endl;
 
     if (g_graphics)
     {
         delete g_graphics;
         g_graphics = nullptr;
     }
-    std::cout << "clean UP END " << std::endl;
 }
 
 void RTypeGame::sendInputPlayer()
@@ -222,7 +217,7 @@ void RTypeGame::sendInputPlayer()
         auto &input = player->getComponent<InputComponent>();
         auto &playerComp = player->getComponent<PlayerComponent>();
         
-        std::string inputData = serializePlayerInput(playerComp.playerID, input);
+        std::string inputData = serializePlayerInput(input, playerComp.playerID);
         
         _med.notify(NetworkECSMediatorEvent::SEND_DATA_UDP, inputData, OPCODE_PLAYER_INPUT);
         
@@ -234,10 +229,10 @@ void RTypeGame::sendInputPlayer()
 
 void RTypeGame::run()
 {
-    if (!init(_med))
-    {
-        return;
-    }
+    // if (!init(_med))
+    // {
+    //     return;
+    // }
 
     const float TARGET_FPS = 60.0f;
     const float FRAME_TIME = 1.0f / TARGET_FPS;
@@ -256,22 +251,17 @@ void RTypeGame::run()
         }
 
         accumulator += deltaTime;
-        std::cout << "1\n";
         handleEvents();
-        std::cout << "2\n";
-        
+
         sendInputPlayer();
-        
-        std::cout << "3\n";
+
         // Fixed timestep update
         while (accumulator >= FRAME_TIME)
         {
-            std::cout << "mutex LOCK " << std::endl;
             _mutex.lock();
             update(FRAME_TIME);
             _mutex.unlock();
             accumulator -= FRAME_TIME;
-            std::cout << "mutex Unlock " << std::endl;
         }
 
         render();

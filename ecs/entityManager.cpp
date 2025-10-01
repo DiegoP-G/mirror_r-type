@@ -118,6 +118,49 @@ std::vector<uint8_t> EntityManager::serializeAllMovements() const
     return data;
 }
 
+Entity &EntityManager::createEntity()
+{
+    EntityID id = static_cast<EntityID>(entities.size());
+    auto newEntity = std::make_unique<Entity>(*this, id);
+    Entity *entityPtr = newEntity.get();
+    entities.push_back(std::move(newEntity));
+    return *entityPtr;
+}
+
+Entity *EntityManager::getEntityByID(EntityID id)
+{
+    for (auto &entity : entities) {
+        if (entity && entity->getID() == id)
+            return entity.get();
+    }
+    return nullptr;
+}
+
+void EntityManager::refresh()
+{
+    // Supprimer les entités inactives
+    entities.erase(std::remove_if(entities.begin(), entities.end(),
+                                  [](const std::unique_ptr<Entity> &entity) {
+                                      return !entity || !entity->isActive();
+                                  }),
+                   entities.end());
+
+    // Mettre à jour les listes d'entités par composant
+    for (auto &componentEntities : entitiesByComponent)
+        componentEntities.clear();
+
+    for (auto &entity : entities) {
+        if (entity && entity->isActive()) {
+            for (ComponentID i = 0; i < MAX_COMPONENTS; i++) {
+                if (entity->getComponentMask().test(i))
+                    entitiesByComponent[i].push_back(entity.get());
+            }
+        }
+    }
+}
+
+
+
 // === CLIENT - Désérialisation complète d'une entité (TCP) ===
 void EntityManager::deserializeEntityFull(const std::vector<uint8_t> &data)
 {
@@ -127,6 +170,11 @@ void EntityManager::deserializeEntityFull(const std::vector<uint8_t> &data)
     auto &newEntity = createEntity();
     newEntity.deserialize(data.data(), data.size());
 }
+
+
+
+
+
 
 // === CLIENT - Désérialisation des mouvements (UDP) ===
 void EntityManager::deserializeAllMovements(const std::vector<uint8_t> &data)

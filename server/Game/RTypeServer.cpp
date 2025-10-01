@@ -135,9 +135,9 @@ void RTypeServer::handlePlayerInput(const std::string &input)
 void RTypeServer::sendEntities()
 {
     // auto data = entityManager.serializeAllEntities();
-    auto data = entityManager.serializeAllPlayers();
-    std::string serializedData(data.begin(), data.end());
-    mediator.notify(GameMediatorEvent::UpdatePlayers, serializedData);
+    // auto data = entityManager.serializeAllPlayers();
+    // std::string serializedData(data.begin(), data.end());
+    // mediator.notify(GameMediatorEvent::UpdatePlayers, serializedData);
 
     // auto dataEnemies = entityManager.serializeAllEnemies();
     // std::string serializedDataEnemies(dataEnemies.begin(), dataEnemies.end());
