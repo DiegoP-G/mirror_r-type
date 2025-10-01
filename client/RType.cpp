@@ -197,12 +197,15 @@ void RTypeGame::sendInputPlayer()
 {
     if (player && player->hasComponent<InputComponent>())
     {
+        std::cout << "sending player input " << std::endl;
         auto &input = player->getComponent<InputComponent>();
 
         if (input.down == 1 || input.fire == 1 || input.right == 1 || input.left == 1 | input.up == 1)
         {
             std::string serializedData = serializePlayerInput(input, player->getID());
+            std::cout << "sending player input " << serializedData << std::endl;
             _med.notify(NetworkECSMediatorEvent::SEND_DATA_UDP, serializedData, OPCODE_PLAYER_INPUT);
+            std::cout << "player input sent" << std::endl;
         }
     }
 }
@@ -231,11 +234,13 @@ void RTypeGame::run()
         }
 
         accumulator += deltaTime;
-
+        std::cout << "1\n";
         handleEvents();
-
+        std::cout << "2\n";
+        
         sendInputPlayer();
-
+        
+        std::cout << "3\n";
         // Fixed timestep update
         while (accumulator >= FRAME_TIME)
         {
@@ -243,6 +248,7 @@ void RTypeGame::run()
             update(FRAME_TIME);
             _mutex.unlock();
             accumulator -= FRAME_TIME;
+            std::cout << "4\n";
         }
 
         render();

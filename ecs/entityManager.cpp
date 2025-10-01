@@ -172,7 +172,7 @@ void EntityManager::deserializePlayerEntities(const std::vector<uint8_t> &data)
     uint32_t playerCount;
     std::memcpy(&playerCount, data.data() + offset, sizeof(uint32_t));
     
-    std::cout << "Il y a " << playerCount << "qui viennent d'être envoyé" << std::endl;
+    // std::cout << "Il y a " << playerCount << "qui viennent d'être envoyé" << std::endl;
     offset += sizeof(uint32_t);
 
     // Supprimer les joueurs existants
@@ -180,11 +180,11 @@ void EntityManager::deserializePlayerEntities(const std::vector<uint8_t> &data)
     for (auto *entity : playerEntities)
     {
         auto &playerComp = entity->getComponent<PlayerComponent>();
-        std::cout << "Destroying Player with id =" << playerComp.playerID << std::endl;
+        // std::cout << "Destroying Player with id =" << playerComp.playerID << std::endl;
         entity->destroy();
     }
     refresh();
-
+    
     // Désérialiser chaque joueur
     for (uint32_t i = 0; i < playerCount && offset < data.size(); ++i)
     {
@@ -193,10 +193,9 @@ void EntityManager::deserializePlayerEntities(const std::vector<uint8_t> &data)
         offset += bytesRead;
         if (newEntity.hasComponent<PlayerComponent>()) {
             auto &playerComp = newEntity.getComponent<PlayerComponent>();
-            std::cout << "Nouveau joueur désérialisé avec playerID = " << playerComp.playerID << std::endl;
+            // std::cout << "Nouveau joueur désérialisé avec playerID = " << playerComp.playerID << std::endl;
         }
     }
-
     refresh();
 }
 
