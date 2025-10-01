@@ -33,6 +33,7 @@ class RTypeServer
     bool running = false;
 
     int score = 0;
+    int tick = 0;
 
     const float ENEMY_SPEED = -200.0f;
 

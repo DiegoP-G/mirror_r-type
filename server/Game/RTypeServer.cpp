@@ -1,6 +1,7 @@
 
 #include "RTypeServer.hpp"
 #include "../../ecs/allComponentsInclude.hpp"
+#include <string>
 
 bool RTypeServer::init()
 {
@@ -26,6 +27,10 @@ void RTypeServer::createPlayer(const std::string &id)
 
 void RTypeServer::update(float deltaTime)
 {
+    if (tick % 60 == 0)
+        std::cout << "-------------60 tick passed--------------" << tick / 60 << std::endl;
+    std::cout << "new tick  " << std::to_string(deltaTime) << std::endl;
+
     if (gameOver)
         return;
 
@@ -44,8 +49,9 @@ void RTypeServer::update(float deltaTime)
         gameOver = true;
     }
 
-    entityManager.refresh();
-    sendEntities();
+    // entityManager.refresh();
+    // sendEntities();
+    tick++;
 }
 
 void RTypeServer::restart()
