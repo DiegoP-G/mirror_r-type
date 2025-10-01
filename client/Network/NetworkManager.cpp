@@ -8,9 +8,8 @@
 #include <iostream>
 #include <unistd.h>
 
-NetworkManager::NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver, RTypeGame &game)
-    : _med(med), _sender(sender), _receiver(receiver), _game(game), _tcpSocket(-1), _udpSocket(-1)
-
+NetworkManager::NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver)
+    : _med(med), _sender(sender), _receiver(receiver), _tcpSocket(-1), _udpSocket(-1)
 {
 }
 
@@ -100,13 +99,15 @@ void NetworkManager::loop()
         {
             if (pfd.revents & POLLIN)
             {
-                if (pfd.fd == _tcpSocket)
+                if (pfd.fd == _udpSocket)
                 {
-                    _receiver.receiveTCPMessage();
-                }
-                else if (pfd.fd == _udpSocket)
-                {
+                    // std::cout << "hi udp" << std::endl;
                     _receiver.receiveUDPMessage();
+                }
+                else if (pfd.fd == _tcpSocket)
+                {
+                    std::cout << "hi tcp" << std::endl;
+                    _receiver.receiveTCPMessage();
                 }
             }
         }

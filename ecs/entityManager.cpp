@@ -40,6 +40,27 @@ std::vector<uint8_t> EntityManager::serializeAllEntities() const
     }
 
     return data;
+
+    // std::vector<uint8_t> data;
+
+    // // Écrire le nombre d'entités actives
+    // uint32_t activeEntityCount = 1;
+
+
+    // data.insert(data.end(), reinterpret_cast<const uint8_t *>(&activeEntityCount),
+    //             reinterpret_cast<const uint8_t *>(&activeEntityCount) + sizeof(uint32_t));
+
+    // // Sérialiser chaque entité active
+    // for (const auto &entity : entities)
+    // {
+    //     if (entity && entity->isActive() && entity->hasComponent<InputComponent>())
+    //     {
+    //         auto entityData = entity->serialize();
+    //         data.insert(data.end(), entityData.begin(), entityData.end());
+    //     }
+    // }
+
+    // return data;
 }
 
 // Désérialiser les entités à partir du vecteur d'octets

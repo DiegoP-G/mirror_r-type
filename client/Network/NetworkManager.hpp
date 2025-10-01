@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../NetworkECSMediator.hpp"
+#include "../RType.hpp"
 #include "Receiver.hpp"
 #include "Sender.hpp"
-#include "../RType.hpp"
 #include <netinet/in.h>
 #include <poll.h>
 #include <vector>
@@ -14,7 +14,6 @@ class NetworkManager
     NetworkECSMediator &_med;
     Sender &_sender;
     Receiver &_receiver;
-    RTypeGame &_game;
 
     int _tcpSocket;
     int _udpSocket;
@@ -23,7 +22,7 @@ class NetworkManager
     sockaddr_in _serverAddr;
 
   public:
-    NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver, RTypeGame &game);
+    NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver);
     ~NetworkManager();
 
     bool setup(const char *serverIp = "127.0.0.1", int port = 8080);

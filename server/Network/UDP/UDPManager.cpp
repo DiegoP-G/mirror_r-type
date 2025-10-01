@@ -5,6 +5,7 @@
 #include "../NetworkManager.hpp"
 #include <cstddef>
 #include <cstdint>
+#include <netinet/in.h>
 #include <stdexcept>
 #include <string>
 
@@ -46,15 +47,15 @@ void UDPManager::update()
             socklen_t len = sizeof(client);
             auto [opcode, payload] = receiveFrameUDP(_udpFd, client, len);
             int ca = opcode;
-            std::cout << "Opcode : " << ca << std::endl;
             if (opcode == OPCODE_UDP_AUTH)
             {
-                std::cout << "[UDP] Received OPCODE_UDP_AUTH : " << deserializeInt(payload)
+                std::cout << "[UDP] Received OPCODE_UDP_AUTH² : " << deserializeInt(payload)
                           << " from: " << client.sin_addr.s_addr << "\n";
                 Client *c = _NetworkManagerRef.getClientManager().getClientByCodeUDP(deserializeInt(payload));
                 if (c != nullptr)
                 {
                     c->setAdress(std::to_string(client.sin_addr.s_addr));
+                    c->setTrueAddr(&client);
                 }
                 else
                 {
@@ -64,25 +65,24 @@ void UDPManager::update()
             }
             else
             {
-                std::cout << "Get client" << std::endl;
                 Client *c =
                     _NetworkManagerRef.getClientManager().getClientByAdress((std::to_string(client.sin_addr.s_addr)));
                 if (c != nullptr)
                     _NetworkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload);
                 else
-                std::cout << "[UDP] Received from Client Not found: " << (payload)
-                          << " from: " << client.sin_addr.s_addr << "\n";
-                if (opcode == OPCODE_PLAYER_INPUT)
-                    std::cout << "[UDP] Received player input " << std::endl;
+                    // std::cout << "[UDP] Received from Client Not found: " << (payload)
+                    //           << " from: " << client.sin_addr.s_addr << "\n";
+                    if (opcode == OPCODE_PLAYER_INPUT)
+                        std::cout << "[UDP] Received player input " << std::endl;
             }
         }
     }
 }
 
-void UDPManager::sendTo(std::vector<int> sockets, int opcode, const std::string &data)
+void UDPManager::sendTo(std::vector<sockaddr_in> addrs, int opcode, const std::string &data)
 {
-    for (int socket : sockets)
+    for (sockaddr_in addr : addrs)
     {
-        sendFrameUDP(socket, opcode, data, _addr, sizeof(_addr));
+        sendFrameUDP(_udpFd, opcode, data, addr, sizeof(addr));
     }
 }

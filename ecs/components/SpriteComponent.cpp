@@ -2,12 +2,12 @@
 #include <cstring>
 
 SpriteComponent::SpriteComponent()
-    : texture(nullptr), isVisible(true), width(32), height(32), r(255), g(255), b(255), a(255)
+    : spriteTexture(0), isVisible(true), width(32), height(32), r(255), g(255), b(255), a(255)
 {
 }
 
-SpriteComponent::SpriteComponent(int w, int h, uint8_t red, uint8_t green, uint8_t blue, sf::Texture *texture)
-    : texture(texture), isVisible(true), width(w), height(h), r(red), g(green), b(blue), a(255)
+SpriteComponent::SpriteComponent(int w, int h, uint8_t red, uint8_t green, uint8_t blue, int texture)
+    : spriteTexture(texture), isVisible(true), width(w), height(h), r(red), g(green), b(blue), a(255)
 {
 }
 
@@ -34,6 +34,7 @@ std::vector<uint8_t> SpriteComponent::serialize() const
     data.push_back(g);
     data.push_back(b);
     data.push_back(a);
+    data.push_back(static_cast<uint8_t>(spriteTexture));
     return data;
 }
 
@@ -51,7 +52,7 @@ SpriteComponent SpriteComponent::deserialize(const uint8_t *data)
     comp.r = data[offset++];
     comp.g = data[offset++];
     comp.b = data[offset++];
-    comp.a = data[offset];
-    comp.texture = nullptr;
+    comp.a = data[offset++];
+    comp.spriteTexture = static_cast<int>(data[offset++]);
     return comp;
 }

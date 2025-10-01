@@ -35,8 +35,8 @@ bool RTypeGame::init(NetworkECSMediator med)
 
 void RTypeGame::createTextures()
 {
-    sf::Texture &backgroundTexture = g_graphics->createTextureFromPath
-        (PathFormater::formatAssetPath(backgroundSpritePath), "background");
+    sf::Texture &backgroundTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(backgroundSpritePath), "background");
     sf::Texture &playerTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath(playerSpritePath),
                                                                    "player");       // Yellow player
     sf::Texture &enemyTexture = g_graphics->createColorTexture(80, 400, 0, 255, 0); // Green enemy
@@ -52,16 +52,13 @@ void RTypeGame::createBackground()
     int tileWidth = (int)backgroundTexture->getSize().x;
     int tileHeight = (int)backgroundTexture->getSize().y;
 
-    auto createBackgroundEntity = [&](float x) -> Entity& {
+    auto createBackgroundEntity = [&](float x) -> Entity & {
         auto &backgroundEntity = entityManager.createEntity();
 
-        backgroundEntity.addComponent<TransformComponent>
-            (x, 0.0f, 1.0f, 1.0f, 0.0f);
-        backgroundEntity.addComponent<SpriteComponent>
-            (tileWidth, tileHeight, 255, 255, 255, backgroundTexture);
-        backgroundEntity.addComponent<BackgroundScrollComponent>
-            (-300.0f, true);
-        
+        backgroundEntity.addComponent<TransformComponent>(x, 0.0f, 1.0f, 1.0f, 0.0f);
+        backgroundEntity.addComponent<SpriteComponent>(tileWidth, tileHeight, 255, 255, 255, GraphicsManager::Texture::BACKGROUND);
+        backgroundEntity.addComponent<BackgroundScrollComponent>(-300.0f, true);
+
         return backgroundEntity;
     };
 
@@ -84,7 +81,7 @@ void RTypeGame::createPlayer()
     sf::Texture *playerTexture = g_graphics->getTexture("player");
     if (playerTexture)
     {
-        playerEntity.addComponent<AnimatedSpriteComponent>(*playerTexture, 33, 17.5, 0.05f, Vector2D(2.0f, 2.0f));
+        playerEntity.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::PLAYER, 33, 17.5, 0.05f, Vector2D(2.0f, 2.0f));
     }
 
     player = &playerEntity;
@@ -205,7 +202,6 @@ void RTypeGame::sendInputPlayer()
         if (input.down == 1 || input.fire == 1 || input.right == 1 || input.left == 1 | input.up == 1)
         {
             std::string serializedData = serializePlayerInput(input, player->getID());
-            std::cout << "sending" << serializedData << std::endl;
             _med.notify(NetworkECSMediatorEvent::SEND_DATA_UDP, serializedData, OPCODE_PLAYER_INPUT);
         }
     }

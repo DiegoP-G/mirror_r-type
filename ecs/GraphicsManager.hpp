@@ -36,9 +36,22 @@ class GraphicsManager
     void clear();
     void present();
 
+    enum Texture
+    {
+      BACKGROUND,
+      PLAYER,
+      ENEMY,
+      BULLET,
+      EXPLOSION
+    };
+
+
+
     sf::Texture &createColorTexture(int width, int height, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a = 255);
     void storeTexture(const std::string &name, const sf::Texture &texture);
     sf::Texture *getTexture(const std::string &name);
+    sf::Texture *getTexture(int tex);
+
 
     void drawTexture(const sf::Texture &texture, float x, float y, float w, float h);
     void drawRect(float x, float y, float w, float h, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a = 255);

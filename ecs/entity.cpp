@@ -1,5 +1,6 @@
 #include "entity.hpp"
 #include "allComponentsInclude.hpp"
+#include <unordered_map>
 
 std::vector<uint8_t> Entity::serializeComponent(ComponentID compId) const
 {
@@ -10,123 +11,313 @@ std::vector<uint8_t> Entity::serializeComponent(ComponentID compId) const
     return {};
 }
 
+
 void Entity::deserializeComponent(ComponentID compId, const uint8_t *data, size_t dataSize)
 {
-    (void)dataSize; // dataSize n'est pas utilisé car les méthodes deserialize connaissent leur taille
+    (void)dataSize;
 
+    // S'assurer que le vecteur components est assez grand
+    if (components.size() <= compId)
+    {
+        components.resize(compId + 1);
+    }
+
+    // Désérialiser et ajouter/mettre à jour le composant
     if (compId == getComponentTypeID<TransformComponent>())
     {
-        if (hasComponent<TransformComponent>())
-            getComponent<TransformComponent>() = TransformComponent::deserialize(data);
+        auto comp = TransformComponent::deserialize(data);
+        // Vérifier directement le vecteur au lieu de hasComponent
+        if (components[compId] != nullptr)
+        {
+            *static_cast<TransformComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<TransformComponent>(TransformComponent::deserialize(data));
+        {
+            components[compId].reset(new TransformComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<PlayerComponent>())
     {
-        if (hasComponent<PlayerComponent>())
-            getComponent<PlayerComponent>() = PlayerComponent::deserialize(data);
+        auto comp = PlayerComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<PlayerComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<PlayerComponent>(PlayerComponent::deserialize(data));
+        {
+            components[compId].reset(new PlayerComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<VelocityComponent>())
     {
-        if (hasComponent<VelocityComponent>())
-            getComponent<VelocityComponent>() = VelocityComponent::deserialize(data);
+        auto comp = VelocityComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<VelocityComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<VelocityComponent>(VelocityComponent::deserialize(data));
+        {
+            components[compId].reset(new VelocityComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<LaserWarningComponent>())
     {
-        if (hasComponent<LaserWarningComponent>())
-            getComponent<LaserWarningComponent>() = LaserWarningComponent::deserialize(data);
+        auto comp = LaserWarningComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<LaserWarningComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<LaserWarningComponent>(LaserWarningComponent::deserialize(data));
+        {
+            components[compId].reset(new LaserWarningComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<CenteredComponent>())
     {
-        if (hasComponent<CenteredComponent>())
-            getComponent<CenteredComponent>() = CenteredComponent::deserialize(data);
+        auto comp = CenteredComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<CenteredComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<CenteredComponent>(CenteredComponent::deserialize(data));
+        {
+            components[compId].reset(new CenteredComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<SpriteComponent>())
     {
-        if (hasComponent<SpriteComponent>())
-            getComponent<SpriteComponent>() = SpriteComponent::deserialize(data);
+        auto comp = SpriteComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<SpriteComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<SpriteComponent>(SpriteComponent::deserialize(data));
+        {
+            components[compId].reset(new SpriteComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<ColliderComponent>())
     {
-        if (hasComponent<ColliderComponent>())
-            getComponent<ColliderComponent>() = ColliderComponent::deserialize(data);
+        auto comp = ColliderComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<ColliderComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<ColliderComponent>(ColliderComponent::deserialize(data));
+        {
+            components[compId].reset(new ColliderComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<HealthComponent>())
     {
-        if (hasComponent<HealthComponent>())
-            getComponent<HealthComponent>() = HealthComponent::deserialize(data);
+        auto comp = HealthComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<HealthComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<HealthComponent>(HealthComponent::deserialize(data));
+        {
+            components[compId].reset(new HealthComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<InputComponent>())
     {
-        if (hasComponent<InputComponent>())
-            getComponent<InputComponent>() = InputComponent::deserialize(data);
+        auto comp = InputComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<InputComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<InputComponent>(InputComponent::deserialize(data));
+        {
+            components[compId].reset(new InputComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<ProjectileComponent>())
     {
-        if (hasComponent<ProjectileComponent>())
-            getComponent<ProjectileComponent>() = ProjectileComponent::deserialize(data);
+        auto comp = ProjectileComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<ProjectileComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<ProjectileComponent>(ProjectileComponent::deserialize(data));
+        {
+            components[compId].reset(new ProjectileComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<EnemyComponent>())
     {
-        if (hasComponent<EnemyComponent>())
-            getComponent<EnemyComponent>() = EnemyComponent::deserialize(data);
+        auto comp = EnemyComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<EnemyComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<EnemyComponent>(EnemyComponent::deserialize(data));
+        {
+            components[compId].reset(new EnemyComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<BirdComponent>())
     {
-        if (hasComponent<BirdComponent>())
-            getComponent<BirdComponent>() = BirdComponent::deserialize(data);
+        auto comp = BirdComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<BirdComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<BirdComponent>(BirdComponent::deserialize(data));
+        {
+            components[compId].reset(new BirdComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<PipeComponent>())
     {
-        if (hasComponent<PipeComponent>())
-            getComponent<PipeComponent>() = PipeComponent::deserialize(data);
+        auto comp = PipeComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<PipeComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<PipeComponent>(PipeComponent::deserialize(data));
+        {
+            components[compId].reset(new PipeComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<GravityComponent>())
     {
-        if (hasComponent<GravityComponent>())
-            getComponent<GravityComponent>() = GravityComponent::deserialize(data);
+        auto comp = GravityComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<GravityComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<GravityComponent>(GravityComponent::deserialize(data));
+        {
+            components[compId].reset(new GravityComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<JumpComponent>())
     {
-        if (hasComponent<JumpComponent>())
-            getComponent<JumpComponent>() = JumpComponent::deserialize(data);
+        auto comp = JumpComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<JumpComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<JumpComponent>(JumpComponent::deserialize(data));
+        {
+            components[compId].reset(new JumpComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
     else if (compId == getComponentTypeID<GameStateComponent>())
     {
-        if (hasComponent<GameStateComponent>())
-            getComponent<GameStateComponent>() = GameStateComponent::deserialize(data);
+        auto comp = GameStateComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<GameStateComponent*>(components[compId].get()) = comp;
+        }
         else
-            addComponent<GameStateComponent>(GameStateComponent::deserialize(data));
+        {
+            components[compId].reset(new GameStateComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
     }
-    // else: ID de composant inconnu, peut-être enregistrer une erreur
+    else if (compId == getComponentTypeID<AnimatedSpriteComponent>())
+    {
+        auto comp = AnimatedSpriteComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<AnimatedSpriteComponent*>(components[compId].get()) = comp;
+        }
+        else
+        {
+            components[compId].reset(new AnimatedSpriteComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
+    }
+    else if (compId == getComponentTypeID<BackgroundScrollComponent>())
+    {
+        auto comp = BackgroundScrollComponent::deserialize(data);
+        if (components[compId] != nullptr)
+        {
+            *static_cast<BackgroundScrollComponent*>(components[compId].get()) = comp;
+        }
+        else
+        {
+            components[compId].reset(new BackgroundScrollComponent(comp));
+            components[compId]->entity = this;
+            componentMask.set(compId);
+            components[compId]->init();
+        }
+    }
+    else
+    {
+        std::unordered_map<ComponentID, std::string> componentNames;
+        componentNames[getComponentTypeID<TransformComponent>()] = "TransformComponent";
+        componentNames[getComponentTypeID<PlayerComponent>()] = "PlayerComponent";
+        componentNames[getComponentTypeID<VelocityComponent>()] = "VelocityComponent";
+        componentNames[getComponentTypeID<SpriteComponent>()] = "SpriteComponent";
+        componentNames[getComponentTypeID<ColliderComponent>()] = "ColliderComponent";
+        componentNames[getComponentTypeID<HealthComponent>()] = "HealthComponent";
+        componentNames[getComponentTypeID<InputComponent>()] = "InputComponent";
+        componentNames[getComponentTypeID<ProjectileComponent>()] = "ProjectileComponent";
+        componentNames[getComponentTypeID<EnemyComponent>()] = "EnemyComponent";
+        componentNames[getComponentTypeID<BirdComponent>()] = "BirdComponent";
+        componentNames[getComponentTypeID<PipeComponent>()] = "PipeComponent";
+        componentNames[getComponentTypeID<GravityComponent>()] = "GravityComponent";
+        componentNames[getComponentTypeID<JumpComponent>()] = "JumpComponent";
+        componentNames[getComponentTypeID<GameStateComponent>()] = "GameStateComponent";
+        componentNames[getComponentTypeID<AnimatedSpriteComponent>()] = "AnimatedSpriteComponent";
+        componentNames[getComponentTypeID<LaserWarningComponent>()] = "LaserWarningComponent";
+        componentNames[getComponentTypeID<CenteredComponent>()] = "CenteredComponent";
+        componentNames[getComponentTypeID<BackgroundScrollComponent>()] = "BackgroundScrollComponent";
+        std::cerr << "Warning: Unknown component ID: " << (int)compId << std::endl;
+        std::cerr << "Component is :" << componentNames[compId] << std::endl;
+    }
 }
 
 Entity::Entity(EntityManager &manager, EntityID id) : manager(manager), id(id)

@@ -70,9 +70,9 @@ class RenderSystem
                 continue;
 
             // If we have a texture, use it; otherwise draw a colored rectangle
-            if (sprite.texture)
+            if (sprite.spriteTexture != -1)
             {
-                g_graphics->drawTexture(*sprite.texture, position.x, position.y, sprite.width, sprite.height);
+                g_graphics->drawTexture(*g_graphics->getTexture(sprite.spriteTexture), position.x, position.y, sprite.width, sprite.height);
             }
             else
             {
@@ -108,7 +108,7 @@ class GameLogicSystem
         //     spawnEnemy(entityManager);
         //     enemySpawnTimer = 0.0f;
         // }
-        //std::cout << "stageStatus: " << stageStatus << ", stageCount: " << stageCount << std::endl;
+        // std::cout << "stageStatus: " << stageStatus << ", stageCount: " << stageCount << std::endl;
         if (stageStatus == 0)
         {
             stageStatus = 1;
@@ -804,7 +804,8 @@ class OffscreenCleanupSystem
         {
             auto &transform = entity->getComponent<TransformComponent>();
 
-            if (entity->hasComponent<BackgroundScrollComponent>()) continue;
+            if (entity->hasComponent<BackgroundScrollComponent>())
+                continue;
 
             // Generic offscreen cleanup
             if (transform.position.x < -100.0f)
@@ -818,26 +819,27 @@ class OffscreenCleanupSystem
 // System to display scrolling background
 class BackgroundSystem
 {
-    public:
-        void update(EntityManager &entityManager, float deltaTime)
+  public:
+    void update(EntityManager &entityManager, float deltaTime)
+    {
+        auto entities =
+            entityManager.getEntitiesWithComponents<TransformComponent, SpriteComponent, BackgroundScrollComponent>();
+
+        for (auto &entity : entities)
         {
-            auto entities =
-                entityManager.getEntitiesWithComponents<TransformComponent,
-                SpriteComponent, BackgroundScrollComponent>();
-            
-            for (auto &entity : entities) {
-                auto &transform = entity->getComponent<TransformComponent>();
-                auto &sprite = entity->getComponent<SpriteComponent>();
-                auto &background = entity->getComponent<BackgroundScrollComponent>();
+            auto &transform = entity->getComponent<TransformComponent>();
+            auto &sprite = entity->getComponent<SpriteComponent>();
+            auto &background = entity->getComponent<BackgroundScrollComponent>();
 
-                if (!background.active) continue;
+            if (!background.active)
+                continue;
 
-                transform.position.x += background.scrollSpeed * deltaTime;
+            transform.position.x += background.scrollSpeed * deltaTime;
 
-                float tileWidth = (float)sprite.width;
+            float tileWidth = (float)sprite.width;
 
-                if (transform.position.x <= -tileWidth)
-                    transform.position.x += 2.0 * tileWidth;
-            }
+            if (transform.position.x <= -tileWidth)
+                transform.position.x += 2.0 * tileWidth;
         }
+    }
 };

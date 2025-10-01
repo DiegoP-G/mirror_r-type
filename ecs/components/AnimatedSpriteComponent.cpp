@@ -1,12 +1,13 @@
 #include "AnimatedSpriteComponent.hpp"
+#include "../GraphicsManager.hpp"
 #include <cstring>
 
-AnimatedSpriteComponent::AnimatedSpriteComponent(const sf::Texture &tex, int frameWidth, int frameHeight,
+AnimatedSpriteComponent::AnimatedSpriteComponent(int tex, int frameWidth, int frameHeight,
                                                  float interval, Vector2D scale)
-    : texture(&tex), currentFrame(2), frameWidth(frameWidth), frameHeight(frameHeight), animationInterval(interval),
+    : texture(tex), currentFrame(2), frameWidth(frameWidth), frameHeight(frameHeight), animationInterval(interval),
       scale(scale), currentDirection(Default)
 {
-    sprite.setTexture(*texture);
+    sprite.setTexture(*g_graphics->getTexture(texture));
     sprite.setScale(scale.x, scale.y);
     setFrame(currentFrame);
 }
@@ -71,14 +72,14 @@ std::vector<uint8_t> AnimatedSpriteComponent::serialize() const
 
     data.insert(data.end(), reinterpret_cast<const uint8_t *>(&currentDirection),
                 reinterpret_cast<const uint8_t *>(&currentDirection) + sizeof(Direction));
-
+    data.insert(data.end(), reinterpret_cast<const uint8_t *>(&texture),
+                reinterpret_cast<const uint8_t *>(&texture) + sizeof(int));
     return data;
 }
 
 AnimatedSpriteComponent AnimatedSpriteComponent::deserialize(const uint8_t *data)
 {
-    static sf::Texture defaultTexture;
-    AnimatedSpriteComponent comp(defaultTexture, 32, 32, 0.1f);
+    AnimatedSpriteComponent comp(0, 32, 32, 0.1f);
 
     size_t offset = 0;
     std::memcpy(&comp.currentFrame, data + offset, sizeof(int));
@@ -88,6 +89,9 @@ AnimatedSpriteComponent AnimatedSpriteComponent::deserialize(const uint8_t *data
     comp.scale = Vector2D::deserialize(data + offset);
     offset += sizeof(Vector2D);
     std::memcpy(&comp.currentDirection, data + offset, sizeof(Direction));
-
+    offset += sizeof(Direction);
+    std::memcpy(&comp.texture, data + offset, sizeof(int));
+    comp.sprite.setTexture(*g_graphics->getTexture(comp.texture));
+    comp.sprite.setScale(comp.scale.x, comp.scale.y);
     return comp;
 }

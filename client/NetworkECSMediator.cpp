@@ -16,17 +16,15 @@ NetworkECSMediator::NetworkECSMediator()
          }},
         {static_cast<int>(NetworkECSMediatorEvent::SEND_DATA_UDP),
          [this](const std::string &data, uint8_t opcode) {
-             std::cout << "SENDING UDP" << std::endl;
              _sender->sendUdp(opcode, data);
-             std::cout << "FINISH UDP" << std::endl;
+             //  std::cout << "FINISH UDP" << std::endl;
          }},
         {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), [this](const std::string &data, uint8_t opcode) {
-             std::cout << "RECEIVED DATA: " << data << std::endl;
+            //  std::cout << "RECEIVED DATA: " << data << std::endl;
              _game->getMutex().lock();
             std::vector<uint8_t> bytes(data.begin(), data.end());
-            //  _game->getEntityManager().deserializeAllEntities(bytes);
+             _game->getEntityManager().deserializeAllEntities(bytes);
              _game->getMutex().unlock();
-             
          }}};
 }
 

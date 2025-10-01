@@ -1,14 +1,14 @@
 #include "ClientGame.hpp"
+#include "../ecs/GraphicsManager.hpp"
 #include "Network/NetworkManager.hpp"
 #include "Network/Receiver.hpp"
 #include "Network/Sender.hpp"
 #include "NetworkECSMediator.hpp"
-#include "../ecs/GraphicsManager.hpp"
 #include <iostream>
 
 ClientGame::ClientGame()
     : _med(), _sender(Sender(_med)), _receiver(Receiver(_med)), _game(RTypeGame()),
-      _networkManager(NetworkManager(_med, _sender, _receiver, _game)), _running(false)
+      _networkManager(NetworkManager(_med, _sender, _receiver)), _running(false)
 {
     _med.setSender(&_sender);
     _med.setReceiver(&_receiver);
@@ -24,8 +24,8 @@ bool ClientGame::init(const char *serverIp, int port)
 {
     if (!_networkManager.setup(serverIp, port))
         return false;
-    // if (!_graphic.init(_med))
-    //     return false;
+    if (!_game.init(_med))
+        return false;
     return true;
 }
 

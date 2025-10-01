@@ -21,9 +21,7 @@ NetworkManager::~NetworkManager()
 
 void NetworkManager::updateAllPoll()
 {
-    std::cout << "Udpdate all poll" << std::endl;
     _UDPManager.update();
-    std::cout << "Update tcp " << std::endl;
     _TCPManager.update();
 }
 
@@ -37,10 +35,10 @@ void NetworkManager::updateEntities(std::string data)
     int opcode = OPCODE_WORLD_UPDATE;
     auto map = _clientManager.getClientsMap();
 
-    std::vector<int> socketsClients;
+    std::vector<sockaddr_in> clientAddrs;
     for (auto c : map)
     {
-        socketsClients.push_back(c.first);
+        clientAddrs.push_back(c.second.getTrueAddr());
     }
-    _UDPManager.sendTo(socketsClients, opcode, data);
+    _UDPManager.sendTo(clientAddrs, opcode, data);
 }

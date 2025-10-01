@@ -16,9 +16,8 @@
 
 GraphicsManager *g_graphics = nullptr;
 
-GraphicsManager::GraphicsManager(NetworkECSMediator med)
+GraphicsManager::GraphicsManager(NetworkECSMediator med) : _med(med)
 {
-    _med = med;
 }
 
 GraphicsManager::~GraphicsManager()
@@ -81,6 +80,25 @@ sf::Texture *GraphicsManager::getTexture(const std::string &name)
     if (it != textures.end())
         return &it->second;
     return nullptr;
+}
+
+sf::Texture *GraphicsManager::getTexture(int tex)
+{
+    switch (tex)
+    {
+    case BACKGROUND:
+        return getTexture("background");
+    case PLAYER:
+        return getTexture("player");
+    case ENEMY:
+        return getTexture("enemy");
+    case BULLET:
+        return getTexture("bullet");
+    case EXPLOSION:
+        return getTexture("explosion");
+    default:
+        return nullptr;
+    }
 }
 
 void GraphicsManager::drawTexture(const sf::Texture &texture, float x, float y, float w, float h)
