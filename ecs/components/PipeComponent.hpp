@@ -1,7 +1,7 @@
 #pragma once
-#include "../components.hpp"
+#include "../IComponent.hpp"
 
-class PipeComponent : public Component
+class PipeComponent : public IComponent
 {
   public:
     bool isTopPipe;
@@ -12,5 +12,5 @@ class PipeComponent : public Component
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
-    static PipeComponent deserialize(const uint8_t *data);
+    static PipeComponent deserialize(const uint8_t *data, size_t size);
 };

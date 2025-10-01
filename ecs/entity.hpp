@@ -1,6 +1,6 @@
 #pragma once
 
-#include "components.hpp"
+#include "IComponent.hpp"
 #include "ecs.hpp"
 #include "using.hpp"
 #include <cstdint>
@@ -16,7 +16,7 @@ class Entity
     EntityID id;
     EntityManager &manager;
     bool active = true;
-    std::vector<std::unique_ptr<Component>> components;
+    std::vector<std::unique_ptr<IComponent>> components;
     ComponentMask componentMask;
 
     std::vector<uint8_t> serializeComponent(ComponentID compId) const;

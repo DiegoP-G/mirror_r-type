@@ -1,7 +1,7 @@
 #pragma once
-#include "../components.hpp"
+#include "../IComponent.hpp"
 
-class HealthComponent : public Component
+class HealthComponent : public IComponent
 {
   public:
     float health;
@@ -11,5 +11,5 @@ class HealthComponent : public Component
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
-    static HealthComponent deserialize(const uint8_t *data);
+    static HealthComponent deserialize(const uint8_t *data, size_t size);
 };

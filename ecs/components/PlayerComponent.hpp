@@ -1,7 +1,7 @@
 #pragma once
-#include "../components.hpp"
+#include "../IComponent.hpp"
 
-class PlayerComponent : public Component
+class PlayerComponent : public IComponent
 {
   public:
     int score;
@@ -13,5 +13,5 @@ class PlayerComponent : public Component
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
-    static PlayerComponent deserialize(const uint8_t *data);
+    static PlayerComponent deserialize(const uint8_t *data, size_t size);
 };

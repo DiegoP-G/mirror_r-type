@@ -21,8 +21,13 @@ std::vector<uint8_t> Rectangle::serialize() const
     return data;
 }
 
-Rectangle Rectangle::deserialize(const uint8_t *data)
+Rectangle Rectangle::deserialize(const uint8_t *data, size_t size)
 {
+    if (size < sizeof(Rectangle))
+    {
+        throw "Rectangle::deserialize - données trop petites";
+    }
+
     Rectangle rect;
     std::memcpy(&rect, data, sizeof(Rectangle));
     return rect;

@@ -1,8 +1,8 @@
 #pragma once
-#include "../components.hpp"
+#include "../IComponent.hpp"
 #include "../using.hpp"
 
-class ProjectileComponent : public Component
+class ProjectileComponent : public IComponent
 {
   public:
     float damage;
@@ -14,5 +14,5 @@ class ProjectileComponent : public Component
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
-    static ProjectileComponent deserialize(const uint8_t *data);
+    static ProjectileComponent deserialize(const uint8_t *data, size_t size);
 };

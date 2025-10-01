@@ -1,9 +1,9 @@
 #pragma once
-#include "../components.hpp"
+#include "../IComponent.hpp"
 
 #include "Vector2D.hpp"
 
-class TransformComponent : public Component
+class TransformComponent : public IComponent
 {
   public:
     Vector2D position;
@@ -16,5 +16,5 @@ class TransformComponent : public Component
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
-    static TransformComponent deserialize(const uint8_t *data);
+    static TransformComponent deserialize(const uint8_t *data, size_t size);
 };

@@ -24,17 +24,27 @@ std::vector<uint8_t> PlayerComponent::serialize() const
     return data;
 }
 
-PlayerComponent PlayerComponent::deserialize(const uint8_t *data)
+PlayerComponent PlayerComponent::deserialize(const uint8_t *data, size_t size)
 {
+    size_t expectedSize = 3 * sizeof(int) + sizeof(float); // score, lives, playerID + shootCooldown
+    if (size < expectedSize)
+    {
+        throw "PlayerComponent::deserialize - données trop petites";
+    }
+
     PlayerComponent comp;
     size_t offset = 0;
 
     std::memcpy(&comp.score, data + offset, sizeof(int));
     offset += sizeof(int);
+
     std::memcpy(&comp.lives, data + offset, sizeof(int));
     offset += sizeof(int);
+
     std::memcpy(&comp.shootCooldown, data + offset, sizeof(float));
     offset += sizeof(float);
+
     std::memcpy(&comp.playerID, data + offset, sizeof(int));
+
     return comp;
 }

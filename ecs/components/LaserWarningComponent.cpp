@@ -32,23 +32,37 @@ std::vector<uint8_t> LaserWarningComponent::serialize() const
     return data;
 }
 
-LaserWarningComponent LaserWarningComponent::deserialize(const uint8_t *data)
+LaserWarningComponent LaserWarningComponent::deserialize(const uint8_t *data, size_t size)
 {
+    size_t expectedSize = 3 * sizeof(float) + 2 * sizeof(bool) + 2 * sizeof(float);
+    // appearanceTime, warningTime, activeTime, isActive, warningShown, width, height
+    if (size < expectedSize)
+    {
+        throw "LaserWarningComponent::deserialize - données trop petites";
+    }
+
     LaserWarningComponent comp;
     size_t offset = 0;
 
     std::memcpy(&comp.appearanceTime, data + offset, sizeof(float));
     offset += sizeof(float);
+
     std::memcpy(&comp.warningTime, data + offset, sizeof(float));
     offset += sizeof(float);
+
     std::memcpy(&comp.activeTime, data + offset, sizeof(float));
     offset += sizeof(float);
+
     std::memcpy(&comp.isActive, data + offset, sizeof(bool));
     offset += sizeof(bool);
+
     std::memcpy(&comp.warningShown, data + offset, sizeof(bool));
     offset += sizeof(bool);
+
     std::memcpy(&comp.width, data + offset, sizeof(float));
     offset += sizeof(float);
+
     std::memcpy(&comp.height, data + offset, sizeof(float));
+
     return comp;
 }

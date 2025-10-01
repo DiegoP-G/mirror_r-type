@@ -17,10 +17,21 @@ std::vector<uint8_t> JumpComponent::serialize() const
     return data;
 }
 
-JumpComponent JumpComponent::deserialize(const uint8_t *data)
+JumpComponent JumpComponent::deserialize(const uint8_t *data, size_t size)
 {
+    size_t expectedSize = sizeof(float) + sizeof(bool); // jumpStrength + canJump
+    if (size < expectedSize)
+    {
+        throw "JumpComponent::deserialize - données trop petites";
+    }
+
     JumpComponent comp;
-    std::memcpy(&comp.jumpStrength, data, sizeof(float));
-    std::memcpy(&comp.canJump, data + sizeof(float), sizeof(bool));
+    size_t offset = 0;
+
+    std::memcpy(&comp.jumpStrength, data + offset, sizeof(float));
+    offset += sizeof(float);
+
+    std::memcpy(&comp.canJump, data + offset, sizeof(bool));
+
     return comp;
 }

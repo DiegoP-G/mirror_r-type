@@ -1,7 +1,7 @@
 #pragma once
-#include "../components.hpp"
+#include "../IComponent.hpp"
 
-class GravityComponent : public Component
+class GravityComponent : public IComponent
 {
   public:
     float gravity;
@@ -11,5 +11,5 @@ class GravityComponent : public Component
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
-    static GravityComponent deserialize(const uint8_t *data);
+    static GravityComponent deserialize(const uint8_t *data, size_t size);
 };

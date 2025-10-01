@@ -5,12 +5,12 @@
 class Entity;
 
 // Base Component class
-class Component
+class IComponent
 {
   public:
     Entity *entity;
 
-    virtual ~Component() = default;
+    virtual ~IComponent() = default;
 
     virtual void init()
     {

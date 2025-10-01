@@ -1,7 +1,7 @@
 #pragma once
 #include "GraphicsManager.hpp"
+#include "IComponent.hpp"
 #include "allComponentsInclude.hpp"
-#include "components.hpp"
 #include "ecs.hpp"
 #include "entityManager.hpp"
 #include <cmath>
@@ -72,7 +72,8 @@ class RenderSystem
             // If we have a texture, use it; otherwise draw a colored rectangle
             if (sprite.spriteTexture != -1)
             {
-                g_graphics->drawTexture(*g_graphics->getTexture(sprite.spriteTexture), position.x, position.y, sprite.width, sprite.height);
+                g_graphics->drawTexture(*g_graphics->getTexture(sprite.spriteTexture), position.x, position.y,
+                                        sprite.width, sprite.height);
             }
             else
             {

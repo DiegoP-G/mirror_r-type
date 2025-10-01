@@ -22,15 +22,24 @@ std::vector<uint8_t> PipeComponent::serialize() const
     return data;
 }
 
-PipeComponent PipeComponent::deserialize(const uint8_t *data)
+PipeComponent PipeComponent::deserialize(const uint8_t *data, size_t size)
 {
+    size_t expectedSize = sizeof(bool) + sizeof(float) + sizeof(bool); // isTopPipe + gapHeight + hasScored
+    if (size < expectedSize)
+    {
+        throw "PipeComponent::deserialize - données trop petites";
+    }
+
     PipeComponent comp;
     size_t offset = 0;
 
     std::memcpy(&comp.isTopPipe, data + offset, sizeof(bool));
     offset += sizeof(bool);
+
     std::memcpy(&comp.gapHeight, data + offset, sizeof(float));
     offset += sizeof(float);
+
     std::memcpy(&comp.hasScored, data + offset, sizeof(bool));
+
     return comp;
 }

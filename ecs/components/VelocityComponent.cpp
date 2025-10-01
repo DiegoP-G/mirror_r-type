@@ -27,10 +27,15 @@ std::vector<uint8_t> VelocityComponent::serialize() const
     return data;
 }
 
-VelocityComponent VelocityComponent::deserialize(const uint8_t *data)
+VelocityComponent VelocityComponent::deserialize(const uint8_t *data, size_t size)
 {
+    if (size < sizeof(Vector2D) + sizeof(float))
+    {
+        throw "VelocityComponent::deserialize - données trop petites";
+    }
+
     VelocityComponent comp;
-    comp.velocity = Vector2D::deserialize(data);
+    comp.velocity = Vector2D::deserialize(data, sizeof(Vector2D));
     std::memcpy(&comp.maxSpeed, data + sizeof(Vector2D), sizeof(float));
     return comp;
 }
