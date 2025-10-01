@@ -22,15 +22,24 @@ std::vector<uint8_t> GameStateComponent::serialize() const
     return data;
 }
 
-GameStateComponent GameStateComponent::deserialize(const uint8_t *data)
+GameStateComponent GameStateComponent::deserialize(const uint8_t *data, size_t size)
 {
+    size_t expectedSize = sizeof(int) + 2 * sizeof(bool); // score + gameOver + started
+    if (size < expectedSize)
+    {
+        throw "GameStateComponent::deserialize - données trop petites";
+    }
+
     GameStateComponent comp;
     size_t offset = 0;
 
     std::memcpy(&comp.score, data + offset, sizeof(int));
     offset += sizeof(int);
+
     std::memcpy(&comp.gameOver, data + offset, sizeof(bool));
     offset += sizeof(bool);
+
     std::memcpy(&comp.started, data + offset, sizeof(bool));
+
     return comp;
 }

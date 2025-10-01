@@ -1,8 +1,8 @@
 #pragma once
-#include "../components.hpp"
+#include "../IComponent.hpp"
 #include <string>
 
-class BackgroundScrollComponent : public Component
+class BackgroundScrollComponent : public IComponent
 {
   public:
     float scrollSpeed = 0.0f;
@@ -12,5 +12,5 @@ class BackgroundScrollComponent : public Component
     BackgroundScrollComponent() = default;
     BackgroundScrollComponent(float scrollSpeed, bool active);
     std::vector<uint8_t> serialize() const override;
-    static BackgroundScrollComponent deserialize(const uint8_t *data);
+    static BackgroundScrollComponent deserialize(const uint8_t *data, size_t size);
 };

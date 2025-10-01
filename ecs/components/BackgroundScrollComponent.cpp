@@ -6,7 +6,6 @@ BackgroundScrollComponent::BackgroundScrollComponent(float scrollSpeed, bool act
 {
 }
 
-
 std::vector<uint8_t> BackgroundScrollComponent::serialize() const
 {
     std::vector<uint8_t> data;
@@ -17,11 +16,32 @@ std::vector<uint8_t> BackgroundScrollComponent::serialize() const
     return data;
 }
 
-BackgroundScrollComponent BackgroundScrollComponent::deserialize(const uint8_t *data)
+BackgroundScrollComponent BackgroundScrollComponent::deserialize(const uint8_t *data, size_t size)
 {
+    // scrollSpeed + active minimum
+    size_t expectedMinSize = sizeof(float) + sizeof(bool);
+    if (size < expectedMinSize)
+    {
+        throw "BackgroundScrollComponent::deserialize - données trop petites";
+    }
+
     BackgroundScrollComponent component;
-    std::memcpy(&component.scrollSpeed, data, sizeof(float));
-    std::memcpy(&component.active, data + sizeof(float), sizeof(bool));
-    component.texture = reinterpret_cast<const char*>(data + sizeof(float) + sizeof(bool));
+    size_t offset = 0;
+
+    std::memcpy(&component.scrollSpeed, data + offset, sizeof(float));
+    offset += sizeof(float);
+
+    component.active = static_cast<bool>(data[offset++]);
+
+    // Le reste est le nom de la texture en C-string
+    if (offset < size)
+    {
+        component.texture = reinterpret_cast<const char *>(data + offset);
+    }
+    else
+    {
+        component.texture = nullptr;
+    }
+
     return component;
 }

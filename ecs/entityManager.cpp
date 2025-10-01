@@ -1,9 +1,47 @@
 #include "entityManager.hpp"
-#include <algorithm>
-#include "components/PlayerComponent.hpp"
 #include "components/EnemyComponent.hpp"
+#include "components/PlayerComponent.hpp"
 #include "components/ProjectileComponent.hpp"
+#include <algorithm>
 
+#include "ComponentFactory.hpp"
+#include "components/AnimatedSpriteComponent.hpp"
+#include "components/BackgroundScrollComponent.hpp"
+#include "components/CenteredComponent.hpp"
+#include "components/ColliderComponent.hpp"
+#include "components/EnemyComponent.hpp"
+#include "components/GameStateComponent.hpp"
+#include "components/GravityComponent.hpp"
+#include "components/HealthComponent.hpp"
+#include "components/JumpComponent.hpp"
+#include "components/LaserWarningComponent.hpp"
+#include "components/PipeComponent.hpp"
+#include "components/PlayerComponent.hpp"
+#include "components/ProjectileComponent.hpp"
+#include "components/SpriteComponent.hpp"
+#include "components/TransformComponent.hpp"
+#include "components/VelocityComponent.hpp"
+
+EntityManager::EntityManager()
+{
+    ComponentFactory::registerComponent<TransformComponent>();
+    ComponentFactory::registerComponent<PlayerComponent>();
+    ComponentFactory::registerComponent<VelocityComponent>();
+    ComponentFactory::registerComponent<LaserWarningComponent>();
+    ComponentFactory::registerComponent<CenteredComponent>();
+    ComponentFactory::registerComponent<SpriteComponent>();
+    ComponentFactory::registerComponent<ColliderComponent>();
+    ComponentFactory::registerComponent<HealthComponent>();
+    ComponentFactory::registerComponent<InputComponent>();
+    ComponentFactory::registerComponent<ProjectileComponent>();
+    ComponentFactory::registerComponent<EnemyComponent>();
+    ComponentFactory::registerComponent<PipeComponent>();
+    ComponentFactory::registerComponent<GravityComponent>();
+    ComponentFactory::registerComponent<JumpComponent>();
+    ComponentFactory::registerComponent<GameStateComponent>();
+    ComponentFactory::registerComponent<AnimatedSpriteComponent>();
+    ComponentFactory::registerComponent<BackgroundScrollComponent>();
+}
 void EntityManager::update(float deltaTime)
 {
     for (auto &e : entities)
@@ -108,7 +146,6 @@ std::vector<uint8_t> EntityManager::serializeAllProjectiles() const
     return data;
 }
 
-
 std::vector<uint8_t> EntityManager::serializeAllEntities() const
 {
     std::vector<uint8_t> data;
@@ -143,7 +180,6 @@ std::vector<uint8_t> EntityManager::serializeAllEntities() const
     // // Écrire le nombre d'entités actives
     // uint32_t activeEntityCount = 1;
 
-
     // data.insert(data.end(), reinterpret_cast<const uint8_t *>(&activeEntityCount),
     //             reinterpret_cast<const uint8_t *>(&activeEntityCount) + sizeof(uint32_t));
 
@@ -160,19 +196,18 @@ std::vector<uint8_t> EntityManager::serializeAllEntities() const
     // return data;
 }
 
-
 void EntityManager::deserializePlayerEntities(const std::vector<uint8_t> &data)
 {
     if (data.size() < sizeof(uint32_t))
         return;
-    
+
     size_t offset = 0;
 
     // Lire le nombre de joueurs
     uint32_t playerCount;
     std::memcpy(&playerCount, data.data() + offset, sizeof(uint32_t));
-    
-    std::cout << "Il y a " << playerCount << "qui viennent d'être envoyé" << std::endl;
+
+    // std::cout << "Il y a " << playerCount << "qui viennent d'être envoyé" << std::endl;
     offset += sizeof(uint32_t);
 
     // Supprimer les joueurs existants
@@ -180,7 +215,7 @@ void EntityManager::deserializePlayerEntities(const std::vector<uint8_t> &data)
     for (auto *entity : playerEntities)
     {
         auto &playerComp = entity->getComponent<PlayerComponent>();
-        std::cout << "Destroying Player with id =" << playerComp.playerID << std::endl;
+        //    std::cout << "Destroying Player with id =" << playerComp.playerID << std::endl;
         entity->destroy();
     }
     refresh();
@@ -191,9 +226,10 @@ void EntityManager::deserializePlayerEntities(const std::vector<uint8_t> &data)
         auto &newEntity = createEntity();
         size_t bytesRead = newEntity.deserialize(data.data() + offset, data.size() - offset);
         offset += bytesRead;
-        if (newEntity.hasComponent<PlayerComponent>()) {
+        if (newEntity.hasComponent<PlayerComponent>())
+        {
             auto &playerComp = newEntity.getComponent<PlayerComponent>();
-            std::cout << "Nouveau joueur désérialisé avec playerID = " << playerComp.playerID << std::endl;
+            //  std::cout << "Nouveau joueur désérialisé avec playerID = " << playerComp.playerID << std::endl;
         }
     }
 
@@ -204,12 +240,12 @@ void EntityManager::deserializeEnemyEntities(const std::vector<uint8_t> &data)
 {
     if (data.size() < sizeof(uint32_t))
         return;
-    
+
     size_t offset = 0;
 
     // Lire le nombre d'ennemis
     uint32_t enemyCount;
-    
+
     std::memcpy(&enemyCount, data.data() + offset, sizeof(uint32_t));
     offset += sizeof(uint32_t);
 
@@ -237,7 +273,7 @@ void EntityManager::deserializeProjectileEntities(const std::vector<uint8_t> &da
 {
     if (data.size() < sizeof(uint32_t))
         return;
-    
+
     size_t offset = 0;
 
     // Lire le nombre de projectiles
@@ -263,8 +299,6 @@ void EntityManager::deserializeProjectileEntities(const std::vector<uint8_t> &da
 
     refresh();
 }
-
-
 
 // Désérialiser les entités à partir du vecteur d'octets
 void EntityManager::deserializeAllEntities(const std::vector<uint8_t> &data)

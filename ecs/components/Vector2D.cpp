@@ -28,8 +28,11 @@ std::vector<uint8_t> Vector2D::serialize() const
     return data;
 }
 
-Vector2D Vector2D::deserialize(const uint8_t *data)
+static Vector2D deserialize(const uint8_t *data, size_t size)
 {
+    if (size < sizeof(Vector2D))
+        throw "Vector2D::deserialize - données trop petites";
+
     Vector2D vec;
     std::memcpy(&vec, data, sizeof(Vector2D));
     return vec;

@@ -1,9 +1,9 @@
 #pragma once
-#include "../components.hpp"
+#include "../IComponent.hpp"
 #include "Vector2D.hpp"
 #include <SFML/Graphics.hpp>
 
-class AnimatedSpriteComponent : public Component
+class AnimatedSpriteComponent : public IComponent
 {
   public:
     sf::Sprite sprite;
@@ -30,5 +30,5 @@ class AnimatedSpriteComponent : public Component
     void update(float deltaTime) override;
     void init() override;
     std::vector<uint8_t> serialize() const override;
-    static AnimatedSpriteComponent deserialize(const uint8_t *data);
+    static AnimatedSpriteComponent deserialize(const uint8_t *data, size_t size);
 };

@@ -1,7 +1,7 @@
 #pragma once
-#include "../components.hpp"
+#include "../IComponent.hpp"
 
-class JumpComponent : public Component
+class JumpComponent : public IComponent
 {
   public:
     float jumpStrength;
@@ -11,5 +11,5 @@ class JumpComponent : public Component
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
-    static JumpComponent deserialize(const uint8_t *data);
+    static JumpComponent deserialize(const uint8_t *data, size_t size);
 };

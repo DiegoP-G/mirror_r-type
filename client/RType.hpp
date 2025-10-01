@@ -1,4 +1,4 @@
-#include "../ecs/components.hpp"
+#include "../ecs/IComponent.hpp"
 #include "../ecs/systems.hpp"
 #include "NetworkECSMediator.hpp"
 #include <mutex>
@@ -19,7 +19,7 @@ class RTypeGame
     PlayerSystem playerSystem;
     EnemySystem enemySystem;
     LaserWarningSystem laserWarningSystem;
-    // GameLogicSystem gameLogicSystem;
+    GameLogicSystem gameLogicSystem;
     BackgroundSystem backgroundSystem;
 
     NetworkECSMediator _med;

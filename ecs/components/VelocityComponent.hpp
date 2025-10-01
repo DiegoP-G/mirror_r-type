@@ -1,8 +1,8 @@
 #pragma once
-#include "../components.hpp"
+#include "../IComponent.hpp"
 #include "Vector2D.hpp"
 
-class VelocityComponent : public Component
+class VelocityComponent : public IComponent
 {
   public:
     Vector2D velocity;
@@ -14,5 +14,5 @@ class VelocityComponent : public Component
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
-    static VelocityComponent deserialize(const uint8_t *data);
+    static VelocityComponent deserialize(const uint8_t *data, size_t size);
 };

@@ -11,6 +11,7 @@ class EntityManager
     std::array<std::vector<Entity *>, MAX_COMPONENTS> entitiesByComponent;
 
   public:
+    EntityManager();
     void update(float deltaTime);
 
     std::vector<uint8_t> serializeAllEntities() const;
@@ -19,13 +20,11 @@ class EntityManager
     std::vector<uint8_t> serializeAllEnemies() const;
     std::vector<uint8_t> serializeAllProjectiles() const;
 
-
     // Désérialiser les entités à partir du vecteur d'octets
     void deserializeAllEntities(const std::vector<uint8_t> &data);
     void deserializePlayerEntities(const std::vector<uint8_t> &data);
     void deserializeEnemyEntities(const std::vector<uint8_t> &data);
     void deserializeProjectileEntities(const std::vector<uint8_t> &data);
-
 
     void render();
 

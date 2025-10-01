@@ -1,7 +1,7 @@
 #pragma once
-#include "../components.hpp"
+#include "../IComponent.hpp"
 
-class LaserWarningComponent : public Component
+class LaserWarningComponent : public IComponent
 {
   public:
     float appearanceTime;
@@ -16,5 +16,5 @@ class LaserWarningComponent : public Component
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
-    static LaserWarningComponent deserialize(const uint8_t *data);
+    static LaserWarningComponent deserialize(const uint8_t *data, size_t size);
 };

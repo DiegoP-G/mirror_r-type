@@ -17,10 +17,21 @@ std::vector<uint8_t> CenteredComponent::serialize() const
     return data;
 }
 
-CenteredComponent CenteredComponent::deserialize(const uint8_t *data)
+CenteredComponent CenteredComponent::deserialize(const uint8_t *data, size_t size)
 {
+    size_t expectedSize = 2 * sizeof(float); // offsetX + offsetY
+    if (size < expectedSize)
+    {
+        throw "CenteredComponent::deserialize - données trop petites";
+    }
+
     CenteredComponent comp;
-    std::memcpy(&comp.offsetX, data, sizeof(float));
-    std::memcpy(&comp.offsetY, data + sizeof(float), sizeof(float));
+    size_t offset = 0;
+
+    std::memcpy(&comp.offsetX, data + offset, sizeof(float));
+    offset += sizeof(float);
+
+    std::memcpy(&comp.offsetY, data + offset, sizeof(float));
+
     return comp;
 }
