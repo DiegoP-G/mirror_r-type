@@ -1,5 +1,6 @@
 #include "NetworkECSMediator.hpp"
 #include "Network/Receiver.hpp"
+#include "../transferData/opcode.hpp"
 #include "RType.hpp"
 #include <cstdint>
 #include <exception>
@@ -21,10 +22,22 @@ NetworkECSMediator::NetworkECSMediator()
          }},
         {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), [this](const std::string &data, uint8_t opcode) {
             //  std::cout << "RECEIVED DATA: " << data << std::endl;
-             _game->getMutex().lock();
-            std::vector<uint8_t> bytes(data.begin(), data.end());
-             _game->getEntityManager().deserializeAllEntities(bytes);
-             _game->getMutex().unlock();
+            if (opcode == OPCODE_PLAYER_UPDATE) {
+                _game->getMutex().lock();
+                std::vector<uint8_t> bytes(data.begin(), data.end());
+                _game->getEntityManager().deserializePlayerEntities(bytes);
+                _game->getMutex().unlock();
+            } else if (opcode == OPCODE_ENEMIES_UPDATE) {
+                _game->getMutex().lock();
+                std::vector<uint8_t> bytes(data.begin(), data.end());
+                _game->getEntityManager().deserializeEnemyEntities(bytes);
+                _game->getMutex().unlock();
+            } else if (opcode  == OPCODE_PROJECTILES_UPDATE) {
+                _game->getMutex().lock();
+                std::vector<uint8_t> bytes(data.begin(), data.end());
+                _game->getEntityManager().deserializeProjectileEntities(bytes);
+                _game->getMutex().unlock();
+            }
          }}};
 }
 
