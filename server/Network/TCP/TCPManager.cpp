@@ -3,8 +3,10 @@
 #include "../../../transferData/transferData.hpp"
 #include "../Client.hpp"
 #include "../NetworkManager.hpp"
+#include <cerrno>
 #include <chrono>
 #include <cstddef>
+#include <cstring>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -46,20 +48,81 @@ void TCPManager::acceptConnection()
     if (cfd < 0)
     {
         perror("accept failed");
+        return;
     }
-    else
-    {
-        _pollFds.push_back({cfd, POLLIN, 0});
-        _networkManagerRef.getClientManager().addClient(Client("caca", cfd));
-        std::cout << "[TCP] New client " << cfd << "\n";
-        int code_udp = rand();
-        _networkManagerRef.getClientManager().getClient(cfd)->setCodeUDP(code_udp);
-        std::cout << "[TCP] TCP sent UDP code: " << std::to_string(code_udp) << "to caca \n";
-        _networkManagerRef.addNewPlayer(cfd);
-        sendFrameTCP(cfd, OPCODE_PLAYER_ID, serializeInt(cfd));
-        sendFrameTCP(cfd, OPCODE_CODE_UDP, serializeInt(code_udp));
 
-        // sleep(1);
+    // Ajouter le client avec POLLIN (POLLOUT sera ajouté si besoin)
+    _pollFds.push_back({cfd, POLLIN, 0});
+    _networkManagerRef.getClientManager().addClient(Client("caca", cfd));
+
+    std::cout << "[TCP] New client " << cfd << "\n";
+
+    int code_udp = rand();
+    _networkManagerRef.getClientManager().getClient(cfd)->setCodeUDP(code_udp);
+    std::cout << "[TCP] TCP will send UDP code: " << code_udp << " to client " << cfd << "\n";
+
+    _networkManagerRef.addNewPlayer(cfd);
+
+    // Mettre les messages en file d'attente au lieu de les envoyer immédiatement
+    queueMessage(cfd, OPCODE_PLAYER_ID, serializeInt(cfd));
+    queueMessage(cfd, OPCODE_CODE_UDP, serializeInt(code_udp));
+
+    // Activer POLLOUT pour ce client pour envoyer les messages
+    setPollOut(cfd, true);
+}
+
+void TCPManager::queueMessage(int fd, uint8_t opcode, const std::string &payload)
+{
+    _pendingMessages[fd].push({opcode, payload});
+    std::cout << "[TCP] Queued message (opcode: " << static_cast<int>(opcode) << ") for client " << fd << "\n";
+}
+
+void TCPManager::setPollOut(int fd, bool enable)
+{
+    for (auto &pfd : _pollFds)
+    {
+        if (pfd.fd == fd)
+        {
+            if (enable)
+            {
+                pfd.events |= POLLOUT;
+                std::cout << "[TCP] Enabled POLLOUT for fd " << fd << "\n";
+            }
+            else
+            {
+                pfd.events &= ~POLLOUT;
+                std::cout << "[TCP] Disabled POLLOUT for fd " << fd << "\n";
+            }
+            break;
+        }
+    }
+}
+
+void TCPManager::handlePollout(size_t i, pollfd &pfd)
+{
+    if (pfd.revents & POLLOUT)
+    {
+        // Vérifier s'il y a des messages en attente pour ce client
+        if (_pendingMessages.count(pfd.fd) && !_pendingMessages[pfd.fd].empty())
+        {
+            auto [opcode, payload] = _pendingMessages[pfd.fd].front();
+
+            sendFrameTCP(pfd.fd, opcode, payload);
+
+            _pendingMessages[pfd.fd].pop();
+            std::cout << "[TCP] Message sent, " << _pendingMessages[pfd.fd].size() << " remaining in queue for fd "
+                      << pfd.fd << "\n";
+
+            if (_pendingMessages[pfd.fd].empty())
+            {
+                setPollOut(pfd.fd, false);
+                _pendingMessages.erase(pfd.fd);
+            }
+        }
+        else
+        {
+            setPollOut(pfd.fd, false);
+        }
     }
 }
 
@@ -73,6 +136,10 @@ void TCPManager::handlePollin(size_t &i, pollfd &pfd)
         if (opcode == OPCODE_CLOSE_CONNECTION)
         {
             std::cout << "[TCP] Client " << pfd.fd << " disconnected\n";
+
+            // Nettoyer les messages en attente pour ce client
+            _pendingMessages.erase(pfd.fd);
+
             _networkManagerRef.getClientManager().removeClient(pfd.fd);
             _pollFds.erase(_pollFds.begin() + i);
             --i;
@@ -80,7 +147,7 @@ void TCPManager::handlePollin(size_t &i, pollfd &pfd)
         else
         {
             _networkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload);
-            std::cout << "[TCP] Received: " << static_cast<int>(opcode) << "payload:" << payload << "\n";
+            std::cout << "[TCP] Received: " << static_cast<int>(opcode) << " payload: " << payload << "\n";
         }
     }
 }
@@ -101,6 +168,10 @@ void TCPManager::update()
         }
         else if (pfd.fd != _listenFd)
         {
+            // Gérer POLLOUT en premier pour envoyer les messages en attente
+            handlePollout(i, pfd);
+
+            // Puis gérer POLLIN pour recevoir les données
             handlePollin(i, pfd);
         }
     }
