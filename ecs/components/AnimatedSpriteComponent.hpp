@@ -24,7 +24,6 @@ public:
                 currentFrame = 0;
             }
 
-            puts("change rect");
             // Update the texture rectangle to display the correct frame
             sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, top, frameWidth, frameHeight));
         }

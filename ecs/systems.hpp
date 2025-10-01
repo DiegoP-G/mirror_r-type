@@ -725,15 +725,15 @@ class EnemySystem
             projectile.addComponent<VelocityComponent>(-200.0f, 0.0f); // Fast horizontal movement
             // projectile.addComponent<SpriteComponent>();                // Add sprite (different from
             //                                                            // player projectiles)
-            static sf::Texture bulletTexture;
-            if (!bulletTexture.loadFromFile(PathFormater::formatAssetPath(bulletSpritePath)))
+            sf::Texture *bulletTexture = g_graphics->getTexture("bullet");
+            if (!bulletTexture)
             {
                 std::cerr << "Failed to load bullet texture!" << std::endl;
                 projectile.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
             }
             else
             {
-                projectile.addComponent<AnimatedSpriteComponent>(bulletTexture, 179, 175, 9, 17, 1, 1);
+                projectile.addComponent<AnimatedSpriteComponent>(*bulletTexture, 179, 175, 9, 17, 1, 1);
             }
 
             projectile.addComponent<ColliderComponent>(10.0f,
@@ -754,15 +754,15 @@ class EnemySystem
                 );
 
                 // projectile.addComponent<SpriteComponent>(10.0f, 5.0f, 255, 255, 0);
-                static sf::Texture bulletTexture;
-                if (!bulletTexture.loadFromFile(PathFormater::formatAssetPath(bulletSpritePath)))
+                sf::Texture *bulletTexture = g_graphics->getTexture("bullet");
+                if (!bulletTexture)
                 {
                     std::cerr << "Failed to load bullet texture!" << std::endl;
                     projectile.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
                 }
                 else
                 {
-                    projectile.addComponent<AnimatedSpriteComponent>(bulletTexture, 179, 175, 9, 17, 1, 1);
+                    projectile.addComponent<AnimatedSpriteComponent>(*bulletTexture, 179, 175, 9, 17, 1, 1);
                 }
                 projectile.addComponent<VelocityComponent>(-200.0f, (i - 1) * 50.0f); // Spread pattern
                 projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
