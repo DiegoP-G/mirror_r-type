@@ -17,7 +17,10 @@ enum GameMediatorEvent
     AddPlayer,
     SetupNetwork,
     UpdateEntities = 0x21,
-    PlayerInput = 0x22,
+    UpdatePlayers = 0x22,
+    UpdateEnemies = 0x23,
+    UpdateProjectiles = 0x24,
+    PlayerInput = 0x26,
 };
 
 class NetworkManager;

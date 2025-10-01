@@ -51,7 +51,25 @@
 // Sends the updated world state (positions of other players, entities, etc).
 // Payload: compressed list of visible entities.
 
-#define OPCODE_PLAYER_INPUT 0x22
+#define OPCODE_PLAYER_UPDATE 0x23
+//  [SERVER → CLIENT, UDP]
+//  Updates the state of a specific player (e.g., position, health, etc).
+//  Payload: [ player_id (4 bytes) | x (float) | y (float) | angle (float) | speed (float) | health (int) ]
+//  Purpose: notifies clients about changes to a particular player.
+
+#define OPCODE_ENEMIES_UPDATE 0x24
+// [SERVER → CLIENT, UDP]
+// Sends updates about enemy entities in the game.
+// Payload: compressed list of enemy entities (positions, types, health, etc).
+// Purpose: notifies clients about the current state of all visible enemies.
+
+#define OPCODE_PROJECTILES_UPDATE 0x25
+// [SERVER → CLIENT, UDP]
+// Sends updates about projectiles in the game.
+// Payload: compressed list of projectile entities (positions, velocities, types, etc).
+// Purpose: notifies clients about the current state of all visible projectiles.
+
+#define OPCODE_PLAYER_INPUT 0x26
 // [CLIENT → SERVER, UDP]
 // Sends the client kb input.
 
