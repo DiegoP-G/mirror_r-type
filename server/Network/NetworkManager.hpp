@@ -46,5 +46,5 @@ class NetworkManager
 
     // SEND DATA FROM ECS
 
-    void updateEntities(std::string data);
+    void sendDataAllClient(std::string data, int opcode);
 };

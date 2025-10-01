@@ -30,9 +30,8 @@ void NetworkManager::addNewPlayer(int socket)
     _gameMediator.notify(AddPlayer, serializeInt(socket));
 }
 
-void NetworkManager::updateEntities(std::string data)
+void NetworkManager::sendDataAllClient(std::string data, int opcode)
 {
-    int opcode = OPCODE_WORLD_UPDATE;
     auto map = _clientManager.getClientsMap();
 
     std::vector<sockaddr_in> clientAddrs;
