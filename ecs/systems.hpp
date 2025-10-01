@@ -127,16 +127,12 @@ class GameLogicSystem
     {
         // Spawn enemies
         enemySpawnTimer += deltaTime;
-        // if (enemySpawnTimer >= ENEMY_SPAWN_INTERVAL) {
-        //     spawnEnemy(entityManager);
-        //     enemySpawnTimer = 0.0f;
-        // }
+
         if (stageStatus == 0)
         {
             stageStatus = 1;
             stageCount = 1;
             // spawnLaser1(entityManager);
-            // spawnEnemies(entityManager);
         }
         else if (stageStatus == 1 && stageCount == 1)
         {
@@ -193,23 +189,6 @@ class GameLogicSystem
             laser.addComponent<ColliderComponent>(width, height, false);
             laser.addComponent<LaserWarningComponent>(width, height, waitingTime, 1.5f,
                                                       3.0f); // Warning for 2s, active for 3s
-        }
-    }
-
-    void spawnEnemies(EntityManager &entityManager)
-    {
-        // float enemyHeight = 20.0f;
-        float y;
-        for (size_t i = 0; i < 10; i++)
-        {
-            y = 100 + i * 50;
-
-            auto &enemy = entityManager.createEntity();
-            enemy.addComponent<TransformComponent>(700, y);
-            enemy.addComponent<VelocityComponent>(0.0f, 0.0f);
-            enemy.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
-            enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
-            enemy.addComponent<EnemyComponent>(1, 0.2f, 2); // Type 2 = Sine wave movement and 3 bullets
         }
     }
 

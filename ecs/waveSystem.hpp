@@ -3,6 +3,7 @@
 #include "GraphicsManager.hpp"
 #include "allComponentsInclude.hpp"
 #include "components/Vector2D.hpp"
+#include "enemyFactory.hpp"
 #include "entityManager.hpp"
 #include <functional>
 #include <math.h>
@@ -114,15 +115,16 @@ class WaveSystem
     {
         float spawnDelay; // Time after previous wave
         int enemyCount;
-        int enemyType;
+        std::string enemyType;
         PatternFunc pattern;
     };
 
     // Default waves
     std::vector<Wave> waves{
-        {0.0f, 4, 0, diamondPattern},
-        {2.5f, 8, 1, linePattern},
-        {2.5f, 7, 0, vPattern},
+        {0.0f, 4, "basic", diamondPattern},
+        {2.5f, 8, "basic", linePattern},
+        {2.5f, 7, "basic", vPattern},
+        {2.5f, 10, "basic", backslashPattern},
     };
 
     float waveTimer = 0.0f;
@@ -165,12 +167,7 @@ class WaveSystem
 
         for (const auto &pos : positions)
         {
-            auto &enemy = entityManager.createEntity();
-            enemy.addComponent<TransformComponent>(pos.x, pos.y);
-            enemy.addComponent<VelocityComponent>(-50.0f, 0.0f);
-            enemy.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
-            enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
-            enemy.addComponent<EnemyComponent>(wave.enemyType, 0.2f, 2);
+            EnemyFactory::createEnemy(entityManager, wave.enemyType, pos);
         }
     }
 };

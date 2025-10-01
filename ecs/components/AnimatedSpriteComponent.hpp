@@ -14,6 +14,7 @@ class AnimatedSpriteComponent : public Component
         // Calculate frame size based on texture size and total frames
         sprite.setTextureRect(sf::IntRect(left, top, frameWidth, frameHeight));
         sprite.setRotation(rotationAngle);
+        sprite.setOrigin(frameWidth, frameHeight); // Center the origin
     }
 
     void update(float deltaTime)

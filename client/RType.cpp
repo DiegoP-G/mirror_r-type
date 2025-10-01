@@ -38,10 +38,13 @@ void RTypeGame::createTextures()
     sf::Texture &enemyTexture = g_graphics->createColorTexture(80, 400, 0, 255, 0); // Green enemy
     sf::Texture &bulletTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bulletSpritePath), "bullet");
+    sf::Texture &basicEnemyTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(basicEnemySpritePath), "basic_enemy");
 
     g_graphics->storeTexture("player", playerTexture);
     g_graphics->storeTexture("enemy", enemyTexture);
     g_graphics->storeTexture("bullet", bulletTexture);
+    g_graphics->storeTexture("basic_enemy", basicEnemyTexture);
 }
 
 void RTypeGame::createPlayer()
