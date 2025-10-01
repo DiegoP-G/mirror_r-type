@@ -3,7 +3,7 @@
 #include "Vector2D.hpp"
 #include <SFML/Graphics.hpp>
 
-class AnimatedSpriteComponent : public Component
+class AnimatedPlayerSpriteComponent : public Component
 {
   public:
     sf::Sprite sprite;
@@ -22,7 +22,7 @@ class AnimatedSpriteComponent : public Component
         Down
     } currentDirection;
 
-    AnimatedSpriteComponent(const sf::Texture &tex, int frameWidth, int frameHeight, float interval,
+    AnimatedPlayerSpriteComponent(const sf::Texture &tex, int frameWidth, int frameHeight, float interval,
                             Vector2D scale = {1.0f, 1.0f});
 
     void setFrame(int frame);
@@ -30,5 +30,5 @@ class AnimatedSpriteComponent : public Component
     void update(float deltaTime) override;
     void init() override;
     std::vector<uint8_t> serialize() const override;
-    static AnimatedSpriteComponent deserialize(const uint8_t *data);
+    static AnimatedPlayerSpriteComponent deserialize(const uint8_t *data);
 };

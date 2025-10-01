@@ -4,6 +4,7 @@
 
 const char playerSpritePath[] = "assets/sprites/playerSpritesheet.png";
 const char fontPath[] = "assets/fonts/upheavtt.ttf";
+const char bulletSpritePath[] = "assets/sprites/bullet_spritesheet.png";
 
 class PathFormater
 {

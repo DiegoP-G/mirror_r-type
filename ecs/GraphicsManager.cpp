@@ -121,7 +121,7 @@ sf::RenderWindow &GraphicsManager::getWindow()
     return window;
 }
 
-void GraphicsManager::drawAnimatedSprite(AnimatedSpriteComponent &animatedSprite, float x, float y)
+void GraphicsManager::drawAnimatedSprite(AnimatedPlayerSpriteComponent &animatedSprite, float x, float y)
 {
     animatedSprite.sprite.setPosition(x, y);
     window.draw(animatedSprite.sprite);

@@ -13,7 +13,7 @@
 
 #include "../client/NetworkECSMediator.hpp"
 #include "../ecs/components.hpp"
-#include "../ecs/components/AnimatedSpriteComponent.hpp"
+#include "../ecs/components/AnimatedPlayerSpriteComponent.hpp"
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <unordered_map>
@@ -46,7 +46,7 @@ class GraphicsManager
                   sf::Uint8 b = 255);
 
     sf::RenderWindow &getWindow();
-    void drawAnimatedSprite(AnimatedSpriteComponent &animatedSprite, float, float);
+    void drawAnimatedSprite(AnimatedPlayerSpriteComponent &animatedSprite, float, float);
     sf::Texture &createTextureFromPath(const std::string &filePath, const std::string &name);
 };
 

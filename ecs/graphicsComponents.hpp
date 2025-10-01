@@ -3,7 +3,7 @@
 #include "components/Vector2D.hpp"
 #include <SFML/Graphics.hpp>
 
-struct AnimatedSpriteComponent : public Component
+struct AnimatedPlayerSpriteComponent : public Component
 {
     sf::Sprite sprite;
     const sf::Texture *texture; // Use a pointer to the texture
@@ -20,7 +20,7 @@ struct AnimatedSpriteComponent : public Component
         Down
     } currentDirection = Default;
 
-    AnimatedSpriteComponent(const sf::Texture &tex, int frameWidth, int frameHeight, float interval,
+    AnimatedPlayerSpriteComponent(const sf::Texture &tex, int frameWidth, int frameHeight, float interval,
                             Vector2D scale = {1.0f, 1.0f})
         : texture(&tex), frameWidth(frameWidth), frameHeight(frameHeight), animationInterval(interval), scale(scale)
     {

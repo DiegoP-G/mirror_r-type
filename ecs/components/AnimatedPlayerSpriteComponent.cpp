@@ -1,7 +1,7 @@
-#include "AnimatedSpriteComponent.hpp"
+#include "AnimatedPlayerSpriteComponent.hpp"
 #include <cstring>
 
-AnimatedSpriteComponent::AnimatedSpriteComponent(const sf::Texture &tex, int frameWidth, int frameHeight,
+AnimatedPlayerSpriteComponent::AnimatedPlayerSpriteComponent(const sf::Texture &tex, int frameWidth, int frameHeight,
                                                  float interval, Vector2D scale)
     : texture(&tex), currentFrame(2), frameWidth(frameWidth), frameHeight(frameHeight), animationInterval(interval),
       scale(scale), currentDirection(Default)
@@ -11,12 +11,12 @@ AnimatedSpriteComponent::AnimatedSpriteComponent(const sf::Texture &tex, int fra
     setFrame(currentFrame);
 }
 
-void AnimatedSpriteComponent::setFrame(int frame)
+void AnimatedPlayerSpriteComponent::setFrame(int frame)
 {
     sprite.setTextureRect(sf::IntRect(frameWidth * frame, 0, frameWidth, frameHeight));
 }
 
-void AnimatedSpriteComponent::updateAnimation(Direction newDirection)
+void AnimatedPlayerSpriteComponent::updateAnimation(Direction newDirection)
 {
     if (newDirection != currentDirection)
     {
@@ -45,15 +45,15 @@ void AnimatedSpriteComponent::updateAnimation(Direction newDirection)
     }
 }
 
-void AnimatedSpriteComponent::update(float deltaTime)
+void AnimatedPlayerSpriteComponent::update(float deltaTime)
 {
 }
 
-void AnimatedSpriteComponent::init()
+void AnimatedPlayerSpriteComponent::init()
 {
 }
 
-std::vector<uint8_t> AnimatedSpriteComponent::serialize() const
+std::vector<uint8_t> AnimatedPlayerSpriteComponent::serialize() const
 {
     std::vector<uint8_t> data;
 
@@ -75,10 +75,10 @@ std::vector<uint8_t> AnimatedSpriteComponent::serialize() const
     return data;
 }
 
-AnimatedSpriteComponent AnimatedSpriteComponent::deserialize(const uint8_t *data)
+AnimatedPlayerSpriteComponent AnimatedPlayerSpriteComponent::deserialize(const uint8_t *data)
 {
     static sf::Texture defaultTexture;
-    AnimatedSpriteComponent comp(defaultTexture, 32, 32, 0.1f);
+    AnimatedPlayerSpriteComponent comp(defaultTexture, 32, 32, 0.1f);
 
     size_t offset = 0;
     std::memcpy(&comp.currentFrame, data + offset, sizeof(int));

@@ -52,11 +52,11 @@ void RTypeGame::createPlayer()
     playerEntity.addComponent<ColliderComponent>(32.0f, 32.0f);
     playerEntity.addComponent<InputComponent>();
 
-    // Load texture and initialize AnimatedSpriteComponent
+    // Load texture and initialize AnimatedPlayerSpriteComponent
     sf::Texture *playerTexture = g_graphics->getTexture("player");
     if (playerTexture)
     {
-        playerEntity.addComponent<AnimatedSpriteComponent>(*playerTexture, 33, 17.5, 0.05f, Vector2D(2.0f, 2.0f));
+        playerEntity.addComponent<AnimatedPlayerSpriteComponent>(*playerTexture, 33, 17.5, 0.05f, Vector2D(2.0f, 2.0f));
     }
 
     player = &playerEntity;

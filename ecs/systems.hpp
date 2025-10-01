@@ -4,6 +4,7 @@
 #include "components.hpp"
 #include "ecs.hpp"
 #include "entityManager.hpp"
+#include "../client/assetsPath.hpp"
 #include <cmath>
 #include <random>
 
@@ -57,9 +58,9 @@ class RenderSystem
             auto &transform = entity->getComponent<TransformComponent>();
             Vector2D position = getActualPosition(entity);
 
-            if (entity->hasComponent<AnimatedSpriteComponent>())
+            if (entity->hasComponent<AnimatedPlayerSpriteComponent>())
             {
-                auto &animatedSprite = entity->getComponent<AnimatedSpriteComponent>();
+                auto &animatedSprite = entity->getComponent<AnimatedPlayerSpriteComponent>();
                 g_graphics->drawAnimatedSprite(animatedSprite, position.x, position.y);
                 continue;
             }
@@ -561,18 +562,18 @@ class PlayerSystem
                 input.fire = false; // Reset fire input
             }
 
-            if (!entity->hasComponent<AnimatedSpriteComponent>())
+            if (!entity->hasComponent<AnimatedPlayerSpriteComponent>())
                 continue;
-            auto &animatedSprite = entity->getComponent<AnimatedSpriteComponent>();
+            auto &animatedSprite = entity->getComponent<AnimatedPlayerSpriteComponent>();
             // Determine direction based on input
-            AnimatedSpriteComponent::Direction direction = AnimatedSpriteComponent::Default;
+            AnimatedPlayerSpriteComponent::Direction direction = AnimatedPlayerSpriteComponent::Default;
             if (input.up)
             {
-                direction = AnimatedSpriteComponent::Up;
+                direction = AnimatedPlayerSpriteComponent::Up;
             }
             else if (input.down)
             {
-                direction = AnimatedSpriteComponent::Down;
+                direction = AnimatedPlayerSpriteComponent::Down;
             }
 
             // Update animation based on direction
@@ -693,8 +694,17 @@ class EnemySystem
 
             // Add projectile components
             projectile.addComponent<VelocityComponent>(-200.0f, 0.0f); // Fast horizontal movement
-            projectile.addComponent<SpriteComponent>();                // Add sprite (different from
-                                                                       // player projectiles)
+            // projectile.addComponent<SpriteComponent>();                // Add sprite (different from
+            //                                                            // player projectiles)
+            sf::Texture bulletTexture;
+            if (!bulletTexture.loadFromFile(PathFormater::formatAssetPath(bulletSpritePath))) {
+                std::cerr << "Failed to load bullet texture!" << std::endl;
+                projectile.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
+            } else {
+                projectile.addComponent<AnimatedPlayerSpriteComponent>(bulletTexture, 9, 17, 0.0f);                                                           
+            
+            }
+    
             projectile.addComponent<ColliderComponent>(10.0f,
                                                        5.0f);                         // Small hitbox
             projectile.addComponent<ProjectileComponent>(5.0f, 3.0f, enemy->getID()); // Damage, lifetime, owner
@@ -711,7 +721,16 @@ class EnemySystem
                     transform.position.x - 20.0f, // Offset to fire from the front of the enemy
                     transform.position.y + 10.0f  // Center height
                 );
-                projectile.addComponent<SpriteComponent>(10.0f, 5.0f, 255, 255, 0);
+                
+                // projectile.addComponent<SpriteComponent>(10.0f, 5.0f, 255, 255, 0);
+                sf::Texture bulletTexture;
+                if (!bulletTexture.loadFromFile(PathFormater::formatAssetPath(bulletSpritePath))) {
+                    std::cerr << "Failed to load bullet texture!" << std::endl;
+                    projectile.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
+                } else {
+                    projectile.addComponent<AnimatedPlayerSpriteComponent>(bulletTexture, 9, 17, 0.0f);                                                           
+                
+                }
                 projectile.addComponent<VelocityComponent>(-200.0f, (i - 1) * 50.0f); // Spread pattern
                 projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
             }
