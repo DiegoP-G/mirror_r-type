@@ -39,6 +39,12 @@
 // Payload: [ code_udp (4 bytes) ]
 // Purpose: lets the server associate the client's UDP (IP:port) with its TCP identity.
 
+#define OPCODE_PLAYER_ID 0x11
+// [SERVER → SERVER, TCP]
+// Give playerId to client
+// Payload: [ code_udp (4 bytes) ]
+// Purpose: lets the client stock his id.
+
 // ---- Game data ----
 
 #define OPCODE_PLAYER_STATE 0x20

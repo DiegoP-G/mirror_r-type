@@ -26,7 +26,7 @@ bool RTypeGame::init(NetworkECSMediator med)
     createBackground();
 
     // Create player
-    createPlayer();
+    //  createPlayer();
 
     running = true;
 
@@ -139,8 +139,6 @@ void RTypeGame::update(float deltaTime)
     if (gameOver)
         return;
 
-    std::cout << "UPT\n";
-
     // Update systems
     // gameLogicSystem.update(entityManager, deltaTime);
     backgroundSystem.update(entityManager, deltaTime);
@@ -159,12 +157,10 @@ void RTypeGame::update(float deltaTime)
     // }
 
     entityManager.refresh();
-    std::cout << "UPT END\n";
 }
 
 void RTypeGame::render()
 {
-    std::cout << "RENDER " << std::endl;
 
     g_graphics->clear();
 
@@ -180,7 +176,6 @@ void RTypeGame::render()
     g_graphics->drawText(scoreText, 10, 10);
 
     g_graphics->present();
-    std::cout << "RENDER END " << std::endl;
 }
 
 void RTypeGame::restart()
@@ -190,38 +185,30 @@ void RTypeGame::restart()
     score = 0;
     gameOver = false;
 
-    createPlayer();
+    // createPlayer();
 }
 
 void cleanup()
 {
-    std::cout << "clean UP " << std::endl;
 
     if (g_graphics)
     {
         delete g_graphics;
         g_graphics = nullptr;
     }
-    std::cout << "clean UP END " << std::endl;
 }
 
 void RTypeGame::sendInputPlayer()
 {
-    std::cout << "in send input\n";
-    std::cout << "in send input 0\n";
 
     _mutex.lock();
-    std::cout << "in send input 0.1\n";
 
     if (player && player->hasComponent<InputComponent>())
     {
-        std::cout << "in send input 0.2\n";
 
         try
         {
             auto &input = player->getComponent<InputComponent>();
-
-            std::cout << "in send input 1\n";
 
             if (input.down == 1 || input.fire == 1 || input.right == 1 || input.left == 1 | input.up == 1)
             {
@@ -234,13 +221,9 @@ void RTypeGame::sendInputPlayer()
             std::cout << e.what() << std::endl;
             throw;
         }
-        std::cout << "in send input 2\n";
     }
-    std::cout << "in send input 3\n";
 
     _mutex.unlock();
-
-    std::cout << "in send input END\n";
 }
 
 void RTypeGame::run()
@@ -267,22 +250,17 @@ void RTypeGame::run()
         }
 
         accumulator += deltaTime;
-        std::cout << "1\n";
         handleEvents();
-        std::cout << "2\n";
-        
+
         sendInputPlayer();
-        
-        std::cout << "3\n";
+
         // Fixed timestep update
         while (accumulator >= FRAME_TIME)
         {
-            std::cout << "mutex LOCK " << std::endl;
             _mutex.lock();
             update(FRAME_TIME);
             _mutex.unlock();
             accumulator -= FRAME_TIME;
-            std::cout << "mutex Unlock " << std::endl;
         }
 
         render();

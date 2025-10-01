@@ -12,7 +12,8 @@ enum NetworkECSMediatorEvent
 {
     SEND_DATA_TCP,
     SEND_DATA_UDP,
-    UPDATE_DATA
+    UPDATE_DATA,
+    PLAYER_ID
 };
 
 class Sender;

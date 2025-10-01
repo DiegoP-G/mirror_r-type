@@ -18,7 +18,7 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
     _handlers[OPCODE_WORLD_UPDATE] = [this](const std::string &payload, int opcode) {
         _med.notify(UPDATE_DATA, payload, opcode);
     };
-        _handlers[OPCODE_ENEMIES_UPDATE] = [this](const std::string &payload, int opcode) {
+    _handlers[OPCODE_ENEMIES_UPDATE] = [this](const std::string &payload, int opcode) {
         _med.notify(UPDATE_DATA, payload, opcode);
     };
     _handlers[OPCODE_PROJECTILES_UPDATE] = [this](const std::string &payload, int opcode) {
@@ -26,6 +26,9 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
     };
     _handlers[OPCODE_PLAYER_UPDATE] = [this](const std::string &payload, int opcode) {
         _med.notify(UPDATE_DATA, payload, opcode);
+    };
+    _handlers[OPCODE_PLAYER_ID] = [this](const std::string &payload, int opcode) {
+        _med.notify(PLAYER_ID, payload, opcode);
     };
 }
 
@@ -90,7 +93,7 @@ void Receiver::receiveUDPMessage()
     auto [opcode, payload] = receiveFrameUDP(_udpSocket, client, len);
 
     // std::cout << "[RECEIVER] UDP message received: opcode=" << std::to_string(opcode) << " | payload=" << payload
-            //   << std::endl;
+    //   << std::endl;
 
     auto it = _handlers.find(opcode);
     if (it != _handlers.end())

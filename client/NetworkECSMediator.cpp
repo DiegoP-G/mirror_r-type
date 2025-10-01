@@ -1,11 +1,13 @@
 #include "NetworkECSMediator.hpp"
 #include "../transferData/opcode.hpp"
+#include "../transferData/transferData.hpp"
 #include "Network/Receiver.hpp"
 #include "RType.hpp"
 #include <cstdint>
 #include <exception>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 
 NetworkECSMediator::NetworkECSMediator()
 {
@@ -17,11 +19,11 @@ NetworkECSMediator::NetworkECSMediator()
          }},
         {static_cast<int>(NetworkECSMediatorEvent::SEND_DATA_UDP),
          [this](const std::string &data, uint8_t opcode) {
-            
              _sender->sendUdp(opcode, data);
              //  std::cout << "FINISH UDP" << std::endl;
          }},
-        {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), [this](const std::string &data, uint8_t opcode) {
+        {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA),
+         [this](const std::string &data, uint8_t opcode) {
              //  std::cout << "RECEIVED DATA: " << data << std::endl;
              //  std::cout << "Receive info opcode:" << opcode << std::endl;
              if (opcode == OPCODE_PLAYER_UPDATE)
@@ -45,7 +47,15 @@ NetworkECSMediator::NetworkECSMediator()
                  _game->getEntityManager().deserializeProjectileEntities(bytes);
                  _game->getMutex().unlock();
              }
-         }}};
+         }},
+        {static_cast<int>(NetworkECSMediatorEvent::PLAYER_ID),
+         [this](const std::string &data, uint8_t opcode) {
+             std::cout << "GET MY PLAYER ID = " << std::to_string(deserializeInt(data)) << std::endl;
+             _game->getMutex().lock();
+             _game->setPlayerId(deserializeInt(data));
+             _game->getMutex().unlock();
+         }},
+    };
 }
 
 void NetworkECSMediator::notify(NetworkECSMediatorEvent event, const std::string &data, uint8_t opcode)
