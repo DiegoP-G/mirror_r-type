@@ -22,6 +22,7 @@ NetworkECSMediator::NetworkECSMediator()
          }},
         {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), [this](const std::string &data, uint8_t opcode) {
             //  std::cout << "RECEIVED DATA: " << data << std::endl;
+            std::cout << "Receive info opcode:" << opcode << std::endl;
             if (opcode == OPCODE_PLAYER_UPDATE) {
                 _game->getMutex().lock();
                 std::vector<uint8_t> bytes(data.begin(), data.end());

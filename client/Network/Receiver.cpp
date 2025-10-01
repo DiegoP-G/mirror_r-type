@@ -18,6 +18,15 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
     _handlers[OPCODE_WORLD_UPDATE] = [this](const std::string &payload, int opcode) {
         _med.notify(UPDATE_DATA, payload, opcode);
     };
+        _handlers[OPCODE_ENEMIES_UPDATE] = [this](const std::string &payload, int opcode) {
+        _med.notify(UPDATE_DATA, payload, opcode);
+    };
+    _handlers[OPCODE_PROJECTILES_UPDATE] = [this](const std::string &payload, int opcode) {
+        _med.notify(UPDATE_DATA, payload, opcode);
+    };
+    _handlers[OPCODE_PLAYER_UPDATE] = [this](const std::string &payload, int opcode) {
+        _med.notify(UPDATE_DATA, payload, opcode);
+    };
 }
 
 void Receiver::onCodeUdp(const std::string &payload)

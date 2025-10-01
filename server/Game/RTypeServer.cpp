@@ -50,7 +50,8 @@ void RTypeServer::update(float deltaTime)
     }
 
     // entityManager.refresh();
-    // sendEntities();
+    sendEntities();
+
     tick++;
 }
 
@@ -104,12 +105,12 @@ void RTypeServer::sendEntities()
     std::string serializedData(data.begin(), data.end());
     mediator.notify(GameMediatorEvent::UpdatePlayers, serializedData);
 
-    auto dataEnemies = entityManager.serializeAllEnemies();
-    std::string serializedDataEnemies(dataEnemies.begin(), dataEnemies.end());
-    mediator.notify(GameMediatorEvent::UpdateEnemies, serializedDataEnemies);
+    // auto dataEnemies = entityManager.serializeAllEnemies();
+    // std::string serializedDataEnemies(dataEnemies.begin(), dataEnemies.end());
+    // mediator.notify(GameMediatorEvent::UpdateEnemies, serializedDataEnemies);
 
-    auto dataProjectiles = entityManager.serializeAllProjectiles();
-    std::string serializedDataProjectiles(dataProjectiles.begin(), dataProjectiles.end());
-    mediator.notify(GameMediatorEvent::UpdateProjectiles, serializedDataProjectiles);
+    // auto dataProjectiles = entityManager.serializeAllProjectiles();
+    // std::string serializedDataProjectiles(dataProjectiles.begin(), dataProjectiles.end());
+    // mediator.notify(GameMediatorEvent::UpdateProjectiles, serializedDataProjectiles);
 
 }
