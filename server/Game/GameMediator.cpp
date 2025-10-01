@@ -16,7 +16,16 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
         {GameMediatorEvent::TickNetwork, [this](const std::string &data) -> void { _networkManager.updateAllPoll(); }},
         {GameMediatorEvent::AddPlayer, [this](const std::string &data) -> void { _rTypeServer.createPlayer(data); }},
         {GameMediatorEvent::UpdateEntities,
-         [this](const std::string &data) -> void { _networkManager.updateEntities(data); }},
+         [this](const std::string &data) -> void { _networkManager.sendDataAllClient(data, OPCODE_WORLD_UPDATE); }},
+        {GameMediatorEvent::UpdatePlayers,
+         [this](const std::string &data) -> void { _networkManager.sendDataAllClient(data, OPCODE_PLAYER_UPDATE); }},
+        {GameMediatorEvent::UpdateEnemies,
+         [this](const std::string &data) -> void { _networkManager.sendDataAllClient(data, OPCODE_ENEMIES_UPDATE); }},
+        {GameMediatorEvent::UpdateProjectiles,
+         [this](const std::string &data) -> void {
+             _networkManager.sendDataAllClient(data, OPCODE_PROJECTILES_UPDATE);
+         }},
+
         {GameMediatorEvent::PlayerInput,
          [this](const std::string &data) -> void { _rTypeServer.handlePlayerInput(data); }},
     };
