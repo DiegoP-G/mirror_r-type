@@ -3,24 +3,33 @@
 #include "Vector2D.hpp"
 #include <SFML/Graphics.hpp>
 
-class AnimatedSpriteComponent : public Component {
-public:
-    AnimatedSpriteComponent(const sf::Texture& texture, int left, int top, int frameWidth, int frameHeight, int totalFrames, float interval)
-        : sprite(texture), frameHeight(frameHeight), frameWidth(frameWidth), top(top), left(left), totalFrames(totalFrames), interval(interval), currentFrame(0), elapsedTime(0.0f) {
+class AnimatedSpriteComponent : public Component
+{
+  public:
+    AnimatedSpriteComponent(const sf::Texture &texture, int left, int top, int frameWidth, int frameHeight,
+                            int totalFrames, float interval, float rotationAngle = 0.0f)
+        : sprite(texture), frameHeight(frameHeight), frameWidth(frameWidth), top(top), left(left),
+          totalFrames(totalFrames), interval(interval), currentFrame(0), elapsedTime(0.0f)
+    {
         // Calculate frame size based on texture size and total frames
         sprite.setTextureRect(sf::IntRect(left, top, frameWidth, frameHeight));
+        sprite.setRotation(rotationAngle);
     }
 
-    void update(float deltaTime) {
-        if (totalFrames <= 1) return;
-    
+    void update(float deltaTime)
+    {
+        if (totalFrames <= 1)
+            return;
+
         elapsedTime += deltaTime;
 
-        if (elapsedTime >= interval) {
+        if (elapsedTime >= interval)
+        {
             elapsedTime -= interval;
             currentFrame++;
 
-            if (currentFrame >= totalFrames) {
+            if (currentFrame >= totalFrames)
+            {
                 currentFrame = 0;
             }
 

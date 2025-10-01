@@ -721,19 +721,21 @@ class EnemySystem
                 transform.position.y + 10.0f  // Center height
             );
 
+            Vector2D velocity(-200.0f, 0.0f);
             // Add projectile components
-            projectile.addComponent<VelocityComponent>(-200.0f, 0.0f); // Fast horizontal movement
-            // projectile.addComponent<SpriteComponent>();                // Add sprite (different from
-            //                                                            // player projectiles)
-            sf::Texture *bulletTexture = g_graphics->getTexture("bullet");
-            if (!bulletTexture)
+            projectile.addComponent<VelocityComponent>(velocity.x, velocity.y);
+
+            // CHANGE THIS LATER, static isn't the solution
+            static sf::Texture bulletTexture;
+            if (!bulletTexture.loadFromFile(PathFormater::formatAssetPath(bulletSpritePath)))
             {
                 std::cerr << "Failed to load bullet texture!" << std::endl;
                 projectile.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
             }
             else
             {
-                projectile.addComponent<AnimatedSpriteComponent>(*bulletTexture, 179, 175, 9, 17, 1, 1);
+                float angle = std::atan2(velocity.y, velocity.x) * (180.0f / M_PI) + 90.0f;
+                projectile.addComponent<AnimatedSpriteComponent>(bulletTexture, 179, 175, 9, 17, 1, 1, angle);
             }
 
             projectile.addComponent<ColliderComponent>(10.0f,
@@ -753,19 +755,23 @@ class EnemySystem
                     transform.position.y + 10.0f  // Center height
                 );
 
-                // projectile.addComponent<SpriteComponent>(10.0f, 5.0f, 255, 255, 0);
-                sf::Texture *bulletTexture = g_graphics->getTexture("bullet");
-                if (!bulletTexture)
+                Vector2D velocity(-200.0f, (i - 1) * 50.0f);
+
+                projectile.addComponent<VelocityComponent>(velocity.x, velocity.y);
+                projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
+
+                // CHANGE THIS LATER, static isn't the solution
+                static sf::Texture bulletTexture;
+                if (!bulletTexture.loadFromFile(PathFormater::formatAssetPath(bulletSpritePath)))
                 {
                     std::cerr << "Failed to load bullet texture!" << std::endl;
                     projectile.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
                 }
                 else
                 {
-                    projectile.addComponent<AnimatedSpriteComponent>(*bulletTexture, 179, 175, 9, 17, 1, 1);
+                    float angle = std::atan2(velocity.y, velocity.x) * (180.0f / M_PI) + 90.0f;
+                    projectile.addComponent<AnimatedSpriteComponent>(bulletTexture, 179, 175, 9, 17, 1, 1, angle);
                 }
-                projectile.addComponent<VelocityComponent>(-200.0f, (i - 1) * 50.0f); // Spread pattern
-                projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
             }
         }
     }
