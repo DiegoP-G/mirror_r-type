@@ -10,24 +10,53 @@ class EntityManager
     std::vector<std::unique_ptr<Entity>> entities;
     std::array<std::vector<Entity *>, MAX_COMPONENTS> entitiesByComponent;
 
+    // Buffers pour les opérations différées
+    std::vector<EntityID> entitiesToDestroy;
+    std::vector<std::unique_ptr<Entity>> entitiesToCreate;
+
   public:
     EntityManager();
     void update(float deltaTime);
 
-    std::vector<uint8_t> serializeAllEntities() const;
 
-    std::vector<uint8_t> serializeAllPlayers() const;
-    std::vector<uint8_t> serializeAllEnemies() const;
-    std::vector<uint8_t> serializeAllProjectiles() const;
+    const std::vector<EntityID>& getEntitiesToDestroy() const
+    {
+        return entitiesToDestroy;
+    }
 
-    // Désérialiser les entités à partir du vecteur d'octets
-    void deserializeAllEntities(const std::vector<uint8_t> &data);
-    void deserializePlayerEntities(const std::vector<uint8_t> &data);
-    void deserializeEnemyEntities(const std::vector<uint8_t> &data);
-    void deserializeProjectileEntities(const std::vector<uint8_t> &data);
+    const std::vector<std::unique_ptr<Entity>>& getEntitiesToCreate() const
+    {
+        return entitiesToCreate;
+    }
+
+    // === SERVEUR SEULEMENT ===
+    
+    // Sérialisation complète d'une seule entité (TCP)
+    std::vector<uint8_t> serializeEntityFull(EntityID id) const;
+    
+    // Sérialisation des mouvements de toutes les entités (UDP)
+    std::vector<uint8_t> serializeAllMovements() const;
+    
+    // Buffer les entités à créer/détruire
+    void markEntityForDestruction(EntityID id);
+    Entity& queueEntityCreation();
+    
+    // === CLIENT SEULEMENT ===
+    
+    // Désérialisation complète d'une entité (TCP)
+    void deserializeEntityFull(const std::vector<uint8_t> &data);
+    
+    // Désérialisation des mouvements (UDP)
+    void deserializeAllMovements(const std::vector<uint8_t> &data);
+    
+    // Détruire une entité spécifique
+    void destroyEntityByID(EntityID id);
+
+    // === COMMUN ===
+    
     void render();
-
     void refresh();
+    void applyPendingChanges();
 
     Entity &createEntity();
 
@@ -47,7 +76,7 @@ class EntityManager
 
             for (auto &entity : entities)
             {
-                if (entity && (entity->getComponentMask() & mask) == mask)
+                if (entity && entity->isActive() && (entity->getComponentMask() & mask) == mask)
                 {
                     matchingEntities.push_back(entity.get());
                 }
@@ -57,10 +86,7 @@ class EntityManager
     }
 
     Entity *getEntityByID(EntityID id);
-
     size_t getEntityCount() const;
-
     size_t getActiveEntityCount() const;
-
     void clear();
 };

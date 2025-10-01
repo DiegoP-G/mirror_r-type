@@ -30,7 +30,7 @@ void NetworkManager::addNewPlayer(int socket)
     _gameMediator.notify(AddPlayer, serializeInt(socket));
 }
 
-void NetworkManager::sendDataAllClient(std::string data, int opcode)
+void NetworkManager::sendDataAllClientUDP(std::string data, int opcode)
 {
     auto map = _clientManager.getClientsMap();
 
@@ -40,4 +40,16 @@ void NetworkManager::sendDataAllClient(std::string data, int opcode)
         clientAddrs.push_back(c.second.getTrueAddr());
     }
     _UDPManager.sendTo(clientAddrs, opcode, data);
+}
+
+void NetworkManager::sendDataAllClientTCP(std::string data, int opcode)
+{
+    auto map = _clientManager.getClientsMap();
+
+    std::vector<int> clientSocket;
+    for (auto c : map)
+    {
+        clientSocket.push_back(c.second.getSocket());
+    }
+    _TCPManager.sendTo(clientSocket, opcode, data);
 }

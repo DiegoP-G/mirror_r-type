@@ -29,30 +29,64 @@ void RTypeServer::update(float deltaTime)
 {
     if (tick % 60 == 0)
         std::cout << "-------------60 tick passed--------------" << tick / 60 << std::endl;
-    std::cout << "new tick  " << std::to_string(deltaTime) << std::endl;
 
     if (gameOver)
         return;
 
+    // 1. Traiter tous les systèmes
     gameLogicSystem.update(entityManager, deltaTime);
     movementSystem.update(entityManager, deltaTime);
     playerSystem.update(entityManager, deltaTime);
-    // inputSystem.update(entityManager, deltaTime);
     boundarySystem.update(entityManager, deltaTime);
     cleanupSystem.update(entityManager, deltaTime);
     enemySystem.update(entityManager, deltaTime);
     collisionSystem.update(entityManager);
     laserWarningSystem.update(entityManager, deltaTime);
 
-    if (player && !player->isActive())
-    {
-        gameOver = true;
-    }
-
-    // entityManager.refresh();
-    sendEntities();
+    // 2. AVANT applyPendingChanges, envoyer ce qui a été créé/détruit
+    sendNewEntities();        // Envoie les entités dans entitiesToCreate
+    sendDestroyedEntities();  // Envoie les IDs dans entitiesToDestroy
+    
+    // 3. Appliquer les changements (vide les buffers)
+    entityManager.applyPendingChanges();
+    
+    // 4. Envoyer les updates de mouvement (toutes les entités actives)
+    sendMovementUpdates();
 
     tick++;
+}
+
+void RTypeServer::sendNewEntities()
+{
+    // Parcourir les entités créées dans entitiesToCreate
+    auto& manager = entityManager;
+    
+    // Pour chaque nouvelle entité créée ce tick
+    for (const auto& entity : manager.getEntitiesToCreate())
+    {
+        auto data = manager.serializeEntityFull(entity->getID());
+        std::string serializedData(data.begin(), data.end());
+        mediator.notify(GameMediatorEvent::EntityCreated, serializedData);
+    }
+}
+
+void RTypeServer::sendDestroyedEntities()
+{
+    auto& manager = entityManager;
+    
+    // Pour chaque entité détruite ce tick
+    for (EntityID id : manager.getEntitiesToDestroy())
+    {
+        auto data = serializeInt(id);
+        mediator.notify(GameMediatorEvent::EntityDestroyed, data);
+    }
+}
+
+void RTypeServer::sendMovementUpdates()
+{
+    auto data = entityManager.serializeAllMovements();
+    std::string serializedData(data.begin(), data.end());
+    mediator.notify(GameMediatorEvent::MovementUpdate, serializedData);
 }
 
 void RTypeServer::restart()

@@ -10,55 +10,68 @@
 NetworkECSMediator::NetworkECSMediator()
 {
     _mediatorMap = {
+        // === ENVOI VERS LE SERVEUR ===
         {static_cast<int>(NetworkECSMediatorEvent::SEND_DATA_TCP),
          [this](const std::string &data, uint8_t opcode) {
-             std::cout << "SENDING TCP" << std::endl;
+             std::cout << "[Client] Sending TCP opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
              _sender->sendTcp(opcode, data);
          }},
+        
         {static_cast<int>(NetworkECSMediatorEvent::SEND_DATA_UDP),
          [this](const std::string &data, uint8_t opcode) {
-            
              _sender->sendUdp(opcode, data);
-             //  std::cout << "FINISH UDP" << std::endl;
          }},
-        {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), [this](const std::string &data, uint8_t opcode) {
-             //  std::cout << "RECEIVED DATA: " << data << std::endl;
-             //  std::cout << "Receive info opcode:" << opcode << std::endl;
-             if (opcode == OPCODE_PLAYER_UPDATE)
+        
+        // === RÉCEPTION DEPUIS LE SERVEUR ===
+        {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), 
+         [this](const std::string &data, uint8_t opcode) {
+             std::cout << "[Client] Received opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
+             
+             switch (opcode)
              {
-                 _game->getMutex().lock();
-                 std::vector<uint8_t> bytes(data.begin(), data.end());
-                 _game->getEntityManager().deserializePlayerEntities(bytes);
-                 _game->getMutex().unlock();
+                 // Création complète d'une entité (TCP)
+                 case OPCODE_ENTITY_CREATE:
+                 {
+                     std::cout << "[Client] Entity created" << std::endl;
+                     _game->getMutex().lock();
+                     std::vector<uint8_t> bytes(data.begin(), data.end());
+                     _game->getEntityManager().deserializeEntityFull(bytes);
+                     _game->getMutex().unlock();
+                     break;
+                 }
+                 
+                 // Destruction d'une entité (TCP)
+                 case OPCODE_ENTITY_DESTROY:
+                 {
+                     std::cout << "[Client] Entity destroyed" << std::endl;
+                     _game->getMutex().lock();
+                     EntityID id = deserializeInt(data);
+                     _game->getEntityManager().destroyEntityByID(id);
+                     _game->getMutex().unlock();
+                     break;
+                 }
+                 
+                 // Updates de mouvement (UDP)
+                 case OPCODE_MOVEMENT_UPDATE:
+                 {
+                     _game->getMutex().lock();
+                     std::vector<uint8_t> bytes(data.begin(), data.end());
+                     _game->getEntityManager().deserializeAllMovements(bytes);
+                     _game->getMutex().unlock();
+                     break;
+                 }
+                 
+                 default:
+                     std::cerr << "[Client] Unhandled opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
+                     break;
              }
-             else if (opcode == OPCODE_ENEMIES_UPDATE)
-             {
-                 _game->getMutex().lock();
-                 std::vector<uint8_t> bytes(data.begin(), data.end());
-                 _game->getEntityManager().deserializeEnemyEntities(bytes);
-                 _game->getMutex().unlock();
-             }
-             else if (opcode == OPCODE_PROJECTILES_UPDATE)
-             {
-                 _game->getMutex().lock();
-                 std::vector<uint8_t> bytes(data.begin(), data.end());
-                 _game->getEntityManager().deserializeProjectileEntities(bytes);
-                 _game->getMutex().unlock();
-             }
-         }}};
+         }}
+    };
 }
 
 void NetworkECSMediator::notify(NetworkECSMediatorEvent event, const std::string &data, uint8_t opcode)
 {
-    auto it = _mediatorMap.end();
-    try
-    {
-        it = _mediatorMap.find((int)event);
-    }
-    catch (std::exception &e)
-    {
-        std::cerr << e.what() << std::endl;
-    }
+    auto it = _mediatorMap.find(static_cast<int>(event));
 
     if (it != _mediatorMap.end())
     {
@@ -66,6 +79,6 @@ void NetworkECSMediator::notify(NetworkECSMediatorEvent event, const std::string
     }
     else
     {
-        throw std::runtime_error("notify: No handler registered for event");
+        throw std::runtime_error("notify: No handler registered for event " + std::to_string(static_cast<int>(event)));
     }
 }

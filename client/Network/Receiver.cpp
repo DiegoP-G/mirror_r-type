@@ -10,24 +10,36 @@
 Receiver::Receiver(NetworkECSMediator &med) : _med(med)
 {
     _handlers[OPCODE_CODE_UDP] = [this](const std::string &payload, int opcode) {
-        std::cout << "caca" << std::endl;
+        std::cout << "[Receiver] UDP auth code received" << std::endl;
         onCodeUdp(payload);
     };
-    _handlers[OPCODE_CLOSE_CONNECTION] = [this](const std::string &payload, int opcode) { onCloseConnection(payload); };
-    _handlers[OPCODE_CHAT_BROADCAST] = [this](const std::string &payload, int opcode) { onChatBroadcast(payload); };
-    _handlers[OPCODE_WORLD_UPDATE] = [this](const std::string &payload, int opcode) {
-        _med.notify(UPDATE_DATA, payload, opcode);
+    
+    _handlers[OPCODE_CLOSE_CONNECTION] = [this](const std::string &payload, int opcode) { 
+        onCloseConnection(payload); 
     };
-        _handlers[OPCODE_ENEMIES_UPDATE] = [this](const std::string &payload, int opcode) {
-        _med.notify(UPDATE_DATA, payload, opcode);
+    
+    _handlers[OPCODE_CHAT_BROADCAST] = [this](const std::string &payload, int opcode) { 
+        onChatBroadcast(payload); 
     };
-    _handlers[OPCODE_PROJECTILES_UPDATE] = [this](const std::string &payload, int opcode) {
-        _med.notify(UPDATE_DATA, payload, opcode);
+    
+    // === Nouveaux handlers pour l'architecture client-serveur ===
+    
+    // Création d'entité (TCP)
+    _handlers[OPCODE_ENTITY_CREATE] = [this](const std::string &payload, int opcode) {
+        _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
-    _handlers[OPCODE_PLAYER_UPDATE] = [this](const std::string &payload, int opcode) {
-        _med.notify(UPDATE_DATA, payload, opcode);
+    
+    // Destruction d'entité (TCP)
+    _handlers[OPCODE_ENTITY_DESTROY] = [this](const std::string &payload, int opcode) {
+        _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
+    };
+    
+    // Updates de mouvement (UDP)
+    _handlers[OPCODE_MOVEMENT_UPDATE] = [this](const std::string &payload, int opcode) {
+        _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
 }
+
 
 void Receiver::onCodeUdp(const std::string &payload)
 {
@@ -61,37 +73,42 @@ void Receiver::onChatBroadcast(const std::string &payload)
 
 void Receiver::receiveTCPMessage()
 {
-    if (_tcpSocket == -1)
+    auto [opcode, payload] = receiveFrameTCP(_tcpSocket, _tcpBuffer);
+    
+    if (opcode == OPCODE_INCOMPLETE_DATA)
         return;
-
-    std::string tmp;
-    auto [opcode, payload] = receiveFrameTCP(_tcpSocket, tmp);
-
-    // std::cout << payload.length() << std::endl;
+    
+    if (opcode == OPCODE_CLOSE_CONNECTION)
+    {
+        std::cout << "[TCP] Server closed connection" << std::endl;
+        return;
+    }
+    
+    std::cout << "[TCP] Received opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
+    
+    // Router vers le handler approprié
     auto it = _handlers.find(opcode);
-    // std::cout << "PAYLOAD TCP: " << payload << " OPCODE: " << static_cast<int>(opcode) << std::endl;
     if (it != _handlers.end())
+    {
         it->second(payload, opcode);
+    }
     else
-        std::cerr << "[RECEIVER] No handler for opcode " << (int)opcode << std::endl;
+    {
+        std::cout << "[TCP] Unhandled opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
+    }
 }
 
 void Receiver::receiveUDPMessage()
 {
-    if (_udpSocket == -1)
-    {
-        std::cerr << "[RECEIVER] Cannot receive UDP message, UDP socket is invalid!" << std::endl;
+    sockaddr_in from;
+    socklen_t len = sizeof(from);
+    
+    auto [opcode, payload] = receiveFrameUDP(_udpSocket, from, len);
+    
+    if (opcode == 0)
         return;
-    }
-
-    sockaddr_in client{};
-    socklen_t len = sizeof(client);
-    // std::cout << "x" << std::endl;
-    auto [opcode, payload] = receiveFrameUDP(_udpSocket, client, len);
-
-    // std::cout << "[RECEIVER] UDP message received: opcode=" << std::to_string(opcode) << " | payload=" << payload
-            //   << std::endl;
-
+    
+    // Router vers le handler approprié
     auto it = _handlers.find(opcode);
     if (it != _handlers.end())
     {
@@ -99,6 +116,6 @@ void Receiver::receiveUDPMessage()
     }
     else
     {
-        std::cerr << "[RECEIVER] No handler registered for opcode " << std::to_string(opcode) << std::endl;
+        std::cout << "[UDP] Unhandled opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
     }
 }

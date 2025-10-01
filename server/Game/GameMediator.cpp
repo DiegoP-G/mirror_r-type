@@ -11,23 +11,50 @@
 GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTypeServer(*new RTypeServer(*this))
 {
     _mediatorMap = {
-        {GameMediatorEvent::TickLogic, [this](const std::string &data) -> void { _rTypeServer.run(std::stof(data)); }},
-        {GameMediatorEvent::SetupNetwork, [this](const std::string &data) -> void {}},
-        {GameMediatorEvent::TickNetwork, [this](const std::string &data) -> void { _networkManager.updateAllPoll(); }},
-        {GameMediatorEvent::AddPlayer, [this](const std::string &data) -> void { _rTypeServer.createPlayer(data); }},
-        {GameMediatorEvent::UpdateEntities,
-         [this](const std::string &data) -> void { _networkManager.sendDataAllClient(data, OPCODE_WORLD_UPDATE); }},
-        {GameMediatorEvent::UpdatePlayers,
-         [this](const std::string &data) -> void { _networkManager.sendDataAllClient(data, OPCODE_PLAYER_UPDATE); }},
-        {GameMediatorEvent::UpdateEnemies,
-         [this](const std::string &data) -> void { _networkManager.sendDataAllClient(data, OPCODE_ENEMIES_UPDATE); }},
-        {GameMediatorEvent::UpdateProjectiles,
+        // Logique de jeu
+        {GameMediatorEvent::TickLogic, 
+         [this](const std::string &data) -> void { 
+             _rTypeServer.run(std::stof(data)); 
+         }},
+        
+        // Réseau
+        {GameMediatorEvent::SetupNetwork, 
+         [this](const std::string &data) -> void {}},
+        
+        {GameMediatorEvent::TickNetwork, 
+         [this](const std::string &data) -> void { 
+             _networkManager.updateAllPoll(); 
+         }},
+        
+        // Joueurs
+        {GameMediatorEvent::AddPlayer, 
+         [this](const std::string &data) -> void { 
+             _rTypeServer.createPlayer(data); 
+         }},
+        
+        // Création d'entité (TCP - fiable)
+        {GameMediatorEvent::EntityCreated,
          [this](const std::string &data) -> void {
-             _networkManager.sendDataAllClient(data, OPCODE_PROJECTILES_UPDATE);
+             _networkManager.sendDataAllClientTCP(data, OPCODE_ENTITY_CREATE);
+         }},
+        
+        // Destruction d'entité (TCP - fiable)
+        {GameMediatorEvent::EntityDestroyed,
+         [this](const std::string &data) -> void {
+             _networkManager.sendDataAllClientTCP(data, OPCODE_ENTITY_DESTROY);
          }},
 
+        // Updates de mouvement (UDP - rapide)
+        {GameMediatorEvent::MovementUpdate,
+         [this](const std::string &data) -> void {
+             _networkManager.sendDataAllClientUDP(data, OPCODE_MOVEMENT_UPDATE);
+         }},
+        
+        // Input joueur
         {GameMediatorEvent::PlayerInput,
-         [this](const std::string &data) -> void { _rTypeServer.handlePlayerInput(data); }},
+         [this](const std::string &data) -> void { 
+             _rTypeServer.handlePlayerInput(data); 
+         }},
     };
 }
 

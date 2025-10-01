@@ -103,3 +103,10 @@ void TCPManager::update()
         }
     }
 }
+
+void TCPManager::sendTo(std::vector<int> fd, int opcode, const std::string &msg)
+{
+    for (auto &sock : fd) {
+        sendFrameTCP(sock, opcode, msg);
+    }
+}

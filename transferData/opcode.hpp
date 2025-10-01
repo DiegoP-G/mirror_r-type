@@ -73,7 +73,23 @@
 // [CLIENT → SERVER, UDP]
 // Sends the client kb input.
 
-// ---- Chat / Messaging ----
+
+#define OPCODE_ENTITY_CREATE 0x27
+// [SERVER → CLIENT, TCP]
+// Création complète d'une entité avec tous ses composants
+// Payload: entité sérialisée complète
+
+#define OPCODE_ENTITY_DESTROY 0x28
+// [SERVER → CLIENT, TCP]
+// Destruction d'une entité
+// Payload: EntityID (4 bytes)
+
+// === Updates de mouvement (UDP) ===
+#define OPCODE_MOVEMENT_UPDATE 0x29
+// [SERVER → CLIENT, UDP]
+// Updates des positions et velocities de toutes les entités
+// Payload: liste compressée (EntityID, position, velocity)
+
 
 #define OPCODE_CHAT_MESSAGE 0x30
 // [CLIENT → SERVER, TCP]

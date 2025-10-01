@@ -42,6 +42,11 @@ class RTypeServer
     {
     }
 
+  void sendMovementUpdates();
+  void sendNewEntities();
+  void sendDestroyedEntities();
+
+
     bool init();
 
     void createPlayer(const std::string &);

@@ -46,5 +46,7 @@ class NetworkManager
 
     // SEND DATA FROM ECS
 
-    void sendDataAllClient(std::string data, int opcode);
+    void sendDataAllClientUDP(std::string data, int opcode);
+    void sendDataAllClientTCP(std::string data, int opcode);
+
 };

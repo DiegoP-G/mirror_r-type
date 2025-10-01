@@ -144,21 +144,21 @@ void RTypeGame::update(float deltaTime)
     // Update systems
     // gameLogicSystem.update(entityManager, deltaTime);
     backgroundSystem.update(entityManager, deltaTime);
-    movementSystem.update(entityManager, deltaTime);
+    // movementSystem.update(entityManager, deltaTime);
     playerSystem.update(entityManager, deltaTime);
     inputSystem.update(entityManager, deltaTime);
-    boundarySystem.update(entityManager, deltaTime);
-    cleanupSystem.update(entityManager, deltaTime);
-    enemySystem.update(entityManager, deltaTime);
-    collisionSystem.update(entityManager);
-    laserWarningSystem.update(entityManager, deltaTime);
-    // Check game over
+    // boundarySystem.update(entityManager, deltaTime);
+    // cleanupSystem.update(entityManager, deltaTime);
+    // enemySystem.update(entityManager, deltaTime);
+    // collisionSystem.update(entityManager);
+    // laserWarningSystem.update(entityManager, deltaTime);
+    // // Check game over
     // if (player && !player->isActive())
     // {
     //     gameOver = true;
     // }
 
-    entityManager.refresh();
+    entityManager.applyPendingChanges();
     std::cout << "UPT END\n";
 }
 
@@ -208,39 +208,28 @@ void cleanup()
 void RTypeGame::sendInputPlayer()
 {
     std::cout << "in send input\n";
-    std::cout << "in send input 0\n";
-
+    
     _mutex.lock();
-    std::cout << "in send input 0.1\n";
-
-    if (player && player->hasComponent<InputComponent>())
+    
+    if (!player || !player->isActive())
     {
-        std::cout << "in send input 0.2\n";
-
-        try
-        {
-            auto &input = player->getComponent<InputComponent>();
-
-            std::cout << "in send input 1\n";
-
-            if (input.down == 1 || input.fire == 1 || input.right == 1 || input.left == 1 | input.up == 1)
-            {
-                std::string serializedData = serializePlayerInput(input, player->getID());
-                _med.notify(NetworkECSMediatorEvent::SEND_DATA_UDP, serializedData, OPCODE_PLAYER_INPUT);
-            }
-        }
-        catch (std::exception &e)
-        {
-            std::cout << e.what() << std::endl;
-            throw;
-        }
-        std::cout << "in send input 2\n";
+        _mutex.unlock();
+        return;
     }
-    std::cout << "in send input 3\n";
-
+    
+    if (player->hasComponent<InputComponent>())
+    {
+        auto &input = player->getComponent<InputComponent>();
+        auto &playerComp = player->getComponent<PlayerComponent>();
+        
+        std::string inputData = serializePlayerInput(playerComp.playerID, input);
+        
+        _med.notify(NetworkECSMediatorEvent::SEND_DATA_UDP, inputData, OPCODE_PLAYER_INPUT);
+        
+        std::cout << "Sent player input for player " << playerComp.playerID << std::endl;
+    }
+    
     _mutex.unlock();
-
-    std::cout << "in send input END\n";
 }
 
 void RTypeGame::run()

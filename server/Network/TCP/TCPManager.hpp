@@ -23,7 +23,8 @@ class TCPManager
     TCPManager(NetworkManager &ref);
     ~TCPManager();
     void update();
-    void sendToClient(int fd, const std::string &msg);
+    void sendTo(std::vector<int> fd, int opcode, const std::string &msg);
+
     void acceptConnection();
     void handlePollin(size_t &i, pollfd &pfd);
 };
