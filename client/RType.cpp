@@ -243,7 +243,9 @@ void RTypeGame::run()
         // Fixed timestep update
         while (accumulator >= FRAME_TIME)
         {
+            _mutex.lock();
             update(FRAME_TIME);
+            _mutex.unlock();
             accumulator -= FRAME_TIME;
         }
 
