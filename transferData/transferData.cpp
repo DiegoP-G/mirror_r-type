@@ -71,8 +71,9 @@ std::tuple<uint8_t, std::string> receiveFrameTCP(int socket, std::string &buffer
     if (bytesRead < 0)
     {
         if (errno == EAGAIN || errno == EWOULDBLOCK)
-            return {OPCODE_INCOMPLETE_DATA, ""}; // rien de disponible
-        return {OPCODE_CLOSE_CONNECTION, ""};
+            bytesRead = 0;
+        else
+            return {OPCODE_CLOSE_CONNECTION, ""};
     }
     else if (bytesRead == 0)
     {

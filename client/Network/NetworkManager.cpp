@@ -5,6 +5,7 @@
 #include "Sender.hpp"
 #include <arpa/inet.h>
 #include <cstring>
+#include <fcntl.h>
 #include <iostream>
 #include <unistd.h>
 
@@ -44,6 +45,8 @@ bool NetworkManager::setup(const char *serverIp, int port)
         perror("TCP connect");
         return false;
     }
+    int flags = fcntl(_tcpSocket, F_GETFL, 0);
+    fcntl(_tcpSocket, F_SETFL, flags | O_NONBLOCK);
 
     _udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
     if (_udpSocket < 0)
@@ -106,7 +109,7 @@ void NetworkManager::loop()
                 }
                 else if (pfd.fd == _tcpSocket)
                 {
-                    std::cout << "hi tcp" << std::endl;
+                    //  std::cout << "hi tcp" << std::endl;
                     _receiver.receiveTCPMessage();
                 }
             }

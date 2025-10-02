@@ -21,10 +21,7 @@ TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
     if (_listenFd < 0)
         throw std::runtime_error("TCP socket failed");
     int flags = fcntl(_listenFd, F_GETFL, 0);
-    if (flags < 0)
-        throw std::runtime_error("fcntl(F_GETFL) failed");
-    if (fcntl(_listenFd, F_SETFL, flags | O_NONBLOCK) < 0)
-        throw std::runtime_error("fcntl(F_SETFL, O_NONBLOCK) failed");
+    fcntl(_listenFd, F_SETFL, flags | O_NONBLOCK);
 
     int opt = 1;
     if (setsockopt(_listenFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
@@ -35,14 +32,9 @@ TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
     _addr.sin_port = htons(SERVER_PORT);
 
     // Juste après socket() ou connect()
-    fcntl(_listenFd, F_SETFL, flags | O_NONBLOCK);
 
     if (bind(_listenFd, (sockaddr *)&_addr, sizeof(_addr)) < 0)
         throw std::runtime_error("TCP bind failed");
-    if (listen(_listenFd, 16) < 0)
-        throw std::runtime_error("TCP listen failed");
-
-    _pollFds.push_back({_listenFd, POLLIN, 0});
 }
 
 TCPManager::~TCPManager()
@@ -78,7 +70,7 @@ void TCPManager::acceptConnection()
 
     // Mettre les messages en file d'attente au lieu de les envoyer immédiatement
     queueMessage(cfd, OPCODE_CODE_UDP, serializeInt(code_udp));
-    queueMessage(cfd, OPCODE_PLAYER_ID, "bonjour sale merde");
+    queueMessage(cfd, OPCODE_PLAYER_ID, serializeInt(cfd));
 
     // Activer POLLOUT pour ce client pour envoyer les messages
     setPollOut(cfd, true);
