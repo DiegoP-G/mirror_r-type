@@ -86,7 +86,9 @@ void Receiver::receiveTCPMessage()
 
     while (true)
     {
+        std::cout << "befroe receive frame" << std::endl;
         auto [opcode, payload] = receiveFrameTCP(_tcpSocket, _tcpBuffer);
+        std::cout << "opcode is :" << opcode << std::endl;
         std::cout << _tcpBuffer << std::endl;
 
         // Si données incomplètes, on attend le prochain appel
@@ -111,16 +113,21 @@ void Receiver::receiveTCPMessage()
         auto it = _handlers.find(opcode);
         if (it != _handlers.end())
         {
+            std::cout << "here 0" << std::endl;
             it->second(payload, opcode);
         }
         else
         {
+
             std::cerr << "[RECEIVER] No handler for opcode " << static_cast<int>(opcode) << std::endl;
         }
-
+        std::cout << "here 1" << std::endl;
         // Si le buffer est vide, on sort de la boucle
         if (_tcpBuffer.empty())
+        {
+            std::cout << "here" << std::endl;
             break;
+        }
     }
 }
 

@@ -64,6 +64,9 @@ std::tuple<uint8_t, std::string> receiveFrameTCP(int socket, std::string &buffer
     char temp[4096];
 
     // Lire tout ce qui est disponible sans bloquer
+
+    std::cout << "FRAME 1" << std::endl;
+
     ssize_t bytesRead = read(socket, temp, sizeof(temp));
     if (bytesRead < 0)
     {
@@ -77,6 +80,7 @@ std::tuple<uint8_t, std::string> receiveFrameTCP(int socket, std::string &buffer
     }
 
     buffer.append(temp, bytesRead);
+    std::cout << "FRAME 2" << std::endl;
 
     // Vérifier qu'on a au moins 2 octets pour le header
     if (buffer.size() < 2)
@@ -107,6 +111,7 @@ std::tuple<uint8_t, std::string> receiveFrameTCP(int socket, std::string &buffer
     // Vérifier si tout le payload est là
     if (buffer.size() < offset + payloadLen)
         return {OPCODE_INCOMPLETE_DATA, ""};
+    std::cout << "FRAME 3" << std::endl;
 
     // Extraire le payload complet
     std::string payload = buffer.substr(offset, payloadLen);
