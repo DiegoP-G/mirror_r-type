@@ -1,7 +1,6 @@
 #pragma once
 
 #include <arpa/inet.h>
-#include <cstddef>
 #include <map>
 #include <netinet/in.h>
 #include <poll.h>
@@ -19,20 +18,20 @@ class TCPManager
     int _listenFd;
     std::vector<pollfd> _pollFds;
     NetworkManager &_networkManagerRef;
-    std::map<int, std::queue<std::pair<uint8_t, std::string>>> _pendingMessages;
+    
+    // Buffer d'écriture par client (données brutes à envoyer)
+    std::map<int, std::string> _writeBuffers;
 
     struct sockaddr_in _addr;
+
+    void handleNewConnection();
+    void handleClientRead(int fd, size_t &index);
+    void handleClientWrite(int fd);
 
   public:
     TCPManager(NetworkManager &ref);
     ~TCPManager();
+    
     void update();
-    void sendTo(std::vector<int> fd, int opcode, const std::string &msg);
-
-    void acceptConnection();
-    void handlePollin(size_t &i, pollfd &pfd);
-    void handlePollout(size_t i, pollfd &pfd);
-
-    void queueMessage(int fd, uint8_t opcode, const std::string &payload);
-    void setPollOut(int fd, bool enable);
+    void sendMessage(int fd, uint8_t opcode, const std::string &payload);
 };

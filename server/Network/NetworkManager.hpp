@@ -44,6 +44,8 @@ class NetworkManager
 
     void addNewPlayer(int socket);
 
+    void sendAllEntitiesToClient(int clientFd);
+
     // SEND DATA FROM ECS
 
     void sendDataAllClientUDP(std::string data, int opcode);

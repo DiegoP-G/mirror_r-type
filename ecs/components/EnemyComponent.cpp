@@ -1,5 +1,6 @@
 #include "EnemyComponent.hpp"
 #include <cstring>
+#include <iostream>
 
 EnemyComponent::EnemyComponent(int t, float ac, int st)
     : type(t), shootingType(st), attackCooldown(ac), currentCooldown(0)
@@ -16,6 +17,7 @@ void EnemyComponent::update(float deltaTime)
 
 std::vector<uint8_t> EnemyComponent::serialize() const
 {
+    std::cout << "An enemy component has been serialize" << std::endl;
     std::vector<uint8_t> data(sizeof(int) * 2 + sizeof(float) * 2);
     size_t offset = 0;
 

@@ -42,6 +42,5 @@ int deserializePlayerInput(const std::string &data, InputComponent &input)
     input.left = left;
     input.right = right;
     input.fire = fire;
-
     return playerId;
 }

@@ -58,7 +58,12 @@ class EntityManager
     void refresh();
     void applyPendingChanges();
 
-    Entity &createEntity();
+    Entity &createEntity(int newID = -1);
+
+    size_t getEntityCount() const
+{
+    return entities.size();
+}
 
     template <typename T> std::vector<Entity *> &getEntitiesWithComponent()
     {
@@ -86,7 +91,12 @@ class EntityManager
     }
 
     Entity *getEntityByID(EntityID id);
-    size_t getEntityCount() const;
     size_t getActiveEntityCount() const;
     void clear();
+
+
+    std::vector<std::unique_ptr<Entity>> &getEntities()
+    {
+        return entities;
+    }
 };

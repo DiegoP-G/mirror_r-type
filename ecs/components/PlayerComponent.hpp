@@ -8,8 +8,9 @@ class PlayerComponent : public IComponent
     int lives;
     float shootCooldown;
     int playerID;
+    bool isLocal;
 
-    PlayerComponent(int playerID = 0);
+    PlayerComponent(int playerID = 0, bool isLocal = true);
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;

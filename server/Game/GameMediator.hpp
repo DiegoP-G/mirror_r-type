@@ -47,6 +47,10 @@ class GameMediator : public IMediator
     {
         return;
     };
+
+    std::vector<std::string> getAllActiveEntities();
+
+
     std::string toString(GameMediatorEvent event)
     {
         switch (event)

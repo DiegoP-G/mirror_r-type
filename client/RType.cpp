@@ -24,7 +24,7 @@ bool RTypeGame::init(NetworkECSMediator med)
     createTextures();
 
     // Create background
-    createBackground();
+    // createBackground();
 
     // Create player
     //  createPlayer();
@@ -37,46 +37,30 @@ bool RTypeGame::init(NetworkECSMediator med)
 
 void RTypeGame::createTextures()
 {
-    sf::Texture &backgroundTexture =
-        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(backgroundSpritePath), "background");
-    sf::Texture &playerTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath(playerSpritePath),
-                                                                   "player");       // Yellow player
-    sf::Texture &enemyTexture = g_graphics->createColorTexture(80, 400, 0, 255, 0); // Green enemy
+    sf::Texture &backgroundTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/background.jpg"), "background");
+    sf::Texture &playerTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/playerSpritesheet.png"), "player");
+    sf::Texture &enemyTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "enemy");
+    sf::Texture &bulletTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "bullet");
+    sf::Texture &explosionTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/explosion.png"), "explosion");
 
     g_graphics->storeTexture("background", backgroundTexture);
     g_graphics->storeTexture("player", playerTexture);
     g_graphics->storeTexture("enemy", enemyTexture);
+    g_graphics->storeTexture("bullet", bulletTexture);
+    g_graphics->storeTexture("explosion", explosionTexture);
 }
 
-void RTypeGame::createBackground()
-{
-    sf::Texture *backgroundTexture = g_graphics->getTexture("background");
-    int tileWidth = (int)backgroundTexture->getSize().x;
-    int tileHeight = (int)backgroundTexture->getSize().y;
 
-    auto createBackgroundEntity = [&](float x) -> Entity & {
-        auto &backgroundEntity = entityManager.createEntity();
-
-        backgroundEntity.addComponent<TransformComponent>(x, 0.0f, 1.0f, 1.0f, 0.0f);
-        backgroundEntity.addComponent<SpriteComponent>(tileWidth, tileHeight, 255, 255, 255,
-                                                       GraphicsManager::Texture::BACKGROUND);
-        backgroundEntity.addComponent<BackgroundScrollComponent>(-300.0f, true);
-
-        return backgroundEntity;
-    };
-
-    createBackgroundEntity(0.0f);
-    createBackgroundEntity((float)tileWidth);
-}
 
 void RTypeGame::createPlayer()
 {
+
     auto &playerEntity = entityManager.createEntity();
 
     playerEntity.addComponent<PlayerComponent>();
     playerEntity.addComponent<TransformComponent>(100.0f, 300.0f);
     playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
-    playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0); // Yellow
+    playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0, GraphicsManager::Texture::PLAYER); // Yellow
     playerEntity.addComponent<ColliderComponent>(32.0f, 32.0f);
     playerEntity.addComponent<InputComponent>();
 
@@ -135,6 +119,25 @@ void RTypeGame::handleEvents()
     }
 }
 
+
+void RTypeGame::findMyPlayer()
+{
+    auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
+    // std::cout << "[CLIENT] Looking for player with ID: " << _playerId << std::endl;
+    // std::cout << "[CLIENT] Found " << players.size() << " entities with PlayerComponent" << std::endl;
+    
+    for (auto *entity : players)
+    {
+        auto &playerComp = entity->getComponent<PlayerComponent>();
+        if (playerComp.playerID == _playerId)
+        {
+            player = entity;
+            std::cout << "Player has been found" << std::endl;
+            break;
+        }
+    }
+}
+
 void RTypeGame::update(float deltaTime)
 {
     if (gameOver)
@@ -145,7 +148,7 @@ void RTypeGame::update(float deltaTime)
     backgroundSystem.update(entityManager, deltaTime);
     // movementSystem.update(entityManager, deltaTime);
     playerSystem.update(entityManager, deltaTime);
-    inputSystem.update(entityManager, deltaTime);
+    // inputSystem.update(entityManager, deltaTime);
     // boundarySystem.update(entityManager, deltaTime);
     // cleanupSystem.update(entityManager, deltaTime);
     // enemySystem.update(entityManager, deltaTime);
@@ -156,9 +159,12 @@ void RTypeGame::update(float deltaTime)
     // {
     //     gameOver = true;
     // }
-
     entityManager.applyPendingChanges();
     // std::cout << "UPT END\n";
+    if (player == nullptr) {
+        // std::cout << "Player not found, searching...\n";
+        findMyPlayer();
+    }
 }
 
 void RTypeGame::render()
@@ -221,7 +227,7 @@ void RTypeGame::sendInputPlayer()
         
         _med.notify(NetworkECSMediatorEvent::SEND_DATA_UDP, inputData, OPCODE_PLAYER_INPUT);
         
-        std::cout << "Sent player input for player " << playerComp.playerID << std::endl;
+        // std::cout << "Sent player input for player " << playerComp.playerID << std::endl;
     }
     
     _mutex.unlock();

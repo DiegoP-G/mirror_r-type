@@ -17,8 +17,19 @@
 GraphicsManager *g_graphics = nullptr;
 
 GraphicsManager::GraphicsManager(NetworkECSMediator med) : _med(med)
+{   
+}
+
+
+bool GraphicsManager::registerTheTexture()
 {
-    
+    createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/background.jpg"), "background");
+    createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/playerSpritesheet.png"), "player");
+    createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "enemy");
+    createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "bullet");
+    createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/explosion.png"), "explosion");
+
+    return true;
 }
 
 GraphicsManager::~GraphicsManager()
@@ -28,7 +39,7 @@ GraphicsManager::~GraphicsManager()
 bool GraphicsManager::init(const std::string &title, int width, int height)
 {
     window.create(sf::VideoMode(width, height), title, sf::Style::Close);
-
+    registerTheTexture();
     if (!window.isOpen())
     {
         std::cerr << "Error: SFML Window could not be created" << std::endl;

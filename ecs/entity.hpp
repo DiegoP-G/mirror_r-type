@@ -21,7 +21,7 @@ class Entity
 
     std::vector<uint8_t> serializeComponent(ComponentID compId) const;
 
-    void deserializeComponent(ComponentID compId, const uint8_t *data, size_t dataSize);
+    bool deserializeComponent(ComponentID compId, const uint8_t *data, size_t dataSize);
 
   public:
     Entity(EntityManager &manager, EntityID id);
@@ -40,13 +40,11 @@ class Entity
 
     EntityID getID() const;
 
-    // Ajoute un composant de type T à l'entité. Le remplace s'il existe déjà.
     template <typename T, typename... TArgs> T &addComponent(TArgs &&...args)
     {
 
         ComponentID componentID = getComponentTypeID<T>();
 
-        // S'assurer que le vecteur components est assez grand
         if (components.size() <= componentID)
         {
             components.resize(componentID + 1);

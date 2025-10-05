@@ -3,9 +3,12 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <cstring>
 
 Client::Client(const std::string &clientName, int socketFd) : _socketFd(socketFd), _name(clientName)
 {
+    std::memset(&_trueAddr, 0, sizeof(_trueAddr));
+
 }
 
 Client::~Client()

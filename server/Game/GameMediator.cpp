@@ -8,6 +8,8 @@
 #include "GameMediator.hpp"
 #include "../Network/NetworkManager.hpp"
 
+
+
 GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTypeServer(*new RTypeServer(*this))
 {
     _mediatorMap = {
@@ -22,10 +24,10 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
          [this](const std::string &data) -> void {}},
         
         {GameMediatorEvent::TickNetwork, 
-         [this](const std::string &data) -> void { 
+            [this](const std::string &data) -> void { 
              _networkManager.updateAllPoll(); 
          }},
-        
+         
         // Joueurs
         {GameMediatorEvent::AddPlayer, 
          [this](const std::string &data) -> void { 
@@ -46,11 +48,11 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
 
         // Updates de mouvement (UDP - rapide)
         {GameMediatorEvent::MovementUpdate,
-         [this](const std::string &data) -> void {
-             _networkManager.sendDataAllClientUDP(data, OPCODE_MOVEMENT_UPDATE);
+            [this](const std::string &data) -> void {
+                _networkManager.sendDataAllClientUDP(data, OPCODE_MOVEMENT_UPDATE);
          }},
-        
-        // Input joueur
+         
+         // Input joueur
         {GameMediatorEvent::PlayerInput,
          [this](const std::string &data) -> void { 
              _rTypeServer.handlePlayerInput(data); 
@@ -71,4 +73,9 @@ void GameMediator::notify(const int &event, const std::string &data)
     {
         throw UnknownEventException(gameEvent);
     }
+}
+
+std::vector<std::string> GameMediator::getAllActiveEntities()
+{
+    return _rTypeServer.serializeAllActiveEntities();
 }

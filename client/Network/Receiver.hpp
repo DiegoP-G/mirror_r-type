@@ -28,7 +28,6 @@ class Receiver
         std::cout << "Receiver copied" << std::endl;
     }
 
-    // Copy assignment operator
     Receiver &operator=(const Receiver &other)
     {
         if (this != &other)
@@ -38,7 +37,6 @@ class Receiver
             _udpSocket = other._udpSocket;
             _serverAddr = other._serverAddr;
             _handlers = other._handlers;
-            // _med cannot be reassigned, still references original
         }
         return *this;
     }

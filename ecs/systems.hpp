@@ -47,8 +47,6 @@ class RenderSystem
     {
         if (!g_graphics)
             return;
-        if (!g_graphics)
-            return;
 
         auto entities = entityManager.getEntitiesWithComponents<TransformComponent, SpriteComponent>();
 
@@ -69,17 +67,28 @@ class RenderSystem
             if (!sprite.isVisible)
                 continue;
 
-            // If we have a texture, use it; otherwise draw a colored rectangle
+            // Si on a un ID de texture valide, l'utiliser
             if (sprite.spriteTexture != -1)
             {
-                g_graphics->drawTexture(*g_graphics->getTexture(sprite.spriteTexture), position.x, position.y,
-                                        sprite.width, sprite.height);
+                // CORRECTION : utiliser getTexture(int) au lieu de getTexture(string)
+                sf::Texture *texture = g_graphics->getTexture(sprite.spriteTexture);
+                if (texture)
+                {
+                    g_graphics->drawTexture(*texture, position.x, position.y,
+                                            sprite.width, sprite.height);
+                }
+                else
+                {
+                    // Fallback sur un rectangle coloré
+                    g_graphics->drawRect(position.x, position.y, sprite.width, sprite.height,
+                                        sprite.r, sprite.g, sprite.b, sprite.a);
+                }
             }
             else
             {
-                // Draw colored rectangle
-                g_graphics->drawRect(position.x, position.y, sprite.width, sprite.height, sprite.r, sprite.g, sprite.b,
-                                     sprite.a);
+                // Pas de texture, dessiner un rectangle coloré
+                g_graphics->drawRect(position.x, position.y, sprite.width, sprite.height,
+                                    sprite.r, sprite.g, sprite.b, sprite.a);
             }
         }
     }
@@ -186,7 +195,7 @@ class GameLogicSystem
             auto &enemy = entityManager.createEntity();
             enemy.addComponent<TransformComponent>(700, y);
             enemy.addComponent<VelocityComponent>(0.0f, 0.0f);
-            enemy.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0);
+            enemy.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0, GraphicsManager::Texture::ENEMY);
             enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
             enemy.addComponent<EnemyComponent>(1, 0.2f, 2); // Type 2 = Sine wave movement and 3 bullets
         }
@@ -280,13 +289,13 @@ class LaserWarningSystem
     }
 };
 
-// System for collision detection
 class CollisionSystem
 {
   public:
     void update(EntityManager &entityManager)
     {
         auto entities = entityManager.getEntitiesWithComponents<TransformComponent, ColliderComponent>();
+        
         for (size_t i = 0; i < entities.size(); i++)
         {
             if (!entities[i]->isActive())
@@ -296,10 +305,8 @@ class CollisionSystem
             if (!collider1.isActive)
                 continue;
 
-            // Obtenir la position réelle avec le helper
+            // Update hitbox position
             Vector2D position1 = getActualPosition(entities[i]);
-
-            // Mettre à jour la hitbox avec la position calculée
             collider1.hitbox.x = position1.x;
             collider1.hitbox.y = position1.y;
 
@@ -307,16 +314,17 @@ class CollisionSystem
             {
                 if (!entities[j]->isActive())
                     continue;
+                
                 auto &collider2 = entities[j]->getComponent<ColliderComponent>();
                 if (!collider2.isActive)
                     continue;
-                // De même pour la deuxième entité
-                Vector2D position2 = getActualPosition(entities[j]);
 
+                // Update hitbox position
+                Vector2D position2 = getActualPosition(entities[j]);
                 collider2.hitbox.x = position2.x;
                 collider2.hitbox.y = position2.y;
 
-                // Vérification de collision
+                // Check collision
                 if (collider1.hitbox.intersects(collider2.hitbox))
                 {
                     handleCollision(entities[i], entities[j]);
@@ -326,134 +334,278 @@ class CollisionSystem
     }
 
   private:
+    // ============================================================
+    // COLLISION DETECTION HELPERS
+    // ============================================================
+    
+    enum class EntityType
+    {
+        PLAYER,
+        ENEMY,
+        PROJECTILE,
+        LASER_WARNING,
+        JUMPER,
+        UNKNOWN
+    };
+
+    EntityType getEntityType(Entity *entity) const
+    {
+        if (entity->hasComponent<PlayerComponent>())
+            return EntityType::PLAYER;
+        if (entity->hasComponent<EnemyComponent>())
+            return EntityType::ENEMY;
+        if (entity->hasComponent<ProjectileComponent>())
+            return EntityType::PROJECTILE;
+        if (entity->hasComponent<LaserWarningComponent>())
+            return EntityType::LASER_WARNING;
+        if (entity->hasComponent<JumpComponent>())
+            return EntityType::JUMPER;
+        return EntityType::UNKNOWN;
+    }
+
+    // ============================================================
+    // MAIN COLLISION HANDLER
+    // ============================================================
+    
     void handleCollision(Entity *a, Entity *b)
     {
-        // std::cout << "Collision detected between Entity " << a->getID()
-        //   << " and Entity " << b->getID() << std::endl;
-        // Check for laser collisions first
-        bool aIsLaser = a->hasComponent<LaserWarningComponent>();
-        bool bIsLaser = b->hasComponent<LaserWarningComponent>();
-        bool aIsPlayer = a->hasComponent<PlayerComponent>();
-        bool bIsPlayer = b->hasComponent<PlayerComponent>();
+        EntityType typeA = getEntityType(a);
+        EntityType typeB = getEntityType(b);
 
-        // Player hit by active laser
-        if ((aIsLaser && bIsPlayer) || (bIsLaser && aIsPlayer))
+        // Sort entities so we always handle collisions in the same order
+        if (typeA > typeB)
         {
-            Entity *laser = aIsLaser ? a : b;
-            Entity *player = aIsPlayer ? a : b;
-
-            auto &laserComp = laser->getComponent<LaserWarningComponent>();
-
-            // Only damage if laser is active (not in warning phase)
-            if (laserComp.isActive && laserComp.appearanceTime <= 0.0f)
-            {
-                std::cout << "Player hit by active laser!" << std::endl;
-
-                // Damage or destroy player
-                if (player->hasComponent<HealthComponent>())
-                {
-                    auto &health = player->getComponent<HealthComponent>();
-                    health.health -= 50.0f; // Heavy laser damage
-                    if (health.health <= 0)
-                    {
-                        player->destroy();
-                        std::cout << "Player destroyed by laser!" << std::endl;
-                    }
-                }
-                else
-                {
-                    // If no health component, destroy immediately
-                    player->destroy();
-                    std::cout << "Player destroyed by laser (no health)!" << std::endl;
-                }
-            }
-            return; // Exit early to avoid other collision checks
+            std::swap(a, b);
+            std::swap(typeA, typeB);
         }
 
-        // Projectile hit laser (bullets can destroy warning lasers)
-        bool aIsProjectile = a->hasComponent<ProjectileComponent>();
-        bool bIsProjectile = b->hasComponent<ProjectileComponent>();
-
-        if ((aIsProjectile && bIsLaser) || (bIsProjectile && aIsLaser))
+        // Route to specific collision handlers
+        switch (typeA)
         {
-            Entity *projectile = aIsProjectile ? a : b;
-            Entity *laser = aIsLaser ? a : b;
+            case EntityType::PLAYER:
+                handlePlayerCollision(a, b, typeB);
+                break;
+            
+            case EntityType::ENEMY:
+                handleEnemyCollision(a, b, typeB);
+                break;
+            
+            case EntityType::PROJECTILE:
+                handleProjectileCollision(a, b, typeB);
+                break;
+            
+            case EntityType::LASER_WARNING:
+                handleLaserCollision(a, b, typeB);
+                break;
+            
+            case EntityType::JUMPER:
+                handleJumperCollision(a, b, typeB);
+                break;
+            
+            default:
+                break;
+        }
+    }
 
-            auto &laserComp = laser->getComponent<LaserWarningComponent>();
+    // ============================================================
+    // PLAYER COLLISION HANDLERS
+    // ============================================================
+    
+    void handlePlayerCollision(Entity *player, Entity *other, EntityType otherType)
+    {
+        switch (otherType)
+        {
+            case EntityType::ENEMY:
+                // onPlayerHitEnemy(player, other);
+                break;
+            
+            case EntityType::PROJECTILE:
+                onPlayerHitProjectile(player, other);
+                break;
+            
+            case EntityType::LASER_WARNING:
+                onPlayerHitLaser(player, other);
+                break;
+            
+            default:
+                break;
+        }
+    }
 
-            // Can only destroy laser if it's still in warning phase
-            if (!laserComp.isActive && laserComp.warningShown)
-            {
-                std::cout << "Laser warning destroyed by projectile!" << std::endl;
-                laser->destroy();
-                projectile->destroy();
-            }
+    // void onPlayerHitEnemy(Entity *player, Entity *enemy)
+    // {
+    //     std::cout << "[Collision] Player hit by enemy!" << std::endl;
+    //     
+    //     if (player->hasComponent<HealthComponent>())
+    //     {
+    //         auto &health = player->getComponent<HealthComponent>();
+    //         health.health -= 10.0f;
+    //         
+    //         if (health.health <= 0)
+    //         {
+    //             player->destroy();
+    //             std::cout << "[Collision] Player destroyed!" << std::endl;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         player->destroy();
+    //     }
+    // }
+
+    void onPlayerHitProjectile(Entity *player, Entity *projectile)
+    {
+        auto &projComp = projectile->getComponent<ProjectileComponent>();
+        
+        // Don't hit yourself
+        if (player->getID() == projComp.owner)
             return;
-        }
 
-        // For Flappy Bird: Check if bird hits pipe
-        bool aIsJumper = a->hasComponent<JumpComponent>();
-        bool bIsJumper = b->hasComponent<JumpComponent>();
+        // std::cout << "[Collision] Player hit by projectile!" << std::endl;
+        
+        // if (player->hasComponent<HealthComponent>())
+        // {
+        //     auto &health = player->getComponent<HealthComponent>();
+        //     health.health -= projComp.damage;
+        //     
+        //     if (health.health <= 0)
+        //     {
+        //         player->destroy();
+        //         std::cout << "[Collision] Player destroyed by projectile!" << std::endl;
+        //     }
+        // }
+        // else
+        // {
+        //     player->destroy();
+        // }
+        
+        projectile->destroy();
+    }
 
-        // Bird (has JumpComponent) hits anything else = game over
-        if (aIsJumper || bIsJumper)
-        {
-            Entity *jumper = aIsJumper ? a : b;
-            jumper->destroy(); // Destroy the jumping entity (bird)
+    void onPlayerHitLaser(Entity *player, Entity *laser)
+    {
+        auto &laserComp = laser->getComponent<LaserWarningComponent>();
+        
+        // Only damage if laser is active (not in warning phase)
+        if (!laserComp.isActive || laserComp.appearanceTime > 0.0f)
             return;
-        }
 
-        // Original R-Type collision logic for backwards compatibility
-        bool aIsEnemy = a->hasComponent<EnemyComponent>();
-        bool bIsEnemy = b->hasComponent<EnemyComponent>();
+        // std::cout << "[Collision] Player hit by active laser!" << std::endl;
+        
+        // if (player->hasComponent<HealthComponent>())
+        // {
+        //     auto &health = player->getComponent<HealthComponent>();
+        //     health.health -= 50.0f; // Heavy laser damage
+        //     
+        //     if (health.health <= 0)
+        //     {
+        //         player->destroy();
+        //         std::cout << "[Collision] Player destroyed by laser!" << std::endl;
+        //     }
+        // }
+        // else
+        // {
+        //     player->destroy();
+        //     std::cout << "[Collision] Player destroyed by laser (no health)!" << std::endl;
+        // }
+    }
 
-        // Player hit by enemy
-        if ((aIsPlayer && bIsEnemy) || (bIsPlayer && aIsEnemy))
+    // ============================================================
+    // ENEMY COLLISION HANDLERS
+    // ============================================================
+    
+    void handleEnemyCollision(Entity *enemy, Entity *other, EntityType otherType)
+    {
+        switch (otherType)
         {
-            Entity *player = aIsPlayer ? a : b;
-            if (player->hasComponent<HealthComponent>())
+            case EntityType::PROJECTILE:
+                onEnemyHitProjectile(enemy, other);
+                break;
+            
+            default:
+                break;
+        }
+    }
+
+    void onEnemyHitProjectile(Entity *enemy, Entity *projectile)
+    {
+        auto &projComp = projectile->getComponent<ProjectileComponent>();
+        
+        // Don't hit yourself (enemy shooting itself)
+        if (enemy->getID() == projComp.owner)
+            return;
+
+        std::cout << "[Collision] Enemy hit by projectile!" << std::endl;
+        
+        // Damage enemy
+        if (enemy->hasComponent<HealthComponent>())
+        {
+            auto &health = enemy->getComponent<HealthComponent>();
+            health.health -= projComp.damage;
+            
+            if (health.health <= 0)
             {
-                auto &health = player->getComponent<HealthComponent>();
-                health.health -= 10.0f; // Example damage
-                if (health.health <= 0)
-                {
-                    player->destroy();
-                }
-            }
-            else
-            {
-                player->destroy();
+                enemy->destroy();
+                std::cout << "[Collision] Enemy destroyed!" << std::endl;
             }
         }
-
-        // Projectile hit something (but not laser, already handled above)
-        if (aIsProjectile || bIsProjectile)
+        else
         {
-            Entity *projectile = aIsProjectile ? a : b;
-            Entity *target = aIsProjectile ? b : a;
+            // No health component = instant death
+            enemy->destroy();
+            std::cout << "[Collision] Enemy destroyed (no health)!" << std::endl;
+        }
+        
+        // Destroy projectile
+        projectile->destroy();
+    }
 
-            auto &projComp = projectile->getComponent<ProjectileComponent>();
+    // ============================================================
+    // PROJECTILE COLLISION HANDLERS
+    // ============================================================
+    
+    void handleProjectileCollision(Entity *projectile, Entity *other, EntityType otherType)
+    {
+        // Already handled in reverse order
+        // (e.g., PLAYER vs PROJECTILE handles both)
+        if (otherType == EntityType::LASER_WARNING)
+        {
+            onProjectileHitLaser(projectile, other);
+        }
+    }
 
-            // Don't hit your owner
-            if (target->getID() == projComp.owner)
-            {
-                return;
-            }
-
-            // Damage target if it has health
-            if (target->hasComponent<HealthComponent>())
-            {
-                auto &health = target->getComponent<HealthComponent>();
-                health.health -= projComp.damage;
-                if (health.health <= 0)
-                {
-                    target->destroy();
-                }
-            }
-
-            // Destroy projectile on hit
+    void onProjectileHitLaser(Entity *projectile, Entity *laser)
+    {
+        auto &laserComp = laser->getComponent<LaserWarningComponent>();
+        
+        // Can only destroy laser if it's still in warning phase
+        if (!laserComp.isActive && laserComp.warningShown)
+        {
+            std::cout << "[Collision] Laser warning destroyed by projectile!" << std::endl;
+            laser->destroy();
             projectile->destroy();
         }
+    }
+
+    // ============================================================
+    // LASER COLLISION HANDLERS
+    // ============================================================
+    
+    void handleLaserCollision(Entity *laser, Entity *other, EntityType otherType)
+    {
+        // Already handled in reverse order
+        // (e.g., PLAYER vs LASER handles both)
+    }
+
+    // ============================================================
+    // JUMPER COLLISION HANDLERS (Flappy Bird)
+    // ============================================================
+    
+    void handleJumperCollision(Entity *jumper, Entity *other, EntityType otherType)
+    {
+        // Jumper hits anything = game over
+        std::cout << "[Collision] Jumper hit something!" << std::endl;
+        jumper->destroy();
     }
 };
 
@@ -465,7 +617,7 @@ class InputSystem
     void update(EntityManager &entityManager, float deltaTime)
     {
         // First, handle SFML events and update InputComponents
-        handleEvents(entityManager);
+        // handleEvents(entityManager);
 
         // Then update velocities based on input
         auto entities = entityManager.getEntitiesWithComponents<InputComponent, VelocityComponent>();
@@ -695,10 +847,8 @@ class EnemySystem
 
             // Add projectile components
             projectile.addComponent<VelocityComponent>(-200.0f, 0.0f); // Fast horizontal movement
-            projectile.addComponent<SpriteComponent>();                // Add sprite (different from
-                                                                       // player projectiles)
-            projectile.addComponent<ColliderComponent>(10.0f,
-                                                       5.0f);                         // Small hitbox
+            projectile.addComponent<SpriteComponent>(10.0f, 5.0f, 255, 0, 0, GraphicsManager::Texture::BULLET);
+            projectile.addComponent<ColliderComponent>(10.0f, 5.0f); // Small hitbox
             projectile.addComponent<ProjectileComponent>(5.0f, 3.0f, enemy->getID()); // Damage, lifetime, owner
         }
         else if (enemyComponent.shootingType == 2)
@@ -713,9 +863,10 @@ class EnemySystem
                     transform.position.x - 20.0f, // Offset to fire from the front of the enemy
                     transform.position.y + 10.0f  // Center height
                 );
-                projectile.addComponent<SpriteComponent>(10.0f, 5.0f, 255, 255, 0);
+                projectile.addComponent<SpriteComponent>(10.0f, 5.0f, 255, 255, 255, GraphicsManager::Texture::BULLET);
                 projectile.addComponent<VelocityComponent>(-200.0f, (i - 1) * 50.0f); // Spread pattern
                 projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
+                projectile.addComponent<ProjectileComponent>(5.0f, 3.0f, enemy->getID()); // Damage, lifetime, owner
             }
             // std::cout << std::endl;
         }

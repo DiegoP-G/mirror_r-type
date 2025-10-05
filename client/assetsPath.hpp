@@ -2,7 +2,8 @@
 #include <filesystem>
 #include <string>
 
-const char backgroundSpritePath[] = "assets/sprites/background_starry.jpg";
+const char backgroundSpritePath[] = "assets/sprites/background.jpg";
+
 const char playerSpritePath[] = "assets/sprites/playerSpritesheet.png";
 const char fontPath[] = "assets/fonts/upheavtt.ttf";
 

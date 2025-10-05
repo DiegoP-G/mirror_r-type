@@ -42,6 +42,8 @@ class RTypeGame
         return _mutex;
     }
 
+    void findMyPlayer();
+
     EntityManager &getEntityManager()
     {
         return entityManager;
