@@ -14,6 +14,9 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
         // Logique de jeu
         {GameMediatorEvent::TickLogic, [this](const std::string &data) -> void { _rTypeServer.run(std::stof(data)); }},
 
+        // Input joueur
+        {GameMediatorEvent::InitECS, [this](const std::string &data) -> void { _rTypeServer.init(); }},
+
         // Réseau
         {GameMediatorEvent::SetupNetwork, [this](const std::string &data) -> void {}},
 

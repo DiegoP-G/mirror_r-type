@@ -26,6 +26,7 @@ class RTypeServer
     EnemySystem enemySystem;
     LaserWarningSystem laserWarningSystem;
     GameLogicSystem gameLogicSystem;
+    BackgroundSystem backgroundSystem;
 
     Entity *player = nullptr;
     bool gameOver = false;
@@ -41,34 +42,33 @@ class RTypeServer
     RTypeServer(GameMediator &mediator) : mediator(mediator)
     {
     }
-   std::vector<std::string> serializeAllActiveEntities()
-   {
-    std::vector<std::string> result;
-    
-    // Parcourir toutes les entités actives
-    for (auto &entity : entityManager.getEntities())
+    std::vector<std::string> serializeAllActiveEntities()
     {
-        if (entity)
+        std::vector<std::string> result;
+
+        // Parcourir toutes les entités actives
+        for (auto &entity : entityManager.getEntities())
         {
-            auto data = entityManager.serializeEntityFull(entity->getID());
-            if (!data.empty())
+            if (entity)
             {
-                std::string serializedData(data.begin(), data.end());
-                result.push_back(serializedData);
+                auto data = entityManager.serializeEntityFull(entity->getID());
+                if (!data.empty())
+                {
+                    std::string serializedData(data.begin(), data.end());
+                    result.push_back(serializedData);
+                }
             }
         }
+
+        std::cout << "[RTypeServer] Serialized " << result.size() << " active entities\n";
+        return result;
     }
-    
-    std::cout << "[RTypeServer] Serialized " << result.size() << " active entities\n";
-    return result;    
-   }
-  void sendMovementUpdates();
-  void sendNewEntities();
-  void sendDestroyedEntities();
-  void createBackground();
+    void sendMovementUpdates();
+    void sendNewEntities();
+    void sendDestroyedEntities();
+    void createBackground();
 
-
-  Entity *getEntityByPlayerID(int playerID);
+    Entity *getEntityByPlayerID(int playerID);
 
     bool init();
 

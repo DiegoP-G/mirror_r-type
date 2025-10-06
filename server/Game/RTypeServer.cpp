@@ -1,11 +1,13 @@
 
 #include "RTypeServer.hpp"
 #include "../../ecs/allComponentsInclude.hpp"
+#include <cstddef>
 #include <string>
 
 bool RTypeServer::init()
 {
     running = true;
+    createBackground();
 
     return true;
 }
@@ -34,19 +36,21 @@ void RTypeServer::update(float deltaTime)
         return;
 
     // 1. Traiter tous les systèmes
-    gameLogicSystem.update(entityManager, deltaTime);
+    // gameLogicSystem.update(entityManager, deltaTime);
+    backgroundSystem.update(entityManager, deltaTime);
+
     inputSystem.update(entityManager, deltaTime);
     movementSystem.update(entityManager, deltaTime);
     playerSystem.update(entityManager, deltaTime);
     boundarySystem.update(entityManager, deltaTime);
     cleanupSystem.update(entityManager, deltaTime);
-    enemySystem.update(entityManager, deltaTime);
-    collisionSystem.update(entityManager);
-    laserWarningSystem.update(entityManager, deltaTime);
+    // enemySystem.update(entityManager, deltaTime);
+    // collisionSystem.update(entityManager);
+    // laserWarningSystem.update(entityManager, deltaTime);
 
     // 2. AVANT applyPendingChanges, envoyer ce qui a été créé/détruit
-    sendNewEntities();       // Envoie les entités dans entitiesToCreate
-    sendDestroyedEntities(); // Envoie les IDs dans entitiesToDestroy
+    sendNewEntities(); // Envoie les entités dans entitiesToCreate
+                       // sendDestroyedEntities();  // Envoie les IDs dans entitiesToDestroy
 
     entityManager.applyPendingChanges();
     // 3. Appliquer les changements (vide les buffers)
@@ -107,11 +111,7 @@ void RTypeServer::cleanup()
 
 void RTypeServer::run(float deltaTime)
 {
-    if (!init())
-    {
-        return;
-    }
-    // std::cout << "nb player : " << entityManager.getCountEntitiesWithComponents<PlayerComponent>() << std::endl;
+
     if (player != nullptr)
         update(deltaTime);
 }
@@ -166,6 +166,7 @@ void RTypeServer::handlePlayerInput(const std::string &input)
 void RTypeServer::createBackground()
 {
     // sf::Texture *backgroundTexture = g_graphics->getTexture("background");
+    std::cout << "Background created" << std::endl;
     int tileWidth = 800;
     int tileHeight = 600;
 

@@ -18,76 +18,68 @@ NetworkECSMediator::NetworkECSMediator()
              std::cout << "[Client] Sending TCP opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
              _sender->sendTcp(opcode, data);
          }},
-        
+
         {static_cast<int>(NetworkECSMediatorEvent::SEND_DATA_UDP),
-         [this](const std::string &data, uint8_t opcode) {
-             _sender->sendUdp(opcode, data);
-         }},
-        
-        
+         [this](const std::string &data, uint8_t opcode) { _sender->sendUdp(opcode, data); }},
+
         {static_cast<int>(NetworkECSMediatorEvent::PLAYER_ID),
-        [this](const std::string &data, uint8_t opcode) {
-            std::cout << "[Client] Received PLAYER_ID" << std::endl;
-            int playerId = deserializeInt(data);
-            if (_game)
-                _game->setPlayerId(playerId);
-        }},
-        
-        // === RÉCEPTION DEPUIS LE SERVEUR ===
-        {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), 
          [this](const std::string &data, uint8_t opcode) {
-            //  std::cout << "[Client] Received opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
-             
+             std::cout << "[Client] Received PLAYER_ID" << std::endl;
+             int playerId = deserializeInt(data);
+             if (_game)
+                 _game->setPlayerId(playerId);
+         }},
+
+        // === RÉCEPTION DEPUIS LE SERVEUR ===
+        {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), [this](const std::string &data, uint8_t opcode) {
+             //  std::cout << "[Client] Received opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
+
              switch (opcode)
              {
                  // Création complète d'une entité (TCP)
-                case OPCODE_ENTITY_CREATE:
-                {
-                    std::cout << "[Client] ========== ENTITY_CREATE received ==========" << std::endl;
-                    std::cout << "[Client] Data size: " << data.size() << " bytes" << std::endl;
-                    
-                    _game->getMutex().lock();
-                    std::vector<uint8_t> bytes(data.begin(), data.end());
-                    
-                    // Log avant désérialisation
-                    std::cout << "[Client] Entities before: " << _game->getEntityManager().getEntityCount() << std::endl;
-                    
-                    _game->getEntityManager().deserializeEntityFull(bytes);
-                    
-                    // Log après désérialisation
-                    std::cout << "[Client] Entities after: " << _game->getEntityManager().getEntityCount() << std::endl;
-                    
-                    _game->getMutex().unlock();
-                    break;
-                }
-                 
-                 // Destruction d'une entité (TCP)
-                 case OPCODE_ENTITY_DESTROY:
-                 {
-                     std::cout << "[Client] Entity destroyed" << std::endl;
-                     _game->getMutex().lock();
-                     EntityID id = deserializeInt(data);
-                     _game->getEntityManager().destroyEntityByID(id);
-                     _game->getMutex().unlock();
-                     break;
-                 }
+             case OPCODE_ENTITY_CREATE: {
+                 std::cout << "[Client] ========== ENTITY_CREATE received ==========" << std::endl;
+                 std::cout << "[Client] Data size: " << data.size() << " bytes" << std::endl;
 
-                 // Updates de mouvement (UDP)
-                 case OPCODE_MOVEMENT_UPDATE:
-                 {
-                     _game->getMutex().lock();
-                     std::vector<uint8_t> bytes(data.begin(), data.end());
-                     _game->getEntityManager().deserializeAllMovements(bytes);
-                     _game->getMutex().unlock();
-                     break;
-                 }
-                 
-                 default:
-                     std::cerr << "[Client] Unhandled opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
-                     break;
+                 _game->getMutex().lock();
+                 std::vector<uint8_t> bytes(data.begin(), data.end());
+
+                 // Log avant désérialisation
+                 std::cout << "[Client] Entities before: " << _game->getEntityManager().getEntityCount() << std::endl;
+
+                 _game->getEntityManager().deserializeEntityFull(bytes);
+
+                 // Log après désérialisation
+                 std::cout << "[Client] Entities after: " << _game->getEntityManager().getEntityCount() << std::endl;
+
+                 _game->getMutex().unlock();
+                 break;
              }
-         }}
-    };
+
+             // Destruction d'une entité (TCP)
+             case OPCODE_ENTITY_DESTROY: {
+                 std::cout << "[Client] Entity destroyed" << std::endl;
+                 _game->getMutex().lock();
+                 EntityID id = deserializeInt(data);
+                 _game->getEntityManager().destroyEntityByID(id);
+                 _game->getMutex().unlock();
+                 break;
+             }
+
+             // Updates de mouvement (UDP)
+             case OPCODE_MOVEMENT_UPDATE: {
+                 _game->getMutex().lock();
+                 std::vector<uint8_t> bytes(data.begin(), data.end());
+                 _game->getEntityManager().deserializeAllMovements(bytes);
+                 _game->getMutex().unlock();
+                 break;
+             }
+
+             default:
+                 std::cerr << "[Client] Unhandled opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
+                 break;
+             }
+         }}};
 }
 
 void NetworkECSMediator::notify(NetworkECSMediatorEvent event, const std::string &data, uint8_t opcode)

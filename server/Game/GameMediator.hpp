@@ -16,6 +16,7 @@ enum GameMediatorEvent
     TickLogic,
     AddPlayer,
     SetupNetwork,
+    InitECS,
     UpdateEntities = 0x21,
     UpdatePlayers = 0x23,
     UpdateEnemies = 0x24,
@@ -24,7 +25,6 @@ enum GameMediatorEvent
     EntityCreated = 0x27,
     EntityDestroyed = 0x28,
     MovementUpdate = 0x29,
-    
 };
 
 class NetworkManager;
@@ -49,7 +49,6 @@ class GameMediator : public IMediator
     };
 
     std::vector<std::string> getAllActiveEntities();
-
 
     std::string toString(GameMediatorEvent event)
     {

@@ -18,6 +18,7 @@ void Orchestrator::GameLoop::loop()
     const std::chrono::duration<double> tickDuration(1.0 / tickRate);
     auto previousTime = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> accumulatedTime(0);
+    _gameMediator.notify(GameMediatorEvent::InitECS, "");
 
     while (true)
     {

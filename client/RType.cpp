@@ -24,7 +24,7 @@ bool RTypeGame::init(NetworkECSMediator med)
     createTextures();
 
     // Create background
-    // createBackground();
+    //    createBackground();
 
     // Create player
     //  createPlayer();
@@ -37,11 +37,16 @@ bool RTypeGame::init(NetworkECSMediator med)
 
 void RTypeGame::createTextures()
 {
-    sf::Texture &backgroundTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/background.jpg"), "background");
-    sf::Texture &playerTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/playerSpritesheet.png"), "player");
-    sf::Texture &enemyTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "enemy");
-    sf::Texture &bulletTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "bullet");
-    sf::Texture &explosionTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/explosion.png"), "explosion");
+    sf::Texture &backgroundTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/background.jpg"), "background");
+    sf::Texture &playerTexture = g_graphics->createTextureFromPath(
+        PathFormater::formatAssetPath("assets/sprites/playerSpritesheet.png"), "player");
+    sf::Texture &enemyTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "enemy");
+    sf::Texture &bulletTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "bullet");
+    sf::Texture &explosionTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/explosion.png"), "explosion");
 
     g_graphics->storeTexture("background", backgroundTexture);
     g_graphics->storeTexture("player", playerTexture);
@@ -49,8 +54,6 @@ void RTypeGame::createTextures()
     g_graphics->storeTexture("bullet", bulletTexture);
     g_graphics->storeTexture("explosion", explosionTexture);
 }
-
-
 
 void RTypeGame::createPlayer()
 {
@@ -119,13 +122,12 @@ void RTypeGame::handleEvents()
     }
 }
 
-
 void RTypeGame::findMyPlayer()
 {
     auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
     // std::cout << "[CLIENT] Looking for player with ID: " << _playerId << std::endl;
     // std::cout << "[CLIENT] Found " << players.size() << " entities with PlayerComponent" << std::endl;
-    
+
     for (auto *entity : players)
     {
         auto &playerComp = entity->getComponent<PlayerComponent>();
@@ -145,7 +147,7 @@ void RTypeGame::update(float deltaTime)
 
     // Update systems
     // gameLogicSystem.update(entityManager, deltaTime);
-    backgroundSystem.update(entityManager, deltaTime);
+    //   backgroundSystem.update(entityManager, deltaTime);
     // movementSystem.update(entityManager, deltaTime);
     playerSystem.update(entityManager, deltaTime);
     // inputSystem.update(entityManager, deltaTime);
@@ -161,7 +163,8 @@ void RTypeGame::update(float deltaTime)
     // }
     entityManager.applyPendingChanges();
     // std::cout << "UPT END\n";
-    if (player == nullptr) {
+    if (player == nullptr)
+    {
         // std::cout << "Player not found, searching...\n";
         findMyPlayer();
     }
@@ -209,27 +212,27 @@ void cleanup()
 void RTypeGame::sendInputPlayer()
 {
     // std::cout << "in send input\n";
-    
+
     _mutex.lock();
-    
+
     if (!player || !player->isActive())
     {
         _mutex.unlock();
         return;
     }
-    
+
     if (player->hasComponent<InputComponent>())
     {
         auto &input = player->getComponent<InputComponent>();
         auto &playerComp = player->getComponent<PlayerComponent>();
-        
+
         std::string inputData = serializePlayerInput(input, playerComp.playerID);
-        
+
         _med.notify(NetworkECSMediatorEvent::SEND_DATA_UDP, inputData, OPCODE_PLAYER_INPUT);
-        
+
         // std::cout << "Sent player input for player " << playerComp.playerID << std::endl;
     }
-    
+
     _mutex.unlock();
 }
 
@@ -274,4 +277,25 @@ void RTypeGame::run()
     }
 
     cleanup();
+}
+
+void RTypeGame::createBackground()
+{
+    // sf::Texture *backgroundTexture = g_graphics->getTexture("background");
+    int tileWidth = 800;
+    int tileHeight = 600;
+
+    auto createBackgroundEntity = [&](float x) -> Entity & {
+        auto &backgroundEntity = entityManager.createEntity();
+
+        backgroundEntity.addComponent<TransformComponent>(x, 0.0f, 1.0f, 1.0f, 0.0f);
+        backgroundEntity.addComponent<SpriteComponent>(tileWidth, tileHeight, 255, 255, 255,
+                                                       GraphicsManager::Texture::BACKGROUND);
+        backgroundEntity.addComponent<BackgroundScrollComponent>(-300.0f, true);
+
+        return backgroundEntity;
+    };
+
+    createBackgroundEntity(0.0f);
+    createBackgroundEntity((float)tileWidth);
 }
