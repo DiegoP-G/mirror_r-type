@@ -57,8 +57,8 @@ class RenderSystem
 
             if (entity->hasComponent<AnimatedSpriteComponent>())
             {
-                auto &animatedSprite = entity->getComponent<AnimatedSpriteComponent>();
-                g_graphics->drawAnimatedSprite(animatedSprite, position.x, position.y);
+                auto &animComp = entity->getComponent<AnimatedSpriteComponent>();
+                renderAnimatedSprite(animComp, position.x, position.y);
                 continue;
             }
 
@@ -67,30 +67,51 @@ class RenderSystem
             if (!sprite.isVisible)
                 continue;
 
-            // Si on a un ID de texture valide, l'utiliser
-            if (sprite.spriteTexture != -1)
+            // Récupérer la texture
+            sf::Texture *texture = g_graphics->getTexture(sprite.spriteTexture);
+            
+            if (texture)
             {
-                // CORRECTION : utiliser getTexture(int) au lieu de getTexture(string)
-                sf::Texture *texture = g_graphics->getTexture(sprite.spriteTexture);
-                if (texture)
-                {
-                    g_graphics->drawTexture(*texture, position.x, position.y,
-                                            sprite.width, sprite.height);
-                }
-                else
-                {
-                    // Fallback sur un rectangle coloré
-                    g_graphics->drawRect(position.x, position.y, sprite.width, sprite.height,
-                                        sprite.r, sprite.g, sprite.b, sprite.a);
-                }
+                // Créer le sprite à la volée (très rapide)
+                sf::Sprite sfmlSprite(*texture);
+                sfmlSprite.setPosition(position.x, position.y);
+                sfmlSprite.setScale(
+                    sprite.width / (float)texture->getSize().x,
+                    sprite.height / (float)texture->getSize().y
+                );
+                
+                g_graphics->getWindow().draw(sfmlSprite);
             }
             else
             {
-                // Pas de texture, dessiner un rectangle coloré
+                // Fallback rectangle coloré
                 g_graphics->drawRect(position.x, position.y, sprite.width, sprite.height,
                                     sprite.r, sprite.g, sprite.b, sprite.a);
             }
         }
+    }
+
+  private:
+    void renderAnimatedSprite(AnimatedSpriteComponent &animComp, float x, float y)
+    {
+        // Récupérer la texture
+        sf::Texture *texture = g_graphics->getTexture(animComp.textureID);
+        if (!texture)
+            return;
+
+        // Créer le sprite à la volée
+        sf::Sprite sprite(*texture);
+        sprite.setPosition(x, y);
+        sprite.setScale(animComp.scale.x, animComp.scale.y);
+        
+        sprite.setTextureRect(sf::IntRect(
+            animComp.frameWidth * animComp.currentFrame, 
+            0, 
+            animComp.frameWidth, 
+            animComp.frameHeight
+        ));
+        
+        g_graphics->getWindow().draw(sprite);
     }
 };
 
@@ -704,11 +725,11 @@ class PlayerSystem
     {
         auto entities = entityManager.getEntitiesWithComponents<InputComponent, PlayerComponent>();
 
+        int i = 0;
         for (auto &entity : entities)
         {
             auto &input = entity->getComponent<InputComponent>();
 
-            // Fire a bullet when space is pressed
             if (input.fire)
             {
                 fire(entityManager, entity);
@@ -729,8 +750,35 @@ class PlayerSystem
                 direction = AnimatedSpriteComponent::Down;
             }
 
+
+            if (direction != animatedSprite.currentDirection)
+            {
+                animatedSprite.currentDirection = direction;
+            }
+
+            animatedSprite.elapsedTime += deltaTime;
+
+            if (animatedSprite.elapsedTime >= animatedSprite.animationInterval)
+            {
+                if (animatedSprite.currentDirection == animatedSprite.Up && animatedSprite.currentFrame < 4)
+                {
+                    animatedSprite.currentFrame++;
+                }
+                else if (animatedSprite.currentDirection == animatedSprite.Down && animatedSprite.currentFrame > 0)
+                {
+                    animatedSprite.currentFrame--;
+                }
+                else if (animatedSprite.currentDirection == animatedSprite.Default)
+                {
+                    if (animatedSprite.currentFrame > 2)
+                        animatedSprite.currentFrame--;
+                    else if (animatedSprite.currentFrame < 2)
+                        animatedSprite.currentFrame++;
+                }
+                animatedSprite.elapsedTime = 0.0f;
+            }
             // Update animation based on direction
-            animatedSprite.updateAnimation(direction);
+            animatedSprite.updateAnimation(direction, deltaTime);
         }
     }
 

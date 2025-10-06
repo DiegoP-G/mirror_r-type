@@ -52,7 +52,6 @@ std::vector<uint8_t> EntityManager::serializeEntityFull(EntityID id) const
             return entity->serialize();
         }
     }
-    
     for (const auto &entity : entitiesToCreate)
     {
         if (entity && entity->getID() == id)
@@ -60,7 +59,6 @@ std::vector<uint8_t> EntityManager::serializeEntityFull(EntityID id) const
             return entity->serialize();
         }
     }
-    
     return {};
 }
 
