@@ -19,6 +19,7 @@ class BoundarySystem
             {
                 // Mark entity as dead or destroy it
                 entity->destroy();
+                entityManager.markEntityForDestruction(entity->getID());
             }
         }
     }

@@ -162,6 +162,7 @@ void RTypeGame::update(float deltaTime)
     //     gameOver = true;
     // }
     entityManager.applyPendingChanges();
+    std::cout << "cout" << entityManager.getEntityCount() << std::endl;
     // std::cout << "UPT END\n";
     if (player == nullptr)
     {

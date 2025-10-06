@@ -89,6 +89,26 @@ class EntityManager
         return matchingEntities;
     }
 
+    template <typename... Ts> std::vector<Entity *> getInactiveEntitiesWithComponents()
+    {
+        std::vector<Entity *> matchingEntities;
+
+        if constexpr (sizeof...(Ts) > 0)
+        {
+            ComponentMask mask;
+            (mask.set(getComponentTypeID<Ts>()), ...);
+
+            for (auto &entity : entities)
+            {
+                if (entity && !entity->isActive() && (entity->getComponentMask() & mask) == mask)
+                {
+                    matchingEntities.push_back(entity.get());
+                }
+            }
+        }
+        return matchingEntities;
+    }
+
     template <typename... Ts> int getCountEntitiesWithComponents()
     {
         std::vector<Entity *> matchingEntities;

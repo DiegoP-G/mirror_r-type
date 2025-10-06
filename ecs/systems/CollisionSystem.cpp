@@ -115,7 +115,7 @@ void CollisionSystem::onPlayerHitProjectile(Entity *player, Entity *projectile)
 
     if (player->getID() == projComp.owner)
         return;
-
+    std::cout << "-------------porjectile hit---------------" << std::endl;
     projectile->destroy();
 }
 

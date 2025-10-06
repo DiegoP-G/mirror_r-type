@@ -13,7 +13,15 @@ void ProjectileSystem::update(EntityManager &entityManager, float deltaTime)
         {
             entityManager.markEntityForDestruction(entity->getID());
         }
-        if (!entity->isActive())
+    }
+    auto inactiveEntities = entityManager.getInactiveEntitiesWithComponents<ProjectileComponent>();
+    for (auto &entity : inactiveEntities)
+    {
+
+        if (entity->isActive() == false)
+        {
+            std::cout << " YES DESTROY HIT" << std::endl;
             entityManager.markEntityForDestruction(entity->getID());
+        }
     }
 }
