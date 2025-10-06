@@ -45,12 +45,12 @@ void RTypeServer::update(float deltaTime)
     laserWarningSystem.update(entityManager, deltaTime);
 
     // 2. AVANT applyPendingChanges, envoyer ce qui a été créé/détruit
-    sendNewEntities();        // Envoie les entités dans entitiesToCreate
-    sendDestroyedEntities();  // Envoie les IDs dans entitiesToDestroy
-    
+    sendNewEntities();       // Envoie les entités dans entitiesToCreate
+    sendDestroyedEntities(); // Envoie les IDs dans entitiesToDestroy
+
     entityManager.applyPendingChanges();
     // 3. Appliquer les changements (vide les buffers)
-    
+
     // 4. Envoyer les updates de mouvement (toutes les entités actives)
     sendMovementUpdates();
 
@@ -60,10 +60,10 @@ void RTypeServer::update(float deltaTime)
 void RTypeServer::sendNewEntities()
 {
     // Parcourir les entités créées dans entitiesToCreate
-    auto& manager = entityManager;
-    
+    auto &manager = entityManager;
+
     // Pour chaque nouvelle entité créée ce tick
-    for (const auto& entity : manager.getEntitiesToCreate())
+    for (const auto &entity : manager.getEntitiesToCreate())
     {
         std::cout << "Sending new entites" << std::endl;
         std::cout << "Entity :" << entity->getID() << std::endl;
@@ -75,8 +75,8 @@ void RTypeServer::sendNewEntities()
 
 void RTypeServer::sendDestroyedEntities()
 {
-    auto& manager = entityManager;
-    
+    auto &manager = entityManager;
+
     // Pour chaque entité détruite ce tick
     for (EntityID id : manager.getEntitiesToDestroy())
     {
@@ -111,9 +111,10 @@ void RTypeServer::run(float deltaTime)
     {
         return;
     }
-    update(deltaTime);
+    // std::cout << "nb player : " << entityManager.getCountEntitiesWithComponents<PlayerComponent>() << std::endl;
+    if (player != nullptr)
+        update(deltaTime);
 }
-
 
 Entity *RTypeServer::getEntityByPlayerID(int playerID)
 {
@@ -148,7 +149,8 @@ void RTypeServer::handlePlayerInput(const std::string &input)
             std::cout << "down=" << currentInputComponent.down << ", ";
             std::cout << "left=" << currentInputComponent.left << ", ";
             std::cout << "right=" << currentInputComponent.right << ", ";
-            std::cout << "shoot=" << currentInputComponent.fire << std::endl;std::cout << "InputComponent values before: ";
+            std::cout << "shoot=" << currentInputComponent.fire << std::endl;
+            std::cout << "InputComponent values before: ";
             playerEntity->addComponent<InputComponent>(inputComp);
             auto currentInputComponentAfter = playerEntity->getComponent<InputComponent>();
             std::cout << "InputComponent values before: ";
@@ -157,7 +159,6 @@ void RTypeServer::handlePlayerInput(const std::string &input)
             std::cout << "left=" << currentInputComponentAfter.left << ", ";
             std::cout << "right=" << currentInputComponentAfter.right << ", ";
             std::cout << "shoot=" << currentInputComponentAfter.fire << std::endl;
-
         }
     }
 }
@@ -197,5 +198,4 @@ void RTypeServer::sendEntities()
     // auto dataProjectiles = entityManager.serializeAllProjectiles();
     // std::string serializedDataProjectiles(dataProjectiles.begin(), dataProjectiles.end());
     // mediator.notify(GameMediatorEvent::UpdateProjectiles, serializedDataProjectiles);
-
 }
