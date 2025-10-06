@@ -62,7 +62,6 @@ class GraphicsManager
                   sf::Uint8 b = 255);
 
     sf::RenderWindow &getWindow();
-    void drawAnimatedSprite(AnimatedSpriteComponent &animatedSprite, float, float);
     sf::Texture &createTextureFromPath(const std::string &filePath, const std::string &name);
     bool registerTheTexture();
   };

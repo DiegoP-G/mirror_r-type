@@ -8,30 +8,25 @@
 
 Receiver::Receiver(NetworkECSMediator &med) : _med(med)
 {
-    _handlers[OPCODE_CODE_UDP] = [this](const std::string &payload, int opcode) {
-        onCodeUdp(payload);
-    };
-    
-    _handlers[OPCODE_CLOSE_CONNECTION] = [this](const std::string &payload, int opcode) { 
-        onCloseConnection(payload); 
-    };
-    
-    _handlers[OPCODE_CHAT_BROADCAST] = [this](const std::string &payload, int opcode) { 
-        onChatBroadcast(payload); 
-    };
-    
+    _handlers[OPCODE_CODE_UDP] = [this](const std::string &payload, int opcode) { onCodeUdp(payload); };
+
+    _handlers[OPCODE_CLOSE_CONNECTION] = [this](const std::string &payload, int opcode) { onCloseConnection(payload); };
+
+    _handlers[OPCODE_CHAT_BROADCAST] = [this](const std::string &payload, int opcode) { onChatBroadcast(payload); };
+
     _handlers[OPCODE_ENTITY_CREATE] = [this](const std::string &payload, int opcode) {
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
-    
+
     _handlers[OPCODE_ENTITY_DESTROY] = [this](const std::string &payload, int opcode) {
+        std::cout << "RECEIVE DESTROY" << std::endl;
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
-    
+
     _handlers[OPCODE_MOVEMENT_UPDATE] = [this](const std::string &payload, int opcode) {
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
-    
+
     _handlers[OPCODE_PLAYER_ID] = [this](const std::string &payload, int opcode) {
         _med.notify(PLAYER_ID, payload, opcode);
     };
@@ -74,21 +69,21 @@ void Receiver::receiveTCPMessage()
     while (true)
     {
         auto [opcode, payload] = receiveFrameTCP(_tcpSocket, _tcpBuffer);
-        
+
         if (opcode == OPCODE_INCOMPLETE_DATA)
         {
             break;
         }
-        
+
         if (opcode == OPCODE_CLOSE_CONNECTION)
         {
             onCloseConnection("");
             break;
         }
-        
-        std::cout << "[RECEIVER] TCP message: opcode=0x" << std::hex << (int)opcode << std::dec
-                  << ", " << payload.size() << " bytes" << std::endl;
-        
+
+        std::cout << "[RECEIVER] TCP message: opcode=0x" << std::hex << (int)opcode << std::dec << ", "
+                  << payload.size() << " bytes" << std::endl;
+
         auto it = _handlers.find(opcode);
         if (it != _handlers.end())
         {

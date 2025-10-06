@@ -4,7 +4,6 @@
 #include "../../ecs/systems.hpp"
 #include "../../transferData/transferData.hpp"
 #include "GameMediator.hpp"
-
 #include <iostream>
 #include <random>
 
@@ -27,6 +26,7 @@ class RTypeServer
     LaserWarningSystem laserWarningSystem;
     GameLogicSystem gameLogicSystem;
     BackgroundSystem backgroundSystem;
+    ProjectileSystem projectileSystem;
 
     Entity *player = nullptr;
     bool gameOver = false;

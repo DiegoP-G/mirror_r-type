@@ -43,10 +43,7 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
 
         // Input joueur
         {GameMediatorEvent::PlayerInput,
-         [this](const std::string &data) -> void {
-             std::cout << "here" << std::endl;
-             _rTypeServer.handlePlayerInput(data);
-         }},
+         [this](const std::string &data) -> void { _rTypeServer.handlePlayerInput(data); }},
     };
 }
 

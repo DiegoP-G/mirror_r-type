@@ -1,30 +1,28 @@
 #include "AnimatedSpriteComponent.hpp"
-#include "../GraphicsManager.hpp"
 #include <cstring>
 
-AnimatedSpriteComponent::AnimatedSpriteComponent(int tex, int frameWidth, int frameHeight, float interval,
+AnimatedSpriteComponent::AnimatedSpriteComponent(int texture, int frameWidth, int frameHeight, float interval,
                                                  Vector2D scale)
-    : texture(tex), currentFrame(2), frameWidth(frameWidth), frameHeight(frameHeight), animationInterval(interval),
-      scale(scale), currentDirection(Default)
+    : textureID(texture), frameWidth(frameWidth), frameHeight(frameHeight), animationInterval(interval), scale(scale),
+      currentFrame(2), currentDirection(Default), elapsedTime(0.0f)
 {
-    sprite.setTexture(*g_graphics->getTexture(texture));
-    sprite.setScale(scale.x, scale.y);
-    setFrame(currentFrame);
 }
 
 void AnimatedSpriteComponent::setFrame(int frame)
 {
-    sprite.setTextureRect(sf::IntRect(frameWidth * frame, 0, frameWidth, frameHeight));
+    currentFrame = frame;
 }
 
-void AnimatedSpriteComponent::updateAnimation(Direction newDirection)
+void AnimatedSpriteComponent::updateAnimation(Direction newDirection, float deltaTime)
 {
     if (newDirection != currentDirection)
     {
         currentDirection = newDirection;
     }
 
-    if (animationClock.getElapsedTime().asSeconds() >= animationInterval)
+    elapsedTime += deltaTime;
+
+    if (elapsedTime >= animationInterval)
     {
         if (currentDirection == Up && currentFrame < 4)
         {
@@ -41,8 +39,7 @@ void AnimatedSpriteComponent::updateAnimation(Direction newDirection)
             else if (currentFrame < 2)
                 currentFrame++;
         }
-        setFrame(currentFrame);
-        animationClock.restart();
+        elapsedTime = 0.0f;
     }
 }
 
@@ -57,57 +54,59 @@ void AnimatedSpriteComponent::init()
 std::vector<uint8_t> AnimatedSpriteComponent::serialize() const
 {
     std::vector<uint8_t> data;
-
-    data.insert(data.end(), reinterpret_cast<const uint8_t *>(&currentFrame),
-                reinterpret_cast<const uint8_t *>(&currentFrame) + sizeof(int));
-    data.insert(data.end(), reinterpret_cast<const uint8_t *>(&frameWidth),
-                reinterpret_cast<const uint8_t *>(&frameWidth) + sizeof(int));
-    data.insert(data.end(), reinterpret_cast<const uint8_t *>(&frameHeight),
-                reinterpret_cast<const uint8_t *>(&frameHeight) + sizeof(int));
-    data.insert(data.end(), reinterpret_cast<const uint8_t *>(&animationInterval),
-                reinterpret_cast<const uint8_t *>(&animationInterval) + sizeof(float));
-
+    
+    data.insert(data.end(), reinterpret_cast<const uint8_t*>(&textureID),
+                reinterpret_cast<const uint8_t*>(&textureID) + sizeof(int));
+    data.insert(data.end(), reinterpret_cast<const uint8_t*>(&currentFrame),
+                reinterpret_cast<const uint8_t*>(&currentFrame) + sizeof(int));
+    data.insert(data.end(), reinterpret_cast<const uint8_t*>(&frameWidth),
+                reinterpret_cast<const uint8_t*>(&frameWidth) + sizeof(int));
+    data.insert(data.end(), reinterpret_cast<const uint8_t*>(&frameHeight),
+                reinterpret_cast<const uint8_t*>(&frameHeight) + sizeof(int));
+    data.insert(data.end(), reinterpret_cast<const uint8_t*>(&animationInterval),
+                reinterpret_cast<const uint8_t*>(&animationInterval) + sizeof(float));
+    
     auto scaleData = scale.serialize();
     data.insert(data.end(), scaleData.begin(), scaleData.end());
-
-    data.insert(data.end(), reinterpret_cast<const uint8_t *>(&currentDirection),
-                reinterpret_cast<const uint8_t *>(&currentDirection) + sizeof(Direction));
-    data.insert(data.end(), reinterpret_cast<const uint8_t *>(&texture),
-                reinterpret_cast<const uint8_t *>(&texture) + sizeof(int));
+    
+    data.insert(data.end(), reinterpret_cast<const uint8_t*>(&elapsedTime),
+                reinterpret_cast<const uint8_t*>(&elapsedTime) + sizeof(float));
+    data.push_back(static_cast<uint8_t>(currentDirection));
+    
     return data;
 }
 
 AnimatedSpriteComponent AnimatedSpriteComponent::deserialize(const uint8_t *data, size_t size)
 {
-    // currentFrame (int) + animationInterval (float) + scale (Vector2D) + currentDirection (Direction) + texture (int)
-    size_t expectedSize = sizeof(int) + sizeof(float) + sizeof(Vector2D) + sizeof(Direction) + sizeof(int);
-    if (size < expectedSize)
-    {
-        throw("AnimatedSpriteComponent::deserialize - données trop petites");
-    }
-
-    AnimatedSpriteComponent comp(0, 32, 32, 0.1f);
     size_t offset = 0;
-
-    std::memcpy(&comp.currentFrame, data + offset, sizeof(int));
+    
+    int textureID, currentFrame, frameWidth, frameHeight;
+    float animationInterval, elapsedTime;
+    Vector2D scale;
+    Direction dir;
+    
+    std::memcpy(&textureID, data + offset, sizeof(int));
     offset += sizeof(int);
-
-    // Skip frameWidth and frameHeight (const) => rien à faire car valeurs par défaut
-
-    std::memcpy(&comp.animationInterval, data + offset, sizeof(float));
+    std::memcpy(&currentFrame, data + offset, sizeof(int));
+    offset += sizeof(int);
+    std::memcpy(&frameWidth, data + offset, sizeof(int));
+    offset += sizeof(int);
+    std::memcpy(&frameHeight, data + offset, sizeof(int));
+    offset += sizeof(int);
+    std::memcpy(&animationInterval, data + offset, sizeof(float));
     offset += sizeof(float);
-
-    comp.scale = Vector2D::deserialize(data + offset, sizeof(Vector2D));
+    
+    scale = Vector2D::deserialize(data + offset, sizeof(Vector2D));
     offset += sizeof(Vector2D);
-
-    std::memcpy(&comp.currentDirection, data + offset, sizeof(Direction));
-    offset += sizeof(Direction);
-
-    std::memcpy(&comp.texture, data + offset, sizeof(int));
-
-    // Appliquer le rendu
-    comp.sprite.setTexture(*g_graphics->getTexture(comp.texture));
-    comp.sprite.setScale(comp.scale.x, comp.scale.y);
-
+    
+    std::memcpy(&elapsedTime, data + offset, sizeof(float));
+    offset += sizeof(float);
+    dir = static_cast<Direction>(data[offset]);
+    
+    AnimatedSpriteComponent comp(textureID, frameWidth, frameHeight, animationInterval, scale);
+    comp.currentFrame = currentFrame;
+    comp.currentDirection = dir;
+    comp.elapsedTime = elapsedTime;
+    
     return comp;
 }
