@@ -148,12 +148,6 @@ sf::RenderWindow &GraphicsManager::getWindow()
     return window;
 }
 
-void GraphicsManager::drawAnimatedSprite(AnimatedSpriteComponent &animatedSprite, float x, float y)
-{
-    animatedSprite.sprite.setPosition(x, y);
-    window.draw(animatedSprite.sprite);
-}
-
 sf::Texture &GraphicsManager::createTextureFromPath(const std::string &filePath, const std::string &name)
 {
     sf::Texture tex;

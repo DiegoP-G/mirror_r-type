@@ -1,6 +1,7 @@
 
 #include "RTypeServer.hpp"
 #include "../../ecs/allComponentsInclude.hpp"
+#include "../../ecs/GraphicsManager.hpp"
 #include <cstddef>
 #include <string>
 
@@ -22,6 +23,8 @@ void RTypeServer::createPlayer(const std::string &id)
     playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
     playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0, GraphicsManager::Texture::PLAYER); // Yellow
     playerEntity.addComponent<ColliderComponent>(32.0f, 32.0f);
+    playerEntity.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::PLAYER, 33, 17.5, 0.05f,
+                                                        Vector2D(2.0f, 2.0f));
     playerEntity.addComponent<InputComponent>();
 
     player = &playerEntity;

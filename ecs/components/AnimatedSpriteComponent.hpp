@@ -1,19 +1,17 @@
 #pragma once
 #include "../IComponent.hpp"
 #include "Vector2D.hpp"
-#include <SFML/Graphics.hpp>
 
 class AnimatedSpriteComponent : public IComponent
 {
   public:
-    sf::Sprite sprite;
-    int texture;
+    int textureID;
     int currentFrame;
     int frameWidth;
     int frameHeight;
     float animationInterval;
     Vector2D scale;
-    sf::Clock animationClock;
+    float elapsedTime;
 
     enum Direction
     {
@@ -26,7 +24,7 @@ class AnimatedSpriteComponent : public IComponent
                             Vector2D scale = {1.0f, 1.0f});
 
     void setFrame(int frame);
-    void updateAnimation(Direction newDirection);
+    void updateAnimation(Direction newDirection, float deltaTime);
     void update(float deltaTime) override;
     void init() override;
     std::vector<uint8_t> serialize() const override;
