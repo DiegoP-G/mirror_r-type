@@ -52,7 +52,7 @@ std::vector<uint8_t> EntityManager::serializeEntityFull(EntityID id) const
             return entity->serialize();
         }
     }
-    
+
     for (const auto &entity : entitiesToCreate)
     {
         if (entity && entity->getID() == id)
@@ -60,7 +60,7 @@ std::vector<uint8_t> EntityManager::serializeEntityFull(EntityID id) const
             return entity->serialize();
         }
     }
-    
+
     return {};
 }
 
@@ -120,20 +120,24 @@ Entity &EntityManager::createEntity(int newID)
 {
     static int nextAutoID = 1000;
     EntityID id;
-    
-    if (newID == -1) {
+
+    if (newID == -1)
+    {
         id = nextAutoID++;
-    } else {
+    }
+    else
+    {
         id = newID;
-        if (id >= nextAutoID) {
+        if (id >= nextAutoID)
+        {
             nextAutoID = id + 1;
         }
     }
-    
+
     auto newEntity = std::make_unique<Entity>(*this, id);
     Entity *entityPtr = newEntity.get();
     entitiesToCreate.push_back(std::move(newEntity));
-    
+
     return *entityPtr;
 }
 
@@ -150,25 +154,24 @@ Entity *EntityManager::getEntityByID(EntityID id)
 void EntityManager::refresh()
 {
     entities.erase(std::remove_if(entities.begin(), entities.end(),
-                                  [](const std::unique_ptr<Entity> &entity) {
-                                      return !entity || !entity->isActive();
-                                  }),
+                                  [](const std::unique_ptr<Entity> &entity) { return !entity || !entity->isActive(); }),
                    entities.end());
 
     for (auto &componentEntities : entitiesByComponent)
         componentEntities.clear();
 
-    for (auto &entity : entities) {
-        if (entity && entity->isActive()) {
-            for (ComponentID i = 0; i < MAX_COMPONENTS; i++) {
+    for (auto &entity : entities)
+    {
+        if (entity && entity->isActive())
+        {
+            for (ComponentID i = 0; i < MAX_COMPONENTS; i++)
+            {
                 if (entity->getComponentMask().test(i))
                     entitiesByComponent[i].push_back(entity.get());
             }
         }
     }
 }
-
-
 
 void EntityManager::deserializeEntityFull(const std::vector<uint8_t> &data)
 {
@@ -177,13 +180,13 @@ void EntityManager::deserializeEntityFull(const std::vector<uint8_t> &data)
 
     auto &newEntity = createEntity();
     size_t bytesRead = newEntity.deserialize(data.data(), data.size());
-    
+
     std::cout << "\n========== ENTITY DESERIALIZED ==========" << std::endl;
     std::cout << "Entity ID: " << newEntity.getID() << std::endl;
     std::cout << "Bytes read: " << bytesRead << " / " << data.size() << std::endl;
-    
+
     std::string entityType = "UNKNOWN";
-    
+
     if (newEntity.hasComponent<PlayerComponent>())
     {
         auto &playerComp = newEntity.getComponent<PlayerComponent>();
@@ -203,7 +206,7 @@ void EntityManager::deserializeEntityFull(const std::vector<uint8_t> &data)
         std::cout << "   - Scroll Speed: " << bgComp.scrollSpeed << std::endl;
         std::cout << "   - Texture: " << bgComp.texture << std::endl;
     }
-    
+
     if (newEntity.hasComponent<EnemyComponent>())
     {
         auto &enemyComp = newEntity.getComponent<EnemyComponent>();
@@ -213,7 +216,7 @@ void EntityManager::deserializeEntityFull(const std::vector<uint8_t> &data)
         std::cout << "   - Shooting Type: " << enemyComp.shootingType << std::endl;
         std::cout << "   - Attack Cooldown: " << enemyComp.attackCooldown << std::endl;
     }
-    
+
     if (newEntity.hasComponent<ProjectileComponent>())
     {
         auto &projComp = newEntity.getComponent<ProjectileComponent>();
@@ -224,72 +227,82 @@ void EntityManager::deserializeEntityFull(const std::vector<uint8_t> &data)
         std::cout << "   - Life Time: " << projComp.lifeTime << std::endl;
         std::cout << "   - Remaining Life: " << projComp.remainingLife << std::endl;
     }
-    
+
     // Composants communs
     if (newEntity.hasComponent<TransformComponent>())
     {
         auto &transform = newEntity.getComponent<TransformComponent>();
         std::cout << "📍 Transform: (" << transform.position.x << ", " << transform.position.y << ")" << std::endl;
     }
-    
+
     if (newEntity.hasComponent<VelocityComponent>())
     {
         auto &velocity = newEntity.getComponent<VelocityComponent>();
         std::cout << "🚀 Velocity: (" << velocity.velocity.x << ", " << velocity.velocity.y << ")" << std::endl;
     }
-    
+
     if (newEntity.hasComponent<SpriteComponent>())
     {
         auto &sprite = newEntity.getComponent<SpriteComponent>();
-        std::cout << "🎨 Sprite: " << sprite.width << "x" << sprite.height 
-                  << " RGB(" << (int)sprite.r << "," << (int)sprite.g << "," << (int)sprite.b << ")" << std::endl;
+        std::cout << "🎨 Sprite: " << sprite.width << "x" << sprite.height << " RGB(" << (int)sprite.r << ","
+                  << (int)sprite.g << "," << (int)sprite.b << ")" << std::endl;
         std::cout << "   - Texture ID: " << sprite.spriteTexture << std::endl;
     }
-    
+
     if (newEntity.hasComponent<ColliderComponent>())
     {
         auto &collider = newEntity.getComponent<ColliderComponent>();
-        std::cout << "💥 Collider: " << collider.hitbox.w << "x" << collider.hitbox.h 
+        std::cout << "💥 Collider: " << collider.hitbox.w << "x" << collider.hitbox.h
                   << " (active: " << collider.isActive << ")" << std::endl;
     }
-    
+
     if (newEntity.hasComponent<AnimatedSpriteComponent>())
     {
         auto &animSprite = newEntity.getComponent<AnimatedSpriteComponent>();
-        std::cout << "🎬 Animated Sprite: frame " << animSprite.currentFrame 
+        std::cout << "🎬 Animated Sprite: frame " << animSprite.currentFrame
                   << ", interval: " << animSprite.animationInterval << std::endl;
     }
-    
+
     if (newEntity.hasComponent<InputComponent>())
     {
         std::cout << "🎮 Has InputComponent" << std::endl;
     }
-    
+
     if (newEntity.hasComponent<HealthComponent>())
     {
         auto &health = newEntity.getComponent<HealthComponent>();
         std::cout << "❤️  Health: " << health.health << " / " << health.maxHealth << std::endl;
     }
-    
+
     // Résumé du masque de composants
     std::cout << "Component Mask: " << newEntity.getComponentMask() << std::endl;
-    
+
     // Compter les composants
     int componentCount = 0;
     for (ComponentID i = 0; i < MAX_COMPONENTS; ++i)
     {
-        if (newEntity.hasComponent<TransformComponent>() && i == getComponentTypeID<TransformComponent>()) componentCount++;
-        if (newEntity.hasComponent<PlayerComponent>() && i == getComponentTypeID<PlayerComponent>()) componentCount++;
-        if (newEntity.hasComponent<EnemyComponent>() && i == getComponentTypeID<EnemyComponent>()) componentCount++;
-        if (newEntity.hasComponent<ProjectileComponent>() && i == getComponentTypeID<ProjectileComponent>()) componentCount++;
-        if (newEntity.hasComponent<VelocityComponent>() && i == getComponentTypeID<VelocityComponent>()) componentCount++;
-        if (newEntity.hasComponent<SpriteComponent>() && i == getComponentTypeID<SpriteComponent>()) componentCount++;
-        if (newEntity.hasComponent<ColliderComponent>() && i == getComponentTypeID<ColliderComponent>()) componentCount++;
-        if (newEntity.hasComponent<InputComponent>() && i == getComponentTypeID<InputComponent>()) componentCount++;
-        if (newEntity.hasComponent<HealthComponent>() && i == getComponentTypeID<HealthComponent>()) componentCount++;
-        if (newEntity.hasComponent<AnimatedSpriteComponent>() && i == getComponentTypeID<AnimatedSpriteComponent>()) componentCount++;
+        if (newEntity.hasComponent<TransformComponent>() && i == getComponentTypeID<TransformComponent>())
+            componentCount++;
+        if (newEntity.hasComponent<PlayerComponent>() && i == getComponentTypeID<PlayerComponent>())
+            componentCount++;
+        if (newEntity.hasComponent<EnemyComponent>() && i == getComponentTypeID<EnemyComponent>())
+            componentCount++;
+        if (newEntity.hasComponent<ProjectileComponent>() && i == getComponentTypeID<ProjectileComponent>())
+            componentCount++;
+        if (newEntity.hasComponent<VelocityComponent>() && i == getComponentTypeID<VelocityComponent>())
+            componentCount++;
+        if (newEntity.hasComponent<SpriteComponent>() && i == getComponentTypeID<SpriteComponent>())
+            componentCount++;
+        if (newEntity.hasComponent<ColliderComponent>() && i == getComponentTypeID<ColliderComponent>())
+            componentCount++;
+        if (newEntity.hasComponent<InputComponent>() && i == getComponentTypeID<InputComponent>())
+            componentCount++;
+        if (newEntity.hasComponent<HealthComponent>() && i == getComponentTypeID<HealthComponent>())
+            componentCount++;
+        if (newEntity.hasComponent<AnimatedSpriteComponent>() && i == getComponentTypeID<AnimatedSpriteComponent>())
+            componentCount++;
     }
-    
+
     std::cout << "Total components: " << componentCount << std::endl;
     std::cout << "========================================\n" << std::endl;
 }

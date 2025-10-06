@@ -65,9 +65,9 @@ std::vector<uint8_t> Entity::serialize() const
     }
     data.push_back(componentCount);
 
-    std::cout << "[Entity::serialize] Entity ID: " << id << std::endl;
-    std::cout << "[Entity::serialize] Component Mask: " << std::bitset<32>(maskValue) << std::endl;
-    std::cout << "[Entity::serialize] Component Count: " << (int)componentCount << std::endl;
+    // std::cout << "[Entity::serialize] Entity ID: " << id << std::endl;
+    // std::cout << "[Entity::serialize] Component Mask: " << std::bitset<32>(maskValue) << std::endl;
+    // std::cout << "[Entity::serialize] Component Count: " << (int)componentCount << std::endl;
 
     for (ComponentID i = 0; i < MAX_COMPONENTS; ++i)
     {
@@ -77,8 +77,8 @@ std::vector<uint8_t> Entity::serialize() const
 
             std::vector<uint8_t> componentData = components[i]->serialize();
 
-            std::cout << "[Entity::serialize]   Component ID " << (int)i 
-                      << " -> " << componentData.size() << " bytes" << std::endl;
+            // std::cout << "[Entity::serialize]   Component ID " << (int)i
+            //           << " -> " << componentData.size() << " bytes" << std::endl;
 
             uint16_t dataSize = static_cast<uint16_t>(componentData.size());
             data.insert(data.end(), reinterpret_cast<const uint8_t *>(&dataSize),
@@ -88,7 +88,7 @@ std::vector<uint8_t> Entity::serialize() const
         }
     }
 
-    std::cout << "[Entity::serialize] Total serialized size: " << data.size() << " bytes\n" << std::endl;
+    // std::cout << "[Entity::serialize] Total serialized size: " << data.size() << " bytes\n" << std::endl;
 
     return data;
 }
@@ -103,7 +103,7 @@ size_t Entity::deserialize(const uint8_t *data, size_t maxSize)
     EntityID serializedId;
     std::memcpy(&serializedId, data + offset, sizeof(EntityID));
     offset += sizeof(EntityID);
-    
+
     this->id = serializedId;
     std::cout << "[Entity::deserialize] Entity ID: " << id << std::endl;
 
@@ -113,13 +113,13 @@ size_t Entity::deserialize(const uint8_t *data, size_t maxSize)
     uint32_t maskValue;
     std::memcpy(&maskValue, data + offset, sizeof(uint32_t));
     offset += sizeof(uint32_t);
-    std::cout << "[Entity::deserialize] Component mask: " << std::bitset<32>(maskValue) << std::endl;
+    //  std::cout << "[Entity::deserialize] Component mask: " << std::bitset<32>(maskValue) << std::endl;
 
     if (offset + sizeof(uint8_t) > maxSize)
         return offset;
 
     uint8_t componentCount = data[offset++];
-    std::cout << "[Entity::deserialize] Component count: " << (int)componentCount << std::endl;
+    //  std::cout << "[Entity::deserialize] Component count: " << (int)componentCount << std::endl;
 
     for (uint8_t i = 0; i < componentCount; ++i)
     {
@@ -129,7 +129,7 @@ size_t Entity::deserialize(const uint8_t *data, size_t maxSize)
             break;
         }
         ComponentID compId = data[offset++];
-        std::cout << "[Entity::deserialize] Reading component ID: " << (int)compId << std::endl;
+        //       std::cout << "[Entity::deserialize] Reading component ID: " << (int)compId << std::endl;
 
         if (offset + sizeof(uint16_t) > maxSize)
         {
@@ -139,21 +139,20 @@ size_t Entity::deserialize(const uint8_t *data, size_t maxSize)
         uint16_t dataSize;
         std::memcpy(&dataSize, data + offset, sizeof(uint16_t));
         offset += sizeof(uint16_t);
-        std::cout << "[Entity::deserialize]   Component data size: " << dataSize << " bytes" << std::endl;
+        //   std::cout << "[Entity::deserialize]   Component data size: " << dataSize << " bytes" << std::endl;
 
         if (offset + dataSize > maxSize)
         {
-            std::cout << "[Entity::deserialize] ERROR: Not enough data for component payload (need " 
-                      << dataSize << ", have " << (maxSize - offset) << ")" << std::endl;
+            std::cout << "[Entity::deserialize] ERROR: Not enough data for component payload (need " << dataSize
+                      << ", have " << (maxSize - offset) << ")" << std::endl;
             break;
         }
         bool success = deserializeComponent(compId, data + offset, dataSize);
-        std::cout << "[Entity::deserialize]   Deserialization " 
-                  << (success ? "SUCCESS" : "FAILED") << std::endl;
+        std::cout << "[Entity::deserialize]   Deserialization " << (success ? "SUCCESS" : "FAILED") << std::endl;
         offset += dataSize;
     }
 
-    std::cout << "[Entity::deserialize] Total bytes read: " << offset << " / " << maxSize << "\n" << std::endl;
+    //   std::cout << "[Entity::deserialize] Total bytes read: " << offset << " / " << maxSize << "\n" << std::endl;
     return offset;
 }
 
