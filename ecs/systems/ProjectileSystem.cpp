@@ -11,7 +11,9 @@ void ProjectileSystem::update(EntityManager &entityManager, float deltaTime)
         projectile.remainingLife -= deltaTime;
         if (projectile.remainingLife <= 0)
         {
-            entity->destroy();
+            entityManager.markEntityForDestruction(entity->getID());
         }
+        if (!entity->isActive())
+            entityManager.markEntityForDestruction(entity->getID());
     }
 }

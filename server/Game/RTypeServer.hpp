@@ -26,6 +26,7 @@ class RTypeServer
     LaserWarningSystem laserWarningSystem;
     GameLogicSystem gameLogicSystem;
     BackgroundSystem backgroundSystem;
+    ProjectileSystem projectileSystem;
 
     Entity *player = nullptr;
     bool gameOver = false;

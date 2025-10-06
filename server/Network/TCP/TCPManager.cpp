@@ -17,7 +17,7 @@ TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
     _listenFd = socket(AF_INET, SOCK_STREAM, 0);
     if (_listenFd < 0)
         throw std::runtime_error("TCP socket failed");
-    
+
     // Non-bloquant
     int flags = fcntl(_listenFd, F_GETFL, 0);
     fcntl(_listenFd, F_SETFL, flags | O_NONBLOCK);
@@ -34,13 +34,13 @@ TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
     // Bind et listen
     if (bind(_listenFd, (sockaddr *)&_addr, sizeof(_addr)) < 0)
         throw std::runtime_error("TCP bind failed");
-    
+
     if (listen(_listenFd, 16) < 0)
         throw std::runtime_error("TCP listen failed");
 
     // Ajouter au poll (seulement POLLIN pour le listen socket)
     _pollFds.push_back({_listenFd, POLLIN, 0});
-    
+
     std::cout << "[TCP] Server listening on port " << SERVER_PORT << std::endl;
 }
 
@@ -68,10 +68,10 @@ void TCPManager::handleNewConnection()
 
     // Ajouter au poll (POLLIN seulement au début)
     _pollFds.push_back({cfd, POLLIN, 0});
-    
+
     // Créer le client
     _networkManagerRef.getClientManager().addClient(Client("client", cfd));
-    
+
     // Initialiser le buffer d'écriture vide
     _writeBuffers[cfd] = "";
 
@@ -84,7 +84,7 @@ void TCPManager::handleNewConnection()
     // Envoyer les messages de connexion
     sendMessage(cfd, OPCODE_PLAYER_ID, serializeInt(cfd));
     sendMessage(cfd, OPCODE_CODE_UDP, serializeInt(code_udp));
-    
+
     // Notifier la création du joueur
     _networkManagerRef.addNewPlayer(cfd);
     _networkManagerRef.sendAllEntitiesToClient(cfd);
@@ -97,7 +97,7 @@ void TCPManager::sendMessage(int fd, uint8_t opcode, const std::string &payload)
     frame.push_back(opcode);
 
     size_t payloadLen = payload.size();
-    
+
     // Encoder la longueur
     if (payloadLen <= 253)
     {
@@ -120,12 +120,12 @@ void TCPManager::sendMessage(int fd, uint8_t opcode, const std::string &payload)
     frame.insert(frame.end(), payload.begin(), payload.end());
 
     // Ajouter au buffer d'écriture
-    _writeBuffers[fd].append(reinterpret_cast<char*>(frame.data()), frame.size());
-    
-    std::cout << "[TCP] Queued message for client " << fd 
-              << " (opcode: 0x" << std::hex << (int)opcode << std::dec 
-              << ", " << payload.size() << " bytes payload, "
-              << frame.size() << " bytes total)" << std::endl;
+    _writeBuffers[fd].append(reinterpret_cast<char *>(frame.data()), frame.size());
+
+    // std::cout << "[TCP] Queued message for client " << fd
+    //           << " (opcode: 0x" << std::hex << (int)opcode << std::dec
+    //           << ", " << payload.size() << " bytes payload, "
+    //           << frame.size() << " bytes total)" << std::endl;
 
     // Activer POLLOUT pour ce socket
     for (auto &pfd : _pollFds)
@@ -169,7 +169,7 @@ void TCPManager::handleClientWrite(int fd)
             std::cout << "[TCP] Client " << fd << " write blocked (EAGAIN)" << std::endl;
             return;
         }
-        
+
         // Erreur réelle
         perror("[TCP] write error");
         return;
@@ -177,9 +177,9 @@ void TCPManager::handleClientWrite(int fd)
 
     // Retirer ce qui a été envoyé du buffer
     _writeBuffers[fd].erase(0, sent);
-    
-    std::cout << "[TCP] Sent " << sent << " bytes to client " << fd 
-              << ", remaining: " << _writeBuffers[fd].size() << " bytes" << std::endl;
+
+    std::cout << "[TCP] Sent " << sent << " bytes to client " << fd << ", remaining: " << _writeBuffers[fd].size()
+              << " bytes" << std::endl;
 
     // Si tout est envoyé, désactiver POLLOUT
     if (_writeBuffers[fd].empty())
@@ -200,7 +200,7 @@ void TCPManager::handleClientRead(int fd, size_t &index)
 {
     // Récupérer le buffer de lecture du client
     std::string &readBuffer = _networkManagerRef.getClientManager().getClientsMap()[fd].getBuffer();
-    
+
     // Lire les messages disponibles
     while (true)
     {
@@ -211,11 +211,11 @@ void TCPManager::handleClientRead(int fd, size_t &index)
             // Données incomplètes, on attendra plus de données
             break;
         }
-        
+
         if (opcode == OPCODE_CLOSE_CONNECTION)
         {
             std::cout << "[TCP] Client " << fd << " disconnected" << std::endl;
-            
+
             // Nettoyer
             _writeBuffers.erase(fd);
             _networkManagerRef.getClientManager().removeClient(fd);
@@ -225,15 +225,11 @@ void TCPManager::handleClientRead(int fd, size_t &index)
         }
 
         // Message valide reçu
-        std::cout << "[TCP] Received from client " << fd 
-                  << " (opcode: 0x" << std::hex << (int)opcode << std::dec 
+        std::cout << "[TCP] Received from client " << fd << " (opcode: 0x" << std::hex << (int)opcode << std::dec
                   << ", " << payload.size() << " bytes)" << std::endl;
-        
+
         // Notifier le médiateur
-        _networkManagerRef.getGameMediator().notify(
-            static_cast<GameMediatorEvent>(opcode), 
-            payload
-        );
+        _networkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload);
     }
 }
 
@@ -241,7 +237,7 @@ void TCPManager::update()
 {
     // Poll avec timeout 0 (non-bloquant)
     int ret = poll(_pollFds.data(), _pollFds.size(), 0);
-    
+
     if (ret < 0)
     {
         if (errno != EINTR)
