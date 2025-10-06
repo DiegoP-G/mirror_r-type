@@ -20,13 +20,22 @@ ClientGame::~ClientGame()
     stop();
 }
 
-bool ClientGame::init(const char *serverIp, int port)
+void ClientGame::startServer(const char *serverIp)
 {
-    if (!_networkManager.setup(serverIp, port))
-        return false;
-    if (!_game.init(_med))
-        return false;
-    return true;
+    std::cout << "RECEIVED" << serverIp << "x" << std::endl;
+    if (!_networkManager.setup(serverIp, 8081)) {
+        std::cout << "failed to start network" << std::endl;
+        return;
+    }
+    _networkThread = std::thread(&ClientGame::networkLoop, this);
+}
+
+bool ClientGame::init(const char *serverIp, int port) {
+  // if (!_networkManager.setup(serverIp, port))
+  //     return false;
+  if (!_game.init(_med, [this](const char *msg) { this->startServer(msg); }))
+    return false;
+  return true;
 }
 
 void ClientGame::start()
@@ -35,7 +44,7 @@ void ClientGame::start()
         return;
 
     _running = true;
-    _networkThread = std::thread(&ClientGame::networkLoop, this);
+    // _networkThread = std::thread(&ClientGame::networkLoop, this);
 
     std::cout << "ClientGame started (network running in background)" << std::endl;
 

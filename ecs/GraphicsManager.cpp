@@ -11,14 +11,16 @@
 
 #include "GraphicsManager.hpp"
 #include "../client/NetworkECSMediator.hpp"
+#include "textBox.hpp"
 #include "../client/assetsPath.hpp"
+#include <SFML/Graphics/Font.hpp>
 #include <iostream>
+#include <memory>
 
 GraphicsManager *g_graphics = nullptr;
 
 GraphicsManager::GraphicsManager(NetworkECSMediator med) : _med(med)
-{   
-}
+{   }
 
 
 bool GraphicsManager::registerTheTexture()
@@ -36,7 +38,7 @@ GraphicsManager::~GraphicsManager()
 {
 }
 
-bool GraphicsManager::init(const std::string &title, int width, int height)
+bool GraphicsManager::init(const std::string &title, int width, int height, std::function<void(const char *)> startNetwork)
 {
     window.create(sf::VideoMode(width, height), title, sf::Style::Close);
     registerTheTexture();
@@ -50,7 +52,7 @@ bool GraphicsManager::init(const std::string &title, int width, int height)
     {
         std::cerr << "Warning: SFML Failed to load font, using default font" << std::endl;
     }
-
+    _textbox = std::make_unique<TextBox>(font, startNetwork, 400, 50);
     std::cout << "SFML initialized successfully" << std::endl;
     return true;
 }
@@ -148,6 +150,11 @@ sf::RenderWindow &GraphicsManager::getWindow()
     return window;
 }
 
+std::unique_ptr<TextBox>& GraphicsManager::getTextBox()
+{
+    return _textbox;
+}
+
 void GraphicsManager::drawAnimatedSprite(AnimatedSpriteComponent &animatedSprite, float x, float y)
 {
     animatedSprite.sprite.setPosition(x, y);
@@ -165,4 +172,9 @@ sf::Texture &GraphicsManager::createTextureFromPath(const std::string &filePath,
 
     textures[name] = tex;
     return textures[name];
+}
+
+sf::Font &GraphicsManager::getFont()
+{
+    return font;
 }
