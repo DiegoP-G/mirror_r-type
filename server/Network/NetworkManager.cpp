@@ -67,7 +67,6 @@ void NetworkManager::sendDataAllClientTCP(std::string data, int opcode)
     for (auto c : map)
     {
         // clientSocket.push_back(c.second.getSocket());
-        std::cout << "send to client opcide == " << opcode << "\n";
         _TCPManager.sendMessage(c.second.getSocket(), opcode, data);
     }
 }

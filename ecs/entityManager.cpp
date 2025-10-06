@@ -361,11 +361,12 @@ void EntityManager::deserializeAllMovements(const std::vector<uint8_t> &data)
 // === CLIENT - Détruire une entité par ID ===
 void EntityManager::destroyEntityByID(EntityID id)
 {
-    for (auto &entity : entities)
+    for (auto it = entities.begin(); it != entities.end(); ++it)
     {
-        if (entity && entity->getID() == id)
+        if (*it && (*it)->getID() == id)
         {
-            entity->destroy();
+            std::cout << "Entities ID:" << id << "DESTROYED" << std::endl;
+            entities.erase(it); // unique_ptr automatically deletes the Entity
             return;
         }
     }

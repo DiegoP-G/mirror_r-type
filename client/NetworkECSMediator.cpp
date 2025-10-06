@@ -61,8 +61,16 @@ NetworkECSMediator::NetworkECSMediator()
                  std::cout << "[Client] Entity destroyed" << std::endl;
                  _game->getMutex().lock();
                  EntityID id = deserializeInt(data);
-                 _game->getEntityManager().destroyEntityByID(id);
+                 try
+                 {
+                     _game->getEntityManager().markEntityForDestruction(id);
+                 }
+                 catch (std::exception &e)
+                 {
+                     throw e.what();
+                 }
                  _game->getMutex().unlock();
+
                  break;
              }
 
