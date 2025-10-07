@@ -155,9 +155,9 @@ Entity *EntityManager::getEntityByID(EntityID id)
 
 void EntityManager::refresh()
 {
-    entities.erase(std::remove_if(entities.begin(), entities.end(),
-                                  [](const std::unique_ptr<Entity> &entity) { return !entity || !entity->isActive(); }),
-                   entities.end());
+//     entities.erase(std::remove_if(entities.begin(), entities.end(),
+//                                   [](const std::unique_ptr<Entity> &entity) { return !entity || !entity->isActive(); }),
+//                    entities.end());
 
     for (auto &componentEntities : entitiesByComponent)
         componentEntities.clear();

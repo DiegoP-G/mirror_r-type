@@ -193,6 +193,9 @@ void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile)
         if (health.health <= 0)
         {
             enemy->destroy();
+            std::cerr << "Enemy destroyed by projectile!" << std::endl;
+            std::cerr << "Enemy ID: " << enemy->getID() << std::endl;
+            
             // std::cout << "[Collision] Enemy destroyed!" << std::endl;
         }
     }

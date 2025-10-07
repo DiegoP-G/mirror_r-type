@@ -63,6 +63,7 @@ NetworkECSMediator::NetworkECSMediator()
                  EntityID id = deserializeInt(data);
                  try
                  {
+                    std::cout << "[Client] Marking entity " << id << " for destruction." << std::endl;
                      _game->getEntityManager().markEntityForDestruction(id);
                  }
                  catch (std::exception &e)

@@ -4,6 +4,7 @@ void EnemySystem::update(EntityManager &entityManager, float deltaTime)
 {
     auto entities = entityManager.getEntitiesWithComponents<EnemyComponent, TransformComponent>();
 
+    std::cerr << "Active Enemies: " << entities.size() << std::endl;
     for (auto &entity : entities)
     {
         auto &enemy = entity->getComponent<EnemyComponent>();
@@ -40,11 +41,13 @@ void EnemySystem::update(EntityManager &entityManager, float deltaTime)
         if (transform.position.x < -50.0f)
         {
             entity->destroy();
+            entityManager.markEntityForDestruction(entity->getID());
         }
     }
 
-    auto inactiveEntities = entityManager.getInactiveEntitiesWithComponents<EnemyComponent, TransformComponent>();
+    auto inactiveEntities = entityManager.getInactiveEntitiesWithComponents<EnemyComponent>();
 
+    std::cerr << "Inactive Enemies: " << inactiveEntities.size() << std::endl;
     for (auto &entity: inactiveEntities)
     {
         if (!entity->isActive())

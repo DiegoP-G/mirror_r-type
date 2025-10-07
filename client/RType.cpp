@@ -119,7 +119,8 @@ void RTypeGame::update(float deltaTime)
     // gameLogicSystem.update(entityManager, deltaTime);
     //   backgroundSystem.update(entityManager, deltaTime);
     // movementSystem.update(entityManager, deltaTime);
-    playerSystem.update(entityManager, deltaTime);
+    animationSystem.update(entityManager, deltaTime);
+    // playerSystem.update(entityManager, deltaTime);
     // inputSystem.update(entityManager, deltaTime);
     // boundarySystem.update(entityManager, deltaTime);
     // cleanupSystem.update(entityManager, deltaTime);

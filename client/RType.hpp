@@ -18,6 +18,7 @@ class RTypeGame
     OffscreenCleanupSystem cleanupSystem; // Generic cleanup
     InputSystem inputSystem;              // Use existing generic input system
     PlayerSystem playerSystem;
+    AnimationSystem animationSystem;
     EnemySystem enemySystem;
     LaserWarningSystem laserWarningSystem;
     GameLogicSystem gameLogicSystem;

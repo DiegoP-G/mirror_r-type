@@ -14,4 +14,5 @@
 #include "systems/PlayerSystem.hpp"
 #include "systems/ProjectileSystem.hpp"
 #include "systems/RenderSystem.hpp"
+#include "systems/AnimationSystem.hpp"
 

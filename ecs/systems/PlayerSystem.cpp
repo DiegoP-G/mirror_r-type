@@ -14,7 +14,6 @@ void PlayerSystem::update(EntityManager &entityManager, float deltaTime)
             input.fire = false;
         }
 
-        handleAnimation(entity, input, deltaTime);
         handlePositionPalyer(entity);
     }
 }
@@ -37,49 +36,7 @@ void PlayerSystem::handlePositionPalyer(Entity *&entity)
         tranform.position.y = 600 - 32;
 }
 
-void PlayerSystem::handleAnimation(Entity *&entity, InputComponent &input, float deltaTime)
-{
-    if (!entity->hasComponent<AnimatedSpriteComponent>())
-        return;
-    auto &animatedSprite = entity->getComponent<AnimatedSpriteComponent>();
 
-    AnimatedSpriteComponent::Direction direction = AnimatedSpriteComponent::Default;
-    if (input.up)
-    {
-        direction = AnimatedSpriteComponent::Up;
-    }
-    else if (input.down)
-    {
-        direction = AnimatedSpriteComponent::Down;
-    }
-
-    if (direction != animatedSprite.currentDirection)
-    {
-        animatedSprite.currentDirection = direction;
-    }
-
-    animatedSprite.elapsedTime += deltaTime;
-
-    if (animatedSprite.elapsedTime >= animatedSprite.animationInterval)
-    {
-        if (animatedSprite.currentDirection == AnimatedSpriteComponent::Up && animatedSprite.currentFrame < 4)
-        {
-            animatedSprite.currentFrame++;
-        }
-        else if (animatedSprite.currentDirection == AnimatedSpriteComponent::Down && animatedSprite.currentFrame > 0)
-        {
-            animatedSprite.currentFrame--;
-        }
-        else if (animatedSprite.currentDirection == AnimatedSpriteComponent::Default)
-        {
-            if (animatedSprite.currentFrame > 2)
-                animatedSprite.currentFrame--;
-            else if (animatedSprite.currentFrame < 2)
-                animatedSprite.currentFrame++;
-        }
-        animatedSprite.elapsedTime = 0.0f;
-    }
-}
 
 void PlayerSystem::fire(EntityManager &entityManager, Entity *player)
 {
