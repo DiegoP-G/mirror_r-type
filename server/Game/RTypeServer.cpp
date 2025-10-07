@@ -45,12 +45,12 @@ void RTypeServer::update(float deltaTime)
     inputSystem.update(entityManager, deltaTime);
     movementSystem.update(entityManager, deltaTime);
     playerSystem.update(entityManager, deltaTime);
-    boundarySystem.update(entityManager, deltaTime);
     cleanupSystem.update(entityManager, deltaTime);
     enemySystem.update(entityManager, deltaTime);
     collisionSystem.update(entityManager);
     projectileSystem.update(entityManager, deltaTime);
 
+    boundarySystem.update(entityManager, deltaTime);
     // laserWarningSystem.update(entityManager, deltaTime);
 
     // 2. AVANT applyPendingChanges, envoyer ce qui a été créé/détruit
