@@ -1,9 +1,11 @@
 #pragma once
 
+#include "../components/BonusComponent.hpp"
 #include "../components/ColliderComponent.hpp"
 #include "../components/EnemyComponent.hpp"
 #include "../components/ProjectileComponent.hpp"
 #include "../components/TransformComponent.hpp"
+
 #include "../entityManager.hpp"
 
 #include "../components/CenteredComponent.hpp"
@@ -32,6 +34,7 @@ class CollisionSystem
         PROJECTILE,
         LASER_WARNING,
         JUMPER,
+        BONUS,
         UNKNOWN
     };
 
@@ -52,6 +55,7 @@ class CollisionSystem
     void onPlayerHitProjectile(Entity *player, Entity *projectile);
 
     void onPlayerHitLaser(Entity *player, Entity *laser);
+    void onPlayerHitBonus(Entity *player, Entity *bonus);
 
     // ============================================================
     // ENEMY COLLISION HANDLERS

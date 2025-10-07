@@ -83,6 +83,14 @@ NetworkECSMediator::NetworkECSMediator()
                  break;
              }
 
+             case OPCODE_HEALTH_UPDATE: {
+                 _game->getMutex().lock();
+                 std::vector<uint8_t> bytes(data.begin(), data.end());
+                 _game->getEntityManager().deserializeAllHealth(bytes);
+                 _game->getMutex().unlock();
+                 break;
+             }
+
              default:
                  std::cerr << "[Client] Unhandled opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
                  break;

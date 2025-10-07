@@ -26,6 +26,8 @@ void RTypeServer::createPlayer(const std::string &id)
     playerEntity.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::PLAYER, 0, 0, 33, 17.5, 5, 0.05f, 0.0f,
                                                        Vector2D(2.0f, 2.0f));
     playerEntity.addComponent<InputComponent>();
+    playerEntity.addComponent<HealthComponent>(50, 100);
+    playerEntity.addComponent<HealthBarComponent>(50.0f, 4.0f, -10.0f);
 
     player = &playerEntity;
 }
@@ -62,6 +64,7 @@ void RTypeServer::update(float deltaTime)
 
     // 4. Envoyer les updates de mouvement (toutes les entités actives)
     sendMovementUpdates();
+    sendHealthUpdates();
 
     tick++;
 }
@@ -89,7 +92,6 @@ void RTypeServer::sendDestroyedEntities()
     // Pour chaque entité détruite ce tick
     for (EntityID id : manager.getEntitiesToDestroy())
     {
-        std::cout << "--DESTROY id " << id << std::endl;
         auto data = serializeInt(id);
         mediator.notify(GameMediatorEvent::EntityDestroyed, data);
     }
@@ -100,6 +102,13 @@ void RTypeServer::sendMovementUpdates()
     auto data = entityManager.serializeAllMovements();
     std::string serializedData(data.begin(), data.end());
     mediator.notify(GameMediatorEvent::MovementUpdate, serializedData);
+}
+
+void RTypeServer::sendHealthUpdates()
+{
+    auto data = entityManager.serializeAllHealth();
+    std::string serializedData(data.begin(), data.end());
+    mediator.notify(GameMediatorEvent::HealthUpdate, serializedData);
 }
 
 void RTypeServer::restart()

@@ -21,14 +21,7 @@ bool RTypeGame::init(NetworkECSMediator med)
         return false;
     }
 
-    // Create textures
     createTextures();
-
-    // Create background
-    //    createBackground();
-
-    // Create player
-    //  createPlayer();
 
     running = true;
 
@@ -177,8 +170,6 @@ void RTypeGame::restart()
 
     score = 0;
     gameOver = false;
-
-    // createPlayer();
 }
 
 void cleanup()

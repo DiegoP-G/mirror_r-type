@@ -42,6 +42,14 @@ void EnemySystem::update(EntityManager &entityManager, float deltaTime)
             entity->destroy();
         }
     }
+
+    auto inactiveEntities = entityManager.getInactiveEntitiesWithComponents<EnemyComponent, TransformComponent>();
+
+    for (auto &entity : inactiveEntities)
+    {
+        if (!entity->isActive())
+            entityManager.markEntityForDestruction(entity->getID());
+    }
 }
 
 void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)

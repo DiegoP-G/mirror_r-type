@@ -1,9 +1,6 @@
 #include "HealthComponent.hpp"
 #include <cstring>
 
-HealthComponent::HealthComponent(float h) : health(h), maxHealth(h)
-{
-}
 
 void HealthComponent::update(float deltaTime)
 {
@@ -25,7 +22,7 @@ HealthComponent HealthComponent::deserialize(const uint8_t *data, size_t size)
         throw "HealthComponent::deserialize - données trop petites";
     }
 
-    HealthComponent comp(0);
+    HealthComponent comp(0, 0);
     size_t offset = 0;
 
     std::memcpy(&comp.health, data + offset, sizeof(float));

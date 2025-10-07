@@ -73,12 +73,13 @@ void NetworkManager::sendDataAllClientTCP(std::string data, int opcode)
 
 void NetworkManager::sendAllEntitiesToClient(int clientFd)
 {
-    std::cout << "[NetworkManager] Sending all existing entities to new client " << clientFd << std::endl;
+    //   std::cout << "[NetworkManager] Sending all existing entities to new client " << clientFd << std::endl;
 
     // Récupérer toutes les entités actives depuis le serveur de jeu
     std::vector<std::string> allEntities = _gameMediator.getAllActiveEntities();
 
-    std::cout << "[NetworkManager] Sending " << allEntities.size() << " entities to client " << clientFd << std::endl;
+    //   std::cout << "[NetworkManager] Sending " << allEntities.size() << " entities to client " << clientFd <<
+    //   std::endl;
 
     // Envoyer chaque entité au nouveau client via TCP
     for (const auto &entityData : allEntities)
@@ -89,5 +90,5 @@ void NetworkManager::sendAllEntitiesToClient(int clientFd)
         }
     }
 
-    std::cout << "[NetworkManager] Finished sending entities to client " << clientFd << std::endl;
+    //   std::cout << "[NetworkManager] Finished sending entities to client " << clientFd << std::endl;
 }

@@ -1,5 +1,6 @@
 #include "GameLogicSystem.hpp"
 #include "enemyFactory.hpp"
+#include <vector>
 
 GameLogicSystem::GameLogicSystem() : rng(std::random_device{}())
 {
@@ -102,6 +103,21 @@ void GameLogicSystem::spawnEnemies(EntityManager &entityManager)
         enemy.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0, GraphicsManager::Texture::ENEMY);
         enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
         enemy.addComponent<EnemyComponent>(1, 0.2f, 2);
+        enemy.addComponent<HealthComponent>(50, 100);
+        enemy.addComponent<HealthBarComponent>(20.0f, 4.0f, -10.0f);
+    }
+    for (size_t i = 0; i < 1; i++)
+    {
+        y = 100 + i * 50;
+
+        auto &bonusLife = entityManager.createEntity();
+        bonusLife.addComponent<TransformComponent>(700, y);
+        bonusLife.addComponent<VelocityComponent>(-230.0f, 0.0f);
+        bonusLife.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0, GraphicsManager::Texture::PLAYER);
+        bonusLife.addComponent<ColliderComponent>(20.0f, 20.0f, true);
+        std::vector<std::tuple<BonusComponent::TypeBonus, int>> v;
+        v.push_back(std::tuple<BonusComponent::TypeBonus, int>(BonusComponent::TypeBonus::HEALTH, 50));
+        bonusLife.addComponent<BonusComponent>(v);
     }
 }
 

@@ -16,4 +16,6 @@ class PlayerSystem
 
   private:
     void fire(EntityManager &entityManager, Entity *player);
+    void handleAnimation(Entity *&entity, InputComponent &input, float deltaTime);
+    void handlePositionPalyer(Entity *&entity);
 };

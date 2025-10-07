@@ -64,6 +64,7 @@ class RTypeServer
         return result;
     }
     void sendMovementUpdates();
+    void sendHealthUpdates();
     void sendNewEntities();
     void sendDestroyedEntities();
     void createBackground();

@@ -2,6 +2,7 @@
 
 #include "../GraphicsManager.hpp"
 #include "../client/windowSize.hpp"
+#include "../components/BonusComponent.hpp"
 #include "../components/CenteredComponent.hpp"
 #include "../components/ColliderComponent.hpp"
 #include "../components/EnemyComponent.hpp"
@@ -9,6 +10,9 @@
 #include "../components/SpriteComponent.hpp"
 #include "../components/TransformComponent.hpp"
 #include "../components/VelocityComponent.hpp"
+
+#include "../components/HealthBarComponent.hpp"
+#include "../components/HealthComponent.hpp"
 #include "../entityManager.hpp"
 #include "../wavePatterns.hpp"
 #include <random>

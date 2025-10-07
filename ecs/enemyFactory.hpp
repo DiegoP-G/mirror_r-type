@@ -9,7 +9,6 @@ class EnemyFactory
     static void createEnemy(EntityManager &entityManager, std::string enemyType, const Vector2D &position)
     {
         auto &enemy = entityManager.createEntity();
-        printf("SPAWNED: %d\n", enemy.getID());
         enemy.addComponent<TransformComponent>(position.x, position.y);
         enemy.addComponent<VelocityComponent>(0.0f, 0.0f);
         enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
@@ -21,7 +20,6 @@ class EnemyFactory
         {
             enemy.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::ENEMY, 98.5, 32.3, 32.8, 32.3, 1,
                                                         0.05f, -90.0f);
-            printf("spawned an enemy at: %f %f\n", position.x, position.y);
         }
     }
 };
