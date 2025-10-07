@@ -121,6 +121,18 @@ void CollisionSystem::onPlayerHitProjectile(Entity *player, Entity *projectile)
 
     if (player->getID() == projComp.owner)
         return;
+
+    if (player->hasComponent<HealthComponent>())
+    {
+        auto &health = player->getComponent<HealthComponent>();
+        health.health -= projComp.damage;
+
+        if (health.health <= 0)
+        {
+            player->destroy();
+        }
+    }
+    
     // std::cout << "-------------porjectile hit---------------" << std::endl;
     projectile->destroy();
 }
@@ -176,7 +188,7 @@ void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile)
     if (enemy->hasComponent<HealthComponent>())
     {
         auto &health = enemy->getComponent<HealthComponent>();
-        //    health.health -= projComp.damage;
+        health.health -= projComp.damage;
 
         if (health.health <= 0)
         {
