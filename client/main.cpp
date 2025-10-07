@@ -1,6 +1,7 @@
 #include "ClientGame.hpp"
 #include "iostream"
 #include <arpa/inet.h>
+#include <regex>
 
 void printUsage()
 {
@@ -15,21 +16,37 @@ void printUsage()
     std::cout << "  ./GameServer -h 192.168.1.100    # Listen on specific IP" << std::endl;
 }
 
-bool getParams(char **argv)
+bool getParams(int argc, char **argv)
 {
-    if (std::string(argv[1]) == "-h") {
-        struct sockaddr_in sa;
-        if (inet_pton(AF_INET, argv[2], &(sa.sin_addr)) == 1) {
-            return true;
-        }
+    if (argc <= 2 || argc > 3)
+    {
+        printUsage();
+        return false;
     }
-    printUsage();
+    if (argc == 2 && std::string(argv[1]) == "-h")
+    {
+        printUsage();
+        return false;
+    }
+
+    std::regex pattern("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$");
+    if (!std::regex_match(argv[2], pattern))
+    {
+        printUsage();
+        return false;
+    }
+
+    struct sockaddr_in sa;
+    if (inet_pton(AF_INET, argv[2], &(sa.sin_addr)) == 1)
+    {
+        return true;
+    }
     return false;
 }
 
 int main(int argc, char **argv)
 {
-    if (!getParams(argv))
+    if (!getParams(argc, argv))
         return 84;
 
     try
