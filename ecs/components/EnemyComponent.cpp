@@ -2,8 +2,8 @@
 #include <cstring>
 #include <iostream>
 
-EnemyComponent::EnemyComponent(int t, float ac, int st)
-    : type(t), shootingType(st), attackCooldown(ac), currentCooldown(0)
+EnemyComponent::EnemyComponent(int type, float attackCooldown, int shootingType)
+    : type(type), shootingType(shootingType), attackCooldown(attackCooldown), currentCooldown(0)
 {
 }
 

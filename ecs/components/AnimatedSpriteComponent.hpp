@@ -7,9 +7,14 @@ class AnimatedSpriteComponent : public IComponent
   public:
     int textureID;
     int currentFrame;
+    int left;
+    int top;
     int frameWidth;
     int frameHeight;
+    int totalFrames;
     float animationInterval;
+    float rotationAngle;
+
     Vector2D scale;
     float elapsedTime;
 
@@ -20,11 +25,10 @@ class AnimatedSpriteComponent : public IComponent
         Down
     } currentDirection;
 
-    AnimatedSpriteComponent(int texture, int frameWidth, int frameHeight, float interval,
-                            Vector2D scale = {1.0f, 1.0f});
+    AnimatedSpriteComponent(int textureID, int left, int top, int frameWidth, int frameHeight, int totalFrames,
+                            float interval, float rotation = 0.0f, Vector2D scale = {1.0f, 1.0f}, int currentFrame = 0);
 
     void setFrame(int frame);
-    void updateAnimation(Direction newDirection, float deltaTime);
     void update(float deltaTime) override;
     void init() override;
     std::vector<uint8_t> serialize() const override;
