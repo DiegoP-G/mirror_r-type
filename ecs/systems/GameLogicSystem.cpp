@@ -1,4 +1,5 @@
 #include "GameLogicSystem.hpp"
+#include "enemyFactory.hpp"
 #include <vector>
 
 GameLogicSystem::GameLogicSystem() : rng(std::random_device{}())
@@ -9,20 +10,42 @@ void GameLogicSystem::update(EntityManager &entityManager, float deltaTime)
 {
     enemySpawnTimer += deltaTime;
 
-    if (stageStatus == 0)
+    if (currentWave >= waves.size())
+        return; // All waves done
+
+    waveTimer += deltaTime;
+
+    // Wait for spawnDelay before starting next wave
+    if (!waveActive && waveTimer >= waves[currentWave].spawnDelay)
     {
-        stageStatus = 1;
-        stageCount = 1;
-        spawnEnemies(entityManager);
+        std::cout << "Spawning wave " << currentWave + 1 << std::endl;
+        spawnWave(entityManager, waves[currentWave]);
+        waveActive = true;
     }
-    else if (stageStatus == 1 && stageCount == 1)
+
+    // Check if all enemies from this wave are destroyed
+    if (waveActive && entityManager.getEntitiesWithComponents<EnemyComponent>().empty())
     {
-        if (entityManager.getEntitiesWithComponents<LaserWarningComponent>().empty())
-        {
-            stageStatus = 1;
-            stageCount = 2;
-        }
+        // Prepare for next wave
+        waveActive = false;
+        waveTimer = 0.0f;
+        currentWave++;
     }
+
+    // if (stageStatus == 0)
+    // {
+    //     stageStatus = 1;
+    //     stageCount = 1;
+    //     spawnEnemies(entityManager);
+    // }
+    // else if (stageStatus == 1 && stageCount == 1)
+    // {
+    //     if (entityManager.getEntitiesWithComponents<LaserWarningComponent>().empty())
+    //     {
+    //         stageStatus = 1;
+    //         stageCount = 2;
+    //     }
+    // }
 
     updateScore(entityManager);
     checkGameOverConditions(entityManager);
@@ -111,4 +134,16 @@ void GameLogicSystem::updateScore(EntityManager &entityManager)
 void GameLogicSystem::checkGameOverConditions(EntityManager &entityManager)
 {
     // Game over logic
+}
+
+void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
+{
+    float cx = windowWidth + 50.0f;
+    float cy = windowHeight / 2.0f;
+    std::vector<Vector2D> positions = wave.pattern(wave.enemyCount, cx, cy);
+
+    for (const auto &pos : positions)
+    {
+        EnemyFactory::createEnemy(entityManager, wave.enemyType, pos);
+    }
 }

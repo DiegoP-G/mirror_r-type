@@ -70,6 +70,14 @@ void RenderSystem::update(EntityManager &entityManager)
         if (!entity->hasComponent<HealthBarComponent>())
             draw(entity);
     }
+
+    auto animatedEntities = entityManager.getEntitiesWithComponents<TransformComponent, AnimatedSpriteComponent>();
+
+    for (auto &entity : animatedEntities)
+    {
+        draw(entity);
+    }
+
     std::vector<Entity *> healthBarEntities =
         entityManager.getEntitiesWithComponents<TransformComponent, HealthBarComponent>();
     for (auto &entity : healthBarEntities)
@@ -82,14 +90,17 @@ void RenderSystem::renderAnimatedSprite(AnimatedSpriteComponent &animComp, float
 {
     sf::Texture *texture = g_graphics->getTexture(animComp.textureID);
     if (!texture)
+    {
+        std::cerr << "Can't get texture id : " << animComp.textureID << std::endl;
         return;
+    }
 
     sf::Sprite sprite(*texture);
     sprite.setPosition(x, y);
     sprite.setScale(animComp.scale.x, animComp.scale.y);
 
-    sprite.setTextureRect(
-        sf::IntRect(animComp.frameWidth * animComp.currentFrame, 0, animComp.frameWidth, animComp.frameHeight));
+    sprite.setTextureRect(sf::IntRect(animComp.left, animComp.top, animComp.frameWidth, animComp.frameHeight));
+    sprite.setRotation(animComp.rotationAngle);
 
     g_graphics->getWindow().draw(sprite);
 }

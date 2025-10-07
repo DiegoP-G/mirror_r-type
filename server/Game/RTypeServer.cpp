@@ -23,7 +23,7 @@ void RTypeServer::createPlayer(const std::string &id)
     playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
     playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0, GraphicsManager::Texture::PLAYER); // Yellow
     playerEntity.addComponent<ColliderComponent>(32.0f, 32.0f);
-    playerEntity.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::PLAYER, 33, 17.5, 0.05f,
+    playerEntity.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::PLAYER, 0, 0, 33, 17.5, 5, 0.05f, 0.0f,
                                                        Vector2D(2.0f, 2.0f));
     playerEntity.addComponent<InputComponent>();
     playerEntity.addComponent<HealthComponent>(50, 100);

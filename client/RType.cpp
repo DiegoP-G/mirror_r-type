@@ -5,6 +5,7 @@
 #include "../ecs/systems.hpp"
 #include "../transferData/opcode.hpp"
 #include "assetsPath.hpp"
+#include "windowSize.hpp"
 #include <exception>
 #include <iostream>
 
@@ -14,7 +15,7 @@ bool RTypeGame::init(NetworkECSMediator med)
 
     g_graphics = new GraphicsManager(med);
     // Initialize graphics
-    if (!g_graphics->init("R-Type", 800, 600))
+    if (!g_graphics->init("R-Type", windowWidth, windowHeight))
     {
         std::cerr << "Failed to initialize graphics!" << std::endl;
         return false;
@@ -31,19 +32,20 @@ bool RTypeGame::init(NetworkECSMediator med)
 void RTypeGame::createTextures()
 {
     sf::Texture &backgroundTexture =
-        g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/background.jpg"), "background");
-    sf::Texture &playerTexture = g_graphics->createTextureFromPath(
-        PathFormater::formatAssetPath("assets/sprites/playerSpritesheet.png"), "player");
-    sf::Texture &enemyTexture =
-        g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "enemy");
-    sf::Texture &bulletTexture =
-        g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "bullet");
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(backgroundSpritePath), "background");
+    sf::Texture &playerTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(playerSpritePath), "player");
     sf::Texture &explosionTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/explosion.png"), "explosion");
 
+    sf::Texture &bulletTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bulletSpritePath), "bullet");
+    sf::Texture &basicEnemyTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(basicEnemySpritePath), "basic_enemy");
+
     g_graphics->storeTexture("background", backgroundTexture);
     g_graphics->storeTexture("player", playerTexture);
-    g_graphics->storeTexture("enemy", enemyTexture);
+    g_graphics->storeTexture("basic_enemy", basicEnemyTexture);
     g_graphics->storeTexture("bullet", bulletTexture);
     g_graphics->storeTexture("explosion", explosionTexture);
 }
@@ -156,6 +158,9 @@ void RTypeGame::render()
 
     std::string scoreText = "Score: " + std::to_string(score);
     g_graphics->drawText(scoreText, 10, 10);
+
+    std::string waveText = "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
+    g_graphics->drawText(waveText, windowWidth - 100, 10);
 
     g_graphics->present();
 }
