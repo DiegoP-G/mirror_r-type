@@ -8,6 +8,8 @@
 #include "../components/SpriteComponent.hpp"
 #include "../components/TransformComponent.hpp"
 #include "../components/VelocityComponent.hpp"
+#include "../components/HealthComponent.hpp"
+#include "../components/HealthBarComponent.hpp"
 #include "../entityManager.hpp"
 #include <random>
 

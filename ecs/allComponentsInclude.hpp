@@ -19,3 +19,4 @@
 #include "components/TransformComponent.hpp"
 #include "components/Vector2D.hpp"
 #include "components/VelocityComponent.hpp"
+#include "components/HealthBarComponent.hpp"
