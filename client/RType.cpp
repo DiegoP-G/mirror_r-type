@@ -195,6 +195,7 @@ void RTypeGame::render() {
   g_graphics->drawText(scoreText, 10, 10);
   if (g_graphics->getTextBox()->getDisplayValue())
     g_graphics->getTextBox()->draw(g_graphics->getWindow()); // INPUT BOX
+  drawWaitingForPlayers();
   g_graphics->present();
 }
 
@@ -302,4 +303,22 @@ void RTypeGame::createBackground() {
 
   createBackgroundEntity(0.0f);
   createBackgroundEntity((float)tileWidth);
+}
+
+void RTypeGame::drawWaitingForPlayers() {
+    // Format the waiting text
+    if (_playerNb == 0 || _playerReady >= _playerNb)
+      return;
+    std::string waitingText = "Waiting for players to be ready: " +
+                              std::to_string(_playerReady) + " / " +
+                              std::to_string(_playerNb);
+
+    // Choose a screen position (centered horizontally)
+    int windowWidth = g_graphics->getWindow().getSize().x;
+    int windowHeight = g_graphics->getWindow().getSize().y;
+    float textX = windowWidth / 2.0f - 200.0f; // Adjust for centering
+    float textY = windowHeight / 2.0f - 50.0f;
+
+    // Draw the text on screen
+    g_graphics->drawText(waitingText, textX, textY);
 }

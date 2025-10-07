@@ -9,6 +9,11 @@
 
 class GameMediator;
 
+enum GameState {
+    LOBBY,
+    INGAME
+};
+
 class RTypeServer
 {
   private:
@@ -30,6 +35,7 @@ class RTypeServer
 
     Entity *player = nullptr;
     bool gameOver = false;
+    GameState _state = LOBBY;
 
     bool running = false;
 

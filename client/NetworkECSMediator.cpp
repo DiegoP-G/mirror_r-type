@@ -89,7 +89,6 @@ NetworkECSMediator::NetworkECSMediator() {
 
          case OPCODE_LOBBY_INFO: {
            _game->getMutex().lock();
-
            if (data.size() >= 2) {
              uint8_t playersReady = static_cast<uint8_t>(data[0]);
              uint8_t totalPlayers = static_cast<uint8_t>(data[1]);
@@ -99,11 +98,13 @@ NetworkECSMediator::NetworkECSMediator() {
                        << static_cast<int>(totalPlayers) << " players ready."
                        << std::endl;
 
+              _game->setPlayerReady(playersReady);
+              _game->setPlayerNb(totalPlayers);
            } else {
              std::cerr << "[Client] Lobby info data too small!" << std::endl;
            }
-
            _game->getMutex().unlock();
+          //  _game->drawWaitingForPlayers((int)playersReady, (int)totalPlayers);
            break;
          }
 

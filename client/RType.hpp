@@ -31,6 +31,10 @@ class RTypeGame
 
     bool running = false;
 
+    int _playerReady = 0;
+    int _playerNb = 0;
+    bool showLobbyInfo = false;
+
     int score = 0;
 
     std::function<void(const char *)> _networkCb;
@@ -55,6 +59,14 @@ class RTypeGame
     {
         _playerId = id;
     };
+    void setPlayerReady(int value)
+    {
+      _playerReady = value;
+    }
+    void setPlayerNb(int value)
+    {
+      _playerNb = value;
+    }
 
 
     bool init(NetworkECSMediator med, std::function<void(const char *)> networkCb);
@@ -65,6 +77,7 @@ class RTypeGame
 
     void createPlayer();
 
+    void drawWaitingForPlayers();
     void handleEvents();
     // void handleEvents();
 
