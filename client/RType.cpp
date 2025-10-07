@@ -117,10 +117,15 @@ void RTypeGame::handleEvents() {
             input.left = isPressed;
             break;
           case sf::Keyboard::Right:
+          std::cout << "here right" << std::endl;
             input.right = isPressed;
             break;
           case sf::Keyboard::Space:
             input.fire = isPressed;
+            break;
+          case sf::Keyboard::Enter:
+          std::cout << "here enter" << std::endl;
+            input.enter = isPressed;
             break;
           default:
             break;
