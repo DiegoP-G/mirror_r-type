@@ -105,7 +105,7 @@ size_t Entity::deserialize(const uint8_t *data, size_t maxSize)
     offset += sizeof(EntityID);
 
     this->id = serializedId;
-    std::cout << "[Entity::deserialize] Entity ID: " << id << std::endl;
+    //    std::cout << "[Entity::deserialize] Entity ID: " << id << std::endl;
 
     if (offset + sizeof(uint32_t) > maxSize)
         return offset;
@@ -148,7 +148,7 @@ size_t Entity::deserialize(const uint8_t *data, size_t maxSize)
             break;
         }
         bool success = deserializeComponent(compId, data + offset, dataSize);
-        std::cout << "[Entity::deserialize]   Deserialization " << (success ? "SUCCESS" : "FAILED") << std::endl;
+        //     std::cout << "[Entity::deserialize]   Deserialization " << (success ? "SUCCESS" : "FAILED") << std::endl;
         offset += dataSize;
     }
 

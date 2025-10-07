@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../GraphicsManager.hpp"
+#include "../components/BonusComponent.hpp"
 #include "../components/CenteredComponent.hpp"
 #include "../components/ColliderComponent.hpp"
 #include "../components/EnemyComponent.hpp"
@@ -8,8 +9,9 @@
 #include "../components/SpriteComponent.hpp"
 #include "../components/TransformComponent.hpp"
 #include "../components/VelocityComponent.hpp"
-#include "../components/HealthComponent.hpp"
+
 #include "../components/HealthBarComponent.hpp"
+#include "../components/HealthComponent.hpp"
 #include "../entityManager.hpp"
 #include <random>
 

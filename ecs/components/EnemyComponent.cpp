@@ -17,10 +17,9 @@ void EnemyComponent::update(float deltaTime)
 
 std::vector<uint8_t> EnemyComponent::serialize() const
 {
-    std::cout << "An enemy component has been serialize" << std::endl;
+    //  std::cout << "An enemy component has been serialize" << std::endl;
     std::vector<uint8_t> data(sizeof(int) * 2 + sizeof(float) * 2);
     size_t offset = 0;
-
     std::memcpy(data.data() + offset, &type, sizeof(int));
     offset += sizeof(int);
     std::memcpy(data.data() + offset, &shootingType, sizeof(int));

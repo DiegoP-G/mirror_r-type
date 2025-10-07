@@ -41,6 +41,9 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
              _networkManager.sendDataAllClientUDP(data, OPCODE_MOVEMENT_UPDATE);
          }},
 
+        {GameMediatorEvent::HealthUpdate,
+         [this](const std::string &data) -> void { _networkManager.sendDataAllClientUDP(data, OPCODE_HEALTH_UPDATE); }},
+
         // Input joueur
         {GameMediatorEvent::PlayerInput,
          [this](const std::string &data) -> void { _rTypeServer.handlePlayerInput(data); }},

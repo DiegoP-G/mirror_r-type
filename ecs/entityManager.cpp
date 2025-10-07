@@ -7,11 +7,13 @@
 #include "ComponentFactory.hpp"
 #include "components/AnimatedSpriteComponent.hpp"
 #include "components/BackgroundScrollComponent.hpp"
+#include "components/BonusComponent.hpp"
 #include "components/CenteredComponent.hpp"
 #include "components/ColliderComponent.hpp"
 #include "components/EnemyComponent.hpp"
 #include "components/GameStateComponent.hpp"
 #include "components/GravityComponent.hpp"
+#include "components/HealthBarComponent.hpp"
 #include "components/HealthComponent.hpp"
 #include "components/JumpComponent.hpp"
 #include "components/LaserWarningComponent.hpp"
@@ -21,7 +23,6 @@
 #include "components/SpriteComponent.hpp"
 #include "components/TransformComponent.hpp"
 #include "components/VelocityComponent.hpp"
-#include "components/HealthBarComponent.hpp"
 
 EntityManager::EntityManager()
 {
@@ -43,6 +44,7 @@ EntityManager::EntityManager()
     ComponentFactory::registerComponent<AnimatedSpriteComponent>();
     ComponentFactory::registerComponent<BackgroundScrollComponent>();
     ComponentFactory::registerComponent<HealthBarComponent>();
+    ComponentFactory::registerComponent<BonusComponent>();
 }
 
 std::vector<uint8_t> EntityManager::serializeEntityFull(EntityID id) const
@@ -360,6 +362,84 @@ void EntityManager::deserializeAllMovements(const std::vector<uint8_t> &data)
     }
 }
 
+std::vector<uint8_t> EntityManager::serializeAllHealth() const
+{
+    std::vector<uint8_t> data;
+    uint32_t entityCount = 0;
+
+    // Compter les entités avec HealthComponent
+    for (const auto &entity : entities)
+    {
+        if (entity && entity->isActive() && entity->hasComponent<HealthComponent>())
+            entityCount++;
+    }
+
+    // Écrire le nombre d'entités
+    data.insert(data.end(), reinterpret_cast<const uint8_t *>(&entityCount),
+                reinterpret_cast<const uint8_t *>(&entityCount) + sizeof(entityCount));
+
+    // Écrire chaque entité
+    for (const auto &entity : entities)
+    {
+        if (!entity || !entity->isActive() || !entity->hasComponent<HealthComponent>())
+            continue;
+
+        EntityID id = entity->getID();
+        data.insert(data.end(), reinterpret_cast<const uint8_t *>(&id),
+                    reinterpret_cast<const uint8_t *>(&id) + sizeof(EntityID));
+
+        auto &health = entity->getComponent<HealthComponent>();
+        auto serialized = health.serialize();
+
+        data.insert(data.end(), serialized.begin(), serialized.end());
+    }
+
+    return data;
+}
+void EntityManager::deserializeAllHealth(const std::vector<uint8_t> &data)
+{
+    if (data.size() < sizeof(uint32_t))
+        return;
+
+    size_t offset = 0;
+    uint32_t entityCount = 0;
+
+    std::memcpy(&entityCount, data.data() + offset, sizeof(entityCount));
+    offset += sizeof(entityCount);
+
+    for (uint32_t i = 0; i < entityCount && offset < data.size(); ++i)
+    {
+        if (offset + sizeof(EntityID) > data.size())
+            break;
+
+        EntityID id;
+        std::memcpy(&id, data.data() + offset, sizeof(EntityID));
+        offset += sizeof(EntityID);
+
+        Entity *entity = getEntityByID(id);
+        if (!entity || !entity->hasComponent<HealthComponent>())
+        {
+            std::cout << "NO ENTITITY ID" << id << std::endl;
+            continue;
+        }
+
+        // Vérifier qu’il reste assez d’octets pour un HealthComponent
+        size_t remaining = data.size() - offset;
+        if (remaining < sizeof(int) * 2)
+        {
+            std::cout << "WTF" << std::endl;
+            break;
+        }
+
+        auto comp = HealthComponent::deserialize(data.data() + offset, sizeof(int) * 2);
+        offset += sizeof(int) * 2;
+
+        auto &health = entity->getComponent<HealthComponent>();
+        health.health = comp.health;
+        health.maxHealth = comp.maxHealth;
+    }
+}
+
 // === CLIENT - Détruire une entité par ID ===
 void EntityManager::destroyEntityByID(EntityID id)
 {
@@ -367,7 +447,6 @@ void EntityManager::destroyEntityByID(EntityID id)
     {
         if (*it && (*it)->getID() == id)
         {
-            std::cout << "Entities ID:" << id << "DESTROYED" << std::endl;
             entities.erase(it); // unique_ptr automatically deletes the Entity
             return;
         }
@@ -379,16 +458,6 @@ void EntityManager::markEntityForDestruction(EntityID id)
 {
     entitiesToDestroy.push_back(id);
 }
-
-// // === SERVEUR - Queue création ===
-// Entity& EntityManager::queueEntityCreation()
-// {
-//     EntityID id = static_cast<EntityID>(entities.size() + entitiesToCreate.size());
-//     auto newEntity = std::make_unique<Entity>(*this, id);
-//     Entity *entityPtr = newEntity.get();
-//     entitiesToCreate.push_back(std::move(newEntity));
-//     return *entityPtr;
-// }
 
 // === COMMUN - Appliquer les changements ===
 void EntityManager::applyPendingChanges()

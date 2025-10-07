@@ -25,6 +25,7 @@ enum GameMediatorEvent
     EntityCreated = 0x27,
     EntityDestroyed = 0x28,
     MovementUpdate = 0x29,
+    HealthUpdate = 0x40,
 };
 
 class NetworkManager;

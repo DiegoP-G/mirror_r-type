@@ -35,6 +35,7 @@ class EntityManager
 
     // Sérialisation des mouvements de toutes les entités (UDP)
     std::vector<uint8_t> serializeAllMovements() const;
+    std::vector<uint8_t> serializeAllHealth() const;
 
     // Buffer les entités à créer/détruire
     void markEntityForDestruction(EntityID id);
@@ -47,6 +48,7 @@ class EntityManager
 
     // Désérialisation des mouvements (UDP)
     void deserializeAllMovements(const std::vector<uint8_t> &data);
+    void deserializeAllHealth(const std::vector<uint8_t> &data);
 
     // Détruire une entité spécifique
     void destroyEntityByID(EntityID id);
