@@ -9,6 +9,7 @@ class PlayerComponent : public IComponent
     float shootCooldown;
     int playerID;
     bool isLocal;
+    bool isReady;
 
     PlayerComponent(int playerID = 0, bool isLocal = true);
 

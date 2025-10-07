@@ -33,6 +33,9 @@ class RTypeServer
 
     bool running = false;
 
+    int playerReady = 0;
+    int playerNb = 0;
+
     int score = 0;
     int tick = 0;
 
@@ -67,6 +70,8 @@ class RTypeServer
     void sendNewEntities();
     void sendDestroyedEntities();
     void createBackground();
+
+    void updateLobbyStatus();
 
     Entity *getEntityByPlayerID(int playerID);
 

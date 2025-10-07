@@ -44,6 +44,9 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
         // Input joueur
         {GameMediatorEvent::PlayerInput,
          [this](const std::string &data) -> void { _rTypeServer.handlePlayerInput(data); }},
+
+        {GameMediatorEvent::LobbyInfoUpdate, // contains playerReady / playerMax
+         [this](const std::string &data) -> void { std::cout << "sending" << std::endl;_networkManager.sendDataAllClientTCP(data, OPCODE_LOBBY_INFO); }},
     };
 }
 

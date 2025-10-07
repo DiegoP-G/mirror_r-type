@@ -62,9 +62,11 @@ void RTypeServer::update(float deltaTime)
 
     // 4. Envoyer les updates de mouvement (toutes les entités actives)
     sendMovementUpdates();
+    updateLobbyStatus();
 
     tick++;
 }
+
 
 void RTypeServer::sendNewEntities()
 {
@@ -142,29 +144,18 @@ void RTypeServer::handlePlayerInput(const std::string &input)
 
     int playerId = deserializePlayerInput(input, inputComp);
 
-    // Now you can use playerId to find the right player entity
     if (playerId != -1)
     {
         auto playerEntity = getEntityByPlayerID(playerId);
-        //  std::cout << "find player, entity:" << playerEntity->getID() << std::endl;
         if (playerEntity)
         {
-            auto currentInputComponent = playerEntity->getComponent<InputComponent>();
-            // std::cout << "InputComponent values before: ";
-            // std::cout << "up=" << currentInputComponent.up << ", ";
-            // std::cout << "down=" << currentInputComponent.down << ", ";
-            // std::cout << "left=" << currentInputComponent.left << ", ";
-            // std::cout << "right=" << currentInputComponent.right << ", ";
-            // std::cout << "shoot=" << currentInputComponent.fire << std::endl;
-            // std::cout << "InputComponent values before: ";
             playerEntity->addComponent<InputComponent>(inputComp);
-            auto currentInputComponentAfter = playerEntity->getComponent<InputComponent>();
-            // std::cout << "InputComponent values before: ";
-            // std::cout << "up=" << currentInputComponentAfter.up << ", ";
-            // std::cout << "down=" << currentInputComponentAfter.down << ", ";
-            // std::cout << "left=" << currentInputComponentAfter.left << ", ";
-            // std::cout << "right=" << currentInputComponentAfter.right << ", ";
-            // std::cout << "shoot=" << currentInputComponentAfter.fire << std::endl;
+
+            if (inputComp.enter)
+            {
+                auto &playerComp = playerEntity->getComponent<PlayerComponent>();
+                playerComp.isReady = true; // mark player as ready
+            }
         }
     }
 }
@@ -205,4 +196,26 @@ void RTypeServer::sendEntities()
     // auto dataProjectiles = entityManager.serializeAllProjectiles();
     // std::string serializedDataProjectiles(dataProjectiles.begin(), dataProjectiles.end());
     // mediator.notify(GameMediatorEvent::UpdateProjectiles, serializedDataProjectiles);
+}
+
+// Update the number of players and the number of ready players
+void RTypeServer::updateLobbyStatus()
+{
+    auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
+    playerNb = static_cast<int>(players.size());
+    playerReady = 0;
+
+    for (auto* entity : players) {
+        auto& playerComp = entity->getComponent<PlayerComponent>();
+        if (playerComp.isReady) {
+            playerReady++;
+        }
+    }
+
+    std::vector<uint8_t> payload = { (uint8_t)playerReady, (uint8_t)playerNb };
+    std::string serializedData(payload.begin(), payload.end());
+
+    mediator.notify(GameMediatorEvent::LobbyInfoUpdate, serializedData);
+    std::cout << "[RTypeServer] Players ready: " << playerReady 
+              << " / " << playerNb << std::endl;
 }

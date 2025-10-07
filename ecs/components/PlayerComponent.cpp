@@ -2,7 +2,7 @@
 #include <cstring>
 
 PlayerComponent::PlayerComponent(int playerID, bool isLocal) 
-    : score(0), lives(3), shootCooldown(0.0f), playerID(playerID), isLocal(isLocal)
+    : score(0), lives(3), shootCooldown(0.0f), playerID(playerID), isLocal(isLocal), isReady(false)
 {
 }
 
