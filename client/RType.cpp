@@ -20,14 +20,7 @@ bool RTypeGame::init(NetworkECSMediator med)
         return false;
     }
 
-    // Create textures
     createTextures();
-
-    // Create background
-    //    createBackground();
-
-    // Create player
-    //  createPlayer();
 
     running = true;
 
@@ -53,29 +46,6 @@ void RTypeGame::createTextures()
     g_graphics->storeTexture("enemy", enemyTexture);
     g_graphics->storeTexture("bullet", bulletTexture);
     g_graphics->storeTexture("explosion", explosionTexture);
-}
-
-void RTypeGame::createPlayer()
-{
-
-    auto &playerEntity = entityManager.createEntity();
-
-    playerEntity.addComponent<PlayerComponent>();
-    playerEntity.addComponent<TransformComponent>(100.0f, 300.0f);
-    playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
-    playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0, GraphicsManager::Texture::PLAYER); // Yellow
-    playerEntity.addComponent<ColliderComponent>(32.0f, 32.0f);
-    playerEntity.addComponent<InputComponent>();
-
-    // Load texture and initialize AnimatedSpriteComponent
-    sf::Texture *playerTexture = g_graphics->getTexture("player");
-    if (playerTexture)
-    {
-        playerEntity.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::PLAYER, 33, 17.5, 0.05f,
-                                                           Vector2D(2.0f, 2.0f));
-    }
-
-    player = &playerEntity;
 }
 
 void RTypeGame::handleEvents()
@@ -162,7 +132,6 @@ void RTypeGame::update(float deltaTime)
     //     gameOver = true;
     // }
     entityManager.applyPendingChanges();
-    std::cout << "cout" << entityManager.getEntityCount() << std::endl;
     // std::cout << "UPT END\n";
     if (player == nullptr)
     {
@@ -196,8 +165,6 @@ void RTypeGame::restart()
 
     score = 0;
     gameOver = false;
-
-    // createPlayer();
 }
 
 void cleanup()

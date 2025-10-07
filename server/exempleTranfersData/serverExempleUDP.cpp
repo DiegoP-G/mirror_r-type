@@ -30,11 +30,11 @@ int main()
         return -1;
     }
 
-    std::cout << "Serveur UDP prêt sur port " << PORT << "\n";
+    // std::cout << "Serveur UDP prêt sur port " << PORT << "\n";
 
     // 1️⃣ Attente d’un message du client pour récupérer son adresse
     auto [recvOpcode, recvPayload] = receiveFrameUDP(sockfd, cliaddr, len);
-    std::cout << "Message reçu du client : opcode=" << (int)recvOpcode << " payload=" << recvPayload << "\n";
+    //  std::cout << "Message reçu du client : opcode=" << (int)recvOpcode << " payload=" << recvPayload << "\n";
 
     // 2️⃣ Préparation d’une réponse sérialisée
     ship data(0, 10, 10);
@@ -44,7 +44,7 @@ int main()
     // 3️⃣ Envoi de la réponse avec un opcode cohérent
     sendFrameUDP(sockfd, OPCODE_SHIP_INFO, ss.str(), cliaddr, len);
 
-    std::cout << "Données envoyées au client\n";
+    //  std::cout << "Données envoyées au client\n";
 
     close(sockfd);
     return 0;

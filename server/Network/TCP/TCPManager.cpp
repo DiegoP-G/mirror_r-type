@@ -41,7 +41,7 @@ TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
     // Ajouter au poll (seulement POLLIN pour le listen socket)
     _pollFds.push_back({_listenFd, POLLIN, 0});
 
-    std::cout << "[TCP] Server listening on port " << SERVER_PORT << std::endl;
+    // std::cout << "[TCP] Server listening on port " << SERVER_PORT << std::endl;
 }
 
 TCPManager::~TCPManager()
@@ -178,8 +178,8 @@ void TCPManager::handleClientWrite(int fd)
     // Retirer ce qui a été envoyé du buffer
     _writeBuffers[fd].erase(0, sent);
 
-    std::cout << "[TCP] Sent " << sent << " bytes to client " << fd << ", remaining: " << _writeBuffers[fd].size()
-              << " bytes" << std::endl;
+    // std::cout << "[TCP] Sent " << sent << " bytes to client " << fd << ", remaining: " << _writeBuffers[fd].size()
+    //         << " bytes" << std::endl;
 
     // Si tout est envoyé, désactiver POLLOUT
     if (_writeBuffers[fd].empty())
@@ -189,7 +189,7 @@ void TCPManager::handleClientWrite(int fd)
             if (pfd.fd == fd)
             {
                 pfd.events &= ~POLLOUT;
-                std::cout << "[TCP] All data sent to client " << fd << ", disabling POLLOUT" << std::endl;
+                //      std::cout << "[TCP] All data sent to client " << fd << ", disabling POLLOUT" << std::endl;
                 break;
             }
         }
@@ -214,7 +214,7 @@ void TCPManager::handleClientRead(int fd, size_t &index)
 
         if (opcode == OPCODE_CLOSE_CONNECTION)
         {
-            std::cout << "[TCP] Client " << fd << " disconnected" << std::endl;
+            //            std::cout << "[TCP] Client " << fd << " disconnected" << std::endl;
 
             // Nettoyer
             _writeBuffers.erase(fd);
@@ -225,8 +225,8 @@ void TCPManager::handleClientRead(int fd, size_t &index)
         }
 
         // Message valide reçu
-        std::cout << "[TCP] Received from client " << fd << " (opcode: 0x" << std::hex << (int)opcode << std::dec
-                  << ", " << payload.size() << " bytes)" << std::endl;
+        // std::cout << "[TCP] Received from client " << fd << " (opcode: 0x" << std::hex << (int)opcode << std::dec
+        //         << ", " << payload.size() << " bytes)" << std::endl;
 
         // Notifier le médiateur
         _networkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload);
@@ -279,7 +279,7 @@ void TCPManager::update()
         // Gérer les erreurs
         if (pfd.revents & (POLLERR | POLLHUP))
         {
-            std::cout << "[TCP] Client " << fd << " error/hangup" << std::endl;
+            //   std::cout << "[TCP] Client " << fd << " error/hangup" << std::endl;
             _writeBuffers.erase(fd);
             _networkManagerRef.getClientManager().removeClient(fd);
             _pollFds.erase(_pollFds.begin() + i);

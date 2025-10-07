@@ -34,7 +34,7 @@ int main()
         return -1;
     }
 
-    std::cout << "Serveur prêt, en attente de connexion...\n";
+    // std::cout << "Serveur prêt, en attente de connexion...\n";
 
     if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0)
     {
@@ -48,7 +48,7 @@ int main()
     std::string serializedData = ss.str();
 
     sendFrameTCP(new_socket, OPCODE_SHIP_INFO, serializedData);
-    std::cout << "Données envoyées au client\n";
+    //    std::cout << "Données envoyées au client\n";
     close(new_socket);
     close(server_fd);
     return 0;
