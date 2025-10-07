@@ -21,6 +21,7 @@
 #include "components/SpriteComponent.hpp"
 #include "components/TransformComponent.hpp"
 #include "components/VelocityComponent.hpp"
+#include "components/HealthBarComponent.hpp"
 
 EntityManager::EntityManager()
 {
@@ -41,6 +42,7 @@ EntityManager::EntityManager()
     ComponentFactory::registerComponent<GameStateComponent>();
     ComponentFactory::registerComponent<AnimatedSpriteComponent>();
     ComponentFactory::registerComponent<BackgroundScrollComponent>();
+    ComponentFactory::registerComponent<HealthBarComponent>();
 }
 
 std::vector<uint8_t> EntityManager::serializeEntityFull(EntityID id) const
