@@ -134,6 +134,9 @@ void RTypeGame::update(float deltaTime)
     // {
     //     gameOver = true;
     // }
+
+    /// show all hitbt:
+
     entityManager.applyPendingChanges();
     // std::cout << "UPT END\n";
     if (player == nullptr)
@@ -156,6 +159,7 @@ void RTypeGame::render()
         g_graphics->drawText("Game Over! Press SPACE to restart", 250, 250);
     }
 
+    drawHitbox();
     std::string scoreText = "Score: " + std::to_string(score);
     g_graphics->drawText(scoreText, 10, 10);
 
@@ -277,4 +281,41 @@ void RTypeGame::createBackground()
 void RTypeGame::setCurrentWave(int nb)
 {
     gameLogicSystem.currentWave = nb;
+}
+
+void RTypeGame::drawHitbox()
+{
+    // --- Debug: draw hitboxes ---
+    auto entities = entityManager.getEntitiesWithComponent<ColliderComponent>();
+    for (auto e : entities)
+    {
+        auto &collider = e->getComponent<ColliderComponent>();
+
+        if (!collider.isActive)
+            continue;
+
+        std::cout << "HEEEEEEEEEEEEEEEERRRRRRRRRRRRREEEEEEEEEEEEE" << std::endl;
+
+        sf::RectangleShape hitboxRect;
+
+        hitboxRect.setSize(sf::Vector2f(collider.hitbox.w, collider.hitbox.h));
+
+        if (e->hasComponent<TransformComponent>())
+        {
+            auto &transform = e->getComponent<TransformComponent>();
+            hitboxRect.setPosition(transform.position.x, transform.position.y);
+        }
+        else
+        {
+            // Default position (just in case)
+            hitboxRect.setPosition(collider.hitbox.x, collider.hitbox.y);
+        }
+        std::cout << "pos: " << hitboxRect.getPosition().x << " " << hitboxRect.getPosition().y << std::endl;
+
+        hitboxRect.setFillColor(sf::Color(0, 0, 0, 0)); // transparent
+        hitboxRect.setOutlineThickness(1.0f);
+        hitboxRect.setOutlineColor(sf::Color::Red);
+
+        g_graphics->getWindow().draw(hitboxRect);
+    }
 }

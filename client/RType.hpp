@@ -75,4 +75,6 @@ class RTypeGame
     void run();
 
     void setCurrentWave(int nb);
+
+    void drawHitbox();
 };
