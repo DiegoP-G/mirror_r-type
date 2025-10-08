@@ -181,10 +181,6 @@ void RTypeGame::render()
         g_graphics->getTextBox()->setAtCenter(g_graphics->getWindow());
         g_graphics->getTextBox()->draw(g_graphics->getWindow());
     }
-    else if (_state == GameState::LOBBY)
-    {
-        drawWaitingForPlayers();
-    }
     else
     {
         // drawHitbox();
@@ -195,6 +191,7 @@ void RTypeGame::render()
         g_graphics->drawText(waveText, windowWidth - 100, 10);
     }
 
+    drawWaitingForPlayers();
     g_graphics->present();
 }
 
@@ -315,7 +312,12 @@ void RTypeGame::drawWaitingForPlayers()
 {
     // Format the waiting text
     if (_playerNb == 0 || _playerReady >= _playerNb)
+    {
+
+        std::cout << "returning" << std::endl;
         return;
+    }
+
     std::string waitingText =
         "Waiting for players to be ready: " + std::to_string(_playerReady) + " / " + std::to_string(_playerNb);
 

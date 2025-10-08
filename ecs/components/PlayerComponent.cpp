@@ -8,7 +8,8 @@ PlayerComponent::PlayerComponent(int playerID, bool isLocal)
 }
 
 PlayerComponent::PlayerComponent(int playerID, bool isLocal, float attackCooldown)
-    : score(0), lives(3), attackCooldown(attackCooldown), currentCooldown(0.0f), playerID(playerID), isLocal(isLocal)
+    : score(0), lives(3), attackCooldown(attackCooldown), currentCooldown(0.0f), playerID(playerID), isLocal(isLocal),
+      isReady(false)
 {
 }
 
