@@ -8,7 +8,7 @@ void EnemyFactory::createEnemy(EntityManager &entityManager, std::string enemyTy
     enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
     // 0 for movement type : left
     // 2 for shooting type : single shot
-    enemy.addComponent<EnemyComponent>(0, 1.0f, 2);
+    enemy.addComponent<EnemyComponent>(0, 1.0f, 2, 50);
 
     enemy.addComponent<HealthComponent>(100, 100);
     enemy.addComponent<HealthBarComponent>(30.0f, 4.0f, -20.0f);

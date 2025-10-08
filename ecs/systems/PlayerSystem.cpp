@@ -40,9 +40,9 @@ void PlayerSystem::handlePositionPlayer(Entity *&entity)
 
 
 
-void PlayerSystem::fire(EntityManager &entityManager, Entity *player)
+void PlayerSystem::fire(EntityManager &entityManager, Entity *entity)
 {
-    auto &transform = player->getComponent<TransformComponent>();
+    auto &transform = entity->getComponent<TransformComponent>();
 
     auto &bullet = entityManager.createEntity();
 
@@ -51,5 +51,9 @@ void PlayerSystem::fire(EntityManager &entityManager, Entity *player)
     bullet.addComponent<VelocityComponent>(300.0f, 0.0f);
     bullet.addComponent<SpriteComponent>(8, 8, 255, 0, 0);
     bullet.addComponent<ColliderComponent>(8.0f, 8.0f);
-    bullet.addComponent<ProjectileComponent>(10.0f, 2.0f, player->getID(), ENTITY_TYPE::PLAYER);
+
+    PlayerComponent player = entity->getComponent<PlayerComponent>();
+
+    printf("BULLET OWNER ID: %d\n", player.playerID);
+    bullet.addComponent<ProjectileComponent>(10.0f, 2.0f, player.playerID, ENTITY_TYPE::PLAYER);
 }

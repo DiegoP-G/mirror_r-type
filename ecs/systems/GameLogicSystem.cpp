@@ -109,7 +109,7 @@ void GameLogicSystem::spawnEnemies(EntityManager &entityManager)
         enemy.addComponent<VelocityComponent>(0.0f, 0.0f);
         enemy.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0, GraphicsManager::Texture::ENEMY);
         enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
-        enemy.addComponent<EnemyComponent>(0, 0.2f, 1);
+        enemy.addComponent<EnemyComponent>(0, 0.2f, 1, 50);
         enemy.addComponent<HealthComponent>(50, 100);
         enemy.addComponent<HealthBarComponent>(20.0f, 4.0f, -10.0f);
     }

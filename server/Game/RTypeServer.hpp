@@ -47,6 +47,9 @@ class RTypeServer
 
     const float ENEMY_SPEED = -200.0f;
 
+    // Player scores: PlayerId - Score
+    std::vector<std::pair<int, int>> _playersScores;
+
   public:
     RTypeServer(GameMediator &mediator) : mediator(mediator)
     {

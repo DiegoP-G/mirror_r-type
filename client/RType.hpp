@@ -102,6 +102,8 @@ class RTypeGame
     void run();
 
     void setCurrentWave(int nb);
+    void updateScore(std::vector<std::pair<int, int>> vec);
+  
     void setCurrentState(GameState newState);
 
     void drawHitbox();

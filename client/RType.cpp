@@ -321,6 +321,16 @@ void RTypeGame::setCurrentWave(int nb)
     gameLogicSystem.currentWave = nb;
 }
 
+void RTypeGame::updateScore(std::vector<std::pair<int, int>> vec)
+{
+  for (auto &pair: vec) {
+    if (pair.first == _playerId) {
+      puts("SCORE UPDATED");
+      score = pair.second;
+    }
+  }
+}
+
 void RTypeGame::setCurrentState(GameState newState)
 {
     _state = newState;

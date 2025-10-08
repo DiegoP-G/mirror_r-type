@@ -128,6 +128,16 @@ NetworkECSMediator::NetworkECSMediator() {
            break;
          }
 
+         case OPCODE_UPDATE_SCORE: {
+           _game->getMutex().lock();
+           std::vector<uint8_t> bytes(data.begin(), data.end());
+           std::vector<std::pair<int, int>> scoreVec = _game->getEntityManager().deserializePlayersScores(bytes);
+           if (_game)
+             _game->updateScore(scoreVec);
+           _game->getMutex().unlock();
+           break;
+         }
+
          case OPCODE_GAME_STATE_UPDATE: {
            _game->getMutex().lock();
            GameState currentWave = static_cast<GameState>(deserializeInt(data));

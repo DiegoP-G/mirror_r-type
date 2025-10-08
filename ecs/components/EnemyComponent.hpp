@@ -8,8 +8,9 @@ class EnemyComponent : public IComponent
     int shootingType;
     float attackCooldown;
     float currentCooldown;
+    int scoreValue;
 
-    EnemyComponent(int t, float ac, int st);
+    EnemyComponent(int t, float ac, int st, int scoreValue);
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;

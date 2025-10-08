@@ -139,4 +139,7 @@ class EntityManager
     {
         return entities;
     }
+
+    std::vector<uint8_t> serializePlayersScores(const std::vector<std::pair<int, int>> &playersScores);
+    std::vector<std::pair<int, int>> deserializePlayersScores(const std::vector<uint8_t> &data);
 };

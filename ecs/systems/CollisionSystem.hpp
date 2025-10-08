@@ -20,7 +20,7 @@
 class CollisionSystem
 {
   public:
-    void update(EntityManager &entityManager);
+    void update(EntityManager &entityManager, std::vector<std::pair<int, int>> &playersScores, bool &updateScore);
 
   private:
     // ============================================================
@@ -44,7 +44,7 @@ class CollisionSystem
     // MAIN COLLISION HANDLER
     // ============================================================
 
-    void handleCollision(Entity *a, Entity *b);
+    void handleCollision(Entity *a, Entity *b, std::vector<std::pair<int, int>> &playersScores, bool &updateScore);
 
     // ============================================================
     // PLAYER COLLISION HANDLERS
@@ -61,9 +61,9 @@ class CollisionSystem
     // ENEMY COLLISION HANDLERS
     // ============================================================
 
-    void handleEnemyCollision(Entity *enemy, Entity *other, EntityType otherType);
+    void handleEnemyCollision(Entity *enemy, Entity *other, EntityType otherType, std::vector<std::pair<int, int>> &playersScores, bool &updateScore);
 
-    void onEnemyHitProjectile(Entity *enemy, Entity *projectile);
+    void onEnemyHitProjectile(Entity *enemy, Entity *projectile, std::vector<std::pair<int, int>> &playersScores, bool &updateScore);
 
     // ============================================================
     // PROJECTILE COLLISION HANDLERS

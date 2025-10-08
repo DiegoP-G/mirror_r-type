@@ -478,3 +478,48 @@ void EntityManager::applyPendingChanges()
 
     refresh();
 }
+
+std::vector<uint8_t> EntityManager::serializePlayersScores(const std::vector<std::pair<int, int>> &playersScores)
+{
+    std::vector<uint8_t> data;
+    size_t totalSize = playersScores.size() * (sizeof(int) * 2);
+    data.resize(totalSize);
+
+    size_t offset = 0;
+    for (const auto &pair : playersScores)
+    {
+        std::memcpy(data.data() + offset, &pair.first, sizeof(int));
+        offset += sizeof(int);
+        std::memcpy(data.data() + offset, &pair.second, sizeof(int));
+        offset += sizeof(int);
+    }
+
+    return data;
+}
+
+std::vector<std::pair<int, int>> EntityManager::deserializePlayersScores(const std::vector<uint8_t> &data)
+{
+    std::vector<std::pair<int, int>> playersScores;
+
+    if (data.size() % (sizeof(int) * 2) != 0)
+    {
+        throw std::runtime_error("Invalid data size for deserializing players' scores");
+    }
+
+    size_t offset = 0;
+    while (offset < data.size())
+    {
+        int playerID;
+        int score;
+
+        std::memcpy(&playerID, data.data() + offset, sizeof(int));
+        offset += sizeof(int);
+
+        std::memcpy(&score, data.data() + offset, sizeof(int));
+        offset += sizeof(int);
+
+        playersScores.emplace_back(playerID, score);
+    }
+
+    return playersScores;
+}

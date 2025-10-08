@@ -33,6 +33,10 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
 
+    _handlers[OPCODE_UPDATE_SCORE] = [this](const std::string &payload, int opcode) {
+        _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
+    };
+
     _handlers[OPCODE_PLAYER_ID] = [this](const std::string &payload, int opcode) {
         _med.notify(PLAYER_ID, payload, opcode);
     };

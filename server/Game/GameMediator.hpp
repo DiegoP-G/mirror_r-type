@@ -29,6 +29,7 @@ enum GameMediatorEvent
     MovementUpdate = 0x29,
     HealthUpdate = 0x40,
     UpdateWave = 0x50,
+    UpdateScore = 0x51,
 };
 
 class NetworkManager;

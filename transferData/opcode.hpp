@@ -117,6 +117,11 @@
 // Update current wave counter
 // Payload: WaveNumber (4 bytes)
 
+#define OPCODE_UPDATE_SCORE 0x51
+// [SERVER → CLIENT, TCP]
+// Update clients score
+// Payload:  compressed list of all clients' score. (playerId: 4 byte, score 4 byte)
+
 #define OPCODE_LOBBY_INFO 0x60
 // [SERVER → CLIENT, TCP]
 // Sends information about the lobby, e.g., number of players ready.
