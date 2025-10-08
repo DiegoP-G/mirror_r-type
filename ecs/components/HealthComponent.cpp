@@ -1,7 +1,6 @@
 #include "HealthComponent.hpp"
 #include <cstring>
 
-
 void HealthComponent::update(float deltaTime)
 {
 }

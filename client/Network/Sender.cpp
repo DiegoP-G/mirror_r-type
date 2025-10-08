@@ -38,10 +38,10 @@ void Sender::sendUdp(uint8_t opcode, const std::string &payload)
     try
     {
         // std::cout << "[Sender] Sending UDP frame (opcode=" << (int)opcode << ", size=" << payload.size() << ")"
-                //   << std::endl;
+        //   << std::endl;
         sendFrameUDP(_udpSocket, opcode, payload, _serverAddr, sizeof(_serverAddr));
         // std::cout << "[Sender] Sent UDP frame (opcode=" << (int)opcode << ", size=" << payload.size() << ")"
-                //   << std::endl;
+        //   << std::endl;
     }
     catch (const std::exception &e)
     {

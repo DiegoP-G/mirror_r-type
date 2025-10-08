@@ -7,8 +7,8 @@
 #include <cstring>
 #include <fcntl.h>
 #include <iostream>
-#include <unistd.h>
 #include <netinet/tcp.h>
+#include <unistd.h>
 
 NetworkManager::NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver)
     : _med(med), _sender(sender), _receiver(receiver), _tcpSocket(-1), _udpSocket(-1)
@@ -58,7 +58,6 @@ bool NetworkManager::setup(const char *serverIp, int port)
     int rcvbuf = 262144; // 256 KB
     setsockopt(_tcpSocket, SOL_SOCKET, SO_SNDBUF, &sndbuf, sizeof(sndbuf));
     setsockopt(_tcpSocket, SOL_SOCKET, SO_RCVBUF, &rcvbuf, sizeof(rcvbuf));
-
 
     _udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
     if (_udpSocket < 0)
@@ -126,7 +125,6 @@ void NetworkManager::loop()
                     _receiver.receiveTCPMessage();
                 }
             }
-
         }
         usleep(10); // Petite pause pour éviter une boucle trop serrée
     }

@@ -18,7 +18,7 @@ class TCPManager
     int _listenFd;
     std::vector<pollfd> _pollFds;
     NetworkManager &_networkManagerRef;
-    
+
     // Buffer d'écriture par client (données brutes à envoyer)
     std::map<int, std::string> _writeBuffers;
 
@@ -31,7 +31,7 @@ class TCPManager
   public:
     TCPManager(NetworkManager &ref);
     ~TCPManager();
-    
+
     void update();
     void sendMessage(int fd, uint8_t opcode, const std::string &payload);
 };

@@ -121,9 +121,9 @@ void CollisionSystem::onPlayerHitProjectile(Entity *player, Entity *projectile)
 
     if (player->getID() == projComp.owner_id)
         return;
-    
+
     if (projComp.owner_type == PLAYER)
-        return;  
+        return;
 
     if (player->hasComponent<HealthComponent>())
     {
@@ -135,7 +135,7 @@ void CollisionSystem::onPlayerHitProjectile(Entity *player, Entity *projectile)
             player->destroy();
         }
     }
-    
+
     // std::cout << "-------------porjectile hit---------------" << std::endl;
     projectile->destroy();
 }
@@ -150,11 +150,12 @@ void CollisionSystem::onPlayerHitBonus(Entity *player, Entity *bonus)
     {
         if (std::get<0>(b) == BonusComponent::TypeBonus::HEALTH)
         {
-            std::cout << "YES IS ADDED||||||||||||||||||||||||||||||||||||||||||||||\n";
             healthComp.health += std::get<1>(b);
-            std::cout << "YES IS ADDED||||||||||||||||||||||||||||||||||||||||||||||" << healthComp.health << std::endl;
+            if (healthComp.health > healthComp.maxHealth)
+                healthComp.health = healthComp.maxHealth;
         }
     }
+    std::cout << "BONUS DESTOYED HIHI\n";
     bonus->destroy();
 }
 
@@ -203,11 +204,9 @@ void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile, st
             std::cerr << "Enemy ID: " << enemy->getID() << std::endl;
 
             for (auto& pair : playersScores) {
-                printf("ownerID: %d playerID: %d\n", projComp.owner_id, pair.first);
                 if (pair.first == projComp.owner_id) {
                     pair.second += enemyComp.scoreValue;
                     updateScore = true;
-                    printf("UPDATE SCORE IS PUT TO TRUE\n");
                 }
             }
         }
@@ -219,7 +218,6 @@ void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile, st
             if (pair.first == projComp.owner_id) {
                 pair.second += enemyComp.scoreValue;
                 updateScore = true;
-                    printf("UPDATE SCORE IS PUT TO TRUE\n");
             }
         }
     }

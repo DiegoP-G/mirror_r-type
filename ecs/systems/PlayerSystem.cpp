@@ -39,7 +39,6 @@ void PlayerSystem::handlePositionPlayer(Entity *&entity)
 }
 
 
-
 void PlayerSystem::fire(EntityManager &entityManager, Entity *entity)
 {
     auto &transform = entity->getComponent<TransformComponent>();
@@ -55,5 +54,5 @@ void PlayerSystem::fire(EntityManager &entityManager, Entity *entity)
     PlayerComponent player = entity->getComponent<PlayerComponent>();
 
     printf("BULLET OWNER ID: %d\n", player.playerID);
-    bullet.addComponent<ProjectileComponent>(10.0f, 2.0f, player.playerID, ENTITY_TYPE::PLAYER);
+    bullet.addComponent<ProjectileComponent>(30.0f, 2.0f, player.playerID, ENTITY_TYPE::PLAYER);
 }

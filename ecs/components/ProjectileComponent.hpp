@@ -1,7 +1,7 @@
 #pragma once
 #include "../IComponent.hpp"
-#include "../using.hpp"
 #include "../entity.hpp"
+#include "../using.hpp"
 
 class ProjectileComponent : public IComponent
 {

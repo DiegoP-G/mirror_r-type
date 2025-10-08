@@ -22,19 +22,21 @@ ClientGame::~ClientGame()
 
 void ClientGame::startServer(const char *serverIp)
 {
-    if (!_networkManager.setup(serverIp, 8081)) {
+    if (!_networkManager.setup(serverIp, 8081))
+    {
         std::cout << "failed to start network" << std::endl;
         return;
     }
     _networkThread = std::thread(&ClientGame::networkLoop, this);
 }
 
-bool ClientGame::init(const char *serverIp, int port) {
-  // if (!_networkManager.setup(serverIp, port))
-  //     return false;
-  if (!_game.init(_med, [this](const char *msg) { this->startServer(msg); }))
-    return false;
-  return true;
+bool ClientGame::init(const char *serverIp, int port)
+{
+    // if (!_networkManager.setup(serverIp, port))
+    //     return false;
+    if (!_game.init(_med, [this](const char *msg) { this->startServer(msg); }))
+        return false;
+    return true;
 }
 
 void ClientGame::start()

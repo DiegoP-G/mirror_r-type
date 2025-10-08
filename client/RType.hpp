@@ -5,7 +5,8 @@
 #include <mutex>
 
 #pragma once
-enum GameState {
+enum GameState
+{
     LOBBY,
     INGAME,
     MENU
@@ -41,6 +42,7 @@ class RTypeGame
 
     int _playerReady = 0;
     int _playerNb = 0;
+    int _winnerId = -1;
     bool showLobbyInfo = false;
 
     GameState _state = GameState::MENU;
@@ -52,7 +54,18 @@ class RTypeGame
     const float ENEMY_SPEED = -200.0f;
 
   public:
-    RTypeGame(NetworkECSMediator med): _med(med) {};
+    void reset();
+
+    RTypeGame(NetworkECSMediator med) : _med(med) {};
+
+    void markPlayerAsDead(int playerId);
+
+    void setWinnerId(int id);
+
+    void setGameOver(bool value)
+    {
+        gameOver = value;
+    }
 
     std::mutex &getMutex()
     {
@@ -71,13 +84,12 @@ class RTypeGame
     };
     void setPlayerReady(int value)
     {
-      _playerReady = value;
+        _playerReady = value;
     }
     void setPlayerNb(int value)
     {
-      _playerNb = value;
+        _playerNb = value;
     }
-
 
     bool init(NetworkECSMediator med, std::function<void(const char *)> networkCb);
 

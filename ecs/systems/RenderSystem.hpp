@@ -5,14 +5,12 @@
 #include "../entityManager.hpp"
 
 #include "../components/CenteredComponent.hpp"
+#include "../components/HealthBarComponent.hpp"
+#include "../components/HealthComponent.hpp"
 #include "../components/SpriteComponent.hpp"
 #include "../components/TransformComponent.hpp"
-#include "../components/HealthComponent.hpp"
-#include "../components/HealthBarComponent.hpp"
 #include "../components/Vector2D.hpp"
 #include "getActualPosition.hpp"
-
-
 
 class RenderSystem
 {

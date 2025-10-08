@@ -9,7 +9,8 @@
 
 class GameMediator;
 
-enum GameState {
+enum GameState
+{
     LOBBY,
     INGAME
 };
@@ -32,6 +33,7 @@ class RTypeServer
     GameLogicSystem gameLogicSystem;
     BackgroundSystem backgroundSystem;
     ProjectileSystem projectileSystem;
+    BonusSystem bonusSystem;
 
     Entity *player = nullptr;
     bool gameOver = false;
@@ -54,6 +56,7 @@ class RTypeServer
     RTypeServer(GameMediator &mediator) : mediator(mediator)
     {
     }
+
     std::vector<std::string> serializeAllActiveEntities()
     {
         std::vector<std::string> result;

@@ -23,7 +23,7 @@ void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, Game
     // Wait for spawnDelay before starting next wave
     if (!waveActive && waveTimer >= waves[currentWave].spawnDelay)
     {
-        std::cout << "Spawning wave " << currentWave + 1 << std::endl;
+        std::cout << "Spawning wave " << currentWave + 1 << "hihi" << std::endl;
         spawnWave(entityManager, waves[currentWave]);
         waveActive = true;
     }
@@ -153,4 +153,26 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
     {
         EnemyFactory::createEnemy(entityManager, wave.enemyType, pos);
     }
+
+    // === Spawn a bonus life entity ===
+    auto &bonusLife = entityManager.createEntity();
+
+    // Random position inside the window (you had a syntax error here)
+    // float randX = static_cast<float>(rand() % static_cast<int>(windowWidth));
+
+    float randY = rand() % ((windowHeight - 30) - 10 + 1) + 30;
+
+    float randX = cx;
+    std::cout << "SPWAN BONUS on " << randX << "  " << randY << std::endl;
+
+    bonusLife.addComponent<TransformComponent>(randX, randY);
+    bonusLife.addComponent<VelocityComponent>(-230.0f, 0.0f);
+
+    bonusLife.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_LIFE, 0.0, 0.0, 32.8, 32.3, 1,
+                                                    0.05f, -90.0f);
+    bonusLife.addComponent<ColliderComponent>(20.0f, 20.0f, true);
+
+    std::vector<std::tuple<BonusComponent::TypeBonus, int>> v;
+    v.emplace_back(BonusComponent::TypeBonus::HEALTH, 50);
+    bonusLife.addComponent<BonusComponent>(v);
 }

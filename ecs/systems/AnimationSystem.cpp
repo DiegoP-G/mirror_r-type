@@ -2,23 +2,23 @@
 #include "../components/AnimatedSpriteComponent.hpp"
 #include "../components/InputComponent.hpp"
 #include "../components/PlayerComponent.hpp"
-#include "../components/InputComponent.hpp"
 
 #include "../entity.hpp"
 void AnimationSystem::update(EntityManager &entityManager, float deltaTime)
 {
     auto entities = entityManager.getEntitiesWithComponents<InputComponent, PlayerComponent>();
 
-    for (auto &entity: entities)
-     {
+    for (auto &entity : entities)
+    {
         auto &input = entity->getComponent<InputComponent>();
         handleAnimation(entity, input, deltaTime);
-     }
+    }
 }
 
 void AnimationSystem::handleAnimation(Entity *&entity, InputComponent &input, float deltaTime)
 {
-    if (!entity->hasComponent<AnimatedSpriteComponent>()) {
+    if (!entity->hasComponent<AnimatedSpriteComponent>())
+    {
         std::cout << "Entity " << entity->getID() << " does not have AnimatedSpriteComponent!" << std::endl;
         return;
     }
@@ -26,9 +26,10 @@ void AnimationSystem::handleAnimation(Entity *&entity, InputComponent &input, fl
     auto &animatedSprite = entity->getComponent<AnimatedSpriteComponent>();
 
     AnimatedSpriteComponent::Direction direction = AnimatedSpriteComponent::Default;
-    
-    // std::cout << "Input state: up=" << input.up << ", down=" << input.down << ", left=" << input.left << ", right=" << input.right << ", fire=" << input.fire << std::endl;
-    
+
+    // std::cout << "Input state: up=" << input.up << ", down=" << input.down << ", left=" << input.left << ", right="
+    // << input.right << ", fire=" << input.fire << std::endl;
+
     if (input.up)
     {
         direction = AnimatedSpriteComponent::Up;
@@ -45,7 +46,8 @@ void AnimationSystem::handleAnimation(Entity *&entity, InputComponent &input, fl
 
     animatedSprite.elapsedTime += deltaTime;
 
-    std::cout << "Current Frame: " << animatedSprite.currentFrame << ", Direction: " << animatedSprite.currentDirection << std::endl;
+    // std::cout << "Current Frame: " << animatedSprite.currentFrame << ", Direction: " <<
+    // animatedSprite.currentDirection << std::endl;
     if (animatedSprite.elapsedTime >= animatedSprite.animationInterval)
     {
         if (animatedSprite.currentDirection == AnimatedSpriteComponent::Up && animatedSprite.currentFrame < 4)

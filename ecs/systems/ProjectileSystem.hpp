@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../entityManager.hpp"
 #include "../components/ProjectileComponent.hpp"
+#include "../entityManager.hpp"
 
 class ProjectileSystem
 {

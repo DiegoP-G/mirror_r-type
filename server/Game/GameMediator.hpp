@@ -27,6 +27,8 @@ enum GameMediatorEvent
     EntityCreated = 0x27,
     EntityDestroyed = 0x28,
     MovementUpdate = 0x29,
+    GameOver = 0x32,
+    PlayerDead = 0x33,
     HealthUpdate = 0x40,
     UpdateWave = 0x50,
     UpdateScore = 0x51,

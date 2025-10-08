@@ -41,7 +41,7 @@ class EntityManager
     void markEntityForDestruction(EntityID id);
     Entity &queueEntityCreation();
 
-    // === CLIENT SEULEMENT ===
+    std::vector<Entity *> getPlayersDead(int &winnerID, bool &game_over);
 
     // Désérialisation complète d'une entité (TCP)
     void deserializeEntityFull(const std::vector<uint8_t> &data);
@@ -103,6 +103,26 @@ class EntityManager
             for (auto &entity : entities)
             {
                 if (entity && !entity->isActive() && (entity->getComponentMask() & mask) == mask)
+                {
+                    matchingEntities.push_back(entity.get());
+                }
+            }
+        }
+        return matchingEntities;
+    }
+
+    template <typename... Ts> std::vector<Entity *> getAllEntitiesWithComponents()
+    {
+        std::vector<Entity *> matchingEntities;
+
+        if constexpr (sizeof...(Ts) > 0)
+        {
+            ComponentMask mask;
+            (mask.set(getComponentTypeID<Ts>()), ...);
+
+            for (auto &entity : entities)
+            {
+                if (entity && (entity->getComponentMask() & mask) == mask)
                 {
                     matchingEntities.push_back(entity.get());
                 }

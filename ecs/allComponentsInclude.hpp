@@ -7,6 +7,7 @@
 #include "components/EnemyComponent.hpp"
 #include "components/GameStateComponent.hpp"
 #include "components/GravityComponent.hpp"
+#include "components/HealthBarComponent.hpp"
 #include "components/HealthComponent.hpp"
 #include "components/InputComponent.hpp"
 #include "components/JumpComponent.hpp"
@@ -19,4 +20,3 @@
 #include "components/TransformComponent.hpp"
 #include "components/Vector2D.hpp"
 #include "components/VelocityComponent.hpp"
-#include "components/HealthBarComponent.hpp"

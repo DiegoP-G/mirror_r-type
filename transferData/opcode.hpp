@@ -112,6 +112,18 @@
 
 // ---- Lobby / Pre-game info ----
 
+#define OPCODE_GAME_OVER 0x32
+// [SERVER → CLIENT, TCP]
+// Notify clients that the game is over.
+// Payload: [ winner_id (4 bytes) ]
+// Purpose: clients can display end-of-game screen with winner info.
+
+#define OPCODE_PLAYER_DEAD 0x33
+// [SERVER → CLIENT, TCP]
+// Notify clients that a specific player has died.
+// Payload: [ player_id (4 bytes) ]
+// Purpose: clients can update UI, respawn logic, etc.
+
 #define OPCODE_UPDATE_WAVE 0x50
 // [SERVER → CLIENT, TCP]
 // Update current wave counter

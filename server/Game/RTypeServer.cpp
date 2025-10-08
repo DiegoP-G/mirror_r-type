@@ -5,18 +5,20 @@
 #include <cstddef>
 #include <string>
 
-bool RTypeServer::init() {
-  running = true;
-  createBackground();
+bool RTypeServer::init()
+{
+    running = true;
+    createBackground();
 
-  return true;
+    return true;
 }
 
-void RTypeServer::createPlayer(const std::string &id) {
-  Entity &playerEntity = entityManager.createEntity();
+void RTypeServer::createPlayer(const std::string &id)
+{
+    Entity &playerEntity = entityManager.createEntity();
 
     int playerId = deserializeInt(id);
-    playerEntity.addComponent<PlayerComponent>(playerId, false, 0.5f);
+    playerEntity.addComponent<PlayerComponent>(playerId, false, 0.25f);
     playerEntity.addComponent<TransformComponent>(100.0f, 300.0f);
     playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
     playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0, GraphicsManager::Texture::PLAYER); // Yellow
@@ -24,33 +26,35 @@ void RTypeServer::createPlayer(const std::string &id) {
     playerEntity.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::PLAYER, 0, 0, 33, 17.5, 5, 0.05f, 0.0f,
                                                        Vector2D(2.0f, 2.0f));
     playerEntity.addComponent<InputComponent>();
-    playerEntity.addComponent<HealthComponent>(50, 100);
+    playerEntity.addComponent<HealthComponent>(100, 150);
     playerEntity.addComponent<HealthBarComponent>(50.0f, 4.0f, -10.0f);
 
   player = &playerEntity;
   _playersScores.push_back({playerId, 0});
 }
 
-void RTypeServer::update(float deltaTime) {
-  if (tick % 60 == 0)
-    std::cout << "-------------60 tick passed--------------" << tick / 60
-              << std::endl;
+void RTypeServer::update(float deltaTime)
+{
+    if (tick % 60 == 0)
+        std::cout << "-------------60 tick passed--------------" << tick / 60 << std::endl;
 
-  if (gameOver)
-    return;
+    if (gameOver)
+        return;
 
-  // 1. Traiter tous les systèmes
-  backgroundSystem.update(entityManager, deltaTime);
-  playerSystem.update(entityManager, deltaTime);
-  inputSystem.update(entityManager, deltaTime);
-  if (_state == GameState::INGAME) {
-    gameLogicSystem.update(entityManager, deltaTime, mediator);
+    // 1. Traiter tous les systèmes
+    backgroundSystem.update(entityManager, deltaTime);
+    playerSystem.update(entityManager, deltaTime);
+    inputSystem.update(entityManager, deltaTime);
+    if (_state == GameState::INGAME)
+    {
+        gameLogicSystem.update(entityManager, deltaTime, mediator);
 
-    boundarySystem.update(entityManager, deltaTime);
-    cleanupSystem.update(entityManager, deltaTime);
-    enemySystem.update(entityManager, deltaTime);
-    projectileSystem.update(entityManager, deltaTime);
-
+        boundarySystem.update(entityManager, deltaTime);
+        cleanupSystem.update(entityManager, deltaTime);
+        enemySystem.update(entityManager, deltaTime);
+            projectileSystem.update(entityManager, deltaTime);
+        bonusSystem.update(entityManager, deltaTime);
+    
     bool updateScore = false;
     collisionSystem.update(entityManager, _playersScores, updateScore);
     if (updateScore) {
@@ -61,173 +65,227 @@ void RTypeServer::update(float deltaTime) {
     }
     // laserWarningSystem.update(entityManager, deltaTime);
 
-    // 3. Appliquer les changements (vide les buffers)
-
-  } else {
-    updateLobbyStatus();
-  }
+        // 3. Appliquer les changements (vide les buffers)
+    }
+    else
+    {
+        updateLobbyStatus();
+    }
     movementSystem.update(entityManager, deltaTime);
-  // 4. Envoyer les updates de mouvement (toutes les entités actives)
-  // 2. AVANT applyPendingChanges, envoyer ce qui a été créé/détruit
-  sendNewEntities();       // Envoie les entités dans entitiesToCreate
-  sendDestroyedEntities(); // Envoie les IDs dans entitiesToDestroy
-  sendMovementUpdates();
-  entityManager.applyPendingChanges();
     // 4. Envoyer les updates de mouvement (toutes les entités actives)
-  sendHealthUpdates();
-  sendGameStateUpdates();
+    // 2. AVANT applyPendingChanges, envoyer ce qui a été créé/détruit
+    sendNewEntities();       // Envoie les entités dans entitiesToCreate
+    sendDestroyedEntities(); // Envoie les IDs dans entitiesToDestroy
+    sendMovementUpdates();
+    entityManager.applyPendingChanges();
+    // 4. Envoyer les updates de mouvement (toutes les entités actives)
+    sendHealthUpdates();
+    sendGameStateUpdates();
 
-  tick++;
+    tick++;
 }
 
-void RTypeServer::sendGameStateUpdates() {
-  //THINK THATS IT
-  mediator.notify(GameMediatorEvent::GameStateUpdate, serializeInt(_state));
+void RTypeServer::sendGameStateUpdates()
+{
+    // THINK THATS IT
+    mediator.notify(GameMediatorEvent::GameStateUpdate, serializeInt(_state));
 }
 
-void RTypeServer::sendNewEntities() {
-  // Parcourir les entités créées dans entitiesToCreate
-  auto &manager = entityManager;
+void RTypeServer::sendNewEntities()
+{
+    // Parcourir les entités créées dans entitiesToCreate
+    auto &manager = entityManager;
 
-  // Pour chaque nouvelle entité créée ce tick
-  for (const auto &entity : manager.getEntitiesToCreate()) {
-    // std::cout << "Sending new entites" << std::endl;
-    // std::cout << "Entity :" << entity->getID() << std::endl;
-    auto data = manager.serializeEntityFull(entity->getID());
+    // Pour chaque nouvelle entité créée ce tick
+    for (const auto &entity : manager.getEntitiesToCreate())
+    {
+        // std::cout << "Sending new entites" << std::endl;
+        // std::cout << "Entity :" << entity->getID() << std::endl;
+        auto data = manager.serializeEntityFull(entity->getID());
+        std::string serializedData(data.begin(), data.end());
+        mediator.notify(GameMediatorEvent::EntityCreated, serializedData);
+    }
+}
+
+void RTypeServer::sendDestroyedEntities()
+{
+    auto &manager = entityManager;
+
+    // Pour chaque entité détruite ce tick
+    for (EntityID id : manager.getEntitiesToDestroy())
+    {
+        std::cout << "--DESTROY id " << id << std::endl;
+        auto data = serializeInt(id);
+        mediator.notify(GameMediatorEvent::EntityDestroyed, data);
+    }
+}
+
+void RTypeServer::sendMovementUpdates()
+{
+    auto data = entityManager.serializeAllMovements();
     std::string serializedData(data.begin(), data.end());
-    mediator.notify(GameMediatorEvent::EntityCreated, serializedData);
-  }
-}
-
-void RTypeServer::sendDestroyedEntities() {
-  auto &manager = entityManager;
-
-  // Pour chaque entité détruite ce tick
-  for (EntityID id : manager.getEntitiesToDestroy()) {
-    std::cout << "--DESTROY id " << id << std::endl;
-    auto data = serializeInt(id);
-    mediator.notify(GameMediatorEvent::EntityDestroyed, data);
-  }
-}
-
-void RTypeServer::sendMovementUpdates() {
-  auto data = entityManager.serializeAllMovements();
-  std::string serializedData(data.begin(), data.end());
-  mediator.notify(GameMediatorEvent::MovementUpdate, serializedData);
+    mediator.notify(GameMediatorEvent::MovementUpdate, serializedData);
 }
 
 void RTypeServer::sendHealthUpdates()
 {
     auto data = entityManager.serializeAllHealth();
     std::string serializedData(data.begin(), data.end());
+    int winnerID = -1;
+    bool game_over = false;
+
+    for (auto &entity : entityManager.getInactiveEntitiesWithComponents<PlayerComponent>())
+    {
+        auto &health = entity->getComponent<HealthComponent>();
+        auto &playerComp = entity->getComponent<PlayerComponent>();
+        std::cout << "Player ID " << playerComp.playerID << " - Health: " << health.health << "/" << health.maxHealth
+                  << std::endl;
+    }
+
+    std::vector<Entity *> deadPlayers = entityManager.getPlayersDead(winnerID, game_over);
+
+    for (auto *entity : deadPlayers)
+    {
+        auto &playerComp = entity->getComponent<PlayerComponent>();
+
+        mediator.notify(GameMediatorEvent::PlayerDead, serializeInt(playerComp.playerID));
+        std::cout << "Player " << playerComp.playerID << " is dead." << std::endl;
+    }
+    if (game_over && winnerID != -1)
+    {
+        std::cout << "Player " << winnerID << " is the winner!" << std::endl;
+        mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID));
+        this->gameOver = true;
+    }
+    else if (game_over)
+    {
+        std::cout << "It's a draw! No winners." << std::endl;
+        mediator.notify(GameMediatorEvent::GameOver, serializeInt(-1));
+        this->gameOver = true;
+    }
+
     mediator.notify(GameMediatorEvent::HealthUpdate, serializedData);
 }
 
-void RTypeServer::restart() {
-  entityManager = EntityManager();
+void RTypeServer::restart()
+{
+    entityManager = EntityManager();
 
-  score = 0;
-  gameOver = false;
+    score = 0;
+    gameOver = false;
 }
 
-void RTypeServer::cleanup() { return; };
+void RTypeServer::cleanup()
+{
+    return;
+};
 
-void RTypeServer::run(float deltaTime) {
+void RTypeServer::run(float deltaTime)
+{
 
-  if (player != nullptr)
-    update(deltaTime);
+    if (player != nullptr)
+        update(deltaTime);
 }
 
-Entity *RTypeServer::getEntityByPlayerID(int playerID) {
-  auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
-  for (auto *entity : players) {
-    auto &playerComp = entity->getComponent<PlayerComponent>();
-    if (playerComp.playerID == playerID)
-      return entity;
-  }
-  return nullptr;
+Entity *RTypeServer::getEntityByPlayerID(int playerID)
+{
+    auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
+    for (auto *entity : players)
+    {
+        auto &playerComp = entity->getComponent<PlayerComponent>();
+        if (playerComp.playerID == playerID)
+            return entity;
+    }
+    return nullptr;
 }
 
 // NEED TO ADD THE PLAYER ID TO THE INPUT
 
-void RTypeServer::handlePlayerInput(const std::string &input) {
-  InputComponent inputComp;
+void RTypeServer::handlePlayerInput(const std::string &input)
+{
+    InputComponent inputComp;
 
-  int playerId = deserializePlayerInput(input, inputComp);
+    int playerId = deserializePlayerInput(input, inputComp);
 
-  if (playerId != -1) {
-    auto playerEntity = getEntityByPlayerID(playerId);
-    if (playerEntity) {
-      playerEntity->addComponent<InputComponent>(inputComp);
+    if (playerId != -1)
+    {
+        auto playerEntity = getEntityByPlayerID(playerId);
+        if (playerEntity)
+        {
+            playerEntity->addComponent<InputComponent>(inputComp);
 
-      if (inputComp.enter) {
-        auto &playerComp = playerEntity->getComponent<PlayerComponent>();
-        playerComp.isReady = true; // mark player as ready
-      }
+            if (inputComp.enter)
+            {
+                auto &playerComp = playerEntity->getComponent<PlayerComponent>();
+                playerComp.isReady = true; // mark player as ready
+            }
+        }
     }
-  }
 }
 
-void RTypeServer::createBackground() {
-  // sf::Texture *backgroundTexture = g_graphics->getTexture("background");
-  std::cout << "Background created" << std::endl;
-  int tileWidth = 800;
-  int tileHeight = 600;
+void RTypeServer::createBackground()
+{
+    // sf::Texture *backgroundTexture = g_graphics->getTexture("background");
+    std::cout << "Background created" << std::endl;
+    int tileWidth = 800;
+    int tileHeight = 600;
 
-  auto createBackgroundEntity = [&](float x) -> Entity & {
-    auto &backgroundEntity = entityManager.createEntity();
+    auto createBackgroundEntity = [&](float x) -> Entity & {
+        auto &backgroundEntity = entityManager.createEntity();
 
-    backgroundEntity.addComponent<TransformComponent>(x, 0.0f, 1.0f, 1.0f,
-                                                      0.0f);
-    backgroundEntity.addComponent<SpriteComponent>(
-        tileWidth, tileHeight, 255, 255, 255,
-        GraphicsManager::Texture::BACKGROUND);
-    backgroundEntity.addComponent<BackgroundScrollComponent>(-300.0f, true);
+        backgroundEntity.addComponent<TransformComponent>(x, 0.0f, 1.0f, 1.0f, 0.0f);
+        backgroundEntity.addComponent<SpriteComponent>(tileWidth, tileHeight, 255, 255, 255,
+                                                       GraphicsManager::Texture::BACKGROUND);
+        backgroundEntity.addComponent<BackgroundScrollComponent>(-300.0f, true);
 
-    return backgroundEntity;
-  };
+        return backgroundEntity;
+    };
 
-  createBackgroundEntity(0.0f);
-  createBackgroundEntity((float)tileWidth);
+    createBackgroundEntity(0.0f);
+    createBackgroundEntity((float)tileWidth);
 }
 
-void RTypeServer::sendEntities() {
-  // auto data = entityManager.serializeAllEntities();
-  // auto data = entityManager.serializeAllPlayers();
-  // std::string serializedData(data.begin(), data.end());
-  // mediator.notify(GameMediatorEvent::UpdatePlayers, serializedData);
+void RTypeServer::sendEntities()
+{
+    // auto data = entityManager.serializeAllEntities();
+    // auto data = entityManager.serializeAllPlayers();
+    // std::string serializedData(data.begin(), data.end());
+    // mediator.notify(GameMediatorEvent::UpdatePlayers, serializedData);
 
-  // auto dataEnemies = entityManager.serializeAllEnemies();
-  // std::string serializedDataEnemies(dataEnemies.begin(), dataEnemies.end());
-  // mediator.notify(GameMediatorEvent::UpdateEnemies, serializedDataEnemies);
+    // auto dataEnemies = entityManager.serializeAllEnemies();
+    // std::string serializedDataEnemies(dataEnemies.begin(), dataEnemies.end());
+    // mediator.notify(GameMediatorEvent::UpdateEnemies, serializedDataEnemies);
 
-  // auto dataProjectiles = entityManager.serializeAllProjectiles();
-  // std::string serializedDataProjectiles(dataProjectiles.begin(),
-  // dataProjectiles.end());
-  // mediator.notify(GameMediatorEvent::UpdateProjectiles,
-  // serializedDataProjectiles);
+    // auto dataProjectiles = entityManager.serializeAllProjectiles();
+    // std::string serializedDataProjectiles(dataProjectiles.begin(),
+    // dataProjectiles.end());
+    // mediator.notify(GameMediatorEvent::UpdateProjectiles,
+    // serializedDataProjectiles);
 }
 
 // Update the number of players and the number of ready players
-void RTypeServer::updateLobbyStatus() {
-  auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
-  playerNb = static_cast<int>(players.size());
-  playerReady = 0;
+void RTypeServer::updateLobbyStatus()
+{
+    auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
+    playerNb = static_cast<int>(players.size());
+    playerReady = 0;
 
-  for (auto *entity : players) {
-    auto &playerComp = entity->getComponent<PlayerComponent>();
-    if (playerComp.isReady) {
-      playerReady++;
+    for (auto *entity : players)
+    {
+        auto &playerComp = entity->getComponent<PlayerComponent>();
+        if (playerComp.isReady)
+        {
+            playerReady++;
+        }
     }
-  }
 
-  if (playerNb >= 1 && (playerReady == playerNb)) {
-    _state = GameState::INGAME;
-  }
-  std::vector<uint8_t> payload = {(uint8_t)playerReady, (uint8_t)playerNb};
-  std::string serializedData(payload.begin(), payload.end());
+    if (playerNb >= 1 && (playerReady == playerNb))
+    {
+        _state = GameState::INGAME;
+    }
+    std::vector<uint8_t> payload = {(uint8_t)playerReady, (uint8_t)playerNb};
+    std::string serializedData(payload.begin(), payload.end());
 
-  mediator.notify(GameMediatorEvent::LobbyInfoUpdate, serializedData);
-  std::cout << "[RTypeServer] Players ready: " << playerReady << " / "
-            << playerNb << std::endl;
+    mediator.notify(GameMediatorEvent::LobbyInfoUpdate, serializedData);
+    std::cout << "[RTypeServer] Players ready: " << playerReady << " / " << playerNb << std::endl;
 }
