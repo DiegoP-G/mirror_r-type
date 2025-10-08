@@ -76,7 +76,7 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
 
         auto &projectile = entityManager.createEntity();
 
-        projectile.addComponent<TransformComponent>(transform.position.x - 20.0f, transform.position.y + 10.0f);
+        projectile.addComponent<TransformComponent>(transform.position.x - 10.0f, transform.position.y);
 
         Vector2D velocity(-200.0f, 0.0f);
         projectile.addComponent<VelocityComponent>(velocity.x, velocity.y);
@@ -95,7 +95,7 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
         for (int i = 0; i < 3; i++)
         {
             auto &projectile = entityManager.createEntity();
-            projectile.addComponent<TransformComponent>(transform.position.x - 20.0f, transform.position.y + 10.0f);
+            projectile.addComponent<TransformComponent>(transform.position.x - 10.0f, transform.position.y);
 
             Vector2D velocity(-200.0f, (i - 1) * 50.0f);
             projectile.addComponent<VelocityComponent>(velocity.x, velocity.y);
