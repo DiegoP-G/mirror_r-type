@@ -77,6 +77,7 @@ class RTypeServer
     void sendNewEntities();
     void sendDestroyedEntities();
     void createBackground();
+    void sendGameStateUpdates();
 
     void updateLobbyStatus();
 

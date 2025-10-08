@@ -5,6 +5,7 @@
 #include "../ecs/systems.hpp"
 #include "../ecs/textBox.hpp"
 #include "../transferData/opcode.hpp"
+#include "Network/NetworkManager.hpp"
 #include "assetsPath.hpp"
 #include <SFML/Graphics/Font.hpp>
 #include "windowSize.hpp"
@@ -170,8 +171,25 @@ void RTypeGame::render() {
       "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
   g_graphics->drawText(waveText, windowWidth - 100, 10);
 
-  if (g_graphics->getTextBox()->getDisplayValue())
-    g_graphics->getTextBox()->draw(g_graphics->getWindow()); // INPUT BOX
+  // if (_state == GameState::LOBBY) {
+  //   g_graphics->getTextBox()->draw(g_graphics->getWindow()); // INPUT BOX
+  //   g_graphics->getTextBox()->setPosition(float x, float y)
+  // }
+  std::cout << _state << std::endl;
+  if (_state == GameState::MENU) {
+    float windowWidth = g_graphics->getWindow().getSize().x;
+    float windowHeight = g_graphics->getWindow().getSize().y;
+
+    float textBoxWidth = g_graphics->getTextBox()->getSize().x;
+    float textBoxHeight = g_graphics->getTextBox()->getSize().y;
+
+    float posX = (windowWidth - textBoxWidth) / 2.0f;
+    float posY = (windowHeight - textBoxHeight) / 2.0f;
+
+    // Apply position
+    g_graphics->getTextBox()->setPosition(posX, posY);
+    g_graphics->getTextBox()->draw(g_graphics->getWindow());
+}
   drawWaitingForPlayers();
   g_graphics->present();
 }
@@ -301,6 +319,11 @@ void RTypeGame::drawWaitingForPlayers() {
 void RTypeGame::setCurrentWave(int nb)
 {
     gameLogicSystem.currentWave = nb;
+}
+
+void RTypeGame::setCurrentState(GameState newState)
+{
+    _state = newState;
 }
 
 void RTypeGame::drawHitbox()
