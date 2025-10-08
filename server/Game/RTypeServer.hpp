@@ -9,7 +9,8 @@
 
 class GameMediator;
 
-enum GameState {
+enum GameState
+{
     LOBBY,
     INGAME
 };
@@ -32,6 +33,7 @@ class RTypeServer
     GameLogicSystem gameLogicSystem;
     BackgroundSystem backgroundSystem;
     ProjectileSystem projectileSystem;
+    BonusSystem bonusSystem;
 
     Entity *player = nullptr;
     bool gameOver = false;

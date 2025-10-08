@@ -153,7 +153,8 @@ Entity *EntityManager::getEntityByID(EntityID id)
     return nullptr;
 }
 
-std::vector<Entity *> EntityManager::getPlayersDead(int &winnerID, bool &game_over) {
+std::vector<Entity *> EntityManager::getPlayersDead(int &winnerID, bool &game_over)
+{
     std::vector<Entity *> deadPlayers;
     auto players = getAllEntitiesWithComponents<PlayerComponent>();
 
@@ -168,28 +169,33 @@ std::vector<Entity *> EntityManager::getPlayersDead(int &winnerID, bool &game_ov
             }
         }
     }
-    if (deadPlayers.size() == players.size() - 1 && players.size() > 1) {
+    if (deadPlayers.size() == players.size() - 1 && players.size() > 1)
+    {
         game_over = true;
-        for (auto *entity : players) {
-            if (std::find(deadPlayers.begin(), deadPlayers.end(), entity) == deadPlayers.end()) {
+        for (auto *entity : players)
+        {
+            if (std::find(deadPlayers.begin(), deadPlayers.end(), entity) == deadPlayers.end())
+            {
                 auto &playerComp = entity->getComponent<PlayerComponent>();
                 winnerID = playerComp.playerID;
                 break;
             }
         }
-    } else if (deadPlayers.size() == players.size() && players.size() > 0) {
+    }
+    else if (deadPlayers.size() == players.size() && players.size() > 0)
+    {
         game_over = true;
         winnerID = -1;
     }
     return deadPlayers;
 }
 
-
 void EntityManager::refresh()
 {
-//     entities.erase(std::remove_if(entities.begin(), entities.end(),
-//                                   [](const std::unique_ptr<Entity> &entity) { return !entity || !entity->isActive(); }),
-//                    entities.end());
+    //     entities.erase(std::remove_if(entities.begin(), entities.end(),
+    //                                   [](const std::unique_ptr<Entity> &entity) { return !entity ||
+    //                                   !entity->isActive(); }),
+    //                    entities.end());
 
     for (auto &componentEntities : entitiesByComponent)
         componentEntities.clear();

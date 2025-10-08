@@ -38,8 +38,6 @@ void PlayerSystem::handlePositionPlayer(Entity *&entity)
         tranform.position.y = 600 - 32;
 }
 
-
-
 void PlayerSystem::fire(EntityManager &entityManager, Entity *player)
 {
     auto &transform = player->getComponent<TransformComponent>();
@@ -51,5 +49,5 @@ void PlayerSystem::fire(EntityManager &entityManager, Entity *player)
     bullet.addComponent<VelocityComponent>(300.0f, 0.0f);
     bullet.addComponent<SpriteComponent>(8, 8, 255, 0, 0);
     bullet.addComponent<ColliderComponent>(8.0f, 8.0f);
-    bullet.addComponent<ProjectileComponent>(10.0f, 2.0f, player->getID(), ENTITY_TYPE::PLAYER);
+    bullet.addComponent<ProjectileComponent>(30.0f, 2.0f, player->getID(), ENTITY_TYPE::PLAYER);
 }
