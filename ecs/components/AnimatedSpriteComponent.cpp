@@ -20,7 +20,7 @@ AnimatedSpriteComponent::AnimatedSpriteComponent(int textID, int left, int top, 
 
 void AnimatedSpriteComponent::setFrame(int frame)
 {
-    currentFrame = frame;
+    left = frameWidth * frame;
 }
 
 void AnimatedSpriteComponent::update(float deltaTime)
