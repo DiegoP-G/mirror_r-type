@@ -6,11 +6,14 @@ class PlayerComponent : public IComponent
   public:
     int score;
     int lives;
-    float shootCooldown;
+    float attackCooldown;
+    float currentCooldown;
     int playerID;
     bool isLocal;
 
     PlayerComponent(int playerID = 0, bool isLocal = true);
+
+    PlayerComponent(int playerID = 0, bool isLocal = true, float shootCooldown = 0.0f);
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;

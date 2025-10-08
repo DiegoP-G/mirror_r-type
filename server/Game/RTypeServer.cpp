@@ -18,7 +18,7 @@ void RTypeServer::createPlayer(const std::string &id)
     Entity &playerEntity = entityManager.createEntity();
 
     int playerId = deserializeInt(id);
-    playerEntity.addComponent<PlayerComponent>(playerId, false);
+    playerEntity.addComponent<PlayerComponent>(playerId, false, 0.5f);
     playerEntity.addComponent<TransformComponent>(100.0f, 300.0f);
     playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
     playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0, GraphicsManager::Texture::PLAYER); // Yellow
