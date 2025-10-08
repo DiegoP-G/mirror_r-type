@@ -45,7 +45,7 @@ void AnimationSystem::handleAnimation(Entity *&entity, InputComponent &input, fl
 
     animatedSprite.elapsedTime += deltaTime;
 
-    std::cout << "Current Frame: " << animatedSprite.currentFrame << ", Direction: " << animatedSprite.currentDirection << std::endl;
+    // std::cout << "Current Frame: " << animatedSprite.currentFrame << ", Direction: " << animatedSprite.currentDirection << std::endl;
     if (animatedSprite.elapsedTime >= animatedSprite.animationInterval)
     {
         if (animatedSprite.currentDirection == AnimatedSpriteComponent::Up && animatedSprite.currentFrame < 4)

@@ -51,6 +51,7 @@ class RTypeServer
     RTypeServer(GameMediator &mediator) : mediator(mediator)
     {
     }
+
     std::vector<std::string> serializeAllActiveEntities()
     {
         std::vector<std::string> result;

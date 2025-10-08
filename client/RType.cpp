@@ -159,7 +159,7 @@ void RTypeGame::render() {
   renderSystem.update(entityManager);
 
   if (gameOver) {
-    g_graphics->drawText("Game Over! Press SPACE to restart", 250, 250);
+    g_graphics->drawText("Game Over!", 250, 250);
   }
 
     drawHitbox();
@@ -314,7 +314,7 @@ void RTypeGame::drawHitbox()
         if (!collider.isActive)
             continue;
 
-        std::cout << "HEEEEEEEEEEEEEEEERRRRRRRRRRRRREEEEEEEEEEEEE" << std::endl;
+        // std::cout << "HEEEEEEEEEEEEEEEERRRRRRRRRRRRREEEEEEEEEEEEE" << std::endl;
 
         sf::RectangleShape hitboxRect;
 
@@ -330,7 +330,7 @@ void RTypeGame::drawHitbox()
             // Default position (just in case)
             hitboxRect.setPosition(collider.hitbox.x, collider.hitbox.y);
         }
-        std::cout << "pos: " << hitboxRect.getPosition().x << " " << hitboxRect.getPosition().y << std::endl;
+        // std::cout << "pos: " << hitboxRect.getPosition().x << " " << hitboxRect.getPosition().y << std::endl;
 
         hitboxRect.setFillColor(sf::Color(0, 0, 0, 0)); // transparent
         hitboxRect.setOutlineThickness(1.0f);
@@ -338,4 +338,46 @@ void RTypeGame::drawHitbox()
 
         g_graphics->getWindow().draw(hitboxRect);
     }
+}
+
+
+void RTypeGame::markPlayerAsDead(int playerId) {
+    auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
+    for (auto *entity : players) {
+        auto &playerComp = entity->getComponent<PlayerComponent>();
+        if (playerComp.playerID == playerId) {
+            if (entity->hasComponent<HealthComponent>()) {
+                auto &healthComp = entity->getComponent<HealthComponent>();
+                healthComp.health = 0; // Set health to 0 to mark as dead
+                std::cout << "Player " << playerId << " marked as dead." << std::endl;
+            }
+            break;
+        }
+    }
+}
+
+void RTypeGame::setWinnerId(int id)
+{
+  _winnerId = id;
+
+  std::cout << "Game Over!, set winner ID to " << _winnerId << std::endl;
+  if (_winnerId == _playerId) {
+    std::cout << "You are the winner!" << std::endl;
+  } else if (_winnerId == -1) {
+    std::cout << "It's a draw! No winners." << std::endl;
+  } else {
+    std::cout << "Player " << _winnerId << " is the winner!" << std::endl;
+  }
+  sf::sleep(sf::seconds(3));
+  g_graphics->getWindow().close();
+}
+
+
+void RTypeGame::reset() {
+  entityManager = EntityManager();
+  _med.reset();
+  score = 0;
+  gameOver = false;
+  _winnerId = -1;
+  player = nullptr;
 }

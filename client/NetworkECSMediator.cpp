@@ -128,6 +128,31 @@ NetworkECSMediator::NetworkECSMediator() {
            break;
          }
 
+         case OPCODE_GAME_OVER: {
+           _game->getMutex().lock();
+           int winnerId = deserializeInt(data);
+           if (_game) {
+             _game->setGameOver(true);
+             _game->setWinnerId(winnerId);
+             std::cout << "[Client] Game Over! Winner ID: " << winnerId
+                       << std::endl;
+           }
+           _game->getMutex().unlock();
+           break;
+         }
+
+         case OPCODE_PLAYER_DEAD: {
+           _game->getMutex().lock();
+           int playerId = deserializeInt(data);
+           if (_game) {
+             _game->markPlayerAsDead(playerId);
+             std::cout << "[Client] Player Dead! ID: " << playerId
+                       << std::endl;
+           }
+           _game->getMutex().unlock();
+           break;
+         }
+
          default:
            std::cerr << "[Client] Unhandled opcode: 0x" << std::hex
                      << (int)opcode << std::dec << std::endl;

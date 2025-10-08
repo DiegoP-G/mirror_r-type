@@ -34,6 +34,7 @@ class RTypeGame
 
     int _playerReady = 0;
     int _playerNb = 0;
+    int _winnerId = -1;
     bool showLobbyInfo = false;
 
     int score = 0;
@@ -43,7 +44,15 @@ class RTypeGame
     const float ENEMY_SPEED = -200.0f;
 
   public:
+    void reset();
+
     RTypeGame(NetworkECSMediator med): _med(med) {};
+
+    void markPlayerAsDead(int playerId);
+
+    void setWinnerId(int id);
+
+    void setGameOver(bool value) { gameOver = value; }
 
     std::mutex &getMutex()
     {

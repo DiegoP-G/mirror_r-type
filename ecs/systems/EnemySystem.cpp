@@ -17,7 +17,7 @@ void EnemySystem::update(EntityManager &entityManager, float deltaTime)
 {
     auto entities = entityManager.getEntitiesWithComponents<EnemyComponent, TransformComponent>();
 
-    std::cerr << "Active Enemies: " << entities.size() << std::endl;
+    // std::cerr << "Active Enemies: " << entities.size() << std::endl;
     for (auto &entity : entities)
     {
         auto &enemy = entity->getComponent<EnemyComponent>();

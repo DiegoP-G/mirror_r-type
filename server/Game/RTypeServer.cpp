@@ -105,6 +105,34 @@ void RTypeServer::sendHealthUpdates()
 {
     auto data = entityManager.serializeAllHealth();
     std::string serializedData(data.begin(), data.end());
+    int winnerID = -1;
+    bool game_over = false;
+
+    std::cout << "Health of player :" << std::endl;
+        for (auto &entity : entityManager.getInactiveEntitiesWithComponents<PlayerComponent>()) {
+            auto &health = entity->getComponent<HealthComponent>();
+            auto &playerComp = entity->getComponent<PlayerComponent>();
+            std::cout << "Player ID " << playerComp.playerID << " - Health: " << health.health << "/" << health.maxHealth << std::endl;
+        }
+
+    std::vector<Entity *> deadPlayers = entityManager.getPlayersDead(winnerID, game_over);
+
+    for (auto *entity : deadPlayers) {
+        auto &playerComp = entity->getComponent<PlayerComponent>();
+
+        mediator.notify(GameMediatorEvent::PlayerDead, serializeInt(playerComp.playerID));
+        std::cout << "Player " << playerComp.playerID << " is dead." << std::endl;
+    }
+    if (game_over && winnerID != -1) {
+        std::cout << "Player " << winnerID << " is the winner!" << std::endl;
+        mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID));
+        this->gameOver = true;
+    } else if (game_over) {
+        std::cout << "It's a draw! No winners." << std::endl;
+        mediator.notify(GameMediatorEvent::GameOver, serializeInt(-1));
+        this->gameOver = true;
+    }
+
     mediator.notify(GameMediatorEvent::HealthUpdate, serializedData);
 }
 
