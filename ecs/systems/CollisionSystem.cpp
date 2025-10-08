@@ -119,8 +119,11 @@ void CollisionSystem::onPlayerHitProjectile(Entity *player, Entity *projectile)
 {
     auto &projComp = projectile->getComponent<ProjectileComponent>();
 
-    if (player->getID() == projComp.owner)
+    if (player->getID() == projComp.owner_id)
         return;
+    
+    if (projComp.owner_type == PLAYER)
+        return;  
 
     if (player->hasComponent<HealthComponent>())
     {
@@ -180,9 +183,11 @@ void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile)
 {
     auto &projComp = projectile->getComponent<ProjectileComponent>();
 
-    if (enemy->getID() == projComp.owner)
+    if (enemy->getID() == projComp.owner_id)
         return;
 
+    if (projComp.owner_type == ENEMY)
+        return;    
     // std::cout << "[Collision] Enemy hit by projectile!" << std::endl;
 
     if (enemy->hasComponent<HealthComponent>())

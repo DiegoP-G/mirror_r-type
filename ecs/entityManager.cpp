@@ -225,7 +225,7 @@ void EntityManager::deserializeEntityFull(const std::vector<uint8_t> &data)
         entityType = "PROJECTILE";
         std::cout << "✅ Type: PROJECTILE" << std::endl;
         std::cout << "   - Damage: " << projComp.damage << std::endl;
-        std::cout << "   - Owner ID: " << projComp.owner << std::endl;
+        std::cout << "   - Owner ID: " << projComp.owner_id << std::endl;
         std::cout << "   - Life Time: " << projComp.lifeTime << std::endl;
         std::cout << "   - Remaining Life: " << projComp.remainingLife << std::endl;
     }

@@ -273,3 +273,8 @@ void RTypeGame::createBackground()
     createBackgroundEntity(0.0f);
     createBackgroundEntity((float)tileWidth);
 }
+
+void RTypeGame::setCurrentWave(int nb)
+{
+    gameLogicSystem.currentWave = nb;
+}

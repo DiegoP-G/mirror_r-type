@@ -41,7 +41,7 @@ void RTypeServer::update(float deltaTime)
         return;
 
     // 1. Traiter tous les systèmes
-    gameLogicSystem.update(entityManager, deltaTime);
+    gameLogicSystem.update(entityManager, deltaTime, mediator);
     backgroundSystem.update(entityManager, deltaTime);
 
     inputSystem.update(entityManager, deltaTime);

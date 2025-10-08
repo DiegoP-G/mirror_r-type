@@ -1,6 +1,7 @@
 #pragma once
 #include "../IComponent.hpp"
 #include "../using.hpp"
+#include "../entity.hpp"
 
 class ProjectileComponent : public IComponent
 {
@@ -8,9 +9,10 @@ class ProjectileComponent : public IComponent
     float damage;
     float lifeTime;
     float remainingLife;
-    EntityID owner;
+    EntityID owner_id;
+    ENTITY_TYPE owner_type;
 
-    ProjectileComponent(float d, float lt, EntityID o);
+    ProjectileComponent(float d, float lt, EntityID o, ENTITY_TYPE t);
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;

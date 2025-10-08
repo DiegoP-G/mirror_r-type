@@ -69,9 +69,10 @@ class RTypeGame
     void update(float deltaTime);
 
     void render();
-    
 
     void restart();
 
     void run();
+
+    void setCurrentWave(int nb);
 };

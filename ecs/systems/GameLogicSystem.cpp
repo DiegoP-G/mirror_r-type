@@ -1,12 +1,16 @@
 #include "GameLogicSystem.hpp"
+#include "../../server/Game/GameMediator.hpp"
+#include "../transferData/transferData.hpp"
 #include "enemyFactory.hpp"
 #include <vector>
 
 GameLogicSystem::GameLogicSystem() : rng(std::random_device{}())
 {
+    waveActive = false;
+    waveTimer = 0.0f;
 }
 
-void GameLogicSystem::update(EntityManager &entityManager, float deltaTime)
+void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, GameMediator &gameMediator)
 {
     enemySpawnTimer += deltaTime;
 
@@ -22,14 +26,16 @@ void GameLogicSystem::update(EntityManager &entityManager, float deltaTime)
         spawnWave(entityManager, waves[currentWave]);
         waveActive = true;
     }
-
-    // Check if all enemies from this wave are destroyed
-    if (waveActive && entityManager.getEntitiesWithComponents<EnemyComponent>().empty())
+    else if (waveActive && entityManager.getEntitiesWithComponents<EnemyComponent>().empty())
     {
         // Prepare for next wave
         waveActive = false;
         waveTimer = 0.0f;
         currentWave++;
+
+        // Notify the server about the wave change
+        std::string waveData = serializeInt(currentWave);
+        gameMediator.notify(GameMediatorEvent::UpdateWave, waveData);
     }
 
     // if (stageStatus == 0)

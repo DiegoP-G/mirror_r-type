@@ -47,6 +47,10 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
         // Input joueur
         {GameMediatorEvent::PlayerInput,
          [this](const std::string &data) -> void { _rTypeServer.handlePlayerInput(data); }},
+
+        // Wave update
+        {GameMediatorEvent::UpdateWave,
+         [this](const std::string &data) -> void { _networkManager.sendDataAllClientTCP(data, OPCODE_UPDATE_WAVE); }},
     };
 }
 
