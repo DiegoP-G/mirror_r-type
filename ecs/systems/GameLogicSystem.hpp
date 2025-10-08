@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../client/windowSize.hpp"
 #include "../GraphicsManager.hpp"
 #include "../../client/windowSize.hpp"
 #include "../components/BonusComponent.hpp"
