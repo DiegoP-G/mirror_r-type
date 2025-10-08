@@ -109,3 +109,8 @@
 // [SERVER → CLIENT, TCP]
 // Broadcast chat message to all players.
 // Payload: [ sender_id (4 bytes) | msg (string) ]
+
+#define OPCODE_UPDATE_WAVE 0x50
+// [SERVER → CLIENT, TCP]
+// Update current wave counter
+// Payload: WaveNumber (4 bytes)

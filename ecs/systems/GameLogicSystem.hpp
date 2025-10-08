@@ -17,6 +17,7 @@
 #include "../wavePatterns.hpp"
 #include <random>
 
+class GameMediator;
 using PatternFunc = std::function<std::vector<Vector2D>(int, float, float)>;
 
 // System for game rules and logic
@@ -42,9 +43,9 @@ class GameLogicSystem
     // Default waves
     std::vector<Wave> waves{
         {0.0f, 4, "basic_enemy", linePattern},
-        {2.5f, 8, "basic_enemy", diamondPattern},
-        {2.5f, 7, "basic_enemy", vPattern},
-        {2.5f, 10, "basic_enemy", backslashPattern},
+        {2.5f, 4, "basic_enemy", diamondPattern},
+        {2.5f, 4, "basic_enemy", vPattern},
+        {2.5f, 4, "basic_enemy", backslashPattern},
     };
 
     float waveTimer = 0.0f;
@@ -52,7 +53,7 @@ class GameLogicSystem
 
   public:
     GameLogicSystem();
-    void update(EntityManager &entityManager, float deltaTime);
+    void update(EntityManager &entityManager, float deltaTime, GameMediator &gameMediator);
     int getScore() const;
     size_t currentWave = 0;
 

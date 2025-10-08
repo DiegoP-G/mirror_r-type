@@ -63,7 +63,7 @@ NetworkECSMediator::NetworkECSMediator()
                  EntityID id = deserializeInt(data);
                  try
                  {
-                    std::cout << "[Client] Marking entity " << id << " for destruction." << std::endl;
+                     std::cout << "[Client] Marking entity " << id << " for destruction." << std::endl;
                      _game->getEntityManager().markEntityForDestruction(id);
                  }
                  catch (std::exception &e)
@@ -88,6 +88,15 @@ NetworkECSMediator::NetworkECSMediator()
                  _game->getMutex().lock();
                  std::vector<uint8_t> bytes(data.begin(), data.end());
                  _game->getEntityManager().deserializeAllHealth(bytes);
+                 _game->getMutex().unlock();
+                 break;
+             }
+
+             case OPCODE_UPDATE_WAVE: {
+                 _game->getMutex().lock();
+                 int currentWave = deserializeInt(data);
+                 if (_game)
+                     _game->setCurrentWave(currentWave);
                  _game->getMutex().unlock();
                  break;
              }
