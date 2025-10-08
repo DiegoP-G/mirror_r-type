@@ -145,7 +145,7 @@ void RTypeServer::handlePlayerInput(const std::string &input) {
     if (playerEntity) {
       playerEntity->addComponent<InputComponent>(inputComp);
 
-      if (inputComp.enter && playerNb > 1) {
+      if (inputComp.enter) {
         auto &playerComp = playerEntity->getComponent<PlayerComponent>();
         playerComp.isReady = true; // mark player as ready
       }
@@ -206,7 +206,7 @@ void RTypeServer::updateLobbyStatus() {
     }
   }
 
-  if (playerNb >= 2 && (playerReady == playerNb)) {
+  if (playerNb >= 1 && (playerReady == playerNb)) {
     _state = GameState::INGAME;
   }
   std::vector<uint8_t> payload = {(uint8_t)playerReady, (uint8_t)playerNb};

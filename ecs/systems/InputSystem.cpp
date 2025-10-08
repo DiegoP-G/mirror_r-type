@@ -74,7 +74,6 @@ void InputSystem::handleEvents(EntityManager &entityManager)
                     input.fire = isPressed;
                     break;
                 case sf::Keyboard::Enter:
-                    std::cout << "ienter pressed" << std::endl;
                     input.enter = isPressed;
                     break;
                 default:
