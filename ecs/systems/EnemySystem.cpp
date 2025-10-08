@@ -73,7 +73,7 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
                                                          angle);
 
         projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
-        projectile.addComponent<ProjectileComponent>(5.0f, 3.0f, enemy->getID());
+        projectile.addComponent<ProjectileComponent>(5.0f, 3.0f, enemy->getID(), ENTITY_TYPE::ENEMY);
     }
     else if (enemyComponent.shootingType == 2)
     {
@@ -92,7 +92,7 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
                                                              angle);
 
             projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
-            projectile.addComponent<ProjectileComponent>(5.0f, 3.0f, enemy->getID());
+            projectile.addComponent<ProjectileComponent>(5.0f, 3.0f, enemy->getID(), ENTITY_TYPE::ENEMY);
         }
     }
 }
