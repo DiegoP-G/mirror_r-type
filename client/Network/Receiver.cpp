@@ -27,7 +27,6 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
     _handlers[OPCODE_HEALTH_UPDATE] = [this](const std::string &payload, int opcode) {
-        std::cout << "RECEIVE UPT HEALTH" << std::endl;
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
 

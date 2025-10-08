@@ -25,7 +25,6 @@ class GameLogicSystem
 {
   private:
     float enemySpawnTimer = 0.0f;
-    const float ENEMY_SPAWN_INTERVAL = 2.0f;
     const float ENEMY_SPEED = -200.0f;
     std::mt19937 rng;
     int score = 0;
@@ -48,8 +47,8 @@ class GameLogicSystem
         {2.5f, 4, "basic_enemy", backslashPattern},
     };
 
-    float waveTimer = 0.0f;
-    bool waveActive = false;
+    float waveTimer;
+    bool waveActive;
 
   public:
     GameLogicSystem();
