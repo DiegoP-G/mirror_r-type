@@ -7,18 +7,20 @@ void PlayerSystem::update(EntityManager &entityManager, float deltaTime)
     for (auto &entity : entities)
     {
         auto &input = entity->getComponent<InputComponent>();
-
-        if (input.fire)
+        auto &playerComp = entity->getComponent<PlayerComponent>();
+        playerComp.currentCooldown -= deltaTime;
+        if (input.fire && playerComp.currentCooldown <= 0)
         {
             fire(entityManager, entity);
             input.fire = false;
+            playerComp.currentCooldown = playerComp.attackCooldown;
         }
 
-        handlePositionPalyer(entity);
+        handlePositionPlayer(entity);
     }
 }
 
-void PlayerSystem::handlePositionPalyer(Entity *&entity)
+void PlayerSystem::handlePositionPlayer(Entity *&entity)
 {
     if (!entity->hasComponent<TransformComponent>())
         return;

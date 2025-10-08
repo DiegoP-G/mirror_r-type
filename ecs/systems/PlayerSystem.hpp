@@ -16,5 +16,5 @@ class PlayerSystem
 
   private:
     void fire(EntityManager &entityManager, Entity *player);
-    void handlePositionPalyer(Entity *&entity);
+    void handlePositionPlayer(Entity *&entity);
 };
