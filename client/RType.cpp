@@ -86,9 +86,11 @@ void RTypeGame::handleEvents() {
           case sf::Keyboard::Right:
             input.right = isPressed;
             break;
-          case sf::Keyboard::Space:
+          case sf::Keyboard::Space: {
+            g_graphics->playSound("pew");
             input.fire = isPressed;
-            break;
+          }
+          break;
           case sf::Keyboard::Enter:
             input.enter = isPressed;
             break;
@@ -231,6 +233,7 @@ void RTypeGame::run() {
   sf::Clock clock;
   float accumulator = 0.0f;
 
+  g_graphics->playSound("music", true);
   while (running) {
     float deltaTime = clock.restart().asSeconds();
 
@@ -313,8 +316,6 @@ void RTypeGame::drawHitbox() {
     if (!collider.isActive)
       continue;
 
-    std::cout << "HEEEEEEEEEEEEEEEERRRRRRRRRRRRREEEEEEEEEEEEE" << std::endl;
-
     sf::RectangleShape hitboxRect;
 
         hitboxRect.setSize(sf::Vector2f(collider.hitbox.w, collider.hitbox.h));
@@ -327,8 +328,6 @@ void RTypeGame::drawHitbox() {
       // Default position (just in case)
       hitboxRect.setPosition(collider.hitbox.x, collider.hitbox.y);
     }
-    std::cout << "pos: " << hitboxRect.getPosition().x << " "
-              << hitboxRect.getPosition().y << std::endl;
 
     hitboxRect.setFillColor(sf::Color(0, 0, 0, 0)); // transparent
     hitboxRect.setOutlineThickness(1.0f);

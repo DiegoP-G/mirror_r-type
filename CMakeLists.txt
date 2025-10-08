@@ -11,7 +11,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
 
 # ---- Find required packages ----
-find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
+find_package(SFML 2.5 COMPONENTS graphics window system audio REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBCONFIG REQUIRED libconfig++)
 
@@ -37,6 +37,7 @@ target_link_libraries(ecs PUBLIC
     sfml-graphics
     sfml-window
     sfml-system
+	sfml-audio
 )
 
 # ---- Client executable ----
@@ -62,6 +63,7 @@ target_link_libraries(RTypeClient
     sfml-graphics
     sfml-window
     sfml-system
+	sfml-audio
 )
 
 # ---- Server executable ----

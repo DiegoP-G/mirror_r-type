@@ -20,6 +20,7 @@
 #include <string>
 #include "textBox.hpp"
 #include <unordered_map>
+#include <SFML/Audio.hpp>
 
 #define TEXT_SIZE 24
 
@@ -31,6 +32,9 @@ class GraphicsManager
     sf::Font font;
     std::unique_ptr<TextBox> _textbox;
     NetworkECSMediator _med;
+    std::unordered_map<std::string, sf::SoundBuffer> soundBuffers;
+    std::unordered_map<std::string, sf::Sound> sounds;
+
 
   public:
     GraphicsManager(NetworkECSMediator med);
@@ -60,6 +64,13 @@ class GraphicsManager
     void drawRect(float x, float y, float w, float h, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a = 255);
     void drawText(const std::string &content, float x, float y, sf::Uint8 r = 255, sf::Uint8 g = 255,
                   sf::Uint8 b = 255);
+
+    bool registerTheSound();
+    sf::Sound &createSoundFromPath(const std::string &filePath,
+                                   const std::string &name);
+    sf::Sound *getSound(const std::string &name);
+    void playSound(const std::string &name, bool loop = false);
+    void stopSound(const std::string &name);
 
     sf::RenderWindow &getWindow();
     sf::Texture &createTextureFromPath(const std::string &filePath, const std::string &name);
