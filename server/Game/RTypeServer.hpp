@@ -33,6 +33,7 @@ class RTypeServer
     GameLogicSystem gameLogicSystem;
     BackgroundSystem backgroundSystem;
     ProjectileSystem projectileSystem;
+    BonusSystem bonusSystem;
 
     Entity *player = nullptr;
     bool gameOver = false;

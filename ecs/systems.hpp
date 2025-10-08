@@ -2,6 +2,7 @@
 
 #include "systems/AnimationSystem.hpp"
 #include "systems/BackgroundSystem.hpp"
+#include "systems/BonusSystem.hpp"
 #include "systems/BoundarySystem.hpp"
 #include "systems/CollisionSystem.hpp"
 #include "systems/EnemySystem.hpp"

@@ -150,11 +150,12 @@ void CollisionSystem::onPlayerHitBonus(Entity *player, Entity *bonus)
     {
         if (std::get<0>(b) == BonusComponent::TypeBonus::HEALTH)
         {
-            std::cout << "YES IS ADDED||||||||||||||||||||||||||||||||||||||||||||||\n";
             healthComp.health += std::get<1>(b);
-            std::cout << "YES IS ADDED||||||||||||||||||||||||||||||||||||||||||||||" << healthComp.health << std::endl;
+            if (healthComp.health > healthComp.maxHealth)
+                healthComp.health = healthComp.maxHealth;
         }
     }
+    std::cout << "BONUS DESTOYED HIHI\n";
     bonus->destroy();
 }
 

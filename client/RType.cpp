@@ -47,12 +47,15 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bulletSpritePath), "bullet");
     sf::Texture &basicEnemyTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(basicEnemySpritePath), "basic_enemy");
+    sf::Texture &bonusLifeTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusLifeSpritePath), "bonus_life");
 
     g_graphics->storeTexture("background", backgroundTexture);
     g_graphics->storeTexture("player", playerTexture);
     g_graphics->storeTexture("basic_enemy", basicEnemyTexture);
     g_graphics->storeTexture("bullet", bulletTexture);
     g_graphics->storeTexture("explosion", explosionTexture);
+    g_graphics->storeTexture("bonus_life", bonusLifeTexture);
 }
 
 void RTypeGame::handleEvents()
@@ -184,7 +187,7 @@ void RTypeGame::render()
     }
     else
     {
-        drawHitbox();
+        // drawHitbox();
         std::string scoreText = "Score: " + std::to_string(score);
         g_graphics->drawText(scoreText, 10, 10);
 
