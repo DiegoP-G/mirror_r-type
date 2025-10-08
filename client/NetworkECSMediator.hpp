@@ -31,6 +31,7 @@ class NetworkECSMediator
 
   public:
     NetworkECSMediator();
+
     void setSender(Sender *s)
     {
         _sender = s;
@@ -42,6 +43,14 @@ class NetworkECSMediator
     void setRTypeGame(RTypeGame *g)
     {
         _game = g;
+    }
+
+    void reset()
+    {
+        _sender = nullptr;
+        _receiver = nullptr;
+        _game = nullptr;
+        _mediatorMap.clear();
     }
 
     void notify(NetworkECSMediatorEvent event, const std::string &data, uint8_t opcode = -1);

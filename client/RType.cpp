@@ -7,8 +7,8 @@
 #include "../transferData/opcode.hpp"
 #include "Network/NetworkManager.hpp"
 #include "assetsPath.hpp"
-#include <SFML/Graphics/Font.hpp>
 #include "windowSize.hpp"
+#include <SFML/Graphics/Font.hpp>
 #include <exception>
 #include <functional>
 #include <iostream>
@@ -18,93 +18,87 @@ bool RTypeGame::init(NetworkECSMediator med,
                      std::function<void(const char *)> networkCb) {
   sf::Font dummy;
 
-    g_graphics = new GraphicsManager(med);
-    // Initialize graphics
-    if (!g_graphics->init("R-Type", windowWidth, windowHeight, networkCb))
-    {
-        std::cerr << "Failed to initialize graphics!" << std::endl;
-        return false;
-    }
+  g_graphics = new GraphicsManager(med);
+  // Initialize graphics
+  if (!g_graphics->init("R-Type", windowWidth, windowHeight, networkCb)) {
+    std::cerr << "Failed to initialize graphics!" << std::endl;
+    return false;
+  }
 
-    createTextures();
+  createTextures();
 
-    running = true;
+  running = true;
 
-    std::cout << "R-Type initialized!" << std::endl;
-    return true;
+  std::cout << "R-Type initialized!" << std::endl;
+  return true;
 }
 
-void RTypeGame::createTextures()
-{
-    sf::Texture &backgroundTexture =
-        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(backgroundSpritePath), "background");
-    sf::Texture &playerTexture =
-        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(playerSpritePath), "player");
-    sf::Texture &explosionTexture =
-        g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/explosion.png"), "explosion");
+void RTypeGame::createTextures() {
+  sf::Texture &backgroundTexture = g_graphics->createTextureFromPath(
+      PathFormater::formatAssetPath(backgroundSpritePath), "background");
+  sf::Texture &playerTexture = g_graphics->createTextureFromPath(
+      PathFormater::formatAssetPath(playerSpritePath), "player");
+  sf::Texture &explosionTexture = g_graphics->createTextureFromPath(
+      PathFormater::formatAssetPath("assets/sprites/explosion.png"),
+      "explosion");
 
-    sf::Texture &bulletTexture =
-        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bulletSpritePath), "bullet");
-    sf::Texture &basicEnemyTexture =
-        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(basicEnemySpritePath), "basic_enemy");
+  sf::Texture &bulletTexture = g_graphics->createTextureFromPath(
+      PathFormater::formatAssetPath(bulletSpritePath), "bullet");
+  sf::Texture &basicEnemyTexture = g_graphics->createTextureFromPath(
+      PathFormater::formatAssetPath(basicEnemySpritePath), "basic_enemy");
 
-    g_graphics->storeTexture("background", backgroundTexture);
-    g_graphics->storeTexture("player", playerTexture);
-    g_graphics->storeTexture("basic_enemy", basicEnemyTexture);
-    g_graphics->storeTexture("bullet", bulletTexture);
-    g_graphics->storeTexture("explosion", explosionTexture);
+  g_graphics->storeTexture("background", backgroundTexture);
+  g_graphics->storeTexture("player", playerTexture);
+  g_graphics->storeTexture("basic_enemy", basicEnemyTexture);
+  g_graphics->storeTexture("bullet", bulletTexture);
+  g_graphics->storeTexture("explosion", explosionTexture);
 }
 
-void RTypeGame::handleEvents()
-{
-    sf::Event event;
-    while (g_graphics->getWindow().pollEvent(event))
-    {
-        if (event.type == sf::Event::Closed)
-        {
-            running = false;
-        }
-
-        if (event.type == sf::Event::MouseButtonPressed)
-          g_graphics->getTextBox()->checkInFocus(
-              sf::Mouse::getPosition(g_graphics->getWindow()));
-
-        g_graphics->getTextBox()->typeInBox(event);
-        if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
-        {
-            if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
-            {
-                bool isPressed = (event.type == sf::Event::KeyPressed);
-                if (player && player->hasComponent<InputComponent>())
-                {
-                    auto &input = player->getComponent<InputComponent>();
-                    switch (event.key.code)
-                    {
-                    case sf::Keyboard::Up:
-                        input.up = isPressed;
-                        break;
-                    case sf::Keyboard::Down:
-                        input.down = isPressed;
-                        break;
-                    case sf::Keyboard::Left:
-                        input.left = isPressed;
-                        break;
-                    case sf::Keyboard::Right:
-                        input.right = isPressed;
-                        break;
-                    case sf::Keyboard::Space:
-                        input.fire = isPressed;
-                        break;
-                    case sf::Keyboard::Enter:
-                        input.enter = isPressed;
-                        break;
-                    default:
-                        break;
-                    }
-                }
-            }
-        }
+void RTypeGame::handleEvents() {
+  sf::Event event;
+  while (g_graphics->getWindow().pollEvent(event)) {
+    if (event.type == sf::Event::Closed) {
+      running = false;
     }
+
+    if (event.type == sf::Event::MouseButtonPressed)
+      g_graphics->getTextBox()->checkInFocus(
+          sf::Mouse::getPosition(g_graphics->getWindow()));
+
+    g_graphics->getTextBox()->typeInBox(event);
+    if (event.type == sf::Event::KeyPressed ||
+        event.type == sf::Event::KeyReleased) {
+      if (event.type == sf::Event::KeyPressed ||
+          event.type == sf::Event::KeyReleased) {
+        bool isPressed = (event.type == sf::Event::KeyPressed);
+        if (player && player->hasComponent<InputComponent>()) {
+          auto &input = player->getComponent<InputComponent>();
+          switch (event.key.code) {
+          case sf::Keyboard::Up:
+            input.up = isPressed;
+            break;
+          case sf::Keyboard::Down:
+            input.down = isPressed;
+            break;
+          case sf::Keyboard::Left:
+            input.left = isPressed;
+            break;
+          case sf::Keyboard::Right:
+            input.right = isPressed;
+            break;
+          case sf::Keyboard::Space:
+            input.fire = isPressed;
+            break;
+          case sf::Keyboard::Enter:
+            input.enter = isPressed;
+            break;
+          default:
+            break;
+          }
+        }
+      }
+    }
+  }
 }
 
 void RTypeGame::findMyPlayer() {
@@ -131,7 +125,7 @@ void RTypeGame::update(float deltaTime) {
   // gameLogicSystem.update(entityManager, deltaTime);
   //   backgroundSystem.update(entityManager, deltaTime);
   // movementSystem.update(entityManager, deltaTime);
-    // playerSystem.update(entityManager, deltaTime);
+  // playerSystem.update(entityManager, deltaTime);
   animationSystem.update(entityManager, deltaTime);
   // inputSystem.update(entityManager, deltaTime);
   // boundarySyste>m.update(entityManager, deltaTime);
@@ -160,37 +154,27 @@ void RTypeGame::render() {
   renderSystem.update(entityManager);
 
   if (gameOver) {
-    g_graphics->drawText("Game Over! Press SPACE to restart", 250, 250);
+    g_graphics->drawText("Game Over!", 250, 250);
   }
 
+  if (_state ==
+      GameState::MENU) { // STATE HERE WHEN NOT CONNECTED TO THE SERVER
+    g_graphics->drawText("Type the IP to connect in the text-box:", 0, 0);
+    g_graphics->drawText("SeymourPintatGodeFeytGrodard-Type", 0, 30);
+    g_graphics->getTextBox()->setAtCenter(g_graphics->getWindow());
+    g_graphics->getTextBox()->draw(g_graphics->getWindow());
+  } else if (_state == GameState::LOBBY) {
+    drawWaitingForPlayers();
+  } else {
     drawHitbox();
     std::string scoreText = "Score: " + std::to_string(score);
     g_graphics->drawText(scoreText, 10, 10);
 
-  std::string waveText =
-      "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
-  g_graphics->drawText(waveText, windowWidth - 100, 10);
+    std::string waveText =
+        "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
+    g_graphics->drawText(waveText, windowWidth - 100, 10);
+  }
 
-  // if (_state == GameState::LOBBY) {
-  //   g_graphics->getTextBox()->draw(g_graphics->getWindow()); // INPUT BOX
-  //   g_graphics->getTextBox()->setPosition(float x, float y)
-  // }
-  std::cout << _state << std::endl;
-  if (_state == GameState::MENU) {
-    float windowWidth = g_graphics->getWindow().getSize().x;
-    float windowHeight = g_graphics->getWindow().getSize().y;
-
-    float textBoxWidth = g_graphics->getTextBox()->getSize().x;
-    float textBoxHeight = g_graphics->getTextBox()->getSize().y;
-
-    float posX = (windowWidth - textBoxWidth) / 2.0f;
-    float posY = (windowHeight - textBoxHeight) / 2.0f;
-
-    // Apply position
-    g_graphics->getTextBox()->setPosition(posX, posY);
-    g_graphics->getTextBox()->draw(g_graphics->getWindow());
-}
-  drawWaitingForPlayers();
   g_graphics->present();
 }
 
@@ -299,67 +283,88 @@ void RTypeGame::createBackground() {
 }
 
 void RTypeGame::drawWaitingForPlayers() {
-    // Format the waiting text
-    if (_playerNb == 0 || _playerReady >= _playerNb)
-      return;
-    std::string waitingText = "Waiting for players to be ready: " +
-                              std::to_string(_playerReady) + " / " +
-                              std::to_string(_playerNb);
+  // Format the waiting text
+  if (_playerNb == 0 || _playerReady >= _playerNb)
+    return;
+  std::string waitingText =
+      "Waiting for players to be ready: " + std::to_string(_playerReady) +
+      " / " + std::to_string(_playerNb);
 
-    // Choose a screen position (centered horizontally)
-    int windowWidth = g_graphics->getWindow().getSize().x;
-    int windowHeight = g_graphics->getWindow().getSize().y;
-    float textX = windowWidth / 2.0f - 200.0f; // Adjust for centering
-    float textY = windowHeight / 2.0f - 50.0f;
+  // Choose a screen position (centered horizontally)
+  int windowWidth = g_graphics->getWindow().getSize().x;
+  int windowHeight = g_graphics->getWindow().getSize().y;
+  float textX = windowWidth / 2.0f - 200.0f; // Adjust for centering
+  float textY = windowHeight / 2.0f - 50.0f;
 
-    // Draw the text on screen
-    g_graphics->drawText(waitingText, textX, textY);
+  // Draw the text on screen
+  g_graphics->drawText(waitingText, textX, textY);
 }
 
-void RTypeGame::setCurrentWave(int nb)
-{
-    gameLogicSystem.currentWave = nb;
-}
+void RTypeGame::setCurrentWave(int nb) { gameLogicSystem.currentWave = nb; }
 
-void RTypeGame::setCurrentState(GameState newState)
-{
-    _state = newState;
-}
+void RTypeGame::setCurrentState(GameState newState) { _state = newState; }
 
-void RTypeGame::drawHitbox()
-{
-    // --- Debug: draw hitboxes ---
-    auto entities = entityManager.getEntitiesWithComponent<ColliderComponent>();
-    for (auto e : entities)
-    {
-        auto &collider = e->getComponent<ColliderComponent>();
+void RTypeGame::drawHitbox() {
+  // --- Debug: draw hitboxes ---
+  auto entities = entityManager.getEntitiesWithComponent<ColliderComponent>();
+  for (auto e : entities) {
+    auto &collider = e->getComponent<ColliderComponent>();
 
-        if (!collider.isActive)
-            continue;
+    if (!collider.isActive)
+      continue;
 
-        std::cout << "HEEEEEEEEEEEEEEEERRRRRRRRRRRRREEEEEEEEEEEEE" << std::endl;
+    std::cout << "HEEEEEEEEEEEEEEEERRRRRRRRRRRRREEEEEEEEEEEEE" << std::endl;
 
-        sf::RectangleShape hitboxRect;
+    sf::RectangleShape hitboxRect;
 
         hitboxRect.setSize(sf::Vector2f(collider.hitbox.w, collider.hitbox.h));
         hitboxRect.setOrigin(sf::Vector2f(collider.hitbox.w / 2, collider.hitbox.h / 2));
 
-        if (e->hasComponent<TransformComponent>())
-        {
-            auto &transform = e->getComponent<TransformComponent>();
-            hitboxRect.setPosition(transform.position.x, transform.position.y);
-        }
-        else
-        {
-            // Default position (just in case)
-            hitboxRect.setPosition(collider.hitbox.x, collider.hitbox.y);
-        }
-        std::cout << "pos: " << hitboxRect.getPosition().x << " " << hitboxRect.getPosition().y << std::endl;
-
-        hitboxRect.setFillColor(sf::Color(0, 0, 0, 0)); // transparent
-        hitboxRect.setOutlineThickness(1.0f);
-        hitboxRect.setOutlineColor(sf::Color::Red);
-
-        g_graphics->getWindow().draw(hitboxRect);
+    if (e->hasComponent<TransformComponent>()) {
+      auto &transform = e->getComponent<TransformComponent>();
+      hitboxRect.setPosition(transform.position.x, transform.position.y);
+    } else {
+      // Default position (just in case)
+      hitboxRect.setPosition(collider.hitbox.x, collider.hitbox.y);
     }
+    std::cout << "pos: " << hitboxRect.getPosition().x << " "
+              << hitboxRect.getPosition().y << std::endl;
+
+    hitboxRect.setFillColor(sf::Color(0, 0, 0, 0)); // transparent
+    hitboxRect.setOutlineThickness(1.0f);
+    hitboxRect.setOutlineColor(sf::Color::Red);
+
+    g_graphics->getWindow().draw(hitboxRect);
+  }
+}
+
+void RTypeGame::markPlayerAsDead(int playerId) {
+    auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
+    for (auto *entity : players) {
+        auto &playerComp = entity->getComponent<PlayerComponent>();
+        if (playerComp.playerID == playerId) {
+            if (entity->hasComponent<HealthComponent>()) {
+                auto &healthComp = entity->getComponent<HealthComponent>();
+                healthComp.health = 0; // Set health to 0 to mark as dead
+                std::cout << "Player " << playerId << " marked as dead." << std::endl;
+            }
+            break;
+        }
+    }
+}
+
+void RTypeGame::setWinnerId(int id)
+{
+  _winnerId = id;
+
+  std::cout << "Game Over!, set winner ID to " << _winnerId << std::endl;
+  if (_winnerId == _playerId) {
+    std::cout << "You are the winner!" << std::endl;
+  } else if (_winnerId == -1) {
+    std::cout << "It's a draw! No winners." << std::endl;
+  } else {
+    std::cout << "Player " << _winnerId << " is the winner!" << std::endl;
+  }
+  sf::sleep(sf::seconds(3));
+  g_graphics->getWindow().close();
 }

@@ -19,6 +19,7 @@ public:
           float width = 300.f, float height = 40.f);
 
   void setPosition(float x, float y);
+  void setAtCenter(sf::RenderWindow &window);
   void checkInFocus(sf::Vector2i mousePos);
   void typeInBox(sf::Event event);
   void draw(sf::RenderWindow &window);
