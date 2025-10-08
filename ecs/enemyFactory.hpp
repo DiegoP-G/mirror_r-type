@@ -1,6 +1,7 @@
 #pragma once
 #include "GraphicsManager.hpp"
 #include "allComponentsInclude.hpp"
+#include "components/HealthBarComponent.hpp"
 #include "entityManager.hpp"
 
 class EnemyFactory
@@ -15,6 +16,9 @@ class EnemyFactory
         // 0 for movement type : left
         // 2 for shooting type : single shot
         enemy.addComponent<EnemyComponent>(0, 1.0f, 2);
+
+        enemy.addComponent<HealthComponent>(100, 100);
+        enemy.addComponent<HealthBarComponent>(30.0f, 4.0f, -20.0f);
 
         if (enemyType == "basic_enemy")
         {
