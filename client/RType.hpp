@@ -19,6 +19,7 @@ class RTypeGame
     OffscreenCleanupSystem cleanupSystem; // Generic cleanup
     InputSystem inputSystem;              // Use existing generic input system
     PlayerSystem playerSystem;
+    AnimationSystem animationSystem;
     EnemySystem enemySystem;
     LaserWarningSystem laserWarningSystem;
     GameLogicSystem gameLogicSystem;
@@ -42,7 +43,7 @@ class RTypeGame
     const float ENEMY_SPEED = -200.0f;
 
   public:
-    RTypeGame() = default;
+    RTypeGame(NetworkECSMediator med): _med(med) {};
 
     std::mutex &getMutex()
     {
@@ -86,10 +87,10 @@ class RTypeGame
     void update(float deltaTime);
 
     void render();
-    // void render();
-    
 
     void restart();
 
     void run();
+
+    void setCurrentWave(int nb);
 };

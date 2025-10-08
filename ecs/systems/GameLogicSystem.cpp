@@ -1,27 +1,57 @@
 #include "GameLogicSystem.hpp"
+#include "../../server/Game/GameMediator.hpp"
+#include "../transferData/transferData.hpp"
+#include "enemyFactory.hpp"
+#include <vector>
 
 GameLogicSystem::GameLogicSystem() : rng(std::random_device{}())
 {
+    waveActive = false;
+    waveTimer = 0.0f;
 }
 
-void GameLogicSystem::update(EntityManager &entityManager, float deltaTime)
+void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, GameMediator &gameMediator)
 {
     enemySpawnTimer += deltaTime;
 
-    if (stageStatus == 0)
+    if (currentWave >= waves.size())
+        return; // All waves done
+
+    waveTimer += deltaTime;
+
+    // Wait for spawnDelay before starting next wave
+    if (!waveActive && waveTimer >= waves[currentWave].spawnDelay)
     {
-        stageStatus = 1;
-        stageCount = 1;
-        spawnEnemies(entityManager);
+        std::cout << "Spawning wave " << currentWave + 1 << std::endl;
+        spawnWave(entityManager, waves[currentWave]);
+        waveActive = true;
     }
-    else if (stageStatus == 1 && stageCount == 1)
+    else if (waveActive && entityManager.getEntitiesWithComponents<EnemyComponent>().empty())
     {
-        if (entityManager.getEntitiesWithComponents<LaserWarningComponent>().empty())
-        {
-            stageStatus = 1;
-            stageCount = 2;
-        }
+        // Prepare for next wave
+        waveActive = false;
+        waveTimer = 0.0f;
+        currentWave++;
+
+        // Notify the server about the wave change
+        std::string waveData = serializeInt(currentWave);
+        gameMediator.notify(GameMediatorEvent::UpdateWave, waveData);
     }
+
+    // if (stageStatus == 0)
+    // {
+    //     stageStatus = 1;
+    //     stageCount = 1;
+    //     spawnEnemies(entityManager);
+    // }
+    // else if (stageStatus == 1 && stageCount == 1)
+    // {
+    //     if (entityManager.getEntitiesWithComponents<LaserWarningComponent>().empty())
+    //     {
+    //         stageStatus = 1;
+    //         stageCount = 2;
+    //     }
+    // }
 
     updateScore(entityManager);
     checkGameOverConditions(entityManager);
@@ -78,7 +108,22 @@ void GameLogicSystem::spawnEnemies(EntityManager &entityManager)
         enemy.addComponent<VelocityComponent>(0.0f, 0.0f);
         enemy.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0, GraphicsManager::Texture::ENEMY);
         enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
-        enemy.addComponent<EnemyComponent>(1, 0.2f, 2);
+        enemy.addComponent<EnemyComponent>(0, 0.2f, 1);
+        enemy.addComponent<HealthComponent>(50, 100);
+        enemy.addComponent<HealthBarComponent>(20.0f, 4.0f, -10.0f);
+    }
+    for (size_t i = 0; i < 1; i++)
+    {
+        y = 100 + i * 50;
+
+        auto &bonusLife = entityManager.createEntity();
+        bonusLife.addComponent<TransformComponent>(700, y);
+        bonusLife.addComponent<VelocityComponent>(-230.0f, 0.0f);
+        bonusLife.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0, GraphicsManager::Texture::PLAYER);
+        bonusLife.addComponent<ColliderComponent>(20.0f, 20.0f, true);
+        std::vector<std::tuple<BonusComponent::TypeBonus, int>> v;
+        v.push_back(std::tuple<BonusComponent::TypeBonus, int>(BonusComponent::TypeBonus::HEALTH, 50));
+        bonusLife.addComponent<BonusComponent>(v);
     }
 }
 
@@ -95,4 +140,16 @@ void GameLogicSystem::updateScore(EntityManager &entityManager)
 void GameLogicSystem::checkGameOverConditions(EntityManager &entityManager)
 {
     // Game over logic
+}
+
+void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
+{
+    float cx = windowWidth + 50.0f;
+    float cy = windowHeight / 2.0f;
+    std::vector<Vector2D> positions = wave.pattern(wave.enemyCount, cx, cy);
+
+    for (const auto &pos : positions)
+    {
+        EnemyFactory::createEnemy(entityManager, wave.enemyType, pos);
+    }
 }

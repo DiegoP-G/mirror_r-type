@@ -7,6 +7,7 @@
 #include "../transferData/opcode.hpp"
 #include "assetsPath.hpp"
 #include <SFML/Graphics/Font.hpp>
+#include "windowSize.hpp"
 #include <exception>
 #include <functional>
 #include <iostream>
@@ -16,124 +17,93 @@ bool RTypeGame::init(NetworkECSMediator med,
                      std::function<void(const char *)> networkCb) {
   sf::Font dummy;
 
-  // dummy.loadFromFile(PathFormater::formatAssetPath("assets/fonts/upheavtt.ttf"));
-  // TextBox textbox(dummy, 400, 50);
-  _med = med;
-  _networkCb = networkCb;
-  g_graphics = new GraphicsManager(med);
-  // Initialize graphics
-  if (!g_graphics->init("R-Type", 800, 600, networkCb)) {
-    std::cerr << "Failed to initialize graphics!" << std::endl;
-    return false;
-  }
-
-  // Create textures
-  createTextures();
-
-  // Create background
-  //    createBackground();
-
-  // Create player
-  //  createPlayer();
-
-  running = true;
-
-  std::cout << "R-Type initialized!" << std::endl;
-  return true;
-}
-
-void RTypeGame::createTextures() {
-  sf::Texture &backgroundTexture = g_graphics->createTextureFromPath(
-      PathFormater::formatAssetPath("assets/sprites/background.jpg"),
-      "background");
-  sf::Texture &playerTexture = g_graphics->createTextureFromPath(
-      PathFormater::formatAssetPath("assets/sprites/playerSpritesheet.png"),
-      "player");
-  sf::Texture &enemyTexture = g_graphics->createTextureFromPath(
-      PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "enemy");
-  sf::Texture &bulletTexture = g_graphics->createTextureFromPath(
-      PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "bullet");
-  sf::Texture &explosionTexture = g_graphics->createTextureFromPath(
-      PathFormater::formatAssetPath("assets/sprites/explosion.png"),
-      "explosion");
-
-  g_graphics->storeTexture("background", backgroundTexture);
-  g_graphics->storeTexture("player", playerTexture);
-  g_graphics->storeTexture("enemy", enemyTexture);
-  g_graphics->storeTexture("bullet", bulletTexture);
-  g_graphics->storeTexture("explosion", explosionTexture);
-}
-
-void RTypeGame::createPlayer() {
-
-  auto &playerEntity = entityManager.createEntity();
-
-  playerEntity.addComponent<PlayerComponent>();
-  playerEntity.addComponent<TransformComponent>(100.0f, 300.0f);
-  playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
-  playerEntity.addComponent<SpriteComponent>(
-      32, 32, 255, 255, 0, GraphicsManager::Texture::PLAYER); // Yellow
-  playerEntity.addComponent<ColliderComponent>(32.0f, 32.0f);
-  playerEntity.addComponent<InputComponent>();
-
-  // Load texture and initialize AnimatedSpriteComponent
-  sf::Texture *playerTexture = g_graphics->getTexture("player");
-  if (playerTexture) {
-    playerEntity.addComponent<AnimatedSpriteComponent>(
-        GraphicsManager::Texture::PLAYER, 33, 17.5, 0.05f,
-        Vector2D(2.0f, 2.0f));
-  }
-
-  player = &playerEntity;
-}
-
-void RTypeGame::handleEvents() {
-  sf::Event event;
-  while (g_graphics->getWindow().pollEvent(event)) {
-    if (event.type == sf::Event::Closed) {
-      running = false;
+    g_graphics = new GraphicsManager(med);
+    // Initialize graphics
+    if (!g_graphics->init("R-Type", windowWidth, windowHeight, networkCb))
+    {
+        std::cerr << "Failed to initialize graphics!" << std::endl;
+        return false;
     }
 
-    if (event.type == sf::Event::MouseButtonPressed)
-      g_graphics->getTextBox()->checkInFocus(
-          sf::Mouse::getPosition(g_graphics->getWindow()));
+    createTextures();
 
-    g_graphics->getTextBox()->typeInBox(event);
-    if (event.type == sf::Event::KeyPressed ||
-        event.type == sf::Event::KeyReleased) {
-      if (event.type == sf::Event::KeyPressed ||
-          event.type == sf::Event::KeyReleased) {
-        bool isPressed = (event.type == sf::Event::KeyPressed);
-        if (player && player->hasComponent<InputComponent>()) {
-          auto &input = player->getComponent<InputComponent>();
-          switch (event.key.code) {
-          case sf::Keyboard::Up:
-            input.up = isPressed;
-            break;
-          case sf::Keyboard::Down:
-            input.down = isPressed;
-            break;
-          case sf::Keyboard::Left:
-            input.left = isPressed;
-            break;
-          case sf::Keyboard::Right:
-          std::cout << "here right" << std::endl;
-            input.right = isPressed;
-            break;
-          case sf::Keyboard::Space:
-            input.fire = isPressed;
-            break;
-          case sf::Keyboard::Enter:
-          std::cout << "here enter" << std::endl;
-            input.enter = isPressed;
-            break;
-          default:
-            break;
-          }
+    running = true;
+
+    std::cout << "R-Type initialized!" << std::endl;
+    return true;
+}
+
+void RTypeGame::createTextures()
+{
+    sf::Texture &backgroundTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(backgroundSpritePath), "background");
+    sf::Texture &playerTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(playerSpritePath), "player");
+    sf::Texture &explosionTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/explosion.png"), "explosion");
+
+    sf::Texture &bulletTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bulletSpritePath), "bullet");
+    sf::Texture &basicEnemyTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(basicEnemySpritePath), "basic_enemy");
+
+    g_graphics->storeTexture("background", backgroundTexture);
+    g_graphics->storeTexture("player", playerTexture);
+    g_graphics->storeTexture("basic_enemy", basicEnemyTexture);
+    g_graphics->storeTexture("bullet", bulletTexture);
+    g_graphics->storeTexture("explosion", explosionTexture);
+}
+
+void RTypeGame::handleEvents()
+{
+    sf::Event event;
+    while (g_graphics->getWindow().pollEvent(event))
+    {
+        if (event.type == sf::Event::Closed)
+        {
+            running = false;
         }
-      }
+
+        if (event.type == sf::Event::MouseButtonPressed)
+          g_graphics->getTextBox()->checkInFocus(
+              sf::Mouse::getPosition(g_graphics->getWindow()));
+
+        g_graphics->getTextBox()->typeInBox(event);
+        if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
+        {
+            if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
+            {
+                bool isPressed = (event.type == sf::Event::KeyPressed);
+                if (player && player->hasComponent<InputComponent>())
+                {
+                    auto &input = player->getComponent<InputComponent>();
+                    switch (event.key.code)
+                    {
+                    case sf::Keyboard::Up:
+                        input.up = isPressed;
+                        break;
+                    case sf::Keyboard::Down:
+                        input.down = isPressed;
+                        break;
+                    case sf::Keyboard::Left:
+                        input.left = isPressed;
+                        break;
+                    case sf::Keyboard::Right:
+                        input.right = isPressed;
+                        break;
+                    case sf::Keyboard::Space:
+                        input.fire = isPressed;
+                        break;
+                    case sf::Keyboard::Enter:
+                        input.enter = isPressed;
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+        }
     }
-  }
 }
 
 void RTypeGame::findMyPlayer() {
@@ -160,7 +130,8 @@ void RTypeGame::update(float deltaTime) {
   // gameLogicSystem.update(entityManager, deltaTime);
   //   backgroundSystem.update(entityManager, deltaTime);
   // movementSystem.update(entityManager, deltaTime);
-  playerSystem.update(entityManager, deltaTime);
+    // playerSystem.update(entityManager, deltaTime);
+  animationSystem.update(entityManager, deltaTime);
   // inputSystem.update(entityManager, deltaTime);
   // boundarySyste>m.update(entityManager, deltaTime);
   // cleanupSystem.update(entityManager, deltaTime);
@@ -193,6 +164,11 @@ void RTypeGame::render() {
 
   std::string scoreText = "Score: " + std::to_string(score);
   g_graphics->drawText(scoreText, 10, 10);
+
+  std::string waveText =
+      "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
+  g_graphics->drawText(waveText, windowWidth - 100, 10);
+
   if (g_graphics->getTextBox()->getDisplayValue())
     g_graphics->getTextBox()->draw(g_graphics->getWindow()); // INPUT BOX
   drawWaitingForPlayers();
@@ -217,7 +193,6 @@ void cleanup() {
 }
 
 void RTypeGame::sendInputPlayer() {
-  // std::cout << "in send input\n";
 
   _mutex.lock();
 
@@ -321,4 +296,9 @@ void RTypeGame::drawWaitingForPlayers() {
 
     // Draw the text on screen
     g_graphics->drawText(waitingText, textX, textY);
+}
+
+void RTypeGame::setCurrentWave(int nb)
+{
+    gameLogicSystem.currentWave = nb;
 }

@@ -25,7 +25,6 @@ class Receiver
         : _med(other._med), _tcpBuffer(other._tcpBuffer), _tcpSocket(other._tcpSocket), _udpSocket(other._udpSocket),
           _serverAddr(other._serverAddr), _handlers(other._handlers)
     {
-        std::cout << "Receiver copied" << std::endl;
     }
 
     Receiver &operator=(const Receiver &other)

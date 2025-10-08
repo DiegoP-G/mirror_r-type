@@ -20,7 +20,6 @@ void ProjectileSystem::update(EntityManager &entityManager, float deltaTime)
 
         if (entity->isActive() == false)
         {
-            std::cout << " YES DESTROY HIT" << std::endl;
             entityManager.markEntityForDestruction(entity->getID());
         }
     }

@@ -22,3 +22,4 @@ GameServer
 RTypeClient
 libecs.*
 libtransferData.a
+*tmp*

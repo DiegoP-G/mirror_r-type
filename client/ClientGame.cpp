@@ -7,7 +7,7 @@
 #include <iostream>
 
 ClientGame::ClientGame()
-    : _med(), _sender(Sender(_med)), _receiver(Receiver(_med)), _game(RTypeGame()),
+    : _med(), _sender(Sender(_med)), _receiver(Receiver(_med)), _game(RTypeGame(_med)),
       _networkManager(NetworkManager(_med, _sender, _receiver)), _running(false)
 {
     _med.setSender(&_sender);
@@ -22,7 +22,6 @@ ClientGame::~ClientGame()
 
 void ClientGame::startServer(const char *serverIp)
 {
-    std::cout << "RECEIVED" << serverIp << "x" << std::endl;
     if (!_networkManager.setup(serverIp, 8081)) {
         std::cout << "failed to start network" << std::endl;
         return;
@@ -48,7 +47,6 @@ void ClientGame::start()
 
     std::cout << "ClientGame started (network running in background)" << std::endl;
 
-    std::cout << "entrypoint" << std::endl;
     _game.run();
 }
 

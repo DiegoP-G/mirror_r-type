@@ -1,9 +1,23 @@
 #include "EnemySystem.hpp"
 
+struct bulletSpriteType
+{
+    float left;
+    float top;
+    float width;
+    float height;
+};
+
+const bulletSpriteType redBullet{179, 82, 9, 17};
+const bulletSpriteType yellowBullet{179, 113, 9, 17};
+const bulletSpriteType pinkBullet{179, 144, 9, 17};
+const bulletSpriteType whiteBullet{179, 175, 9, 17};
+
 void EnemySystem::update(EntityManager &entityManager, float deltaTime)
 {
     auto entities = entityManager.getEntitiesWithComponents<EnemyComponent, TransformComponent>();
 
+    std::cerr << "Active Enemies: " << entities.size() << std::endl;
     for (auto &entity : entities)
     {
         auto &enemy = entity->getComponent<EnemyComponent>();
@@ -40,7 +54,16 @@ void EnemySystem::update(EntityManager &entityManager, float deltaTime)
         if (transform.position.x < -50.0f)
         {
             entity->destroy();
+            entityManager.markEntityForDestruction(entity->getID());
         }
+    }
+
+    auto inactiveEntities = entityManager.getInactiveEntitiesWithComponents<EnemyComponent>();
+
+    for (auto &entity : inactiveEntities)
+    {
+        if (!entity->isActive())
+            entityManager.markEntityForDestruction(entity->getID());
     }
 }
 
@@ -53,14 +76,17 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
 
         auto &projectile = entityManager.createEntity();
 
-        projectile.addComponent<TransformComponent>(
-            transform.position.x - 20.0f,
-            transform.position.y + 10.0f);
+        projectile.addComponent<TransformComponent>(transform.position.x - 20.0f, transform.position.y + 10.0f);
 
-        projectile.addComponent<VelocityComponent>(-200.0f, 0.0f);
-        projectile.addComponent<SpriteComponent>(10.0f, 5.0f, 255, 0, 0, GraphicsManager::Texture::BULLET);
+        Vector2D velocity(-200.0f, 0.0f);
+        projectile.addComponent<VelocityComponent>(velocity.x, velocity.y);
+
+        float angle = std::atan2(velocity.y, velocity.x) * (180.0f / M_PI) + 90.0f;
+        projectile.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, redBullet.left,
+                                                         redBullet.top, 9, 17, 1, 1, angle);
+
         projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
-        projectile.addComponent<ProjectileComponent>(5.0f, 3.0f, enemy->getID());
+        projectile.addComponent<ProjectileComponent>(5.0f, 3.0f, enemy->getID(), ENTITY_TYPE::ENEMY);
     }
     else if (enemyComponent.shootingType == 2)
     {
@@ -69,13 +95,17 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
         for (int i = 0; i < 3; i++)
         {
             auto &projectile = entityManager.createEntity();
-            projectile.addComponent<TransformComponent>(
-                transform.position.x - 20.0f,
-                transform.position.y + 10.0f);
-            projectile.addComponent<SpriteComponent>(10.0f, 5.0f, 255, 255, 255, GraphicsManager::Texture::BULLET);
-            projectile.addComponent<VelocityComponent>(-200.0f, (i - 1) * 50.0f);
+            projectile.addComponent<TransformComponent>(transform.position.x - 20.0f, transform.position.y + 10.0f);
+
+            Vector2D velocity(-200.0f, (i - 1) * 50.0f);
+            projectile.addComponent<VelocityComponent>(velocity.x, velocity.y);
+
+            float angle = std::atan2(velocity.y, velocity.x) * (180.0f / M_PI) + 90.0f;
+            projectile.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, redBullet.left,
+                                                             redBullet.top, 9, 17, 1, 1, angle);
+
             projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
-            projectile.addComponent<ProjectileComponent>(5.0f, 3.0f, enemy->getID());
+            projectile.addComponent<ProjectileComponent>(5.0f, 3.0f, enemy->getID(), ENTITY_TYPE::ENEMY);
         }
     }
 }

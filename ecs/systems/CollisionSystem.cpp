@@ -51,6 +51,8 @@ CollisionSystem::EntityType CollisionSystem::getEntityType(Entity *entity) const
         return EntityType::LASER_WARNING;
     if (entity->hasComponent<JumpComponent>())
         return EntityType::JUMPER;
+    if (entity->hasComponent<BonusComponent>())
+        return EntityType::BONUS;
     return EntityType::UNKNOWN;
 }
 
@@ -104,6 +106,10 @@ void CollisionSystem::handlePlayerCollision(Entity *player, Entity *other, Entit
         onPlayerHitLaser(player, other);
         break;
 
+    case EntityType::BONUS:
+        onPlayerHitBonus(player, other);
+        break;
+
     default:
         break;
     }
@@ -113,10 +119,43 @@ void CollisionSystem::onPlayerHitProjectile(Entity *player, Entity *projectile)
 {
     auto &projComp = projectile->getComponent<ProjectileComponent>();
 
-    if (player->getID() == projComp.owner)
+    if (player->getID() == projComp.owner_id)
         return;
-    std::cout << "-------------porjectile hit---------------" << std::endl;
+    
+    if (projComp.owner_type == PLAYER)
+        return;  
+
+    if (player->hasComponent<HealthComponent>())
+    {
+        auto &health = player->getComponent<HealthComponent>();
+        health.health -= projComp.damage;
+
+        if (health.health <= 0)
+        {
+            player->destroy();
+        }
+    }
+    
+    // std::cout << "-------------porjectile hit---------------" << std::endl;
     projectile->destroy();
+}
+
+void CollisionSystem::onPlayerHitBonus(Entity *player, Entity *bonus)
+{
+    auto &BonusComp = bonus->getComponent<BonusComponent>();
+
+    auto &healthComp = player->getComponent<HealthComponent>();
+
+    for (auto &b : BonusComp.bonus)
+    {
+        if (std::get<0>(b) == BonusComponent::TypeBonus::HEALTH)
+        {
+            std::cout << "YES IS ADDED||||||||||||||||||||||||||||||||||||||||||||||\n";
+            healthComp.health += std::get<1>(b);
+            std::cout << "YES IS ADDED||||||||||||||||||||||||||||||||||||||||||||||" << healthComp.health << std::endl;
+        }
+    }
+    bonus->destroy();
 }
 
 void CollisionSystem::onPlayerHitLaser(Entity *player, Entity *laser)
@@ -144,10 +183,12 @@ void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile)
 {
     auto &projComp = projectile->getComponent<ProjectileComponent>();
 
-    if (enemy->getID() == projComp.owner)
+    if (enemy->getID() == projComp.owner_id)
         return;
 
-    std::cout << "[Collision] Enemy hit by projectile!" << std::endl;
+    if (projComp.owner_type == ENEMY)
+        return;    
+    // std::cout << "[Collision] Enemy hit by projectile!" << std::endl;
 
     if (enemy->hasComponent<HealthComponent>())
     {
@@ -157,13 +198,16 @@ void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile)
         if (health.health <= 0)
         {
             enemy->destroy();
-            std::cout << "[Collision] Enemy destroyed!" << std::endl;
+            std::cerr << "Enemy destroyed by projectile!" << std::endl;
+            std::cerr << "Enemy ID: " << enemy->getID() << std::endl;
+            
+            // std::cout << "[Collision] Enemy destroyed!" << std::endl;
         }
     }
     else
     {
         enemy->destroy();
-        std::cout << "[Collision] Enemy destroyed (no health)!" << std::endl;
+        //  std::cout << "[Collision] Enemy destroyed (no health)!" << std::endl;
     }
 
     projectile->destroy();
@@ -183,7 +227,7 @@ void CollisionSystem::onProjectileHitLaser(Entity *projectile, Entity *laser)
 
     if (!laserComp.isActive && laserComp.warningShown)
     {
-        std::cout << "[Collision] Laser warning destroyed by projectile!" << std::endl;
+        // std::cout << "[Collision] Laser warning destroyed by projectile!" << std::endl;
         laser->destroy();
         projectile->destroy();
     }
@@ -196,6 +240,6 @@ void CollisionSystem::handleLaserCollision(Entity *laser, Entity *other, EntityT
 
 void CollisionSystem::handleJumperCollision(Entity *jumper, Entity *other, EntityType otherType)
 {
-    std::cout << "[Collision] Jumper hit something!" << std::endl;
+    //  std::cout << "[Collision] Jumper hit something!" << std::endl;
     jumper->destroy();
 }

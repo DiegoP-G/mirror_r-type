@@ -20,8 +20,8 @@
 GraphicsManager *g_graphics = nullptr;
 
 GraphicsManager::GraphicsManager(NetworkECSMediator med) : _med(med)
-{   }
-
+{
+}
 
 bool GraphicsManager::registerTheTexture()
 {
@@ -105,7 +105,7 @@ sf::Texture *GraphicsManager::getTexture(int tex)
     case PLAYER:
         return getTexture("player");
     case ENEMY:
-        return getTexture("enemy");
+        return getTexture("basic_enemy");
     case BULLET:
         return getTexture("bullet");
     case EXPLOSION:

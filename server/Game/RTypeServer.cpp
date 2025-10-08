@@ -15,16 +15,17 @@ bool RTypeServer::init() {
 void RTypeServer::createPlayer(const std::string &id) {
   Entity &playerEntity = entityManager.createEntity();
 
-  int playerId = deserializeInt(id);
-  playerEntity.addComponent<PlayerComponent>(playerId, false);
-  playerEntity.addComponent<TransformComponent>(100.0f, 300.0f);
-  playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
-  playerEntity.addComponent<SpriteComponent>(
-      32, 32, 255, 255, 0, GraphicsManager::Texture::PLAYER); // Yellow
-  playerEntity.addComponent<ColliderComponent>(32.0f, 32.0f);
-  playerEntity.addComponent<AnimatedSpriteComponent>(
-      GraphicsManager::Texture::PLAYER, 33, 17.5, 0.05f, Vector2D(2.0f, 2.0f));
-  playerEntity.addComponent<InputComponent>();
+    int playerId = deserializeInt(id);
+    playerEntity.addComponent<PlayerComponent>(playerId, false, 0.5f);
+    playerEntity.addComponent<TransformComponent>(100.0f, 300.0f);
+    playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
+    playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0, GraphicsManager::Texture::PLAYER); // Yellow
+    playerEntity.addComponent<ColliderComponent>(32.0f, 32.0f);
+    playerEntity.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::PLAYER, 0, 0, 33, 17.5, 5, 0.05f, 0.0f,
+                                                       Vector2D(2.0f, 2.0f));
+    playerEntity.addComponent<InputComponent>();
+    playerEntity.addComponent<HealthComponent>(50, 100);
+    playerEntity.addComponent<HealthBarComponent>(50.0f, 4.0f, -10.0f);
 
   player = &playerEntity;
 }
@@ -42,7 +43,7 @@ void RTypeServer::update(float deltaTime) {
   playerSystem.update(entityManager, deltaTime);
   inputSystem.update(entityManager, deltaTime);
   if (_state == GameState::INGAME) {
-    gameLogicSystem.update(entityManager, deltaTime);
+    gameLogicSystem.update(entityManager, deltaTime, mediator);
 
     boundarySystem.update(entityManager, deltaTime);
     cleanupSystem.update(entityManager, deltaTime);
@@ -63,6 +64,8 @@ void RTypeServer::update(float deltaTime) {
   sendDestroyedEntities(); // Envoie les IDs dans entitiesToDestroy
   sendMovementUpdates();
   entityManager.applyPendingChanges();
+    // 4. Envoyer les updates de mouvement (toutes les entités actives)
+  sendHealthUpdates();
 
   tick++;
 }
@@ -96,6 +99,13 @@ void RTypeServer::sendMovementUpdates() {
   auto data = entityManager.serializeAllMovements();
   std::string serializedData(data.begin(), data.end());
   mediator.notify(GameMediatorEvent::MovementUpdate, serializedData);
+}
+
+void RTypeServer::sendHealthUpdates()
+{
+    auto data = entityManager.serializeAllHealth();
+    std::string serializedData(data.begin(), data.end());
+    mediator.notify(GameMediatorEvent::HealthUpdate, serializedData);
 }
 
 void RTypeServer::restart() {

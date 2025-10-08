@@ -79,7 +79,6 @@
 // [CLIENT → SERVER, UDP]
 // Sends the client kb input.
 
-
 #define OPCODE_ENTITY_CREATE 0x27
 // [SERVER → CLIENT, TCP]
 // Création complète d'une entité avec tous ses composants
@@ -96,6 +95,10 @@
 // Updates des positions et velocities de toutes les entités
 // Payload: liste compressée (EntityID, position, velocity)
 
+#define OPCODE_HEALTH_UPDATE 0x40
+// [SERVER → CLIENT, UDP]
+// Updates la vie de toutes les entités
+// Payload: liste compressée (EntityID, healtcomponent)
 
 #define OPCODE_CHAT_MESSAGE 0x30
 // [CLIENT → SERVER, TCP]
@@ -109,7 +112,12 @@
 
 // ---- Lobby / Pre-game info ----
 
-#define OPCODE_LOBBY_INFO 0x40
+#define OPCODE_UPDATE_WAVE 0x50
+// [SERVER → CLIENT, TCP]
+// Update current wave counter
+// Payload: WaveNumber (4 bytes)
+
+#define OPCODE_LOBBY_INFO 0x60
 // [SERVER → CLIENT, TCP]
 // Sends information about the lobby, e.g., number of players ready.
 // Payload: [ players_ready (1 byte) | total_players (1 byte) ]
