@@ -56,12 +56,11 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
         // Wave update
         {GameMediatorEvent::UpdateWave,
          [this](const std::string &data) -> void { _networkManager.sendDataAllClientTCP(data, OPCODE_UPDATE_WAVE); }},
-        
+
         // Score update
         {GameMediatorEvent::UpdateScore,
          [this](const std::string &data) -> void { _networkManager.sendDataAllClientTCP(data, OPCODE_UPDATE_SCORE); }},
 
- 
         {GameMediatorEvent::GameOver,
          [this](const std::string &data) -> void { _networkManager.sendDataAllClientTCP(data, OPCODE_GAME_OVER); }},
         {GameMediatorEvent::PlayerDead,

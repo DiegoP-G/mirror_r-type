@@ -56,7 +56,7 @@ class RTypeGame
   public:
     void reset();
 
-    RTypeGame(NetworkECSMediator med) : _med(med) {};
+    RTypeGame(NetworkECSMediator med) : _med(med){};
 
     void markPlayerAsDead(int playerId);
 
@@ -115,7 +115,7 @@ class RTypeGame
 
     void setCurrentWave(int nb);
     void updateScore(std::vector<std::pair<int, int>> vec);
-  
+
     void setCurrentState(GameState newState);
 
     void drawHitbox();

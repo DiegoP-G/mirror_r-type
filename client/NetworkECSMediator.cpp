@@ -125,15 +125,15 @@ NetworkECSMediator::NetworkECSMediator()
                  break;
              }
 
-         case OPCODE_UPDATE_SCORE: {
-           _game->getMutex().lock();
-           std::vector<uint8_t> bytes(data.begin(), data.end());
-           std::vector<std::pair<int, int>> scoreVec = _game->getEntityManager().deserializePlayersScores(bytes);
-           if (_game)
-             _game->updateScore(scoreVec);
-           _game->getMutex().unlock();
-           break;
-         }
+             case OPCODE_UPDATE_SCORE: {
+                 _game->getMutex().lock();
+                 std::vector<uint8_t> bytes(data.begin(), data.end());
+                 std::vector<std::pair<int, int>> scoreVec = _game->getEntityManager().deserializePlayersScores(bytes);
+                 if (_game)
+                     _game->updateScore(scoreVec);
+                 _game->getMutex().unlock();
+                 break;
+             }
 
              case OPCODE_GAME_OVER: {
                  _game->getMutex().lock();

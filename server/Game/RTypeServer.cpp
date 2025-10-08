@@ -29,8 +29,8 @@ void RTypeServer::createPlayer(const std::string &id)
     playerEntity.addComponent<HealthComponent>(100, 150);
     playerEntity.addComponent<HealthBarComponent>(50.0f, 4.0f, -10.0f);
 
-  player = &playerEntity;
-  _playersScores.push_back({playerId, 0});
+    player = &playerEntity;
+    _playersScores.push_back({playerId, 0});
 }
 
 void RTypeServer::update(float deltaTime)
@@ -52,18 +52,19 @@ void RTypeServer::update(float deltaTime)
         boundarySystem.update(entityManager, deltaTime);
         cleanupSystem.update(entityManager, deltaTime);
         enemySystem.update(entityManager, deltaTime);
-            projectileSystem.update(entityManager, deltaTime);
+        projectileSystem.update(entityManager, deltaTime);
         bonusSystem.update(entityManager, deltaTime);
-    
-    bool updateScore = false;
-    collisionSystem.update(entityManager, _playersScores, updateScore);
-    if (updateScore) {
-      puts("SENDING SCORE UPDATE");
-      auto serializedScores = entityManager.serializePlayersScores(_playersScores);
-      std::string serializedData(serializedScores.begin(), serializedScores.end());
-      mediator.notify(GameMediatorEvent::UpdateScore, serializedData);
-    }
-    // laserWarningSystem.update(entityManager, deltaTime);
+
+        bool updateScore = false;
+        collisionSystem.update(entityManager, _playersScores, updateScore);
+        if (updateScore)
+        {
+            puts("SENDING SCORE UPDATE");
+            auto serializedScores = entityManager.serializePlayersScores(_playersScores);
+            std::string serializedData(serializedScores.begin(), serializedScores.end());
+            mediator.notify(GameMediatorEvent::UpdateScore, serializedData);
+        }
+        // laserWarningSystem.update(entityManager, deltaTime);
 
         // 3. Appliquer les changements (vide les buffers)
     }

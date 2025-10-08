@@ -38,7 +38,6 @@ void PlayerSystem::handlePositionPlayer(Entity *&entity)
         tranform.position.y = 600 - 32;
 }
 
-
 void PlayerSystem::fire(EntityManager &entityManager, Entity *entity)
 {
     auto &transform = entity->getComponent<TransformComponent>();

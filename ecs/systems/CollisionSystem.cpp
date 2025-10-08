@@ -1,7 +1,8 @@
 #include "CollisionSystem.hpp"
 #include <iostream>
 
-void CollisionSystem::update(EntityManager &entityManager, std::vector<std::pair<int, int>> &playersScores, bool &updateScore)
+void CollisionSystem::update(EntityManager &entityManager, std::vector<std::pair<int, int>> &playersScores,
+                             bool &updateScore)
 {
     auto entities = entityManager.getEntitiesWithComponents<TransformComponent, ColliderComponent>();
 
@@ -56,7 +57,8 @@ CollisionSystem::EntityType CollisionSystem::getEntityType(Entity *entity) const
     return EntityType::UNKNOWN;
 }
 
-void CollisionSystem::handleCollision(Entity *a, Entity *b, std::vector<std::pair<int, int>> &playersScores, bool &updateScore)
+void CollisionSystem::handleCollision(Entity *a, Entity *b, std::vector<std::pair<int, int>> &playersScores,
+                                      bool &updateScore)
 {
     EntityType typeA = getEntityType(a);
     EntityType typeB = getEntityType(b);
@@ -167,7 +169,8 @@ void CollisionSystem::onPlayerHitLaser(Entity *player, Entity *laser)
         return;
 }
 
-void CollisionSystem::handleEnemyCollision(Entity *enemy, Entity *other, EntityType otherType, std::vector<std::pair<int, int>> &playersScores, bool &updateScore)
+void CollisionSystem::handleEnemyCollision(Entity *enemy, Entity *other, EntityType otherType,
+                                           std::vector<std::pair<int, int>> &playersScores, bool &updateScore)
 {
     switch (otherType)
     {
@@ -180,7 +183,8 @@ void CollisionSystem::handleEnemyCollision(Entity *enemy, Entity *other, EntityT
     }
 }
 
-void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile, std::vector<std::pair<int, int>> &playersScores, bool &updateScore)
+void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile,
+                                           std::vector<std::pair<int, int>> &playersScores, bool &updateScore)
 {
     auto &projComp = projectile->getComponent<ProjectileComponent>();
 
@@ -188,7 +192,7 @@ void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile, st
         return;
 
     if (projComp.owner_type == ENEMY)
-        return;    
+        return;
 
     EnemyComponent &enemyComp = enemy->getComponent<EnemyComponent>();
 
@@ -203,8 +207,10 @@ void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile, st
             std::cerr << "Enemy destroyed by projectile!" << std::endl;
             std::cerr << "Enemy ID: " << enemy->getID() << std::endl;
 
-            for (auto& pair : playersScores) {
-                if (pair.first == projComp.owner_id) {
+            for (auto &pair : playersScores)
+            {
+                if (pair.first == projComp.owner_id)
+                {
                     pair.second += enemyComp.scoreValue;
                     updateScore = true;
                 }
@@ -214,8 +220,10 @@ void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile, st
     else
     {
         enemy->destroy();
-        for (auto& pair : playersScores) {
-            if (pair.first == projComp.owner_id) {
+        for (auto &pair : playersScores)
+        {
+            if (pair.first == projComp.owner_id)
+            {
                 pair.second += enemyComp.scoreValue;
                 updateScore = true;
             }

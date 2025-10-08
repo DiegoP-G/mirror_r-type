@@ -61,9 +61,11 @@ class CollisionSystem
     // ENEMY COLLISION HANDLERS
     // ============================================================
 
-    void handleEnemyCollision(Entity *enemy, Entity *other, EntityType otherType, std::vector<std::pair<int, int>> &playersScores, bool &updateScore);
+    void handleEnemyCollision(Entity *enemy, Entity *other, EntityType otherType,
+                              std::vector<std::pair<int, int>> &playersScores, bool &updateScore);
 
-    void onEnemyHitProjectile(Entity *enemy, Entity *projectile, std::vector<std::pair<int, int>> &playersScores, bool &updateScore);
+    void onEnemyHitProjectile(Entity *enemy, Entity *projectile, std::vector<std::pair<int, int>> &playersScores,
+                              bool &updateScore);
 
     // ============================================================
     // PROJECTILE COLLISION HANDLERS
