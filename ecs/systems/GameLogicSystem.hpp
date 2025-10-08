@@ -1,7 +1,8 @@
 #pragma once
 
+#include "../../client/windowSize.hpp"
 #include "../GraphicsManager.hpp"
-#include "../client/windowSize.hpp"
+#include "../../client/windowSize.hpp"
 #include "../components/BonusComponent.hpp"
 #include "../components/CenteredComponent.hpp"
 #include "../components/ColliderComponent.hpp"

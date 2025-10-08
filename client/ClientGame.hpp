@@ -26,6 +26,7 @@ class ClientGame
     ~ClientGame();
 
     bool init(const char *serverIp = "127.0.0.1", int port = 8080);
+    void startServer(const char *serverIp);
 
     void start();
     void stop();

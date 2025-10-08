@@ -1,5 +1,6 @@
 #include "../ecs/IComponent.hpp"
 #include "../ecs/systems.hpp"
+#include "../ecs/textBox.hpp"
 #include "NetworkECSMediator.hpp"
 #include <mutex>
 
@@ -31,12 +32,18 @@ class RTypeGame
 
     bool running = false;
 
+    int _playerReady = 0;
+    int _playerNb = 0;
+    bool showLobbyInfo = false;
+
     int score = 0;
+
+    std::function<void(const char *)> _networkCb;
 
     const float ENEMY_SPEED = -200.0f;
 
   public:
-    RTypeGame() = default;
+    RTypeGame(NetworkECSMediator med): _med(med) {};
 
     std::mutex &getMutex()
     {
@@ -53,8 +60,17 @@ class RTypeGame
     {
         _playerId = id;
     };
+    void setPlayerReady(int value)
+    {
+      _playerReady = value;
+    }
+    void setPlayerNb(int value)
+    {
+      _playerNb = value;
+    }
 
-    bool init(NetworkECSMediator med);
+
+    bool init(NetworkECSMediator med, std::function<void(const char *)> networkCb);
 
     void createTextures();
 
@@ -62,7 +78,9 @@ class RTypeGame
 
     void createPlayer();
 
+    void drawWaitingForPlayers();
     void handleEvents();
+    // void handleEvents();
 
     void sendInputPlayer();
 
@@ -75,4 +93,6 @@ class RTypeGame
     void run();
 
     void setCurrentWave(int nb);
+
+    void drawHitbox();
 };

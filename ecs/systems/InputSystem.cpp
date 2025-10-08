@@ -1,3 +1,4 @@
+#include "iostream"
 #include "InputSystem.hpp"
 
 void InputSystem::update(EntityManager &entityManager, float deltaTime)
@@ -19,8 +20,14 @@ void InputSystem::update(EntityManager &entityManager, float deltaTime)
             velocity.velocity.y = PLAYER_SPEED;
         if (input.left)
             velocity.velocity.x = -PLAYER_SPEED;
-        if (input.right)
+        if (input.right) {
+            std::cout << "right pressed" << std::endl;
             velocity.velocity.x = PLAYER_SPEED;
+        }
+        // std::cout << input.enter << std::endl;
+        // if (input.enter) {
+        //     std::cout << "enter pressed " << std::endl;
+        // }
     }
 }
 
@@ -29,6 +36,7 @@ void InputSystem::handleEvents(EntityManager &entityManager)
     if (!g_graphics)
         return;
 
+        std::cout << "test" << std::endl;
     sf::Event event;
     while (g_graphics->getWindow().pollEvent(event))
     {
@@ -59,10 +67,14 @@ void InputSystem::handleEvents(EntityManager &entityManager)
                     input.left = isPressed;
                     break;
                 case sf::Keyboard::Right:
+                    std::cout << "iright pressed" << std::endl;
                     input.right = isPressed;
                     break;
                 case sf::Keyboard::Space:
                     input.fire = isPressed;
+                    break;
+                case sf::Keyboard::Enter:
+                    input.enter = isPressed;
                     break;
                 default:
                     break;

@@ -110,7 +110,15 @@
 // Broadcast chat message to all players.
 // Payload: [ sender_id (4 bytes) | msg (string) ]
 
+// ---- Lobby / Pre-game info ----
+
 #define OPCODE_UPDATE_WAVE 0x50
 // [SERVER → CLIENT, TCP]
 // Update current wave counter
 // Payload: WaveNumber (4 bytes)
+
+#define OPCODE_LOBBY_INFO 0x60
+// [SERVER → CLIENT, TCP]
+// Sends information about the lobby, e.g., number of players ready.
+// Payload: [ players_ready (1 byte) | total_players (1 byte) ]
+// Purpose: client can display lobby info, like "players ready: X / Y".

@@ -9,6 +9,11 @@
 
 class GameMediator;
 
+enum GameState {
+    LOBBY,
+    INGAME
+};
+
 class RTypeServer
 {
   private:
@@ -30,8 +35,12 @@ class RTypeServer
 
     Entity *player = nullptr;
     bool gameOver = false;
+    GameState _state = LOBBY;
 
     bool running = false;
+
+    int playerReady = 0;
+    int playerNb = 0;
 
     int score = 0;
     int tick = 0;
@@ -68,6 +77,8 @@ class RTypeServer
     void sendNewEntities();
     void sendDestroyedEntities();
     void createBackground();
+
+    void updateLobbyStatus();
 
     Entity *getEntityByPlayerID(int playerID);
 

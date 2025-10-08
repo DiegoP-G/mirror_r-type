@@ -19,7 +19,6 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
     };
 
     _handlers[OPCODE_ENTITY_DESTROY] = [this](const std::string &payload, int opcode) {
-        std::cout << "RECEIVE DESTROY" << std::endl;
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
 
@@ -36,6 +35,10 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
 
     _handlers[OPCODE_PLAYER_ID] = [this](const std::string &payload, int opcode) {
         _med.notify(PLAYER_ID, payload, opcode);
+    };
+
+    _handlers[OPCODE_LOBBY_INFO] = [this](const std::string &payload, int opcode) {
+        _med.notify(UPDATE_DATA, payload, opcode);
     };
 }
 
