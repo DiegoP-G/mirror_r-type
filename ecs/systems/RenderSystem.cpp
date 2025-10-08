@@ -95,6 +95,7 @@ void RenderSystem::renderAnimatedSprite(AnimatedSpriteComponent &animComp, float
         return;
     }
 
+    std::cout << "Rendering animated sprite at (" << x << ", " << y << ") with frame " << animComp.currentFrame << std::endl;
     sf::Sprite sprite(*texture);
     sprite.setPosition(x, y);
     sprite.setScale(animComp.scale.x, animComp.scale.y);

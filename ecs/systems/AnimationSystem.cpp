@@ -18,11 +18,17 @@ void AnimationSystem::update(EntityManager &entityManager, float deltaTime)
 
 void AnimationSystem::handleAnimation(Entity *&entity, InputComponent &input, float deltaTime)
 {
-    if (!entity->hasComponent<AnimatedSpriteComponent>())
+    if (!entity->hasComponent<AnimatedSpriteComponent>()) {
+        std::cout << "Entity " << entity->getID() << " does not have AnimatedSpriteComponent!" << std::endl;
         return;
+    }
+
     auto &animatedSprite = entity->getComponent<AnimatedSpriteComponent>();
 
     AnimatedSpriteComponent::Direction direction = AnimatedSpriteComponent::Default;
+    
+    // std::cout << "Input state: up=" << input.up << ", down=" << input.down << ", left=" << input.left << ", right=" << input.right << ", fire=" << input.fire << std::endl;
+    
     if (input.up)
     {
         direction = AnimatedSpriteComponent::Up;
@@ -39,6 +45,7 @@ void AnimationSystem::handleAnimation(Entity *&entity, InputComponent &input, fl
 
     animatedSprite.elapsedTime += deltaTime;
 
+    std::cout << "Current Frame: " << animatedSprite.currentFrame << ", Direction: " << animatedSprite.currentDirection << std::endl;
     if (animatedSprite.elapsedTime >= animatedSprite.animationInterval)
     {
         if (animatedSprite.currentDirection == AnimatedSpriteComponent::Up && animatedSprite.currentFrame < 4)
@@ -56,6 +63,7 @@ void AnimationSystem::handleAnimation(Entity *&entity, InputComponent &input, fl
             else if (animatedSprite.currentFrame < 2)
                 animatedSprite.currentFrame++;
         }
+        animatedSprite.setFrame(animatedSprite.currentFrame);
         animatedSprite.elapsedTime = 0.0f;
     }
 }
