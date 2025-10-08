@@ -36,7 +36,8 @@ int deserializePlayerInput(const std::string &data, InputComponent &input)
     std::string inputData = data.substr(inputCompPos + 15);
     int up, down, left, right, fire, enter;
 
-    sscanf(inputData.c_str(), " up=%d down=%d left=%d right=%d fire=%d enter=%d", &up, &down, &left, &right, &fire, &enter);
+    sscanf(inputData.c_str(), " up=%d down=%d left=%d right=%d fire=%d enter=%d", &up, &down, &left, &right, &fire,
+           &enter);
 
     // std::cout << inputData << std::endl;
     input.up = up;

@@ -1,9 +1,13 @@
 #include "HealthBarComponent.hpp"
 #include <cstring>
 
-HealthBarComponent::HealthBarComponent(float w, float h, float oY) : width(w), height(h), offsetY(oY) {}
+HealthBarComponent::HealthBarComponent(float w, float h, float oY) : width(w), height(h), offsetY(oY)
+{
+}
 
-void HealthBarComponent::update(float deltaTime) {}
+void HealthBarComponent::update(float deltaTime)
+{
+}
 
 std::vector<uint8_t> HealthBarComponent::serialize() const
 {

@@ -124,7 +124,6 @@
 // Payload: [ player_id (4 bytes) ]
 // Purpose: clients can update UI, respawn logic, etc.
 
-
 #define OPCODE_UPDATE_WAVE 0x50
 // [SERVER → CLIENT, TCP]
 // Update current wave counter

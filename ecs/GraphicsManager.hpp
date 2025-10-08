@@ -14,13 +14,13 @@
 #include "../client/NetworkECSMediator.hpp"
 #include "../ecs/components/AnimatedSpriteComponent.hpp"
 #include "components/AnimatedSpriteComponent.hpp"
+#include "textBox.hpp"
+#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <cstddef>
 #include <memory>
 #include <string>
-#include "textBox.hpp"
 #include <unordered_map>
-#include <SFML/Audio.hpp>
 
 #define TEXT_SIZE 24
 
@@ -34,7 +34,6 @@ class GraphicsManager
     NetworkECSMediator _med;
     std::unordered_map<std::string, sf::SoundBuffer> soundBuffers;
     std::unordered_map<std::string, sf::Sound> sounds;
-
 
   public:
     GraphicsManager(NetworkECSMediator med);
@@ -57,7 +56,7 @@ class GraphicsManager
     void storeTexture(const std::string &name, const sf::Texture &texture);
     sf::Texture *getTexture(const std::string &name);
     sf::Texture *getTexture(int tex);
-    std::unique_ptr<TextBox>& getTextBox();
+    std::unique_ptr<TextBox> &getTextBox();
     sf::Font &getFont();
 
     void drawTexture(const sf::Texture &texture, float x, float y, float w, float h);
@@ -66,8 +65,7 @@ class GraphicsManager
                   sf::Uint8 b = 255);
 
     bool registerTheSound();
-    sf::Sound &createSoundFromPath(const std::string &filePath,
-                                   const std::string &name);
+    sf::Sound &createSoundFromPath(const std::string &filePath, const std::string &name);
     sf::Sound *getSound(const std::string &name);
     void playSound(const std::string &name, bool loop = false);
     void stopSound(const std::string &name);
@@ -75,6 +73,6 @@ class GraphicsManager
     sf::RenderWindow &getWindow();
     sf::Texture &createTextureFromPath(const std::string &filePath, const std::string &name);
     bool registerTheTexture();
-  };
+};
 
 extern GraphicsManager *g_graphics;

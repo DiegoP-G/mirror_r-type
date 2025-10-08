@@ -1,5 +1,6 @@
 #pragma once
 
+#include "systems/AnimationSystem.hpp"
 #include "systems/BackgroundSystem.hpp"
 #include "systems/BoundarySystem.hpp"
 #include "systems/CollisionSystem.hpp"
@@ -14,5 +15,3 @@
 #include "systems/PlayerSystem.hpp"
 #include "systems/ProjectileSystem.hpp"
 #include "systems/RenderSystem.hpp"
-#include "systems/AnimationSystem.hpp"
-

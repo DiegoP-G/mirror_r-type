@@ -4,7 +4,6 @@
 #include "../components/Vector2D.hpp"
 #include "../entityManager.hpp"
 
-
 inline Vector2D getActualPosition(Entity *entity)
 {
     auto &transform = entity->getComponent<TransformComponent>();

@@ -131,7 +131,6 @@ class EntityManager
         return matchingEntities;
     }
 
-
     template <typename... Ts> int getCountEntitiesWithComponents()
     {
         std::vector<Entity *> matchingEntities;

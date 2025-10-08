@@ -11,8 +11,8 @@
 
 #include "GraphicsManager.hpp"
 #include "../client/NetworkECSMediator.hpp"
-#include "textBox.hpp"
 #include "../client/assetsPath.hpp"
+#include "textBox.hpp"
 #include <SFML/Graphics/Font.hpp>
 #include <iostream>
 #include <memory>
@@ -38,7 +38,8 @@ GraphicsManager::~GraphicsManager()
 {
 }
 
-bool GraphicsManager::init(const std::string &title, int width, int height, std::function<void(const char *)> startNetwork)
+bool GraphicsManager::init(const std::string &title, int width, int height,
+                           std::function<void(const char *)> startNetwork)
 {
     window.create(sf::VideoMode(width, height), title, sf::Style::Close);
     registerTheTexture();
@@ -151,7 +152,7 @@ sf::RenderWindow &GraphicsManager::getWindow()
     return window;
 }
 
-std::unique_ptr<TextBox>& GraphicsManager::getTextBox()
+std::unique_ptr<TextBox> &GraphicsManager::getTextBox()
 {
     return _textbox;
 }

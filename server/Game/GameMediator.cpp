@@ -49,7 +49,10 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
          [this](const std::string &data) -> void { _rTypeServer.handlePlayerInput(data); }},
 
         {GameMediatorEvent::LobbyInfoUpdate, // contains playerReady / playerMax
-         [this](const std::string &data) -> void { std::cout << "sending" << std::endl;_networkManager.sendDataAllClientTCP(data, OPCODE_LOBBY_INFO); }},
+         [this](const std::string &data) -> void {
+             std::cout << "sending" << std::endl;
+             _networkManager.sendDataAllClientTCP(data, OPCODE_LOBBY_INFO);
+         }},
         // Wave update
         {GameMediatorEvent::UpdateWave,
          [this](const std::string &data) -> void { _networkManager.sendDataAllClientTCP(data, OPCODE_UPDATE_WAVE); }},
@@ -59,7 +62,9 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
         {GameMediatorEvent::PlayerDead,
          [this](const std::string &data) -> void { _networkManager.sendDataAllClientTCP(data, OPCODE_PLAYER_DEAD); }},
         {GameMediatorEvent::GameStateUpdate,
-         [this](const std::string &data) -> void { _networkManager.sendDataAllClientTCP(data, OPCODE_GAME_STATE_UPDATE); }},
+         [this](const std::string &data) -> void {
+             _networkManager.sendDataAllClientTCP(data, OPCODE_GAME_STATE_UPDATE);
+         }},
     };
 }
 

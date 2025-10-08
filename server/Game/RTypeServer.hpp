@@ -9,7 +9,8 @@
 
 class GameMediator;
 
-enum GameState {
+enum GameState
+{
     LOBBY,
     INGAME
 };

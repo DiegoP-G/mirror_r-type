@@ -121,9 +121,9 @@ void CollisionSystem::onPlayerHitProjectile(Entity *player, Entity *projectile)
 
     if (player->getID() == projComp.owner_id)
         return;
-    
+
     if (projComp.owner_type == PLAYER)
-        return;  
+        return;
 
     if (player->hasComponent<HealthComponent>())
     {
@@ -135,7 +135,7 @@ void CollisionSystem::onPlayerHitProjectile(Entity *player, Entity *projectile)
             player->destroy();
         }
     }
-    
+
     // std::cout << "-------------porjectile hit---------------" << std::endl;
     projectile->destroy();
 }
@@ -187,7 +187,7 @@ void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile)
         return;
 
     if (projComp.owner_type == ENEMY)
-        return;    
+        return;
     // std::cout << "[Collision] Enemy hit by projectile!" << std::endl;
 
     if (enemy->hasComponent<HealthComponent>())
@@ -200,7 +200,7 @@ void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile)
             enemy->destroy();
             std::cerr << "Enemy destroyed by projectile!" << std::endl;
             std::cerr << "Enemy ID: " << enemy->getID() << std::endl;
-            
+
             // std::cout << "[Collision] Enemy destroyed!" << std::endl;
         }
     }
