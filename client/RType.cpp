@@ -342,6 +342,7 @@ void RTypeGame::drawHitbox()
         sf::RectangleShape hitboxRect;
 
         hitboxRect.setSize(sf::Vector2f(collider.hitbox.w, collider.hitbox.h));
+        hitboxRect.setOrigin(sf::Vector2f(collider.hitbox.w / 2, collider.hitbox.h / 2));
 
         if (e->hasComponent<TransformComponent>())
         {
