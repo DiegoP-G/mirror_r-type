@@ -70,3 +70,16 @@ bool TextBox::getDisplayValue() const {
 sf::Vector2f TextBox::getSize() const {
     return box.getSize();
 }
+
+void TextBox::setAtCenter(sf::RenderWindow &window) {
+    float windowWidth = window.getSize().x;
+    float windowHeight = window.getSize().y;
+
+    float textBoxWidth = getSize().x;
+    float textBoxHeight = getSize().y;
+
+    float posX = (windowWidth - textBoxWidth) / 2.0f;
+    float posY = (windowHeight - textBoxHeight) / 2.0f;
+
+    setPosition(posX, posY);
+}
