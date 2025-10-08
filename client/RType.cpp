@@ -94,9 +94,11 @@ void RTypeGame::handleEvents()
                     case sf::Keyboard::Right:
                         input.right = isPressed;
                         break;
-                    case sf::Keyboard::Space:
+                    case sf::Keyboard::Space: {
+                        g_graphics->playSound("pew");
                         input.fire = isPressed;
-                        break;
+                    }
+                    break;
                     case sf::Keyboard::Enter:
                         input.enter = isPressed;
                         break;
@@ -255,6 +257,7 @@ void RTypeGame::run()
     sf::Clock clock;
     float accumulator = 0.0f;
 
+    g_graphics->playSound("music", true);
     while (running)
     {
         float deltaTime = clock.restart().asSeconds();
