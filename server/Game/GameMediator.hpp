@@ -18,6 +18,7 @@ enum GameMediatorEvent
     SetupNetwork,
     InitECS,
     LobbyInfoUpdate,
+    GameStateUpdate,
     UpdateEntities = 0x21,
     UpdatePlayers = 0x23,
     UpdateEnemies = 0x24,

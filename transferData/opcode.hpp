@@ -135,3 +135,7 @@
 // Sends information about the lobby, e.g., number of players ready.
 // Payload: [ players_ready (1 byte) | total_players (1 byte) ]
 // Purpose: client can display lobby info, like "players ready: X / Y".
+
+#define OPCODE_GAME_STATE_UPDATE 61
+// [SERVER → CLIENT, TCP]
+// Sends info about game state (INGAME or INLOBBY)

@@ -95,12 +95,12 @@ void RenderSystem::renderAnimatedSprite(AnimatedSpriteComponent &animComp, float
         return;
     }
 
-    // std::cout << "Rendering animated sprite at (" << x << ", " << y << ") with frame " << animComp.currentFrame << std::endl;
     sf::Sprite sprite(*texture);
     sprite.setPosition(x, y);
     sprite.setScale(animComp.scale.x, animComp.scale.y);
 
     sprite.setTextureRect(sf::IntRect(animComp.left, animComp.top, animComp.frameWidth, animComp.frameHeight));
+    sprite.setOrigin(animComp.frameWidth / 2.0f, animComp.frameHeight / 2.0f);
     sprite.setRotation(animComp.rotationAngle);
 
     g_graphics->getWindow().draw(sprite);

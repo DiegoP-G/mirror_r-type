@@ -13,7 +13,7 @@ TextBox::TextBox(sf::Font& font, std::function<void(const char *)> startNetwork,
 
     text.setFont(font);
     text.setCharacterSize(20);
-    text.setFillColor(sf::Color::Yellow);
+    text.setFillColor(sf::Color::Black);
 }
 
 void TextBox::setPosition(float x, float y) {
@@ -65,4 +65,21 @@ std::string TextBox::getText() const {
 
 bool TextBox::getDisplayValue() const {
     return display;
+}
+
+sf::Vector2f TextBox::getSize() const {
+    return box.getSize();
+}
+
+void TextBox::setAtCenter(sf::RenderWindow &window) {
+    float windowWidth = window.getSize().x;
+    float windowHeight = window.getSize().y;
+
+    float textBoxWidth = getSize().x;
+    float textBoxHeight = getSize().y;
+
+    float posX = (windowWidth - textBoxWidth) / 2.0f;
+    float posY = (windowHeight - textBoxHeight) / 2.0f;
+
+    setPosition(posX, posY);
 }

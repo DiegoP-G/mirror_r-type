@@ -148,6 +148,18 @@ NetworkECSMediator::NetworkECSMediator() {
              _game->markPlayerAsDead(playerId);
              std::cout << "[Client] Player Dead! ID: " << playerId
                        << std::endl;
+            }
+           _game->getMutex().unlock();
+           break;
+         }
+
+         case OPCODE_GAME_STATE_UPDATE: {
+           _game->getMutex().lock();
+           GameState currentWave = static_cast<GameState>(deserializeInt(data));
+
+           std::cout << "CURRENT WAVE NOW" << currentWave << std::endl;
+           if (_game) {
+              _game->setCurrentState(currentWave);
            }
            _game->getMutex().unlock();
            break;

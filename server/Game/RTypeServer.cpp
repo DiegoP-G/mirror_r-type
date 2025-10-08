@@ -66,8 +66,14 @@ void RTypeServer::update(float deltaTime) {
   entityManager.applyPendingChanges();
     // 4. Envoyer les updates de mouvement (toutes les entités actives)
   sendHealthUpdates();
+  sendGameStateUpdates();
 
   tick++;
+}
+
+void RTypeServer::sendGameStateUpdates() {
+  //THINK THATS IT
+  mediator.notify(GameMediatorEvent::GameStateUpdate, serializeInt(_state));
 }
 
 void RTypeServer::sendNewEntities() {

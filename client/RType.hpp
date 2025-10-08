@@ -4,6 +4,13 @@
 #include "NetworkECSMediator.hpp"
 #include <mutex>
 
+#pragma once
+enum GameState {
+    LOBBY,
+    INGAME,
+    MENU
+};
+
 class RTypeGame
 {
   private:
@@ -36,6 +43,8 @@ class RTypeGame
     int _playerNb = 0;
     int _winnerId = -1;
     bool showLobbyInfo = false;
+
+    GameState _state = GameState::MENU;
 
     int score = 0;
 
@@ -102,6 +111,7 @@ class RTypeGame
     void run();
 
     void setCurrentWave(int nb);
+    void setCurrentState(GameState newState);
 
     void drawHitbox();
 };
