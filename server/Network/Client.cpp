@@ -1,11 +1,13 @@
 #include "Client.hpp"
 #include <arpa/inet.h>
+#include <cstring>
 #include <iostream>
 #include <sys/socket.h>
 #include <sys/types.h>
 
 Client::Client(const std::string &clientName, int socketFd) : _socketFd(socketFd), _name(clientName)
 {
+    std::memset(&_trueAddr, 0, sizeof(_trueAddr));
 }
 
 Client::~Client()

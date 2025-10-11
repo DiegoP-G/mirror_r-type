@@ -1,9 +1,9 @@
 #pragma once
 
+#include "components/InputComponent.hpp"
 #include "using.hpp"
 #include <iostream>
 #include <stdint.h>
-#include "components/InputComponent.hpp"
 
 // Component ID generator
 inline ComponentID getNextComponentID()

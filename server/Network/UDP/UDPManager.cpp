@@ -1,8 +1,11 @@
 #include "UDPManager.hpp"
 #include "../../../transferData/opcode.hpp"
 #include "../../../transferData/transferData.hpp"
+#include "../../Game/GameMediator.hpp"
 #include "../NetworkManager.hpp"
 #include <cstddef>
+#include <cstdint>
+#include <netinet/in.h>
 #include <stdexcept>
 #include <string>
 
@@ -43,15 +46,16 @@ void UDPManager::update()
             sockaddr_in client{};
             socklen_t len = sizeof(client);
             auto [opcode, payload] = receiveFrameUDP(_udpFd, client, len);
-
+            int ca = opcode;
             if (opcode == OPCODE_UDP_AUTH)
             {
-                std::cout << "[UDP] Received OPCODE_UDP_AUTH : " << deserializeInt(payload)
+                std::cout << "[UDP] Received OPCODE_UDP_AUTH² : " << deserializeInt(payload)
                           << " from: " << client.sin_addr.s_addr << "\n";
                 Client *c = _NetworkManagerRef.getClientManager().getClientByCodeUDP(deserializeInt(payload));
                 if (c != nullptr)
                 {
                     c->setAdress(std::to_string(client.sin_addr.s_addr));
+                    c->setTrueAddr(&client);
                 }
                 else
                 {
@@ -64,7 +68,9 @@ void UDPManager::update()
                 Client *c =
                     _NetworkManagerRef.getClientManager().getClientByAdress((std::to_string(client.sin_addr.s_addr)));
                 if (c != nullptr)
-                    std::cout << "[UDP] Received : " << (payload) << " from: " << c->getName() << "\n";
+                {
+                    _NetworkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload);
+                }
                 else
                     std::cout << "[UDP] Received from Client Not found: " << (payload)
                               << " from: " << client.sin_addr.s_addr << "\n";
@@ -73,10 +79,10 @@ void UDPManager::update()
     }
 }
 
-void UDPManager::sendTo(std::vector<int> sockets, int opcode, const std::string &data)
+void UDPManager::sendTo(std::vector<sockaddr_in> addrs, int opcode, const std::string &data)
 {
-    for (int socket : sockets)
+    for (sockaddr_in addr : addrs)
     {
-        sendFrameUDP(socket, opcode, data, _addr, sizeof(_addr));
+        sendFrameUDP(_udpFd, opcode, data, addr, sizeof(addr));
     }
 }

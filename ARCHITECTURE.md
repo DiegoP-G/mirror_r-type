@@ -30,7 +30,7 @@
 │   └── CMakeLists.txt         # Server build configuration
 ├── ecs/                       # Shared ECS implementation
 │   ├── ecs.hpp               # Core ECS classes (Entity, Component, EntityManager)
-│   ├── components.hpp        # Game components (Transform, Velocity, etc.)
+│   ├── IComponent.hpp        # Game components (Transform, Velocity, etc.)
 │   └── systems.hpp           # Game systems (Movement, Collision, etc.)
 ├── transferData/              # Shared network protocol
 │   ├── opcode.hpp            # Network message opcodes

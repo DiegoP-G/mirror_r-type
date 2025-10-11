@@ -1,4 +1,5 @@
 #include "ClientGame.hpp"
+#include "../ecs/GraphicsManager.hpp"
 #include "Network/NetworkManager.hpp"
 #include "Network/Receiver.hpp"
 #include "Network/Sender.hpp"
@@ -6,11 +7,12 @@
 #include <iostream>
 
 ClientGame::ClientGame()
-    : _med(), _sender(Sender(_med)), _receiver(Receiver(_med)),
+    : _med(), _sender(Sender(_med)), _receiver(Receiver(_med)), _game(RTypeGame(_med)),
       _networkManager(NetworkManager(_med, _sender, _receiver)), _running(false)
 {
     _med.setSender(&_sender);
     _med.setReceiver(&_receiver);
+    _med.setRTypeGame(&_game);
 }
 
 ClientGame::~ClientGame()
@@ -18,9 +20,23 @@ ClientGame::~ClientGame()
     stop();
 }
 
+void ClientGame::startServer(const char *serverIp)
+{
+    if (!_networkManager.setup(serverIp, 8081))
+    {
+        std::cout << "failed to start network" << std::endl;
+        return;
+    }
+    _networkThread = std::thread(&ClientGame::networkLoop, this);
+}
+
 bool ClientGame::init(const char *serverIp, int port)
 {
-    return _networkManager.setup(serverIp, port);
+    // if (!_networkManager.setup(serverIp, port))
+    //     return false;
+    if (!_game.init(_med, [this](const char *msg) { this->startServer(msg); }))
+        return false;
+    return true;
 }
 
 void ClientGame::start()
@@ -29,12 +45,11 @@ void ClientGame::start()
         return;
 
     _running = true;
-    _networkThread = std::thread(&ClientGame::networkLoop, this);
+    // _networkThread = std::thread(&ClientGame::networkLoop, this);
 
     std::cout << "ClientGame started (network running in background)" << std::endl;
 
-    _graphic.init();
-    _graphic.run();
+    _game.run();
 }
 
 void ClientGame::stop()

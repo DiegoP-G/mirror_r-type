@@ -38,7 +38,7 @@ int sendInTcp()
     std::string buffer;
 
     sendFrameTCP(sock, 10, "hello");
-    std::cout << "Message TCP envoyé au serveur.\n";
+    //  std::cout << "Message TCP envoyé au serveur.\n";
 
     close(sock);
     return 0;
@@ -62,7 +62,7 @@ int main()
     servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
     sendFrameUDP(sockfd, 80, "Ping depuis le client!", servaddr, len);
-    std::cout << "Message UDP envoyé au serveur.\n";
+    // std::cout << "Message UDP envoyé au serveur.\n";
 
     sendInTcp();
     close(sockfd);

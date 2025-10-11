@@ -1,8 +1,8 @@
 #pragma once
-#include "../components.hpp"
+#include "../IComponent.hpp"
 #include "Rectangle.hpp"
 
-class ColliderComponent : public Component
+class ColliderComponent : public IComponent
 {
   public:
     Rectangle hitbox;
@@ -15,5 +15,5 @@ class ColliderComponent : public Component
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
-    static ColliderComponent deserialize(const uint8_t *data);
+    static ColliderComponent deserialize(const uint8_t *data, size_t size);
 };

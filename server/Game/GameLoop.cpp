@@ -2,7 +2,6 @@
 #include "GameMediator.hpp"
 #include <chrono>
 
-
 Orchestrator::GameLoop::GameLoop()
 {
 }
@@ -14,14 +13,30 @@ Orchestrator::GameLoop::~GameLoop()
 void Orchestrator::GameLoop::loop()
 {
     _gameMediator.notify(GameMediatorEvent::SetupNetwork);
-    while (1)
+
+    const double tickRate = 60.0; // 60 TPS
+    const std::chrono::duration<double> tickDuration(1.0 / tickRate);
+    auto previousTime = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> accumulatedTime(0);
+    _gameMediator.notify(GameMediatorEvent::InitECS, "");
+
+    while (true)
     {
-        // auto frameTime = std::chrono::milliseconds(16); // ~60 FPS (1000ms/60 ≈ 16.67ms)
-        auto startTime = std::chrono::high_resolution_clock::now();
 
         _gameMediator.notify(GameMediatorEvent::TickNetwork);
 
-        _gameMediator.notify(GameMediatorEvent::TickLogic, std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - startTime).count()));
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> frameTime = currentTime - previousTime;
+        previousTime = currentTime;
 
+        accumulatedTime += frameTime;
+
+        while (accumulatedTime >= tickDuration)
+        {
+            double deltaTime = tickDuration.count(); // 1/60 s
+            _gameMediator.notify(GameMediatorEvent::TickLogic, std::to_string(deltaTime));
+
+            accumulatedTime -= tickDuration;
+        }
     }
 }

@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include "../components.hpp"
 
 #include <cstdint>
 
@@ -16,5 +15,5 @@ class Vector2D
     Vector2D operator*(float scalar) const;
 
     std::vector<uint8_t> serialize() const;
-    static Vector2D deserialize(const uint8_t *data);
+    static Vector2D deserialize(const uint8_t *data, size_t size);
 };

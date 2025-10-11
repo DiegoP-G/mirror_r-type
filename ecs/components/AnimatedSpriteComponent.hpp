@@ -1,20 +1,23 @@
 #pragma once
-#include "../components.hpp"
+#include "../IComponent.hpp"
 #include "Vector2D.hpp"
-#include <SFML/Graphics.hpp>
 
-class AnimatedSpriteComponent : public Component
+class AnimatedSpriteComponent : public IComponent
 {
   public:
-    sf::Sprite sprite;
-    const sf::Texture *texture;
+    int textureID;
     int currentFrame;
-    const int frameWidth;
-    const int frameHeight;
+    int left;
+    int top;
+    int frameWidth;
+    int frameHeight;
+    int totalFrames;
     float animationInterval;
+    float rotationAngle;
+
     Vector2D scale;
-    sf::Clock animationClock;
-    
+    float elapsedTime;
+
     enum Direction
     {
         Default,
@@ -22,13 +25,12 @@ class AnimatedSpriteComponent : public Component
         Down
     } currentDirection;
 
-    AnimatedSpriteComponent(const sf::Texture &tex, int frameWidth, int frameHeight, float interval,
-                            Vector2D scale = {1.0f, 1.0f});
+    AnimatedSpriteComponent(int textureID, int left, int top, int frameWidth, int frameHeight, int totalFrames,
+                            float interval, float rotation = 0.0f, Vector2D scale = {1.0f, 1.0f}, int currentFrame = 0);
 
     void setFrame(int frame);
-    void updateAnimation(Direction newDirection);
     void update(float deltaTime) override;
     void init() override;
     std::vector<uint8_t> serialize() const override;
-    static AnimatedSpriteComponent deserialize(const uint8_t *data);
+    static AnimatedSpriteComponent deserialize(const uint8_t *data, size_t size);
 };

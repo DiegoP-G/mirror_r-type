@@ -9,7 +9,8 @@ TransformComponent::TransformComponent(float x, float y) : position(x, y), scale
 {
 }
 
-TransformComponent::TransformComponent(float x, float y, float sx, float sy, float r) : position(x, y), scale(sx, sy), rotation(r)
+TransformComponent::TransformComponent(float x, float y, float sx, float sy, float r)
+    : position(x, y), scale(sx, sy), rotation(r)
 {
 }
 
@@ -30,11 +31,17 @@ std::vector<uint8_t> TransformComponent::serialize() const
     return data;
 }
 
-TransformComponent TransformComponent::deserialize(const uint8_t *data)
+TransformComponent TransformComponent::deserialize(const uint8_t *data, size_t size)
 {
+    size_t expectedSize = 2 * sizeof(Vector2D) + sizeof(float);
+    if (size < expectedSize)
+    {
+        throw "TransformComponent::deserialize - données trop petites";
+    }
+
     TransformComponent comp;
-    comp.position = Vector2D::deserialize(data);
-    comp.scale = Vector2D::deserialize(data + sizeof(Vector2D));
+    comp.position = Vector2D::deserialize(data, sizeof(Vector2D));
+    comp.scale = Vector2D::deserialize(data + sizeof(Vector2D), sizeof(Vector2D));
     std::memcpy(&comp.rotation, data + 2 * sizeof(Vector2D), sizeof(float));
     return comp;
 }

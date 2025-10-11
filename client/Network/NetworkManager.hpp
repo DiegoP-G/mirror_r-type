@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../NetworkECSMediator.hpp"
+#include "../RType.hpp"
 #include "Receiver.hpp"
 #include "Sender.hpp"
 #include <netinet/in.h>

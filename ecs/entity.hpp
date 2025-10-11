@@ -1,12 +1,18 @@
 #pragma once
 
-#include "components.hpp"
-#include "using.hpp"
+#include "IComponent.hpp"
 #include "ecs.hpp"
+#include "using.hpp"
 #include <cstdint>
 #include <cstring>
 #include <memory>
 #include <vector>
+
+enum ENTITY_TYPE
+{
+    PLAYER = 0,
+    ENEMY = 1
+};
 
 class EntityManager;
 
@@ -16,12 +22,12 @@ class Entity
     EntityID id;
     EntityManager &manager;
     bool active = true;
-    std::vector<std::unique_ptr<Component>> components;
+    std::vector<std::unique_ptr<IComponent>> components;
     ComponentMask componentMask;
 
     std::vector<uint8_t> serializeComponent(ComponentID compId) const;
 
-    void deserializeComponent(ComponentID compId, const uint8_t *data, size_t dataSize);
+    bool deserializeComponent(ComponentID compId, const uint8_t *data, size_t dataSize);
 
   public:
     Entity(EntityManager &manager, EntityID id);
@@ -40,12 +46,11 @@ class Entity
 
     EntityID getID() const;
 
-    // Ajoute un composant de type T à l'entité. Le remplace s'il existe déjà.
     template <typename T, typename... TArgs> T &addComponent(TArgs &&...args)
-        {
+    {
+
         ComponentID componentID = getComponentTypeID<T>();
 
-        // S'assurer que le vecteur components est assez grand
         if (components.size() <= componentID)
         {
             components.resize(componentID + 1);
@@ -62,13 +67,13 @@ class Entity
     };
 
     template <typename T> bool hasComponent() const
-        {
+    {
         ComponentID componentID = getComponentTypeID<T>();
         return componentID < componentMask.size() && componentMask[componentID];
     }
 
     template <typename T> T &getComponent()
-        {
+    {
         ComponentID componentID = getComponentTypeID<T>();
 
         // Vérifier si le composant existe d'abord

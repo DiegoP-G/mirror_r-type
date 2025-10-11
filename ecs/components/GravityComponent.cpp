@@ -17,10 +17,21 @@ std::vector<uint8_t> GravityComponent::serialize() const
     return data;
 }
 
-GravityComponent GravityComponent::deserialize(const uint8_t *data)
+GravityComponent GravityComponent::deserialize(const uint8_t *data, size_t size)
 {
+    size_t expectedSize = 2 * sizeof(float); // gravity + terminalVelocity
+    if (size < expectedSize)
+    {
+        throw "GravityComponent::deserialize - données trop petites";
+    }
+
     GravityComponent comp;
-    std::memcpy(&comp.gravity, data, sizeof(float));
-    std::memcpy(&comp.terminalVelocity, data + sizeof(float), sizeof(float));
+    size_t offset = 0;
+
+    std::memcpy(&comp.gravity, data + offset, sizeof(float));
+    offset += sizeof(float);
+
+    std::memcpy(&comp.terminalVelocity, data + offset, sizeof(float));
+
     return comp;
 }

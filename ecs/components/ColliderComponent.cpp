@@ -9,7 +9,8 @@ ColliderComponent::ColliderComponent(float w, float h) : hitbox(0, 0, w, h), isT
 {
 }
 
-ColliderComponent::ColliderComponent(float w, float h, bool isAct) : hitbox(0, 0, w, h), isTrigger(false), isActive(isAct)
+ColliderComponent::ColliderComponent(float w, float h, bool isAct)
+    : hitbox(0, 0, w, h), isTrigger(false), isActive(isAct)
 {
 }
 
@@ -27,12 +28,22 @@ std::vector<uint8_t> ColliderComponent::serialize() const
     return data;
 }
 
-ColliderComponent ColliderComponent::deserialize(const uint8_t *data)
+ColliderComponent ColliderComponent::deserialize(const uint8_t *data, size_t size)
 {
+    size_t expectedSize = sizeof(Rectangle) + 2 * sizeof(bool); // hitbox + isActive + isTrigger
+    if (size < expectedSize)
+    {
+        throw "ColliderComponent::deserialize - données trop petites";
+    }
+
     ColliderComponent comp;
-    comp.hitbox = Rectangle::deserialize(data);
-    size_t offset = sizeof(Rectangle);
+    size_t offset = 0;
+
+    comp.hitbox = Rectangle::deserialize(data, sizeof(Rectangle));
+    offset += sizeof(Rectangle);
+
     comp.isActive = static_cast<bool>(data[offset++]);
     comp.isTrigger = static_cast<bool>(data[offset]);
+
     return comp;
 }

@@ -10,23 +10,40 @@
  */
 
 #include "GraphicsManager.hpp"
+#include "../client/NetworkECSMediator.hpp"
 #include "../client/assetsPath.hpp"
+#include "textBox.hpp"
+#include <SFML/Graphics/Font.hpp>
 #include <iostream>
+#include <memory>
 
 GraphicsManager *g_graphics = nullptr;
 
-GraphicsManager::GraphicsManager()
+GraphicsManager::GraphicsManager(NetworkECSMediator med) : _med(med)
 {
+}
+
+bool GraphicsManager::registerTheTexture()
+{
+    createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/background.jpg"), "background");
+    createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/playerSpritesheet.png"), "player");
+    createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "enemy");
+    createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "bullet");
+    createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/explosion.png"), "explosion");
+
+    return true;
 }
 
 GraphicsManager::~GraphicsManager()
 {
 }
 
-bool GraphicsManager::init(const std::string &title, int width, int height)
+bool GraphicsManager::init(const std::string &title, int width, int height,
+                           std::function<void(const char *)> startNetwork)
 {
     window.create(sf::VideoMode(width, height), title, sf::Style::Close);
-
+    registerTheTexture();
+    registerTheSound();
     if (!window.isOpen())
     {
         std::cerr << "Error: SFML Window could not be created" << std::endl;
@@ -37,7 +54,7 @@ bool GraphicsManager::init(const std::string &title, int width, int height)
     {
         std::cerr << "Warning: SFML Failed to load font, using default font" << std::endl;
     }
-
+    _textbox = std::make_unique<TextBox>(font, startNetwork, 400, 50);
     std::cout << "SFML initialized successfully" << std::endl;
     return true;
 }
@@ -81,6 +98,27 @@ sf::Texture *GraphicsManager::getTexture(const std::string &name)
     return nullptr;
 }
 
+sf::Texture *GraphicsManager::getTexture(int tex)
+{
+    switch (tex)
+    {
+    case BACKGROUND:
+        return getTexture("background");
+    case PLAYER:
+        return getTexture("player");
+    case ENEMY:
+        return getTexture("basic_enemy");
+    case BULLET:
+        return getTexture("bullet");
+    case EXPLOSION:
+        return getTexture("explosion");
+    case BONUS_LIFE:
+        return getTexture("bonus_life");
+    default:
+        return nullptr;
+    }
+}
+
 void GraphicsManager::drawTexture(const sf::Texture &texture, float x, float y, float w, float h)
 {
     sf::Sprite sprite(texture);
@@ -116,10 +154,9 @@ sf::RenderWindow &GraphicsManager::getWindow()
     return window;
 }
 
-void GraphicsManager::drawAnimatedSprite(AnimatedSpriteComponent &animatedSprite, float x, float y)
+std::unique_ptr<TextBox> &GraphicsManager::getTextBox()
 {
-    animatedSprite.sprite.setPosition(x, y);
-    window.draw(animatedSprite.sprite);
+    return _textbox;
 }
 
 sf::Texture &GraphicsManager::createTextureFromPath(const std::string &filePath, const std::string &name)
@@ -133,4 +170,65 @@ sf::Texture &GraphicsManager::createTextureFromPath(const std::string &filePath,
 
     textures[name] = tex;
     return textures[name];
+}
+
+sf::Font &GraphicsManager::getFont()
+{
+    return font;
+}
+
+bool GraphicsManager::registerTheSound()
+{
+    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/pew.mp3"), "pew");
+    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/music.mp3"), "music");
+
+    return true;
+}
+
+sf::Sound &GraphicsManager::createSoundFromPath(const std::string &filePath, const std::string &name)
+{
+    sf::SoundBuffer buffer;
+    if (!buffer.loadFromFile(filePath))
+    {
+        std::cerr << "Error: SFML Failed to load sound from file: " << filePath << std::endl;
+        throw std::runtime_error("Failed to load sound: " + filePath);
+    }
+
+    soundBuffers[name] = buffer;
+    sf::Sound sound;
+    sound.setBuffer(soundBuffers[name]);
+    sounds[name] = sound;
+
+    return sounds[name];
+}
+
+sf::Sound *GraphicsManager::getSound(const std::string &name)
+{
+    auto it = sounds.find(name);
+    if (it != sounds.end())
+        return &it->second;
+    return nullptr;
+}
+
+void GraphicsManager::playSound(const std::string &name, bool loop)
+{
+    auto it = sounds.find(name);
+    if (it != sounds.end())
+    {
+        it->second.setLoop(loop);
+        it->second.play();
+    }
+    else
+    {
+        std::cerr << "Warning: Sound not found: " << name << std::endl;
+    }
+}
+
+void GraphicsManager::stopSound(const std::string &name)
+{
+    auto it = sounds.find(name);
+    if (it != sounds.end())
+    {
+        it->second.stop();
+    }
 }

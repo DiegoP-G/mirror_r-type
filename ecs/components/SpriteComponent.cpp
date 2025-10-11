@@ -1,12 +1,13 @@
 #include "SpriteComponent.hpp"
 #include <cstring>
 
-SpriteComponent::SpriteComponent() : texture(nullptr), isVisible(true), width(32), height(32), r(255), g(255), b(255), a(255)
+SpriteComponent::SpriteComponent()
+    : spriteTexture(0), isVisible(true), width(32), height(32), r(255), g(255), b(255), a(255)
 {
 }
 
-SpriteComponent::SpriteComponent(int w, int h, uint8_t red, uint8_t green, uint8_t blue)
-    : texture(nullptr), isVisible(true), width(w), height(h), r(red), g(green), b(blue), a(255)
+SpriteComponent::SpriteComponent(int w, int h, uint8_t red, uint8_t green, uint8_t blue, int texture)
+    : spriteTexture(texture), isVisible(true), width(w), height(h), r(red), g(green), b(blue), a(255)
 {
 }
 
@@ -33,24 +34,34 @@ std::vector<uint8_t> SpriteComponent::serialize() const
     data.push_back(g);
     data.push_back(b);
     data.push_back(a);
+    data.push_back(static_cast<uint8_t>(spriteTexture));
     return data;
 }
 
-SpriteComponent SpriteComponent::deserialize(const uint8_t *data)
+SpriteComponent SpriteComponent::deserialize(const uint8_t *data, size_t size)
 {
+    size_t expectedSize = sizeof(Rectangle) + sizeof(int) * 2 + 1 /*bool*/ + 4 /*r,g,b,a*/ + 1 /*texture id*/;
+    if (size < expectedSize)
+    {
+        throw "SpriteComponent::deserialize - données trop petites";
+    }
+
     SpriteComponent comp;
-    comp.srcRect = Rectangle::deserialize(data);
+    comp.srcRect = Rectangle::deserialize(data, sizeof(Rectangle));
     size_t offset = sizeof(Rectangle);
 
     std::memcpy(&comp.width, data + offset, sizeof(int));
     offset += sizeof(int);
+
     std::memcpy(&comp.height, data + offset, sizeof(int));
     offset += sizeof(int);
+
     comp.isVisible = static_cast<bool>(data[offset++]);
     comp.r = data[offset++];
     comp.g = data[offset++];
     comp.b = data[offset++];
-    comp.a = data[offset];
-    comp.texture = nullptr;
+    comp.a = data[offset++];
+    comp.spriteTexture = static_cast<int>(data[offset++]);
+
     return comp;
 }

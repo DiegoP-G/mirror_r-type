@@ -6,8 +6,11 @@
 #include "ClientManager.hpp"
 #include "TCP/TCPManager.hpp"
 #include "UDP/UDPManager.hpp"
+#include <cstdint>
+#include <functional>
 #include <poll.h>
 #include <unistd.h>
+#include <unordered_map>
 #include <vector>
 
 #define SERVER_PORT 8081
@@ -30,13 +33,21 @@ class NetworkManager
         return _clientManager;
     }
 
+    inline GameMediator &getGameMediator()
+    {
+        return _gameMediator;
+    }
+
     void updateAllPoll();
 
     // SENF DATA TO ECS
 
     void addNewPlayer(int socket);
 
+    void sendAllEntitiesToClient(int clientFd);
+
     // SEND DATA FROM ECS
 
-    void updateEntities(std::string data);
+    void sendDataAllClientUDP(std::string data, int opcode);
+    void sendDataAllClientTCP(std::string data, int opcode);
 };

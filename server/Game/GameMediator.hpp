@@ -3,13 +3,12 @@
 #include "../Mediator/IMediator.hpp"
 #include "../Network/NetworkManager.hpp"
 #include "RTypeServer.hpp"
+#include <chrono>
 #include <functional>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <chrono>
-
 
 enum GameMediatorEvent
 {
@@ -17,8 +16,22 @@ enum GameMediatorEvent
     TickLogic,
     AddPlayer,
     SetupNetwork,
-    UpdateEntities,
-    PlayerInput,
+    InitECS,
+    LobbyInfoUpdate,
+    GameStateUpdate,
+    UpdateEntities = 0x21,
+    UpdatePlayers = 0x23,
+    UpdateEnemies = 0x24,
+    UpdateProjectiles = 0x25,
+    PlayerInput = 0x26,
+    EntityCreated = 0x27,
+    EntityDestroyed = 0x28,
+    MovementUpdate = 0x29,
+    GameOver = 0x32,
+    PlayerDead = 0x33,
+    HealthUpdate = 0x40,
+    UpdateWave = 0x50,
+    UpdateScore = 0x51,
 };
 
 class NetworkManager;
@@ -30,8 +43,7 @@ class GameMediator : public IMediator
     NetworkManager &_networkManager;
     RTypeServer &_rTypeServer;
 
-    std::unordered_map<GameMediatorEvent, std::function<void(const std::string&)>> _mediatorMap;
-
+    std::unordered_map<GameMediatorEvent, std::function<void(const std::string &)>> _mediatorMap;
 
   public:
     GameMediator();
@@ -42,6 +54,9 @@ class GameMediator : public IMediator
     {
         return;
     };
+
+    std::vector<std::string> getAllActiveEntities();
+
     std::string toString(GameMediatorEvent event)
     {
         switch (event)

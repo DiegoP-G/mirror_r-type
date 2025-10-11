@@ -13,10 +13,10 @@ const std::string &serializePlayerInput(const InputComponent &player, int player
     serializedData += " left=" + std::to_string(player.left);
     serializedData += " right=" + std::to_string(player.right);
     serializedData += " fire=" + std::to_string(player.fire);
+    serializedData += " enter=" + std::to_string(player.enter);
 
     return serializedData;
 }
-
 
 int deserializePlayerInput(const std::string &data, InputComponent &input)
 {
@@ -34,17 +34,17 @@ int deserializePlayerInput(const std::string &data, InputComponent &input)
     int playerId = std::stoi(idStr);
 
     std::string inputData = data.substr(inputCompPos + 15);
-    int up, down, left, right, fire;
+    int up, down, left, right, fire, enter;
 
+    sscanf(inputData.c_str(), " up=%d down=%d left=%d right=%d fire=%d enter=%d", &up, &down, &left, &right, &fire,
+           &enter);
 
-    sscanf(inputData.c_str(), " up=%d down=%d left=%d right=%d fire=%d",
-           &up, &down, &left, &right, &fire);
-
+    // std::cout << inputData << std::endl;
     input.up = up;
     input.down = down;
     input.left = left;
     input.right = right;
     input.fire = fire;
-
+    input.enter = enter;
     return playerId;
 }

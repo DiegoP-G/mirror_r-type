@@ -5,12 +5,13 @@
 #include "Sender.hpp"
 #include <arpa/inet.h>
 #include <cstring>
+#include <fcntl.h>
 #include <iostream>
+#include <netinet/tcp.h>
 #include <unistd.h>
 
 NetworkManager::NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver)
     : _med(med), _sender(sender), _receiver(receiver), _tcpSocket(-1), _udpSocket(-1)
-
 {
 }
 
@@ -45,6 +46,18 @@ bool NetworkManager::setup(const char *serverIp, int port)
         perror("TCP connect");
         return false;
     }
+    int flags = fcntl(_tcpSocket, F_GETFL, 0);
+    fcntl(_tcpSocket, F_SETFL, flags | O_NONBLOCK);
+    int nodelay = 1;
+    if (setsockopt(_tcpSocket, IPPROTO_TCP, TCP_NODELAY, &nodelay, sizeof(nodelay)) < 0)
+    {
+        perror("[TCP Client] Warning: Failed to set TCP_NODELAY");
+    }
+
+    int sndbuf = 262144; // 256 KB
+    int rcvbuf = 262144; // 256 KB
+    setsockopt(_tcpSocket, SOL_SOCKET, SO_SNDBUF, &sndbuf, sizeof(sndbuf));
+    setsockopt(_tcpSocket, SOL_SOCKET, SO_RCVBUF, &rcvbuf, sizeof(rcvbuf));
 
     _udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
     if (_udpSocket < 0)
@@ -81,11 +94,12 @@ bool NetworkManager::setup(const char *serverIp, int port)
 
 void NetworkManager::loop()
 {
-    constexpr int TIMEOUT = 1000;
+    constexpr int TIMEOUT = 0;
 
     while (true)
     {
         int ret = poll(_pollFds.data(), _pollFds.size(), TIMEOUT);
+        // std::cout << "In poll" << std::endl;
         if (ret < 0)
         {
             perror("poll");
@@ -100,16 +114,19 @@ void NetworkManager::loop()
         {
             if (pfd.revents & POLLIN)
             {
-                if (pfd.fd == _tcpSocket)
+                if (pfd.fd == _udpSocket)
                 {
-                    _receiver.receiveTCPMessage();
-                }
-                else if (pfd.fd == _udpSocket)
-                {
+                    // std::cout << "hi udp" << std::endl;
                     _receiver.receiveUDPMessage();
+                }
+                else if (pfd.fd == _tcpSocket)
+                {
+                    //  std::cout << "hi tcp" << std::endl;
+                    _receiver.receiveTCPMessage();
                 }
             }
         }
+        usleep(10); // Petite pause pour éviter une boucle trop serrée
     }
 }
 

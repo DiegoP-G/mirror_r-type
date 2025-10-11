@@ -1,7 +1,7 @@
 #pragma once
-#include "../components.hpp"
+#include "../IComponent.hpp"
 
-class CenteredComponent : public Component
+class CenteredComponent : public IComponent
 {
   public:
     float offsetX;
@@ -11,5 +11,5 @@ class CenteredComponent : public Component
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
-    static CenteredComponent deserialize(const uint8_t *data);
+    static CenteredComponent deserialize(const uint8_t *data, size_t size);
 };

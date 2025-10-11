@@ -1,10 +1,10 @@
 #pragma once
 
+#include "../ecs/GraphicsManager.hpp"
 #include "Network/NetworkManager.hpp"
 #include "Network/Receiver.hpp"
 #include "Network/Sender.hpp"
 #include "NetworkECSMediator.hpp"
-#include "RType.hpp"
 #include <atomic>
 #include <thread>
 
@@ -14,8 +14,8 @@ class ClientGame
     NetworkECSMediator _med;
     Sender _sender;
     Receiver _receiver;
+    RTypeGame _game;
     NetworkManager _networkManager;
-    RTypeGame _graphic;
     std::thread _networkThread;
     std::atomic<bool> _running;
 
@@ -26,6 +26,7 @@ class ClientGame
     ~ClientGame();
 
     bool init(const char *serverIp = "127.0.0.1", int port = 8080);
+    void startServer(const char *serverIp);
 
     void start();
     void stop();

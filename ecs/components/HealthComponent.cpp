@@ -1,10 +1,6 @@
 #include "HealthComponent.hpp"
 #include <cstring>
 
-HealthComponent::HealthComponent(float h) : health(h), maxHealth(h)
-{
-}
-
 void HealthComponent::update(float deltaTime)
 {
 }
@@ -17,10 +13,21 @@ std::vector<uint8_t> HealthComponent::serialize() const
     return data;
 }
 
-HealthComponent HealthComponent::deserialize(const uint8_t *data)
+HealthComponent HealthComponent::deserialize(const uint8_t *data, size_t size)
 {
-    HealthComponent comp(0);
-    std::memcpy(&comp.health, data, sizeof(float));
-    std::memcpy(&comp.maxHealth, data + sizeof(float), sizeof(float));
+    size_t expectedSize = 2 * sizeof(float); // health + maxHealth
+    if (size < expectedSize)
+    {
+        throw "HealthComponent::deserialize - données trop petites";
+    }
+
+    HealthComponent comp(0, 0);
+    size_t offset = 0;
+
+    std::memcpy(&comp.health, data + offset, sizeof(float));
+    offset += sizeof(float);
+
+    std::memcpy(&comp.maxHealth, data + offset, sizeof(float));
+
     return comp;
 }

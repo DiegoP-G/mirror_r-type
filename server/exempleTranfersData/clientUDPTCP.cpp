@@ -36,7 +36,7 @@ int main()
         return 1;
     }
 
-    std::cout << "[TCP] Connected to server." << std::endl;
+    // std::cout << "[TCP] Connected to server." << std::endl;
 
     // ---- Receive CODE_UDP frame ----
     std::string tcpBuffer;
@@ -44,7 +44,7 @@ int main()
 
     if (opcode != OPCODE_CODE_UDP)
     {
-        std::cerr << "[TCP] Expected OPCODE_CODE_UDP, got " << (int)opcode << std::endl;
+        // std::cerr << "[TCP] Expected OPCODE_CODE_UDP, got " << (int)opcode << std::endl;
         close(tcp_sock);
         return 1;
     }
@@ -57,7 +57,7 @@ int main()
     }
 
     int code = deserializeInt(payload);
-    std::cout << "[TCP] Received code_udp = " << std::to_string(code) << std::endl;
+    //   std::cout << "[TCP] Received code_udp = " << std::to_string(code) << std::endl;
 
     // ---- UDP socket ----
     int udp_sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -74,10 +74,10 @@ int main()
     inet_pton(AF_INET, server_ip, &server_udp.sin_addr);
 
     sendFrameUDP(udp_sock, OPCODE_UDP_AUTH, serializeInt(code), server_udp, sizeof(server_udp));
-    std::cout << "[UDP] Sent OPCODE_UDP_AUTH with code_udp = " << std::to_string(code) << std::endl;
+    //   std::cout << "[UDP] Sent OPCODE_UDP_AUTH with code_udp = " << std::to_string(code) << std::endl;
 
     sendFrameUDP(udp_sock, 10, "hello", server_udp, sizeof(server_udp));
-    std::cout << "[UDP] Sent 10 with  = " << "hello" << std::endl;
+    //  std::cout << "[UDP] Sent 10 with  = " << "hello" << std::endl;
 
     // ---- Optional: wait for server response ----
     sockaddr_in from_addr{};
@@ -86,8 +86,9 @@ int main()
 
     if (udpOpcode != OPCODE_CLOSE_CONNECTION)
     {
-        std::cout << "[UDP] Received response opcode " << (int)udpOpcode << " payload size=" << udpResponse.size()
-                  << std::endl;
+        //      std::cout << "[UDP] Received response opcode " << (int)udpOpcode << " payload size=" <<
+        //      udpResponse.size()
+        //              << std::endl;
     }
 
     // ---- Cleanup ----
