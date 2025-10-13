@@ -451,8 +451,5 @@ void RTypeGame::setWinnerId(int id)
     {
         std::cout << "Player " << _winnerId << " is the winner!" << std::endl;
     }
-    // sf::sleep(sf::seconds(3));
-    // g_graphics->getWindow().close();
     _state = GameState::GAMEOVER;
-    // running = false;
 }
