@@ -205,7 +205,7 @@ void RTypeGame::render()
     { // STATE HERE WHEN NOT CONNECTED TO THE SERVER
         g_graphics->drawText("Type the IP to connect in the text-box:", 0, 0);
         g_graphics->drawText("SeymourPintatGodeFeytGrodard-Type", 0, 30);
-        g_graphics->getTextBox()->setAtCenter(g_graphics->getWindow());
+        g_graphics->getTextBox()->setPosition(200, 500);
         g_graphics->getTextBox()->draw(g_graphics->getWindow());
         keybindMenu->draw(g_graphics->getWindow());
     }

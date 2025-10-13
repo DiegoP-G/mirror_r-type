@@ -16,7 +16,7 @@ KeybindMenu::KeybindMenu(KeybindManager &manager) : keybindManager(manager)
     buttonText.setFillColor(sf::Color::White);
     buttonText.setPosition(button.getPosition().x + 5, button.getPosition().y + 5);
 
-    menuBackground.setSize({300, 250});
+    menuBackground.setSize({300, 300}); // Augmenté pour inclure la checkbox
     menuBackground.setFillColor(sf::Color(50, 50, 50, 230));
     menuBackground.setPosition(200, 100);
 
@@ -38,6 +38,23 @@ KeybindMenu::KeybindMenu(KeybindManager &manager) : keybindManager(manager)
         keyLabels[action] = text;
         yOffset += 40;
     }
+
+    // Configuration de la checkbox pour le son
+    soundCheckbox.setSize({25, 25});
+    soundCheckbox.setFillColor(sf::Color(200, 200, 200));
+    soundCheckbox.setOutlineColor(sf::Color::White);
+    soundCheckbox.setOutlineThickness(2);
+    soundCheckbox.setPosition(220, yOffset + 20);
+
+    soundCheckMark.setSize({15, 15});
+    soundCheckMark.setFillColor(sf::Color(0, 255, 0));
+    soundCheckMark.setPosition(225, yOffset + 25);
+
+    soundLabel.setFont(font);
+    soundLabel.setCharacterSize(20);
+    soundLabel.setFillColor(sf::Color::White);
+    soundLabel.setString("Mute Sound");
+    soundLabel.setPosition(260, yOffset + 20);
 }
 
 void KeybindMenu::handleEvent(const sf::Event &event, const sf::RenderWindow &window)
@@ -60,7 +77,23 @@ void KeybindMenu::handleEvent(const sf::Event &event, const sf::RenderWindow &wi
                 return;
             }
 
-            // Check if user clicked an action
+            // Vérifier si l'utilisateur a cliqué sur la checkbox du son
+            if (soundCheckbox.getGlobalBounds().contains(mousePos))
+            {
+                soundMuted = !soundMuted;
+                if (soundMuted)
+                {
+                    g_graphics->stopSound("music");
+                }
+                else
+                {
+                    g_graphics->playSound("music", true);
+                }
+                std::cout << "[Sound] " << (soundMuted ? "Muted" : "Unmuted") << "\n";
+                return;
+            }
+
+            // Vérifier si l'utilisateur a cliqué sur une action
             for (auto &[action, text] : keyLabels)
             {
                 if (text.getGlobalBounds().contains(mousePos))
@@ -84,7 +117,7 @@ void KeybindMenu::handleEvent(const sf::Event &event, const sf::RenderWindow &wi
 
 void KeybindMenu::draw(sf::RenderWindow &window)
 {
-    // Always draw the small button
+    // Toujours afficher le bouton
     window.draw(button);
     window.draw(buttonText);
 
@@ -103,7 +136,7 @@ void KeybindMenu::closeMenu()
     waitingForKey = false;
     selectedAction.clear();
 
-    // Reset colors
+    // Réinitialiser les couleurs
     for (auto &[_, text] : keyLabels)
         text.setFillColor(sf::Color::White);
 }
@@ -113,6 +146,14 @@ void KeybindMenu::drawMenu(sf::RenderWindow &window)
     window.draw(menuBackground);
     for (auto &[_, text] : keyLabels)
         window.draw(text);
+    
+    // Dessiner la checkbox et le label du son
+    window.draw(soundCheckbox);
+    if (!soundMuted)
+    {
+        window.draw(soundCheckMark);
+    }
+    window.draw(soundLabel);
 }
 
 void KeybindMenu::rebindKey(sf::Keyboard::Key newKey)

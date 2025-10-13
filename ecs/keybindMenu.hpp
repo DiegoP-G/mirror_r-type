@@ -17,11 +17,17 @@ class KeybindMenu
         return open;
     }
 
+    bool isSoundMuted() const
+    {
+        return soundMuted;
+    }
+
   private:
     KeybindManager &keybindManager;
     bool open = false;
     bool waitingForKey = false;
     std::string selectedAction;
+    bool soundMuted = false;
 
     sf::RectangleShape button;
     sf::Font font;
@@ -30,6 +36,10 @@ class KeybindMenu
     sf::RectangleShape menuBackground;
     std::unordered_map<std::string, sf::Text> keyLabels;
     std::unordered_map<std::string, sf::Keyboard::Key> defaultActions;
+
+    sf::RectangleShape soundCheckbox;
+    sf::Text soundLabel;
+    sf::RectangleShape soundCheckMark;
 
     void openMenu();
     void closeMenu();
