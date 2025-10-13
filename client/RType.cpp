@@ -192,6 +192,7 @@ void RTypeGame::render()
     }
 
     drawWaitingForPlayers();
+    drawTutorial();
     g_graphics->present();
 }
 
@@ -329,6 +330,28 @@ void RTypeGame::drawWaitingForPlayers()
 
     // Draw the text on screen
     g_graphics->drawText(waitingText, textX, textY);
+}
+
+void RTypeGame::drawTutorial()
+{
+    if (_playerNb == 0 || _playerReady >= _playerNb)
+    {
+
+        std::cout << "returning" << std::endl;
+        return;
+    }
+
+    std::string moveText = "Use ARROW KEYS to move";
+    std::string shootText = "Press SPACE to shoot";
+
+    int windowWidth = g_graphics->getWindow().getSize().x;
+    int windowHeight = g_graphics->getWindow().getSize().y;
+    float textX = windowWidth / 2.0f - 100.0f;
+    float textY = windowHeight / 2.0f + 10.0f;
+    float textY2 = windowHeight / 2.0f + 60.0f;
+
+    g_graphics->drawText(moveText, textX, textY);
+    g_graphics->drawText(shootText, textX, textY2);
 }
 
 void RTypeGame::setCurrentWave(int nb)

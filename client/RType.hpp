@@ -56,7 +56,7 @@ class RTypeGame
   public:
     void reset();
 
-    RTypeGame(NetworkECSMediator med) : _med(med){};
+    RTypeGame(NetworkECSMediator med) : _med(med) {};
 
     void markPlayerAsDead(int playerId);
 
@@ -104,6 +104,7 @@ class RTypeGame
     // void handleEvents();
 
     void sendInputPlayer();
+    void drawTutorial();
 
     void update(float deltaTime);
 
