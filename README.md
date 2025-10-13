@@ -54,6 +54,17 @@ make -j$(nproc)
 ./RTypeClient
 ```
 
+### Gameplay
+#### Objectives
+**R-Type**:
+- Navigate through levels while avoiding or destroying enemies.
+- Defeat the boss at the end of each level to progress.
+- Work with teammates in multiplayer mode to achieve victory.
+
+#### Controls
+- **Movement**: Arrow keys (Up, Down, Left, Right)
+- **Shoot**: Spacebar
+
 ## Project Structure
 
 ```
