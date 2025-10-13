@@ -41,7 +41,7 @@ class GameLogicSystem
 
     // Default waves
     std::vector<Wave> waves{
-        {0.0f, 1, "basic_enemy", linePattern},
+        {0.0f, 4, "basic_enemy", linePattern},
         {2.5f, 4, "basic_enemy", diamondPattern},
         {2.5f, 4, "basic_enemy", vPattern},
         {0.0f, 1, "boss", linePattern},
