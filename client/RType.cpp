@@ -73,7 +73,6 @@ void RTypeGame::handleEvents()
         {
             running = false;
             std::cout << "Running is set to false" << std::endl;
-
         }
 
         if (event.type == sf::Event::MouseButtonPressed)
@@ -298,11 +297,10 @@ void RTypeGame::run()
 
         accumulator += deltaTime;
         handleEvents();
-          // handleEvents();
+        // handleEvents();
         if (running == false)
             break;
         sendInputPlayer();
-
 
         // Fixed timestep update
         while (accumulator >= FRAME_TIME)

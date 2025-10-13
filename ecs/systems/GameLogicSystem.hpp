@@ -48,8 +48,7 @@ class GameLogicSystem
 
     float waveTimer;
     bool waveActive;
-    
-    
+
   public:
     bool allWavesCompleted = false;
     GameLogicSystem();
