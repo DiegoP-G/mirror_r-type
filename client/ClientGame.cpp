@@ -50,6 +50,7 @@ void ClientGame::start()
     std::cout << "ClientGame started (network running in background)" << std::endl;
 
     _game.run();
+    stop();
 }
 
 void ClientGame::stop()
@@ -57,6 +58,8 @@ void ClientGame::stop()
     if (_running)
     {
         _running = false;
+        _networkManager.stop(); // Arrêter la boucle réseau
+        
         if (_networkThread.joinable())
         {
             _networkThread.join();
@@ -67,7 +70,5 @@ void ClientGame::stop()
 
 void ClientGame::networkLoop()
 {
-    // while (_running) {
     _networkManager.loop();
-    // }
 }

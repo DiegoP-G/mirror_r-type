@@ -46,15 +46,16 @@ bool getParams(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-    if (!getParams(argc, argv))
-        return 84;
+    // if (!getParams(argc, argv))
+    //     return 84;
 
     try
     {
         ClientGame clientGame;
 
-        clientGame.init(argv[2], 8081);
+        clientGame.init("0.0.0.0", 8081);
         clientGame.start();
+        std::cout << "out of start" << std::endl;
     }
     catch (const std::exception &e)
     {

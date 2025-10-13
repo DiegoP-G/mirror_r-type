@@ -11,7 +11,7 @@
 #include <unistd.h>
 
 NetworkManager::NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver)
-    : _med(med), _sender(sender), _receiver(receiver), _tcpSocket(-1), _udpSocket(-1)
+    : _med(med), _sender(sender), _receiver(receiver), _tcpSocket(-1), _udpSocket(-1), _shouldStop(false)
 {
 }
 
@@ -94,14 +94,16 @@ bool NetworkManager::setup(const char *serverIp, int port)
 
 void NetworkManager::loop()
 {
-    constexpr int TIMEOUT = 0;
+    constexpr int TIMEOUT = 100; // Timeout de 100ms pour vérifier périodiquement _shouldStop
 
-    while (true)
+    while (!_shouldStop.load())
     {
         int ret = poll(_pollFds.data(), _pollFds.size(), TIMEOUT);
-        // std::cout << "In poll" << std::endl;
+
         if (ret < 0)
         {
+            if (errno == EINTR)
+                continue;
             perror("poll");
             break;
         }
@@ -116,18 +118,22 @@ void NetworkManager::loop()
             {
                 if (pfd.fd == _udpSocket)
                 {
-                    // std::cout << "hi udp" << std::endl;
                     _receiver.receiveUDPMessage();
                 }
                 else if (pfd.fd == _tcpSocket)
                 {
-                    //  std::cout << "hi tcp" << std::endl;
                     _receiver.receiveTCPMessage();
                 }
             }
         }
-        usleep(10); // Petite pause pour éviter une boucle trop serrée
     }
+
+    std::cout << "NetworkManager loop terminated" << std::endl;
+}
+
+void NetworkManager::stop()
+{
+    _shouldStop.store(true);
 }
 
 Sender &NetworkManager::getSender()
