@@ -128,4 +128,5 @@ class RTypeGame
     void setCurrentState(GameState newState);
 
     void drawHitbox();
+    void drawPlayerID();
 };

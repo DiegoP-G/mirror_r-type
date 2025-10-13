@@ -217,6 +217,8 @@ void RTypeGame::render()
 
         std::string waveText = "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
         g_graphics->drawText(waveText, windowWidth - 100, 10);
+
+        drawPlayerID();
     }
 
     drawWaitingForPlayers();
@@ -436,6 +438,27 @@ void RTypeGame::drawHitbox()
         hitboxRect.setOutlineColor(sf::Color::Red);
 
         g_graphics->getWindow().draw(hitboxRect);
+    }
+}
+
+void RTypeGame::drawPlayerID()
+{
+    // --- Debug: draw hitboxes ---
+    auto entities = entityManager.getEntitiesWithComponent<PlayerComponent>();
+    for (auto e : entities)
+    {
+        auto &player = e->getComponent<PlayerComponent>();
+
+        std::string username = "PLAYER " + std::to_string(player.playerID);
+
+        if (_playerId == player.playerID)
+            username = "ME";
+
+        if (e->hasComponent<TransformComponent>())
+        {
+            auto &transform = e->getComponent<TransformComponent>();
+            g_graphics->drawText(username, transform.position.x, transform.position.y, 255, 255, 255);
+        }
     }
 }
 
