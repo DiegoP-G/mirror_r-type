@@ -1,4 +1,3 @@
-
 FROM fedora:39
 
 # Install dependencies
@@ -10,16 +9,22 @@ RUN dnf -y update && \
         cmake \
         libconfig-devel \
         pkg-config \
-        SFML-devel
-
-# Copy source code
+        SFML-devel && \
+    dnf clean all
 
 WORKDIR /app
 COPY . .
 
-RUN rm -rf build
-
 # Build the server
-RUN mkdir -p build && cd build && \
+RUN rm -rf build && \
+    mkdir -p build && \
+    cd build && \
     cmake .. && \
-    make server
+    make -j server
+
+# Expose ports (TCP + UDP)
+EXPOSE 8081/tcp
+EXPOSE 8081/udp
+
+# Run the server
+CMD ["./GameServer"]

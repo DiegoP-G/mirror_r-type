@@ -4,6 +4,7 @@
 #include "../RType.hpp"
 #include "Receiver.hpp"
 #include "Sender.hpp"
+#include <atomic>
 #include <netinet/in.h>
 #include <poll.h>
 #include <vector>
@@ -20,6 +21,7 @@ class NetworkManager
     std::vector<struct pollfd> _pollFds;
 
     sockaddr_in _serverAddr;
+    std::atomic<bool> _shouldStop;
 
   public:
     NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver);
@@ -27,6 +29,7 @@ class NetworkManager
 
     bool setup(const char *serverIp = "127.0.0.1", int port = 8080);
     void loop();
+    void stop();
 
     void handleReceival();
     void handleSend();
