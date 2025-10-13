@@ -1,4 +1,5 @@
 #include "RType.hpp"
+#include "../client/KeybindManager.hpp"
 #include "../client/NetworkECSMediator.hpp"
 #include "../ecs/GraphicsManager.hpp"
 #include "../ecs/ecs.hpp"
@@ -27,6 +28,7 @@ bool RTypeGame::init(NetworkECSMediator med, std::function<void(const char *)> n
     }
 
     createTextures();
+    keybindMenu = new KeybindMenu(keybindManager);
 
     running = true;
 
@@ -72,39 +74,41 @@ void RTypeGame::handleEvents()
             g_graphics->getTextBox()->checkInFocus(sf::Mouse::getPosition(g_graphics->getWindow()));
 
         g_graphics->getTextBox()->typeInBox(event);
+        keybindMenu->handleEvent(event, g_graphics->getWindow());
+
         if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
         {
-            if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
+            bool isPressed = (event.type == sf::Event::KeyPressed);
+
+            sf::Keyboard::Key processedKey = keybindManager.processKeyInput(event.key.code);
+
+            if (player && player->hasComponent<InputComponent>())
             {
-                bool isPressed = (event.type == sf::Event::KeyPressed);
-                if (player && player->hasComponent<InputComponent>())
+                auto &input = player->getComponent<InputComponent>();
+
+                switch (processedKey)
                 {
-                    auto &input = player->getComponent<InputComponent>();
-                    switch (event.key.code)
-                    {
-                    case sf::Keyboard::Up:
-                        input.up = isPressed;
-                        break;
-                    case sf::Keyboard::Down:
-                        input.down = isPressed;
-                        break;
-                    case sf::Keyboard::Left:
-                        input.left = isPressed;
-                        break;
-                    case sf::Keyboard::Right:
-                        input.right = isPressed;
-                        break;
-                    case sf::Keyboard::Space: {
-                        g_graphics->playSound("pew");
-                        input.fire = isPressed;
-                    }
+                case sf::Keyboard::Up:
+                    input.up = isPressed;
                     break;
-                    case sf::Keyboard::Enter:
-                        input.enter = isPressed;
-                        break;
-                    default:
-                        break;
-                    }
+                case sf::Keyboard::Down:
+                    input.down = isPressed;
+                    break;
+                case sf::Keyboard::Left:
+                    input.left = isPressed;
+                    break;
+                case sf::Keyboard::Right:
+                    input.right = isPressed;
+                    break;
+                case sf::Keyboard::Space:
+                    g_graphics->playSound("pew");
+                    input.fire = isPressed;
+                    break;
+                case sf::Keyboard::Enter:
+                    input.enter = isPressed;
+                    break;
+                default:
+                    break;
                 }
             }
         }
@@ -180,6 +184,7 @@ void RTypeGame::render()
         g_graphics->drawText("SeymourPintatGodeFeytGrodard-Type", 0, 30);
         g_graphics->getTextBox()->setAtCenter(g_graphics->getWindow());
         g_graphics->getTextBox()->draw(g_graphics->getWindow());
+        keybindMenu->draw(g_graphics->getWindow());
     }
     else
     {
@@ -315,7 +320,6 @@ void RTypeGame::drawWaitingForPlayers()
     if (_playerNb == 0 || _playerReady >= _playerNb)
     {
 
-        std::cout << "returning" << std::endl;
         return;
     }
 
@@ -337,7 +341,6 @@ void RTypeGame::drawTutorial()
     if (_playerNb == 0 || _playerReady >= _playerNb)
     {
 
-        std::cout << "returning" << std::endl;
         return;
     }
 

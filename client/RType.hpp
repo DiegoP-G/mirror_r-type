@@ -1,8 +1,12 @@
+#include "../client/KeybindManager.hpp"
 #include "../ecs/IComponent.hpp"
+#include "../ecs/keybindMenu.hpp"
 #include "../ecs/systems.hpp"
 #include "../ecs/textBox.hpp"
 #include "NetworkECSMediator.hpp"
+#include <SFML/Window/Keyboard.hpp>
 #include <mutex>
+#include <unordered_map>
 
 #pragma once
 enum GameState
@@ -46,6 +50,9 @@ class RTypeGame
     bool showLobbyInfo = false;
 
     GameState _state = GameState::MENU;
+
+    KeybindManager keybindManager;
+    KeybindMenu *keybindMenu;
 
     int score = 0;
 

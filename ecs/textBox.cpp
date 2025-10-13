@@ -66,7 +66,6 @@ void TextBox::typeInBox(sf::Event event)
 void TextBox::draw(sf::RenderWindow &window)
 {
     window.draw(box);
-    std::cout << std::string(text.getString()) << std::endl;
     window.draw(text);
 }
 
