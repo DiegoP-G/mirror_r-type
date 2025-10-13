@@ -11,6 +11,13 @@
 
 #include <cmath>
 
+enum SHOOTINGTYPE
+{
+    STRAIGHT,
+    THREE_DISPERSED,
+    SINUS,
+};
+
 class EnemySystem
 {
   public:

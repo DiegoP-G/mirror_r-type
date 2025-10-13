@@ -13,7 +13,8 @@ enum GameState
 {
     LOBBY,
     INGAME,
-    MENU
+    MENU,
+    GAMEOVER
 };
 
 class RTypeGame

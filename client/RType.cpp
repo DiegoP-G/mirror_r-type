@@ -42,9 +42,7 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(backgroundSpritePath), "background");
     sf::Texture &playerTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(playerSpritePath), "player");
-    sf::Texture &explosionTexture =
-        g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/explosion.png"), "explosion");
-
+    sf::Texture &bossTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bossSpritePAth), "boss");
     sf::Texture &bulletTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bulletSpritePath), "bullet");
     sf::Texture &basicEnemyTexture =
@@ -53,10 +51,10 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusLifeSpritePath), "bonus_life");
 
     g_graphics->storeTexture("background", backgroundTexture);
+    g_graphics->storeTexture("boss", bossTexture);
     g_graphics->storeTexture("player", playerTexture);
     g_graphics->storeTexture("basic_enemy", basicEnemyTexture);
     g_graphics->storeTexture("bullet", bulletTexture);
-    g_graphics->storeTexture("explosion", explosionTexture);
     g_graphics->storeTexture("bonus_life", bonusLifeTexture);
 }
 
@@ -68,6 +66,14 @@ void RTypeGame::handleEvents()
         if (event.type == sf::Event::Closed)
         {
             running = false;
+            std::cout << "Running is set to false" << std::endl;
+        }
+
+        if (gameOver && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
+        {
+            running = false;
+            std::cout << "Running is set to false" << std::endl;
+
         }
 
         if (event.type == sf::Event::MouseButtonPressed)
@@ -175,7 +181,24 @@ void RTypeGame::render()
 
     if (gameOver)
     {
-        g_graphics->drawText("Game Over!", 250, 250);
+        std::string gameOverText = "Game Over!";
+        if (_winnerId == _playerId)
+        {
+            gameOverText = "YOU WIN!";
+            g_graphics->drawText(gameOverText, 250, 250, 0, 255, 0); // Vert
+        }
+        else if (_winnerId == -1)
+        {
+            gameOverText = "DRAW - No Winners";
+            g_graphics->drawText(gameOverText, 200, 250, 255, 255, 0); // Jaune
+        }
+        else
+        {
+            gameOverText = "Player " + std::to_string(_winnerId) + " Wins!";
+            g_graphics->drawText(gameOverText, 200, 250, 255, 0, 0); // Rouge
+        }
+
+        g_graphics->drawText("Press ESC to quit", 220, 300);
     }
 
     if (_state == GameState::MENU)
@@ -273,9 +296,11 @@ void RTypeGame::run()
 
         accumulator += deltaTime;
         handleEvents();
-        // handleEvents();
-
+          // handleEvents();
+        if (running == false)
+            break;
         sendInputPlayer();
+
 
         // Fixed timestep update
         while (accumulator >= FRAME_TIME)
@@ -450,6 +475,5 @@ void RTypeGame::setWinnerId(int id)
     {
         std::cout << "Player " << _winnerId << " is the winner!" << std::endl;
     }
-    sf::sleep(sf::seconds(3));
-    g_graphics->getWindow().close();
+    _state = GameState::GAMEOVER;
 }

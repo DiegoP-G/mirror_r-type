@@ -2,7 +2,8 @@
 #include "../../server/Game/GameMediator.hpp"
 #include "../../transferData/transferData.hpp"
 #include "../enemyFactory.hpp"
-
+#include <cstdlib>
+#include <ctime>
 #include <vector>
 
 GameLogicSystem::GameLogicSystem() : rng(std::random_device{}())
@@ -147,7 +148,19 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
 {
     float cx = windowWidth + 50.0f;
     float cy = windowHeight / 2.0f;
-    std::vector<Vector2D> positions = wave.pattern(wave.enemyCount, cx, cy);
+    // std::vector<Vector2D> positions = wave.pattern(wave.enemyCount, cx, cy);
+    std::vector<Vector2D> positions;
+
+    std::srand(std::time(nullptr));
+    // Generate random enemy position
+    for (int i = 0; i < wave.enemyCount; i++)
+    {
+
+        int x = rand() % 50 + windowWidth;
+        int y = rand() % (windowHeight - 20) + 20;
+        positions.push_back(Vector2D(x, y));
+        printf("Random pos: %d %d\n", x, y);
+    }
 
     for (const auto &pos : positions)
     {

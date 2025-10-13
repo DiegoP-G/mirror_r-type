@@ -29,7 +29,6 @@ bool GraphicsManager::registerTheTexture()
     createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/playerSpritesheet.png"), "player");
     createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "enemy");
     createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "bullet");
-    createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/explosion.png"), "explosion");
 
     return true;
 }
@@ -114,6 +113,8 @@ sf::Texture *GraphicsManager::getTexture(int tex)
         return getTexture("explosion");
     case BONUS_LIFE:
         return getTexture("bonus_life");
+    case BOSS:
+        return getTexture("boss");
     default:
         return nullptr;
     }
