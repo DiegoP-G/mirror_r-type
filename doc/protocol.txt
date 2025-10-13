@@ -1,5 +1,8 @@
-PAD Corporation                                       Adrien Gaillard--Lafargue
+PAD Corporation                                                  Alexis Seymour
 Category: Game Documentation                                   Diego Pintat-Gil
+                                                                     Loris Gode
+                                                                   Perrine Feyt
+                                                                 Keyvan Goddard
                                                                      April 2025
 
                                R-Type Protocol
