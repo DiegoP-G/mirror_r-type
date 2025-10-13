@@ -24,3 +24,5 @@ libecs.*
 libtransferData.a
 *tmp*
 *TMP*
+_deps/
+build/
