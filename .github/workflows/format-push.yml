@@ -1,19 +1,20 @@
-name: Check C++ Formatting and push to mirror repository
+# name: Check C++ Formatting and push to mirror repository
 
-env:
-  MIRROR_URL: "git@github.com:EpitechPGE3-2025/G-CPP-500-TLS-5-1-rtype-4.git"
-  MIRROR_REPO: "EpitechPGE3-2025/G-CPP-500-TLS-5-1-rtype-4"
+# env:
+#   MIRROR_URL: "git@github.com:EpitechPGE3-2025/G-CPP-500-TLS-5-1-rtype-4.git"
+#   MIRROR_REPO: "EpitechPGE3-2025/G-CPP-500-TLS-5-1-rtype-4"
 
-on:
-  push:
-    branches:
-      - main
-      - dev
-  pull_request:
-    branches:
-      - main
-      - dev
+# on:
+#   push:
+#     branches:
+#       - main
+#       - dev
+#   pull_request:
+#     branches:
+#       - main
+#       - dev
 
+<<<<<<< HEAD
 jobs:
   # format-check:
   #   name: Clang-Format Check
@@ -65,3 +66,56 @@ jobs:
         with:
           target_repo_url: ${{ env.MIRROR_URL }}
           ssh_private_key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
+=======
+# jobs:
+#   format-check:
+#     name: Clang-Format Check
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       - name: Install Clang-Format
+#         run: sudo apt-get update && sudo apt-get install -y clang-format
+
+#       - name: Check C++ formatting
+#         run: |
+#           git ls-files '*.[ch]pp' '*.[ch]' -z | while IFS= read -r -d '' file; do
+#             clang-format --style=Microsoft --dry-run --Werror "$file"
+#           done
+#   build-server-docker:
+#     name: Build Docker image for server
+#     needs: [format-check]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       - name: Build Docker image
+#         run: |
+#           docker build -f Dockerfile.server -t rtype-server .
+#   build-client-server:
+#     name: Build Docker image for client
+#     needs: [build-server-docker]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       - name: Build Docker image
+#         run: |
+#           docker build -f Dockerfile.client -t rtype-client .
+#   push-to-mirror:
+#     if: ${{ github.repository != '${{ env.MIRROR_REPO }}' && github.event_name == 'push' }}
+#     needs: [build-client-server]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
+#       - name: Push to mirror
+#         uses: pixta-dev/repository-mirroring-action@v1
+#         with:
+#           target_repo_url: ${{ env.MIRROR_URL }}
+#           ssh_private_key: ${{ secrets.GIT_SSH_PRIVATE_KEY }}
+>>>>>>> refs/remotes/origin/main

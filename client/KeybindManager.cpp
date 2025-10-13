@@ -90,8 +90,7 @@ std::string keyToString(sf::Keyboard::Key key)
         {sf::Keyboard::Left, "Left"},
         {sf::Keyboard::Right, "Right"},
         {sf::Keyboard::Up, "Up"},
-        {sf::Keyboard::Down, "Down"}
-        // add more keys if needed
+        {sf::Keyboard::Down, "Down"} // add more keys if needed
     };
 
     auto it = keyNames.find(key);

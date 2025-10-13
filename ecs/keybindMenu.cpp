@@ -146,7 +146,7 @@ void KeybindMenu::drawMenu(sf::RenderWindow &window)
     window.draw(menuBackground);
     for (auto &[_, text] : keyLabels)
         window.draw(text);
-    
+
     // Dessiner la checkbox et le label du son
     window.draw(soundCheckbox);
     if (!soundMuted)

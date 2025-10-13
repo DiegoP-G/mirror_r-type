@@ -67,7 +67,7 @@ void RTypeServer::update(float deltaTime)
         if (gameLogicSystem.allWavesCompleted && !gameOver)
         {
             std::cout << "[Server] 🏆 All waves completed! Determining winner..." << std::endl;
-            
+
             // Trouver le gagnant par score
             int winnerID = -1;
             int maxScore = -1;
