@@ -2,6 +2,7 @@
 #include "../components/TransformComponent.hpp"
 #include "../components/VelocityComponent.hpp"
 #include "../entityManager.hpp"
+#include <cstdlib>
 
 class MovementSystem
 {
@@ -14,7 +15,22 @@ class MovementSystem
         {
             auto &transform = entity->getComponent<TransformComponent>();
             auto &velocity = entity->getComponent<VelocityComponent>();
-            transform.position += velocity.velocity * deltaTime;
+            if (velocity.sineMovement)
+            {
+                velocity.time += deltaTime;
+                transform.position.x += velocity.velocity.x * deltaTime;
+                transform.position.y += velocity.velocity.y * deltaTime + sinf(velocity.time * 4);
+            }
+            else if (velocity.reverseSineMovement)
+            {
+                velocity.time += deltaTime;
+                transform.position.x += velocity.velocity.x * deltaTime;
+                transform.position.y += velocity.velocity.y * deltaTime - sinf(velocity.time * 4);
+            }
+            else
+            {
+                transform.position += velocity.velocity * deltaTime;
+            }
         }
     }
 };

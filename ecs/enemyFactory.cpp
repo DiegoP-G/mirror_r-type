@@ -1,4 +1,5 @@
 #include "enemyFactory.hpp"
+#include "systems/EnemySystem.hpp"
 
 void EnemyFactory::createEnemy(EntityManager &entityManager, std::string enemyType, const Vector2D &position)
 {
@@ -7,8 +8,7 @@ void EnemyFactory::createEnemy(EntityManager &entityManager, std::string enemyTy
     enemy.addComponent<VelocityComponent>(0.0f, 0.0f);
     enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
     // 0 for movement type : left
-    // 2 for shooting type : single shot
-    enemy.addComponent<EnemyComponent>(0, 1.0f, 2, 50);
+    enemy.addComponent<EnemyComponent>(0, 1.0f, SHOOTINGTYPE::THREE_DISPERSED, 50);
 
     enemy.addComponent<HealthComponent>(100, 100);
     enemy.addComponent<HealthBarComponent>(30.0f, 4.0f, -20.0f);
