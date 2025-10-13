@@ -113,6 +113,8 @@ sf::Texture *GraphicsManager::getTexture(int tex)
         return getTexture("explosion");
     case BONUS_LIFE:
         return getTexture("bonus_life");
+    case BOSS:
+        return getTexture("boss");
     default:
         return nullptr;
     }

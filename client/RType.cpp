@@ -40,7 +40,7 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(backgroundSpritePath), "background");
     sf::Texture &playerTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(playerSpritePath), "player");
-
+    sf::Texture &bossTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bossSpritePAth), "boss");
     sf::Texture &bulletTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bulletSpritePath), "bullet");
     sf::Texture &basicEnemyTexture =
@@ -49,6 +49,7 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusLifeSpritePath), "bonus_life");
 
     g_graphics->storeTexture("background", backgroundTexture);
+    g_graphics->storeTexture("boss", bossTexture);
     g_graphics->storeTexture("player", playerTexture);
     g_graphics->storeTexture("basic_enemy", basicEnemyTexture);
     g_graphics->storeTexture("bullet", bulletTexture);
