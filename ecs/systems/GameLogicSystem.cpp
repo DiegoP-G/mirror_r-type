@@ -17,7 +17,7 @@ void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, Game
     enemySpawnTimer += deltaTime;
 
     if (currentWave >= waves.size())
-        return; // All waves done
+        allWavesCompleted = true;
 
     waveTimer += deltaTime;
 
@@ -157,7 +157,7 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
     {
 
         int x = rand() % 50 + windowWidth;
-        int y = rand() % (windowHeight - 20) + 20;
+        int y = (rand() % (windowHeight - 100)) + 50;
         positions.push_back(Vector2D(x, y));
         printf("Random pos: %d %d\n", x, y);
     }

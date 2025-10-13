@@ -48,8 +48,10 @@ class GameLogicSystem
 
     float waveTimer;
     bool waveActive;
-
+    
+    
   public:
+    bool allWavesCompleted = false;
     GameLogicSystem();
     void update(EntityManager &entityManager, float deltaTime, GameMediator &gameMediator);
     int getScore() const;

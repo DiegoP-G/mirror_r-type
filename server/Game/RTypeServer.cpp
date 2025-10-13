@@ -64,6 +64,28 @@ void RTypeServer::update(float deltaTime)
             std::string serializedData(serializedScores.begin(), serializedScores.end());
             mediator.notify(GameMediatorEvent::UpdateScore, serializedData);
         }
+        if (gameLogicSystem.allWavesCompleted && !gameOver)
+        {
+            std::cout << "[Server] 🏆 All waves completed! Determining winner..." << std::endl;
+            
+            // Trouver le gagnant par score
+            int winnerID = -1;
+            int maxScore = -1;
+
+            for (auto &[playerId, score] : _playersScores)
+            {
+                std::cout << "[Server] Player " << playerId << " score: " << score << std::endl;
+                if (score > maxScore)
+                {
+                    maxScore = score;
+                    winnerID = playerId;
+                }
+            }
+
+            gameOver = true;
+            std::cout << "[Server] Winner: Player " << winnerID << " with score " << maxScore << std::endl;
+            mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID));
+        }
         // laserWarningSystem.update(entityManager, deltaTime);
 
         // 3. Appliquer les changements (vide les buffers)
