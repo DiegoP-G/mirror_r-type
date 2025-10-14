@@ -22,7 +22,7 @@ class ClientManager
     }
 
     void addClient(const Client &c);
-    void removeClient(int socket);
+    bool removeClient(int socket);
     void broadcast(const std::string &message);
     Client *getClient(int socket);
     Client *getClientByCodeUDP(int code);

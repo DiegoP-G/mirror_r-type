@@ -145,3 +145,8 @@ constexpr uint8_t OPCODE_LOBBY_INFO = 0x60;
 constexpr uint8_t OPCODE_GAME_STATE_UPDATE = 0x61;
 // [SERVER → CLIENT, TCP]
 // Sends info about game state (INGAME or INLOBBY)
+
+constexpr uint8_t OPCODE_KICK_NOTIFICATION = 0x62;
+// [SERVER → CLIENT, TCP]
+// Notifies the client that it has been kicked from the server.
+// Payload: none

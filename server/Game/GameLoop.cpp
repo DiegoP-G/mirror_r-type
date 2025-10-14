@@ -22,7 +22,7 @@ void Orchestrator::GameLoop::loop()
     std::chrono::duration<double> accumulatedTime(0);
     _gameMediator.notify(GameMediatorEvent::InitECS, "");
 
-    AdministratorPanel adminPanel;
+    AdministratorPanel adminPanel(_gameMediator.getNetworkManager());
     adminPanel.setClientManager(_gameMediator.getNetworkManager().getClientManager());
     _gameMediator.getNetworkManager().getClientManager().setAdministratorPanel(adminPanel);
 

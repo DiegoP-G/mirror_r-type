@@ -1,4 +1,5 @@
 #include "ClientManager.hpp"
+#include "../../transferData/opcode.hpp"
 #include "../AdministratorPanel.hpp"
 #include "Client.hpp"
 #include <iostream>
@@ -30,7 +31,7 @@ void ClientManager::addClient(const Client &c)
 
     if (_adminPanel)
     {
-        std::string logMessage = "Client connected: " + c.getName() + " (socket " + std::to_string(sock) + ")";
+        std::string logMessage = "Client connected: " + c.getName() + " socket: " + std::to_string(sock);
         _adminPanel->addLog(logMessage);
     }
     auto result = _clients.emplace(sock, c);
@@ -49,7 +50,7 @@ void ClientManager::addClient(const Client &c)
     std::cout << "=== addClient DEBUG END ===" << std::endl;
 }
 
-void ClientManager::removeClient(int socket)
+bool ClientManager::removeClient(int socket)
 {
     auto it = _clients.find(socket);
     if (it != _clients.end())
@@ -57,10 +58,12 @@ void ClientManager::removeClient(int socket)
         std::cout << "Removing client: " << it->second.getName() << " (socket " << socket << ")\n";
         _clients.erase(it);
         close(socket);
+        return true;
     }
     else
     {
         std::cerr << "Client with socket " << socket << " not found.\n";
+        return false;
     }
 }
 

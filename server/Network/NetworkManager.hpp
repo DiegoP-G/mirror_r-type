@@ -51,4 +51,9 @@ class NetworkManager
 
     void sendDataAllClientUDP(std::string data, int opcode);
     void sendDataAllClientTCP(std::string data, int opcode);
+
+    TCPManager &getTCPManager()
+    {
+        return _TCPManager;
+    };
 };

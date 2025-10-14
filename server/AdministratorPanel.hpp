@@ -1,6 +1,7 @@
 #pragma once
 #include "../client/assetsPath.hpp"
 #include "Network/ClientManager.hpp"
+#include "NetworkManager.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
@@ -18,6 +19,7 @@ class AdministratorPanel
   private:
     std::unique_ptr<sf::Font> _font;
     ClientManager *_clientManager;
+    NetworkManager &_networkManager;
 
     std::unordered_map<int, sf::RectangleShape> _kickButtons;
 
@@ -31,9 +33,11 @@ class AdministratorPanel
                                                                          const sf::FloatRect &playerListArea);
     void drawPlayerList(sf::RenderWindow &window, sf::FloatRect playerListArea);
     void drawLogs(sf::RenderWindow &window, sf::FloatRect logsArea);
+    void scrollLogic(sf::RenderWindow &window, sf::Event &event);
+    void kickPlayer(sf::RenderWindow &window, sf::Event &event);
 
   public:
-    AdministratorPanel();
+    AdministratorPanel(NetworkManager &networkManager);
 
     void setClientManager(ClientManager &clientManager);
 

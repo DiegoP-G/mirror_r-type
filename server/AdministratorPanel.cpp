@@ -2,7 +2,8 @@
 #include "Network/ClientManager.hpp"
 #include <arpa/inet.h>
 
-AdministratorPanel::AdministratorPanel() : _clientManager(nullptr), _playerListScrollOffset(0), _logsScrollOffset(0)
+AdministratorPanel::AdministratorPanel(NetworkManager &networkManager)
+    : _clientManager(nullptr), _playerListScrollOffset(0), _logsScrollOffset(0), _networkManager(networkManager)
 {
     sf::Font font;
     if (!font.loadFromFile(PathFormater::formatAssetPath(fontPath)))
@@ -19,6 +20,54 @@ void AdministratorPanel::setClientManager(ClientManager &clientManager)
     _clientManager = &clientManager;
 }
 
+void AdministratorPanel::scrollLogic(sf::RenderWindow &window, sf::Event &event)
+{
+    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+    if (mousePos.y < WINDOWHEIGTH * 0.7f)
+    {
+        // Scroll the player list
+        _playerListScrollOffset += event.mouseWheelScroll.delta * 20;      // Adjust scroll speed
+        _playerListScrollOffset = std::max(_playerListScrollOffset, 0.0f); // Prevent scrolling above the top
+    }
+    else
+    {
+        // Scroll the logs
+        _logsScrollOffset += event.mouseWheelScroll.delta * 20; // Adjust scroll speed
+        _logsScrollOffset = std::max(_logsScrollOffset, 0.0f);  // Prevent scrolling above the top
+    }
+}
+
+void AdministratorPanel::kickPlayer(sf::RenderWindow &window, sf::Event &event)
+{
+    sf::Vector2f mousePos(event.mouseButton.x, event.mouseButton.y);
+
+    for (auto &[id, button] : _kickButtons)
+    {
+        if (button.getGlobalBounds().contains(mousePos))
+        {
+            if (_clientManager)
+            {
+                _logs.push_back("Kicking client " + std::to_string(id));
+                _networkManager.getTCPManager().sendMessage(id, OPCODE_KICK_NOTIFICATION, "");
+                _networkManager.getTCPManager().sendMessage(id, OPCODE_KICK_NOTIFICATION, "");
+                if (_clientManager->removeClient(id))
+                {
+                    _logs.push_back("Client " + std::to_string(id) + " was kicked.");
+                }
+                else
+                {
+                    _logs.push_back("Failed to kick client " + std::to_string(id) + ".");
+                }
+            }
+            else
+            {
+                std::cerr << "AdministratorPanel: _clientManager not initialized when trying to kick client."
+                          << std::endl;
+            }
+        }
+    }
+}
+
 void AdministratorPanel::handleEvents(sf::RenderWindow &window)
 {
     sf::Event event;
@@ -32,34 +81,13 @@ void AdministratorPanel::handleEvents(sf::RenderWindow &window)
         // Handle mouse wheel scrolling
         if (event.type == sf::Event::MouseWheelScrolled)
         {
-            sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-            if (mousePos.y < WINDOWHEIGTH * 0.7f)
-            {
-                // Scroll the player list
-                _playerListScrollOffset += event.mouseWheelScroll.delta * 20;      // Adjust scroll speed
-                _playerListScrollOffset = std::max(_playerListScrollOffset, 0.0f); // Prevent scrolling above the top
-            }
-            else
-            {
-                // Scroll the logs
-                _logsScrollOffset += event.mouseWheelScroll.delta * 20; // Adjust scroll speed
-                _logsScrollOffset = std::max(_logsScrollOffset, 0.0f);  // Prevent scrolling above the top
-            }
+            scrollLogic(window, event);
         }
 
         // Handle mouse clicks for the "Kick" buttons
         if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
         {
-            sf::Vector2f mousePos(event.mouseButton.x, event.mouseButton.y);
-            for (auto &[id, button] : _kickButtons)
-            {
-                if (button.getGlobalBounds().contains(mousePos))
-                {
-                    // Kick the client with the corresponding ID
-                    // _clientManager.kickClient(id);
-                    std::cout << "KICK CLIENT " << id << "\n";
-                }
-            }
+            kickPlayer(window, event);
         }
     }
 }

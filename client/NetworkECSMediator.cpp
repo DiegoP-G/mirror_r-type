@@ -173,6 +173,13 @@ NetworkECSMediator::NetworkECSMediator()
                  break;
              }
 
+             case OPCODE_KICK_NOTIFICATION: {
+                 _game->getMutex().lock();
+                 _game->setKickState();
+                 _game->getMutex().unlock();
+                 break;
+             }
+
              default:
                  std::cerr << "[Client] Unhandled opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
                  break;

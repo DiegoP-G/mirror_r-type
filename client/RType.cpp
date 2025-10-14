@@ -208,6 +208,11 @@ void RTypeGame::render()
         g_graphics->getTextBox()->draw(g_graphics->getWindow());
         keybindMenu->draw(g_graphics->getWindow());
     }
+    else if (_state == GameState::KICKED)
+    {
+        g_graphics->getWindow().clear(sf::Color::Black);
+        g_graphics->drawText("You have been kicked by an administrator.", 0, windowHeight / 2);
+    }
     else
     {
         // drawHitbox();

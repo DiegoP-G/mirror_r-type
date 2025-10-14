@@ -14,7 +14,8 @@ enum GameState
     LOBBY,
     INGAME,
     MENU,
-    GAMEOVER
+    GAMEOVER,
+    KICKED
 };
 
 class RTypeGame
@@ -64,7 +65,7 @@ class RTypeGame
   public:
     void reset();
 
-    RTypeGame(NetworkECSMediator med) : _med(med) {};
+    RTypeGame(NetworkECSMediator med) : _med(med){};
 
     void markPlayerAsDead(int playerId);
 
@@ -129,4 +130,9 @@ class RTypeGame
 
     void drawHitbox();
     void drawPlayerID();
+
+    void setKickState()
+    {
+        _state = GameState::KICKED;
+    };
 };
