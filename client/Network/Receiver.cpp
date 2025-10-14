@@ -25,8 +25,36 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
     _handlers[OPCODE_MOVEMENT_UPDATE] = [this](const std::string &payload, int opcode) {
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
+
+    _handlers[OPCODE_MOVEMENT_UPDATE_LZ4] = [this](const std::string &payload, int) {
+        std::string raw;
+        if (!LZ4DecompressPayload(payload, raw)) {
+            std::cerr << "[Receiver] LZ4 decompress failed for movement update" << std::endl;
+            return;
+        }
+        _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, raw, OPCODE_MOVEMENT_UPDATE);
+    };
+
     _handlers[OPCODE_HEALTH_UPDATE] = [this](const std::string &payload, int opcode) {
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
+    };
+
+    _handlers[OPCODE_HEALTH_UPDATE_LZ4] = [this](const std::string &payload, int) {
+        std::string raw;
+        if (!LZ4DecompressPayload(payload, raw)) {
+            std::cerr << "[Receiver] LZ4 decompress failed for heatlh update" << std::endl;
+            return;
+        }
+        _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, raw, OPCODE_HEALTH_UPDATE);
+    };
+
+    _handlers[OPCODE_PROJECTILES_UPDATE_LZ4] = [this](const std::string &payload, int) {
+        std::string raw;
+        if (!LZ4DecompressPayload(payload, raw)) {
+            std::cerr << "[Receiver] LZ4 decompress failed for projectiles update" << std::endl;
+            return;
+        }
+        _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, raw, OPCODE_PROJECTILES_UPDATE);
     };
 
     _handlers[OPCODE_UPDATE_WAVE] = [this](const std::string &payload, int opcode) {

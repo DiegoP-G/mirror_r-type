@@ -5,6 +5,52 @@
 #include <tuple>
 #include <unistd.h>
 #include <vector>
+#include <lz4.h>
+
+bool tryCompressLZ4(const std::string &in, std::string &out,
+    int minThreshold, int margin)
+{
+    out.clear();
+
+    const int srcSize = (int)in.size();
+    if (srcSize < minThreshold) return false;
+
+    const int maxDst = LZ4_compressBound(srcSize);
+    std::vector<char> dst(maxDst);
+    const int compressedSize =
+        LZ4_compress_default(in.data(), dst.data(), srcSize, maxDst);
+    if (compressedSize <= 0) return false;
+
+    const int headerSize = sizeof(uint32_t);
+    if (compressedSize + headerSize >= srcSize - margin) return false;
+
+    out.resize(headerSize + compressedSize);
+    uint32_t orig = (uint32_t)srcSize;
+    std::memcpy(out.data(), &orig, sizeof(uint32_t));
+    std::memcpy(out.data() + headerSize, dst.data(), compressedSize);
+    return true;
+}
+
+bool LZ4DecompressPayload(const std::string &in, std::string &out)
+{
+    out.clear();
+    if (in.size() < sizeof(uint32_t)) return false;
+
+    uint32_t origSize = 0;
+    std::memcpy(&origSize, in.data(), sizeof(uint32_t));
+    if (origSize == 0) return false;
+
+    const char *src = in.data() + sizeof(uint32_t);
+    const int srcSize = (int)(in.size() - sizeof(uint32_t));
+
+    out.resize(origSize);
+    const int decompressed = LZ4_decompress_safe(src, out.data(), srcSize, (int)origSize);
+    if (decompressed != (int)origSize) {
+        out.clear();
+        return false;
+    }
+    return true;
+}
 
 bool sendFrameTCP(int fd, uint8_t opcode, const std::string &payload)
 {

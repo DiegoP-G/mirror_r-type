@@ -44,6 +44,23 @@ if (NOT LIBCONFIG_FOUND)
     set(LIBCONFIG_LIBRARIES libconfig++)
 endif()
 
+# ---- LZ4 ----
+find_package(LZ4 QUIET)
+
+if (NOT LZ4_FOUND)
+    message(STATUS "LZ4 not found, fetching it using FetchContent...")
+    FetchContent_Declare(
+        lz4
+        GIT_REPOSITORY https://github.com/lz4/lz4.git
+        GIT_TAG v1.9.4
+    )
+    FetchContent_MakeAvailable(lz4)
+
+    # Build the LZ4 source into a static library
+    add_library(lz4_src ${lz4_SOURCE_DIR}/lib/lz4.c)
+    target_include_directories(lz4_src PUBLIC ${lz4_SOURCE_DIR}/lib)
+endif()
+
 # ---- transferData library ----
 add_library(transferData
     transferData/transferData.cpp
@@ -53,6 +70,13 @@ target_include_directories(transferData PUBLIC
     transferData
     ecs
 )
+
+# Link against either system LZ4 or fetched version
+if (LZ4_FOUND)
+    target_link_libraries(transferData PUBLIC LZ4::LZ4)
+else()
+    target_link_libraries(transferData PUBLIC lz4_src)
+endif()
 
 # ---- ECS + Components library ----
 file(GLOB_RECURSE ECS_SOURCES

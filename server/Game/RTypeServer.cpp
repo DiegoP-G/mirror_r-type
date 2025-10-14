@@ -2,6 +2,7 @@
 #include "RTypeServer.hpp"
 #include "../../ecs/GraphicsManager.hpp"
 #include "../../ecs/allComponentsInclude.hpp"
+#include "../../transferData/transferData.hpp"
 #include <cstddef>
 #include <string>
 
@@ -143,17 +144,24 @@ void RTypeServer::sendDestroyedEntities()
     }
 }
 
-void RTypeServer::sendMovementUpdates()
+void::RTypeServer::sendMovementUpdates()
 {
-    auto data = entityManager.serializeAllMovements();
-    std::string serializedData(data.begin(), data.end());
-    mediator.notify(GameMediatorEvent::MovementUpdate, serializedData);
+    auto dataVec = entityManager.serializeAllMovements();
+    std::string raw(dataVec.begin(), dataVec.end());
+
+    std::string compressed;
+    const bool ok = tryCompressLZ4(raw, compressed);
+
+    if (ok)
+        mediator.notify(GameMediatorEvent::MovementUpdateLZ4, compressed);
+    else
+        mediator.notify(GameMediatorEvent::MovementUpdate, raw);
 }
 
 void RTypeServer::sendHealthUpdates()
 {
-    auto data = entityManager.serializeAllHealth();
-    std::string serializedData(data.begin(), data.end());
+    auto dataVec = entityManager.serializeAllHealth();
+    std::string raw(dataVec.begin(), dataVec.end());
     int winnerID = -1;
     bool game_over = false;
 
@@ -161,34 +169,42 @@ void RTypeServer::sendHealthUpdates()
     {
         auto &health = entity->getComponent<HealthComponent>();
         auto &playerComp = entity->getComponent<PlayerComponent>();
-        std::cout << "Player ID " << playerComp.playerID << " - Health: " << health.health << "/" << health.maxHealth
-                  << std::endl;
+        std::cout << "Player ID " << playerComp.playerID << " - Health: " << health.health
+                  << "/" << health.maxHealth << std::endl;
     }
 
     std::vector<Entity *> deadPlayers = entityManager.getPlayersDead(winnerID, game_over);
-
     for (auto *entity : deadPlayers)
     {
         auto &playerComp = entity->getComponent<PlayerComponent>();
-
         mediator.notify(GameMediatorEvent::PlayerDead, serializeInt(playerComp.playerID));
         std::cout << "Player " << playerComp.playerID << " is dead." << std::endl;
     }
-    if (game_over && winnerID != -1)
+
+    if (game_over)
     {
-        std::cout << "Player " << winnerID << " is the winner!" << std::endl;
-        mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID));
-        this->gameOver = true;
-    }
-    else if (game_over)
-    {
-        std::cout << "It's a draw! No winners." << std::endl;
-        mediator.notify(GameMediatorEvent::GameOver, serializeInt(-1));
+        if (winnerID != -1)
+        {
+            std::cout << "Player " << winnerID << " is the winner!" << std::endl;
+            mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID));
+        }
+        else
+        {
+            std::cout << "It's a draw! No winners." << std::endl;
+            mediator.notify(GameMediatorEvent::GameOver, serializeInt(-1));
+        }
         this->gameOver = true;
     }
 
-    mediator.notify(GameMediatorEvent::HealthUpdate, serializedData);
+    std::string compressed;
+    const bool ok = tryCompressLZ4(raw, compressed);
+
+    if (ok)
+        mediator.notify(GameMediatorEvent::HealthUpdateLZ4, compressed);
+    else
+        mediator.notify(GameMediatorEvent::HealthUpdate, raw);
 }
+
 
 void RTypeServer::restart()
 {

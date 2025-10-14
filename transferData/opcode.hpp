@@ -77,6 +77,10 @@ constexpr uint8_t OPCODE_PROJECTILES_UPDATE = 0x25;
 // Payload: compressed list of projectile entities (positions, velocities, types, etc).
 // Purpose: notifies clients about the current state of all visible projectiles.
 
+constexpr uint8_t OPCODE_PROJECTILES_UPDATE_LZ4 = 0x2C;
+// [SERVER → CLIENT, UDP]
+// Payload: [ original_size (uint32 LE) | lz4_block ]
+
 constexpr uint8_t OPCODE_PLAYER_INPUT = 0x26;
 // [CLIENT → SERVER, UDP]
 // Sends the client kb input.
@@ -97,10 +101,16 @@ constexpr uint8_t OPCODE_MOVEMENT_UPDATE = 0x29;
 // Updates des positions et velocities de toutes les entités
 // Payload: liste compressée (EntityID, position, velocity)
 
+constexpr uint8_t OPCODE_MOVEMENT_UPDATE_LZ4 = 0x2A;
+// [SERVER → CLIENT, UDP]
+// Payload: [ original_size (uint32 LE) | lz4_block ]
+
 constexpr uint8_t OPCODE_HEALTH_UPDATE = 0x40;
 // [SERVER → CLIENT, UDP]
 // Updates la vie de toutes les entités
 // Payload: liste compressée (EntityID, healtcomponent)
+
+constexpr uint8_t OPCODE_HEALTH_UPDATE_LZ4 = 0x41;
 
 constexpr uint8_t OPCODE_CHAT_MESSAGE = 0x30;
 // [CLIENT → SERVER, TCP]
