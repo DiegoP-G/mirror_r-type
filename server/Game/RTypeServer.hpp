@@ -41,7 +41,7 @@ class RTypeServer
 
     Entity *player = nullptr;
     bool gameOver = false;
-    GameState _state = INGAME;
+    GameState _state = LOBBY;
 
     bool running = false;
 
