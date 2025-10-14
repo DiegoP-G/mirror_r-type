@@ -13,6 +13,8 @@ AdministratorPanel::AdministratorPanel(NetworkManager &networkManager)
         return;
     }
     _font = std::make_unique<sf::Font>(font);
+
+    _logs.push_back("Started administrator panel.");
 }
 
 void AdministratorPanel::setClientManager(ClientManager &clientManager)
@@ -23,17 +25,38 @@ void AdministratorPanel::setClientManager(ClientManager &clientManager)
 void AdministratorPanel::scrollLogic(sf::RenderWindow &window, sf::Event &event)
 {
     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+
+    constexpr float LOG_HEIGHT = 20.0f;    // Height of each log entry
+    constexpr float PLAYER_HEIGHT = 40.0f; // Height of each player entry
+
+    // Check if the mouse is in the player list area
     if (mousePos.y < WINDOWHEIGTH * 0.7f)
     {
-        // Scroll the player list
-        _playerListScrollOffset += event.mouseWheelScroll.delta * 20;      // Adjust scroll speed
-        _playerListScrollOffset = std::max(_playerListScrollOffset, 0.0f); // Prevent scrolling above the top
+        // Calculate total height of the player list
+        float totalPlayerHeight = _clientManager->getClientsMap().size() * PLAYER_HEIGHT;
+
+        // Prevent scrolling if the total height is less than the visible area
+        if (totalPlayerHeight > WINDOWHEIGTH * 0.7f)
+        {
+            _playerListScrollOffset += (-1 * event.mouseWheelScroll.delta) * 20; // Adjust scroll speed
+            _playerListScrollOffset = std::max(_playerListScrollOffset, 0.0f);   // Prevent scrolling above the top
+            _playerListScrollOffset = std::min(
+                _playerListScrollOffset, totalPlayerHeight - WINDOWHEIGTH * 0.7f); // Prevent scrolling below the bottom
+        }
     }
     else
     {
-        // Scroll the logs
-        _logsScrollOffset += event.mouseWheelScroll.delta * 20; // Adjust scroll speed
-        _logsScrollOffset = std::max(_logsScrollOffset, 0.0f);  // Prevent scrolling above the top
+        // Calculate total height of the logs
+        float totalLogHeight = _logs.size() * LOG_HEIGHT;
+
+        // Prevent scrolling if the total height is less than the visible area
+        if (totalLogHeight > WINDOWHEIGTH * 0.3f)
+        {
+            _logsScrollOffset += (-1 * event.mouseWheelScroll.delta) * 20; // Adjust scroll speed
+            _logsScrollOffset = std::max(_logsScrollOffset, 0.0f);         // Prevent scrolling above the top
+            _logsScrollOffset =
+                std::min(_logsScrollOffset, totalLogHeight - WINDOWHEIGTH * 0.3f); // Prevent scrolling below the bottom
+        }
     }
 }
 
@@ -149,17 +172,30 @@ void AdministratorPanel::drawPlayerList(sf::RenderWindow &window, sf::FloatRect 
     playerListBackground.setFillColor(sf::Color(50, 50, 50)); // Dark gray background
     window.draw(playerListBackground);
 
-    // Build and draw all players and their buttons
+    // Define the height of the title
+    constexpr float TITLE_HEIGHT = 40.0f;
+
+    // Draw players
+    float playerY = playerListArea.top + TITLE_HEIGHT - _playerListScrollOffset; // Start below the title
     std::vector<std::pair<sf::Text, sf::RectangleShape>> playerList = buildPlayerList(window, playerListArea);
+
     for (auto &[player, button] : playerList)
     {
+        // Skip drawing if the player is outside the visible area
+        if (playerY + 40 < playerListArea.top + TITLE_HEIGHT || playerY > playerListArea.top + playerListArea.height)
+        {
+            playerY += 40; // Move to the next line
+            continue;
+        }
+
+        // Draw the player text and button
+        player.setPosition(playerListArea.left + 10.f, playerY);
+        button.setPosition(playerListArea.left + playerListArea.width - 120.f, playerY);
+
         window.draw(player);
         window.draw(button);
-    }
 
-    // Draw button labels
-    for (auto &[id, button] : _kickButtons)
-    {
+        // Draw button label
         sf::Text buttonText;
         buttonText.setFont(*_font.get());
         buttonText.setString("Kick");
@@ -167,6 +203,8 @@ void AdministratorPanel::drawPlayerList(sf::RenderWindow &window, sf::FloatRect 
         buttonText.setFillColor(sf::Color::Black); // Text color (black for contrast on white highlight)
         buttonText.setPosition(button.getPosition().x + 10.f, button.getPosition().y + 5.f);
         window.draw(buttonText);
+
+        playerY += 40; // Move to the next line
     }
 }
 
@@ -178,12 +216,15 @@ void AdministratorPanel::drawLogs(sf::RenderWindow &window, sf::FloatRect logsAr
     logsBackground.setFillColor(sf::Color(30, 30, 30)); // Darker gray background
     window.draw(logsBackground);
 
+    // Define the height of the title
+    constexpr float TITLE_HEIGHT = 60.0f;
+
     // Draw logs
-    float logY = logsArea.top + 40 - _logsScrollOffset; // Apply scroll offset
+    float logY = logsArea.top - _logsScrollOffset; // Apply scroll offset
     for (const auto &log : _logs)
     {
         // Skip drawing if the log is outside the visible area
-        if (logY + 20 < logsArea.top || logY > logsArea.top + logsArea.height)
+        if (logY + 20 < logsArea.top + TITLE_HEIGHT || logY > logsArea.top + logsArea.height)
         {
             logY += 20; // Move to the next line
             continue;
