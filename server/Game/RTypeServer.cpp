@@ -35,6 +35,7 @@ void RTypeServer::createPlayer(const std::string &id)
 
 void RTypeServer::update(float deltaTime)
 {
+    std::cout << "caca" << std::endl;
     if (tick % 60 == 0)
         std::cout << "-------------60 tick passed--------------" << tick / 60 << std::endl;
 
@@ -62,7 +63,7 @@ void RTypeServer::update(float deltaTime)
             puts("SENDING SCORE UPDATE");
             auto serializedScores = entityManager.serializePlayersScores(_playersScores);
             std::string serializedData(serializedScores.begin(), serializedScores.end());
-            mediator.notify(GameMediatorEvent::UpdateScore, serializedData);
+            mediator.notify(GameMediatorEvent::UpdateScore, serializedData, _lobbyUID);
         }
         if (gameLogicSystem.allWavesCompleted && !gameOver)
         {
@@ -84,7 +85,7 @@ void RTypeServer::update(float deltaTime)
 
             gameOver = true;
             std::cout << "[Server] Winner: Player " << winnerID << " with score " << maxScore << std::endl;
-            mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID));
+            mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID), _lobbyUID);
         }
         // laserWarningSystem.update(entityManager, deltaTime);
 
@@ -111,7 +112,7 @@ void RTypeServer::update(float deltaTime)
 void RTypeServer::sendGameStateUpdates()
 {
     // THINK THATS IT
-    mediator.notify(GameMediatorEvent::GameStateUpdate, serializeInt(_state));
+    mediator.notify(GameMediatorEvent::GameStateUpdate, serializeInt(_state), _lobbyUID);
 }
 
 void RTypeServer::sendNewEntities()
@@ -126,7 +127,7 @@ void RTypeServer::sendNewEntities()
         // std::cout << "Entity :" << entity->getID() << std::endl;
         auto data = manager.serializeEntityFull(entity->getID());
         std::string serializedData(data.begin(), data.end());
-        mediator.notify(GameMediatorEvent::EntityCreated, serializedData);
+        mediator.notify(GameMediatorEvent::EntityCreated, serializedData, _lobbyUID);
     }
 }
 
@@ -139,7 +140,7 @@ void RTypeServer::sendDestroyedEntities()
     {
         std::cout << "--DESTROY id " << id << std::endl;
         auto data = serializeInt(id);
-        mediator.notify(GameMediatorEvent::EntityDestroyed, data);
+        mediator.notify(GameMediatorEvent::EntityDestroyed, data, _lobbyUID);
     }
 }
 
@@ -147,7 +148,7 @@ void RTypeServer::sendMovementUpdates()
 {
     auto data = entityManager.serializeAllMovements();
     std::string serializedData(data.begin(), data.end());
-    mediator.notify(GameMediatorEvent::MovementUpdate, serializedData);
+    mediator.notify(GameMediatorEvent::MovementUpdate, serializedData, _lobbyUID);
 }
 
 void RTypeServer::sendHealthUpdates()
@@ -171,23 +172,23 @@ void RTypeServer::sendHealthUpdates()
     {
         auto &playerComp = entity->getComponent<PlayerComponent>();
 
-        mediator.notify(GameMediatorEvent::PlayerDead, serializeInt(playerComp.playerID));
+        mediator.notify(GameMediatorEvent::PlayerDead, serializeInt(playerComp.playerID), _lobbyUID);
         std::cout << "Player " << playerComp.playerID << " is dead." << std::endl;
     }
     if (game_over && winnerID != -1)
     {
         std::cout << "Player " << winnerID << " is the winner!" << std::endl;
-        mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID));
+        mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID), _lobbyUID);
         this->gameOver = true;
     }
     else if (game_over)
     {
         std::cout << "It's a draw! No winners." << std::endl;
-        mediator.notify(GameMediatorEvent::GameOver, serializeInt(-1));
+        mediator.notify(GameMediatorEvent::GameOver, serializeInt(-1), _lobbyUID);
         this->gameOver = true;
     }
 
-    mediator.notify(GameMediatorEvent::HealthUpdate, serializedData);
+    mediator.notify(GameMediatorEvent::HealthUpdate, serializedData, _lobbyUID);
 }
 
 void RTypeServer::restart()
@@ -309,6 +310,6 @@ void RTypeServer::updateLobbyStatus()
     std::vector<uint8_t> payload = {(uint8_t)playerReady, (uint8_t)playerNb};
     std::string serializedData(payload.begin(), payload.end());
 
-    mediator.notify(GameMediatorEvent::LobbyInfoUpdate, serializedData);
+    mediator.notify(GameMediatorEvent::LobbyInfoUpdate, serializedData, _lobbyUID);
     std::cout << "[RTypeServer] Players ready: " << playerReady << " / " << playerNb << std::endl;
 }

@@ -41,7 +41,6 @@ class GameMediator : public IMediator
   private:
     NetworkManager &_networkManager;
     LobbyManager &_lobbyManager;
-    // RTypeServer &_rTypeServer;
 
     std::unordered_map<GameMediatorEvent, std::function<void(const std::string &)>> _mediatorMap;
 
@@ -49,7 +48,7 @@ class GameMediator : public IMediator
     GameMediator();
     ~GameMediator() = default;
 
-    void notify(const int &event, const std::string &data = "") override;
+    void notify(const int &event, const std::string &data = "", const std::string &lobbyUID = "") override;
     inline void sendMessageToAll(const std::string &data) override
     {
         return;

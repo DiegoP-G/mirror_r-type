@@ -25,6 +25,7 @@ std::shared_ptr<Lobby> LobbyManager::createLobby(const std::string &uid)
         return _lobbies[uid];
     }
 
+    std::cout << "UID IN MANAGER" << uid << std::endl;
     auto lobby = std::make_shared<Lobby>(uid, _med);
     _lobbies[uid] = lobby;
 
@@ -73,4 +74,21 @@ void LobbyManager::listLobbies() const
     {
         std::cout << "- " << uid << " (" << lobby->getPlayers().size() << " players)\n";
     }
+}
+
+std::shared_ptr<Lobby> LobbyManager::getLobbyOfPlayer(int clientId)
+{
+    std::lock_guard<std::mutex> lock(_mutex);
+
+    for (const auto &[uid, lobby] : _lobbies)
+    {
+        auto players = lobby->getPlayers(); // already thread-safe
+
+        if (std::find(players.begin(), players.end(), clientId) != players.end())
+        {
+            return lobby;
+        }
+    }
+
+    return nullptr;
 }

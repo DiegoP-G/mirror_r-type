@@ -27,6 +27,7 @@ void NetworkManager::updateAllPoll()
 
 void NetworkManager::addNewPlayer(int socket)
 {
+    std::cout << "NEW SOCKETTT" << socket << std::endl;
     _gameMediator.notify(AddPlayer, serializeInt(socket));
 }
 
@@ -71,6 +72,19 @@ void NetworkManager::sendDataAllClientTCP(std::string data, int opcode)
     }
 }
 
+void NetworkManager::sendDataToLobbyTCP(std::shared_ptr<Lobby> lobby, const std::string &data, int opcode)
+{
+    std::cout << "test" << std::endl;
+    auto players = lobby->getPlayers();
+    std::cout << "------------------------ HERE " << std::endl;
+
+    for (int fd : players)
+    {
+        std::cout << "IN PLAYER " << fd << std::endl;
+        _TCPManager.sendMessage(fd, opcode, data);
+    }
+}
+
 void NetworkManager::sendAllEntitiesToClient(int clientFd)
 {
     //   std::cout << "[NetworkManager] Sending all existing entities to new client " << clientFd << std::endl;
@@ -91,4 +105,26 @@ void NetworkManager::sendAllEntitiesToClient(int clientFd)
     }
 
     //   std::cout << "[NetworkManager] Finished sending entities to client " << clientFd << std::endl;
+}
+
+void NetworkManager::sendDataToLobbyUDP(std::shared_ptr<Lobby> lobby, const std::string &data, int opcode)
+{
+    auto players = lobby->getPlayers();
+    std::vector<sockaddr_in> validAddrs;
+
+    for (int fd : players)
+    {
+        auto clientOpt = _clientManager.getClient(fd);
+        if (!clientOpt)
+            continue;
+
+        sockaddr_in addr = clientOpt->getTrueAddr();
+        if (addr.sin_family == AF_INET && addr.sin_port != 0)
+            validAddrs.push_back(addr);
+        else
+            std::cout << "[UDP] Skipping client " << fd << " (UDP not authenticated yet)\n";
+    }
+
+    if (!validAddrs.empty())
+        _UDPManager.sendTo(validAddrs, opcode, data);
 }

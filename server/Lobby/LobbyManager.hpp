@@ -20,6 +20,7 @@ class LobbyManager
 
     std::shared_ptr<Lobby> createLobby(const std::string &uid);
     std::shared_ptr<Lobby> getLobby(const std::string &uid);
+    std::shared_ptr<Lobby> getLobbyOfPlayer(int clientId);
     void removeLobby(const std::string &uid);
 
     void listLobbies() const;

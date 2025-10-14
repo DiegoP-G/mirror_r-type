@@ -6,8 +6,9 @@
 #include <thread>
 
 Lobby::Lobby(const std::string &uid, GameMediator &gameMediator)
-    : _uid(uid), _rtypeGame(std::make_unique<RTypeServer>(gameMediator)), _running(false), _deltaTime(0.0f)
+    : _uid(uid), _rtypeGame(std::make_unique<RTypeServer>(gameMediator, _uid)), _running(false), _deltaTime(0.0f)
 {
+    std::cout << "IN LOBBY IDIDID" << uid << _uid << std::endl;
 }
 
 Lobby::~Lobby()
@@ -55,7 +56,6 @@ void Lobby::run()
 
 void Lobby::update()
 {
-    std::lock_guard<std::mutex> lock(_mutex);
     if (!_running)
         return;
 

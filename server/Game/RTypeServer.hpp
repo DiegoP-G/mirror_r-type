@@ -47,14 +47,17 @@ class RTypeServer
     int score = 0;
     int tick = 0;
 
+    std::string _lobbyUID;
     const float ENEMY_SPEED = -200.0f;
 
     // Player scores: PlayerId - Score
     std::vector<std::pair<int, int>> _playersScores;
 
   public:
-    RTypeServer(GameMediator &mediator) : mediator(mediator)
+    RTypeServer(GameMediator &mediator, std::string &lobbyUID) : mediator(mediator), _lobbyUID(lobbyUID)
     {
+        std::cout << "ffff" << std::endl;
+        std::cout << _lobbyUID << std::endl;
     }
 
     std::vector<std::string> serializeAllActiveEntities()
