@@ -167,14 +167,14 @@ NetworkECSMediator::NetworkECSMediator()
                  std::cout << "CURRENT WAVE NOW" << state << std::endl;
                  if (_game)
                  {
-                    if (state == 1)
-                     _game->setCurrentState(GameState::INGAME);
-
-                } else
-                    break;
-                _game->getMutex().unlock();
-                break;
-                }
+                     if (state == 1)
+                         _game->setCurrentState(GameState::INGAME);
+                 }
+                 else
+                     break;
+                 _game->getMutex().unlock();
+                 break;
+             }
 
              default:
                  std::cerr << "[Client] Unhandled opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;

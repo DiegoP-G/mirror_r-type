@@ -41,9 +41,8 @@ class GraphicsManager
     sf::Text playButtonText;
     sf::RectangleShape quitButton;
     sf::Text quitButtonText;
-    
-    bool menuInitialized = false;
 
+    bool menuInitialized = false;
 
     sf::RectangleShape lobbyMenuBackground;
     sf::Text lobbyMenuTitle;
@@ -54,10 +53,8 @@ class GraphicsManager
     sf::RectangleShape backButton;
     sf::Text backButtonText;
     std::unique_ptr<TextBox> _lobbyTextbox;
-    
+
     bool lobbyMenuInitialized = false;
-
-
 
   public:
     GraphicsManager(NetworkECSMediator med);
@@ -113,12 +110,11 @@ class GraphicsManager
     void initMenuUI();
     void drawMenu();
     MenuAction handleMenuClick(int mouseX, int mouseY);
-    
-        
+
     void initLobbyMenuUI();
     void drawLobbyMenu();
     MenuAction handleLobbyMenuClick(int mouseX, int mouseY);
-    std::unique_ptr<TextBox>& getLobbyTextBox();
+    std::unique_ptr<TextBox> &getLobbyTextBox();
 };
 
 extern GraphicsManager *g_graphics;

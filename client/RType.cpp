@@ -102,19 +102,18 @@ void RTypeGame::handleEvents()
         if (_state == GameState::MENULOBBY && event.type == sf::Event::MouseButtonPressed)
         {
             auto mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
-            
+
             g_graphics->getLobbyTextBox()->checkInFocus(mousePos);
-            
+
             auto action = g_graphics->handleLobbyMenuClick(mousePos.x, mousePos.y);
-            
+
             if (action == GraphicsManager::MenuAction::CREATE_LOBBY)
             {
                 std::string lobbyName = g_graphics->getLobbyTextBox()->getText();
                 if (!lobbyName.empty())
                 {
                     std::cout << "[Client] Creating lobby: " << lobbyName << std::endl;
-                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, 
-                                lobbyName, OPCODE_CREATE_LOBBY);
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, lobbyName, OPCODE_CREATE_LOBBY);
                 }
                 else
                 {
@@ -127,8 +126,7 @@ void RTypeGame::handleEvents()
                 if (!lobbyName.empty())
                 {
                     std::cout << "[Client] Joining lobby: " << lobbyName << std::endl;
-                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP,
-                                lobbyName, OPCODE_JOIN_LOBBY);
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, lobbyName, OPCODE_JOIN_LOBBY);
                 }
                 else
                 {
@@ -240,8 +238,6 @@ void RTypeGame::update(float deltaTime)
 void RTypeGame::render()
 {
     g_graphics->clear();
-
-
 
     if (_state == GameState::MENU)
     {
@@ -460,24 +456,25 @@ void RTypeGame::updateScore(std::vector<std::pair<int, int>> vec)
 void RTypeGame::setCurrentState(GameState newState)
 {
     // std::cout << "Switching game state to " << static_cast<int>(newState) << std::endl;
-    switch (newState) {
-        case GameState::MENU:
-            std::cout << "In MENU state" << std::endl;
+    switch (newState)
+    {
+    case GameState::MENU:
+        std::cout << "In MENU state" << std::endl;
         break;
-        case GameState::MENUIP:
-            std::cout << "In MENUIP state" << std::endl;
+    case GameState::MENUIP:
+        std::cout << "In MENUIP state" << std::endl;
         break;
-        case GameState::MENULOBBY:
-            std::cout << "In MENULOBBY state" << std::endl;
+    case GameState::MENULOBBY:
+        std::cout << "In MENULOBBY state" << std::endl;
         break;
-        case GameState::INGAME:
-            std::cout << "In INGAME state" << std::endl;
+    case GameState::INGAME:
+        std::cout << "In INGAME state" << std::endl;
         break;
-        case GameState::GAMEOVER:
-            std::cout << "In GAMEOVER state" << std::endl;
+    case GameState::GAMEOVER:
+        std::cout << "In GAMEOVER state" << std::endl;
         break;
-        default:
-            std::cout << "In UNKNOWN state" << std::endl;
+    default:
+        std::cout << "In UNKNOWN state" << std::endl;
         break;
     }
     _state = newState;
