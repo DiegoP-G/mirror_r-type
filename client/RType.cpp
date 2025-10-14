@@ -1,4 +1,5 @@
 #include "RType.hpp"
+#include "../client/KeybindManager.hpp"
 #include "../client/NetworkECSMediator.hpp"
 #include "../ecs/GraphicsManager.hpp"
 #include "../ecs/ecs.hpp"
@@ -27,6 +28,7 @@ bool RTypeGame::init(NetworkECSMediator med, std::function<void(const char *)> n
     }
 
     createTextures();
+    keybindMenu = new KeybindMenu(keybindManager);
 
     running = true;
 
@@ -40,9 +42,7 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(backgroundSpritePath), "background");
     sf::Texture &playerTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(playerSpritePath), "player");
-    sf::Texture &explosionTexture =
-        g_graphics->createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/explosion.png"), "explosion");
-
+    sf::Texture &bossTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bossSpritePAth), "boss");
     sf::Texture &bulletTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bulletSpritePath), "bullet");
     sf::Texture &basicEnemyTexture =
@@ -51,10 +51,10 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusLifeSpritePath), "bonus_life");
 
     g_graphics->storeTexture("background", backgroundTexture);
+    g_graphics->storeTexture("boss", bossTexture);
     g_graphics->storeTexture("player", playerTexture);
     g_graphics->storeTexture("basic_enemy", basicEnemyTexture);
     g_graphics->storeTexture("bullet", bulletTexture);
-    g_graphics->storeTexture("explosion", explosionTexture);
     g_graphics->storeTexture("bonus_life", bonusLifeTexture);
 }
 
@@ -73,46 +73,47 @@ void RTypeGame::handleEvents()
         {
             running = false;
             std::cout << "Running is set to false" << std::endl;
-
         }
 
         if (event.type == sf::Event::MouseButtonPressed)
             g_graphics->getTextBox()->checkInFocus(sf::Mouse::getPosition(g_graphics->getWindow()));
 
         g_graphics->getTextBox()->typeInBox(event);
+        keybindMenu->handleEvent(event, g_graphics->getWindow());
+
         if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
         {
-            if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
+            bool isPressed = (event.type == sf::Event::KeyPressed);
+
+            sf::Keyboard::Key processedKey = keybindManager.processKeyInput(event.key.code);
+
+            if (player && player->hasComponent<InputComponent>())
             {
-                bool isPressed = (event.type == sf::Event::KeyPressed);
-                if (player && player->hasComponent<InputComponent>())
+                auto &input = player->getComponent<InputComponent>();
+
+                switch (processedKey)
                 {
-                    auto &input = player->getComponent<InputComponent>();
-                    switch (event.key.code)
-                    {
-                    case sf::Keyboard::Up:
-                        input.up = isPressed;
-                        break;
-                    case sf::Keyboard::Down:
-                        input.down = isPressed;
-                        break;
-                    case sf::Keyboard::Left:
-                        input.left = isPressed;
-                        break;
-                    case sf::Keyboard::Right:
-                        input.right = isPressed;
-                        break;
-                    case sf::Keyboard::Space: {
-                        g_graphics->playSound("pew");
-                        input.fire = isPressed;
-                    }
+                case sf::Keyboard::Up:
+                    input.up = isPressed;
                     break;
-                    case sf::Keyboard::Enter:
-                        input.enter = isPressed;
-                        break;
-                    default:
-                        break;
-                    }
+                case sf::Keyboard::Down:
+                    input.down = isPressed;
+                    break;
+                case sf::Keyboard::Left:
+                    input.left = isPressed;
+                    break;
+                case sf::Keyboard::Right:
+                    input.right = isPressed;
+                    break;
+                case sf::Keyboard::Space:
+                    g_graphics->playSound("pew");
+                    input.fire = isPressed;
+                    break;
+                case sf::Keyboard::Enter:
+                    input.enter = isPressed;
+                    break;
+                default:
+                    break;
                 }
             }
         }
@@ -203,8 +204,9 @@ void RTypeGame::render()
     { // STATE HERE WHEN NOT CONNECTED TO THE SERVER
         g_graphics->drawText("Type the IP to connect in the text-box:", 0, 0);
         g_graphics->drawText("SeymourPintatGodeFeytGrodard-Type", 0, 30);
-        g_graphics->getTextBox()->setAtCenter(g_graphics->getWindow());
+        g_graphics->getTextBox()->setPosition(200, 500);
         g_graphics->getTextBox()->draw(g_graphics->getWindow());
+        keybindMenu->draw(g_graphics->getWindow());
     }
     else
     {
@@ -214,9 +216,12 @@ void RTypeGame::render()
 
         std::string waveText = "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
         g_graphics->drawText(waveText, windowWidth - 100, 10);
+
+        drawPlayerID();
     }
 
     drawWaitingForPlayers();
+    drawTutorial();
     g_graphics->present();
 }
 
@@ -292,11 +297,10 @@ void RTypeGame::run()
 
         accumulator += deltaTime;
         handleEvents();
-          // handleEvents();
+        // handleEvents();
         if (running == false)
             break;
         sendInputPlayer();
-
 
         // Fixed timestep update
         while (accumulator >= FRAME_TIME)
@@ -341,7 +345,6 @@ void RTypeGame::drawWaitingForPlayers()
     if (_playerNb == 0 || _playerReady >= _playerNb)
     {
 
-        std::cout << "returning" << std::endl;
         return;
     }
 
@@ -356,6 +359,27 @@ void RTypeGame::drawWaitingForPlayers()
 
     // Draw the text on screen
     g_graphics->drawText(waitingText, textX, textY);
+}
+
+void RTypeGame::drawTutorial()
+{
+    if (_playerNb == 0 || _playerReady >= _playerNb)
+    {
+
+        return;
+    }
+
+    std::string moveText = "Use ARROW KEYS to move";
+    std::string shootText = "Press SPACE to shoot";
+
+    int windowWidth = g_graphics->getWindow().getSize().x;
+    int windowHeight = g_graphics->getWindow().getSize().y;
+    float textX = windowWidth / 2.0f - 100.0f;
+    float textY = windowHeight / 2.0f + 10.0f;
+    float textY2 = windowHeight / 2.0f + 60.0f;
+
+    g_graphics->drawText(moveText, textX, textY);
+    g_graphics->drawText(shootText, textX, textY2);
 }
 
 void RTypeGame::setCurrentWave(int nb)
@@ -412,6 +436,27 @@ void RTypeGame::drawHitbox()
         hitboxRect.setOutlineColor(sf::Color::Red);
 
         g_graphics->getWindow().draw(hitboxRect);
+    }
+}
+
+void RTypeGame::drawPlayerID()
+{
+    // --- Debug: draw hitboxes ---
+    auto entities = entityManager.getEntitiesWithComponent<PlayerComponent>();
+    for (auto e : entities)
+    {
+        auto &player = e->getComponent<PlayerComponent>();
+
+        std::string username = "PLAYER " + std::to_string(player.playerID);
+
+        if (_playerId == player.playerID)
+            username = "ME";
+
+        if (e->hasComponent<TransformComponent>())
+        {
+            auto &transform = e->getComponent<TransformComponent>();
+            g_graphics->drawText(username, transform.position.x, transform.position.y, 255, 255, 255);
+        }
     }
 }
 

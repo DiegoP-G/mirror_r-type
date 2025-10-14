@@ -1,8 +1,12 @@
+#include "../client/KeybindManager.hpp"
 #include "../ecs/IComponent.hpp"
+#include "../ecs/keybindMenu.hpp"
 #include "../ecs/systems.hpp"
 #include "../ecs/textBox.hpp"
 #include "NetworkECSMediator.hpp"
+#include <SFML/Window/Keyboard.hpp>
 #include <mutex>
+#include <unordered_map>
 
 #pragma once
 enum GameState
@@ -48,6 +52,9 @@ class RTypeGame
 
     GameState _state = GameState::MENU;
 
+    KeybindManager keybindManager;
+    KeybindMenu *keybindMenu;
+
     int score = 0;
 
     std::function<void(const char *)> _networkCb;
@@ -57,7 +64,7 @@ class RTypeGame
   public:
     void reset();
 
-    RTypeGame(NetworkECSMediator med) : _med(med){};
+    RTypeGame(NetworkECSMediator med) : _med(med) {};
 
     void markPlayerAsDead(int playerId);
 
@@ -105,6 +112,7 @@ class RTypeGame
     // void handleEvents();
 
     void sendInputPlayer();
+    void drawTutorial();
 
     void update(float deltaTime);
 
@@ -120,4 +128,5 @@ class RTypeGame
     void setCurrentState(GameState newState);
 
     void drawHitbox();
+    void drawPlayerID();
 };

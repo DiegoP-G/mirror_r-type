@@ -59,7 +59,7 @@ void ClientGame::stop()
     {
         _running = false;
         _networkManager.stop(); // Arrêter la boucle réseau
-        
+
         if (_networkThread.joinable())
         {
             _networkThread.join();

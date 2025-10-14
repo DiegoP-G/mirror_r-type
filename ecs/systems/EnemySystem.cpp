@@ -70,10 +70,10 @@ void EnemySystem::update(EntityManager &entityManager, float deltaTime)
 void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
 {
     auto &enemyComponent = enemy->getComponent<EnemyComponent>();
-    if (enemyComponent.shootingType == 1)
-    {
-        auto &transform = enemy->getComponent<TransformComponent>();
+    auto &transform = enemy->getComponent<TransformComponent>();
 
+    if (enemyComponent.shootingType == SHOOTINGTYPE::STRAIGHT)
+    {
         auto &projectile = entityManager.createEntity();
 
         projectile.addComponent<TransformComponent>(transform.position.x - 10.0f, transform.position.y);
@@ -88,10 +88,8 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
         projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
         projectile.addComponent<ProjectileComponent>(5.0f, 8.0f, enemy->getID(), ENTITY_TYPE::ENEMY);
     }
-    else if (enemyComponent.shootingType == 2)
+    else if (enemyComponent.shootingType == SHOOTINGTYPE::THREE_DISPERSED)
     {
-        auto &transform = enemy->getComponent<TransformComponent>();
-
         for (int i = 0; i < 3; i++)
         {
             auto &projectile = entityManager.createEntity();
@@ -107,5 +105,27 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
             projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
             projectile.addComponent<ProjectileComponent>(5.0f, 8.0f, enemy->getID(), ENTITY_TYPE::ENEMY);
         }
+    }
+    else if (enemyComponent.shootingType == SHOOTINGTYPE::SINUS)
+    {
+        auto &projectile1 = entityManager.createEntity();
+        projectile1.addComponent<TransformComponent>(transform.position.x - 10.0f, transform.position.y - 15.0f);
+
+        Vector2D velocity1(-200.0f, 0.0f);
+        projectile1.addComponent<VelocityComponent>(velocity1.x, velocity1.y, true, false);
+        projectile1.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, redBullet.left,
+                                                          redBullet.top, 9, 17, 1, 1, -90.0f);
+        projectile1.addComponent<ColliderComponent>(10.0f, 5.0f);
+        projectile1.addComponent<ProjectileComponent>(5.0f, 8.0f, enemy->getID(), ENTITY_TYPE::ENEMY);
+
+        auto &projectile2 = entityManager.createEntity();
+        projectile2.addComponent<TransformComponent>(transform.position.x - 10.0f, transform.position.y + 15.0f);
+
+        Vector2D velocity2(-200.0f, 0.0f);
+        projectile2.addComponent<VelocityComponent>(velocity2.x, velocity2.y, false, true);
+        projectile2.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, redBullet.left,
+                                                          redBullet.top, 9, 17, 1, 1, -90.0f);
+        projectile2.addComponent<ColliderComponent>(10.0f, 5.0f);
+        projectile2.addComponent<ProjectileComponent>(5.0f, 8.0f, enemy->getID(), ENTITY_TYPE::ENEMY);
     }
 }

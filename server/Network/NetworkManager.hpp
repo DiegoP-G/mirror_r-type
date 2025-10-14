@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <vector>
 
-#define SERVER_PORT 8081
+constexpr int SERVER_PORT = 8081;
 
 class GameMediator;
 

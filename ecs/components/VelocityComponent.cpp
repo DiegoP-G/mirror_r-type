@@ -1,16 +1,22 @@
 #include "VelocityComponent.hpp"
+#include <cmath>
+#include <cstdlib>
 #include <cstring>
 
 VelocityComponent::VelocityComponent() : velocity(0, 0), maxSpeed(5.0f)
 {
 }
 
-VelocityComponent::VelocityComponent(float x, float y) : velocity(x, y), maxSpeed(5.0f)
+VelocityComponent::VelocityComponent(float x, float y, bool sine, bool reverseSine)
+    : velocity(x, y), maxSpeed(5.0f), sineMovement(sine), reverseSineMovement(reverseSine)
 {
+    time = 0.0f;
 }
 
-VelocityComponent::VelocityComponent(float x, float y, float max) : velocity(x, y), maxSpeed(max)
+VelocityComponent::VelocityComponent(float x, float y, float max, bool sine, bool reverseSine)
+    : velocity(x, y), maxSpeed(max), sineMovement(sine), reverseSineMovement(reverseSine)
 {
+    time = 0.0f;
 }
 
 void VelocityComponent::update(float deltaTime)
