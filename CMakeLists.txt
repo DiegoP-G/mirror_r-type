@@ -10,10 +10,39 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
 
-# ---- Find required packages ----
-find_package(SFML 2.5 COMPONENTS graphics window system audio REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBCONFIG REQUIRED libconfig++)
+# ---- FetchContent for dependencies ----
+include(FetchContent)
+
+# ---- SFML ----
+find_package(SFML 2.5 COMPONENTS graphics window system audio QUIET)
+
+if (NOT SFML_FOUND)
+    message(STATUS "SFML not found, fetching it using FetchContent...")
+    FetchContent_Declare(
+        SFML
+        GIT_REPOSITORY https://github.com/SFML/SFML.git
+        GIT_TAG 2.6.1
+    )
+    FetchContent_MakeAvailable(SFML)
+endif()
+
+# ---- libconfig++ ----
+find_package(PkgConfig QUIET)
+if (PkgConfig_FOUND)
+    pkg_check_modules(LIBCONFIG libconfig++ QUIET)
+endif()
+
+if (NOT LIBCONFIG_FOUND)
+    message(STATUS "libconfig++ not found, fetching it using FetchContent...")
+    FetchContent_Declare(
+        libconfig
+        GIT_REPOSITORY https://github.com/hyperrealm/libconfig.git
+        GIT_TAG v1.7.3
+    )
+    FetchContent_MakeAvailable(libconfig)
+    set(LIBCONFIG_INCLUDE_DIRS ${libconfig_SOURCE_DIR})
+    set(LIBCONFIG_LIBRARIES libconfig++)
+endif()
 
 # ---- transferData library ----
 add_library(transferData
@@ -37,7 +66,7 @@ target_link_libraries(ecs PUBLIC
     sfml-graphics
     sfml-window
     sfml-system
-	sfml-audio
+    sfml-audio
 )
 
 # ---- Client executable ----
@@ -63,7 +92,7 @@ target_link_libraries(RTypeClient
     sfml-graphics
     sfml-window
     sfml-system
-	sfml-audio
+    sfml-audio
 )
 
 # ---- Server executable ----

@@ -22,12 +22,15 @@ ClientGame::~ClientGame()
 
 void ClientGame::startServer(const char *serverIp)
 {
+    std::cout << "[Client] Attempting to connect to server at " << serverIp << std::endl;
     if (!_networkManager.setup(serverIp, 8081))
     {
         std::cout << "failed to start network" << std::endl;
         return;
     }
     _networkThread = std::thread(&ClientGame::networkLoop, this);
+    _game.setCurrentState(GameState::MENULOBBY);
+    std::cout << "[Client] Connected successfully, showing lobby menu" << std::endl;
 }
 
 bool ClientGame::init(const char *serverIp, int port)

@@ -22,7 +22,7 @@
 #include <string>
 #include <unordered_map>
 
-#define TEXT_SIZE 24
+constexpr int TEXT_SIZE = 24;
 
 class GraphicsManager
 {
@@ -34,6 +34,27 @@ class GraphicsManager
     NetworkECSMediator _med;
     std::unordered_map<std::string, sf::SoundBuffer> soundBuffers;
     std::unordered_map<std::string, sf::Sound> sounds;
+
+    sf::RectangleShape menuBackground;
+    sf::Text menuTitle;
+    sf::RectangleShape playButton;
+    sf::Text playButtonText;
+    sf::RectangleShape quitButton;
+    sf::Text quitButtonText;
+
+    bool menuInitialized = false;
+
+    sf::RectangleShape lobbyMenuBackground;
+    sf::Text lobbyMenuTitle;
+    sf::RectangleShape createLobbyButton;
+    sf::Text createLobbyButtonText;
+    sf::RectangleShape joinLobbyButton;
+    sf::Text joinLobbyButtonText;
+    sf::RectangleShape backButton;
+    sf::Text backButtonText;
+    std::unique_ptr<TextBox> _lobbyTextbox;
+
+    bool lobbyMenuInitialized = false;
 
   public:
     GraphicsManager(NetworkECSMediator med);
@@ -52,6 +73,16 @@ class GraphicsManager
         EXPLOSION,
         BONUS_LIFE,
         BOSS,
+    };
+
+    enum MenuAction
+    {
+        NONE,
+        PLAY,
+        QUIT,
+        CREATE_LOBBY,
+        JOIN_LOBBY,
+        BACK
     };
 
     sf::Texture &createColorTexture(int width, int height, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a = 255);
@@ -75,6 +106,15 @@ class GraphicsManager
     sf::RenderWindow &getWindow();
     sf::Texture &createTextureFromPath(const std::string &filePath, const std::string &name);
     bool registerTheTexture();
+
+    void initMenuUI();
+    void drawMenu();
+    MenuAction handleMenuClick(int mouseX, int mouseY);
+
+    void initLobbyMenuUI();
+    void drawLobbyMenu();
+    MenuAction handleLobbyMenuClick(int mouseX, int mouseY);
+    std::unique_ptr<TextBox> &getLobbyTextBox();
 };
 
 extern GraphicsManager *g_graphics;

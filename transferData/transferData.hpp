@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------------------------
  * *
  *                                                                                      *
- * EPITECH PROJECT - Sat, Apr, 2025 * Title           - JETPACK-MIRROR *
+ * EPITECH PROJECT - Sat, Apr, 2025 * Title           - RTYPE-MIRROR *
  * Description     - * transferData *
  *                                                                                      *
  * ------------------------------------------------------------------------------------

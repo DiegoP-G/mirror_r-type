@@ -4,7 +4,7 @@
 #include <arpa/inet.h>
 #include <sstream>
 
-#define PORT 8080
+constexpr int PORT = 8080;
 
 int main()
 {

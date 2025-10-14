@@ -1,10 +1,9 @@
-#ifndef STRUCTTRANFERT_HPP_
-#define STRUCTTRANFERT_HPP_
+#pragma once
 #include <arpa/inet.h>
 #include <iostream>
 #include <unistd.h>
 
-#define OPCODE_SHIP_INFO 0x03 // Sent by server give ship info
+constexpr uint8_t OPCODE_SHIP_INFO = 0x03; // Sent by server give ship info
 
 class ship
 {
@@ -34,5 +33,3 @@ class ship
         std::cout << "SHIP(" << id << ")" << std::endl << "posX: " << posX << ", posY: " << posY << std::endl;
     }
 };
-
-#endif /* !STRUCTTRANFERT_HPP_ */
