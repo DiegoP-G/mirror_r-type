@@ -239,6 +239,8 @@ void RTypeGame::render()
 {
     g_graphics->clear();
 
+    std::cout << "Rendering frame in state: " << static_cast<int>(_state) << std::endl;
+
     if (_state == GameState::MENU)
     {
         g_graphics->drawMenu();
@@ -258,22 +260,27 @@ void RTypeGame::render()
         g_graphics->drawLobbyMenu();
         keybindMenu->draw(g_graphics->getWindow());
     }
-    else if (_state == GameState::INGAME)
+    else if (_state == GameState::LOBBY)
     {
-        // Render game entities
         renderSystem.update(entityManager);
-
-        if (gameOver)
-        {
-            // ...existing game over code...
-        }
-        else
-        {
-            // ...existing game UI code...
-        }
-
         drawWaitingForPlayers();
         drawTutorial();
+    }
+    else if (_state == GameState::INGAME)
+    {
+        std::string scoreText = "Score: " + std::to_string(score);
+        g_graphics->drawText(scoreText, 10, 10);
+
+        std::string waveText = "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
+        g_graphics->drawText(waveText, windowWidth - 100, 10);
+
+        drawPlayerID();
+    }
+    else if (_state == GameState::GAMEOVER)
+    {
+        std::string gameOverText = "Game Over! Your score: " + std::to_string(score);
+        g_graphics->drawText(gameOverText, 200, 300);
+        g_graphics->drawText("Press ESC to exit", 200, 350);
     }
 
     g_graphics->present();
@@ -303,6 +310,11 @@ void RTypeGame::sendInputPlayer()
 
     _mutex.lock();
 
+    std::cout << "In sendInputPlayer\n";
+    if (!player)
+    {
+        std::cout << "Player is null\n";
+    }
     if (!player || !player->isActive())
     {
         _mutex.unlock();
@@ -311,6 +323,8 @@ void RTypeGame::sendInputPlayer()
 
     if (player->hasComponent<InputComponent>())
     {
+        std::cout << "Sending player input\n";
+        std::cout << "is enter pressed ? " << player->getComponent<InputComponent>().enter << std::endl;
         auto &input = player->getComponent<InputComponent>();
         auto &playerComp = player->getComponent<PlayerComponent>();
 

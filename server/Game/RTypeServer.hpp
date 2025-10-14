@@ -11,8 +11,12 @@ class GameMediator;
 
 enum GameState
 {
+    MENUIP,
+    MENULOBBY,
     LOBBY,
-    INGAME
+    INGAME,
+    MENU,
+    GAMEOVER
 };
 
 class RTypeServer

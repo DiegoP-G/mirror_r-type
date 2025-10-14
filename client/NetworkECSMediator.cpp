@@ -164,14 +164,11 @@ NetworkECSMediator::NetworkECSMediator()
                  _game->getMutex().lock();
                  int state = deserializeInt(data);
 
-                 std::cout << "CURRENT WAVE NOW" << state << std::endl;
+                 std::cout << "CURRENT STATE NOW" << state << std::endl;
                  if (_game)
                  {
-                     if (state == 1)
-                         _game->setCurrentState(GameState::INGAME);
+                     _game->setCurrentState(static_cast<GameState>(state));
                  }
-                 else
-                     break;
                  _game->getMutex().unlock();
                  break;
              }
