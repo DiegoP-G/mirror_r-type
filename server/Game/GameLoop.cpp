@@ -20,7 +20,7 @@ void Orchestrator::GameLoop::loop()
     std::chrono::duration<double> accumulatedTime(0);
     // _gameMediator.notify(GameMediatorEvent::InitECS, "");
 
-    _gameMediator.notify(GameMediatorEvent::CreateLobby);
+    // _gameMediator.notify(GameMediatorEvent::CreateLobby);
 
     while (true)
     {

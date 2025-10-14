@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <cstdint>
 #include <fcntl.h>
+#include <memory>
 #include <netinet/in.h>
 #include <poll.h>
 #include <string>
@@ -27,8 +28,8 @@ void NetworkManager::updateAllPoll()
 
 void NetworkManager::addNewPlayer(int socket)
 {
-    std::cout << "NEW SOCKETTT" << socket << std::endl;
-    _gameMediator.notify(AddPlayer, serializeInt(socket));
+    // std::cout << "NEW SOCKETTT" << socket << std::endl;
+    // _gameMediator.notify(AddPlayer, serializeInt(socket));
 }
 
 // Vérifier si l'adresse est valide (sin_family initialisé)
@@ -90,7 +91,7 @@ void NetworkManager::sendAllEntitiesToClient(int clientFd)
     //   std::cout << "[NetworkManager] Sending all existing entities to new client " << clientFd << std::endl;
 
     // Récupérer toutes les entités actives depuis le serveur de jeu
-    std::vector<std::string> allEntities = _gameMediator.getAllActiveEntities();
+    std::vector<std::string> allEntities = _gameMediator.getAllActiveEntitiesFromLobby(clientFd);
 
     //   std::cout << "[NetworkManager] Sending " << allEntities.size() << " entities to client " << clientFd <<
     //   std::endl;
