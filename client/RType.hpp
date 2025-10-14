@@ -4,7 +4,9 @@
 #include "../ecs/systems.hpp"
 #include "../ecs/textBox.hpp"
 #include "NetworkECSMediator.hpp"
+#include "TickSystem.hpp"
 #include <SFML/Window/Keyboard.hpp>
+#include <deque>
 #include <mutex>
 #include <unordered_map>
 
@@ -17,26 +19,17 @@ enum GameState
     GAMEOVER
 };
 
+constexpr float TICK_DURATION_MS = 16.6;
+
 class RTypeGame
 {
   private:
     int _playerId;
     std::mutex _mutex;
-    EntityManager entityManager;
 
-    // Systems
-    MovementSystem movementSystem;
+    EntityManager entityManager;
     RenderSystem renderSystem;
-    CollisionSystem collisionSystem;
-    BoundarySystem boundarySystem;        // Generic boundary checking
-    OffscreenCleanupSystem cleanupSystem; // Generic cleanup
-    InputSystem inputSystem;              // Use existing generic input system
-    PlayerSystem playerSystem;
-    AnimationSystem animationSystem;
-    EnemySystem enemySystem;
-    LaserWarningSystem laserWarningSystem;
-    GameLogicSystem gameLogicSystem;
-    BackgroundSystem backgroundSystem;
+    TickSystem tickSystem;
 
     NetworkECSMediator _med;
 

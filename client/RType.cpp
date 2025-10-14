@@ -144,23 +144,8 @@ void RTypeGame::update(float deltaTime)
     if (gameOver)
         return;
 
-    // Update systems
-    // gameLogicSystem.update(entityManager, deltaTime);
-    //   backgroundSystem.update(entityManager, deltaTime);
-    // movementSystem.update(entityManager, deltaTime);
-    // playerSystem.update(entityManager, deltaTime);
-    animationSystem.update(entityManager, deltaTime);
-    // inputSystem.update(entityManager, deltaTime);
-    // boundarySyste>m.update(entityManager, deltaTime);
-    // cleanupSystem.update(entityManager, deltaTime);
-    // enemySystem.update(entityManager, deltaTime);
-    // collisionSystem.update(entityManager);
-    // laserWarningSystem.update(entityManager, deltaTime);
-    // // Check game over
-    // if (player && !player->isActive())
-    // {
-    //     gameOver = true;
-    // }
+    tickSystem.update(deltaTime, entityManager);
+
     entityManager.applyPendingChanges();
     // std::cout << "UPT END\n";
     if (player == nullptr)
@@ -214,7 +199,7 @@ void RTypeGame::render()
         std::string scoreText = "Score: " + std::to_string(score);
         g_graphics->drawText(scoreText, 10, 10);
 
-        std::string waveText = "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
+        std::string waveText = "Wave: " + std::to_string(tickSystem.getGameLogicSystem().currentWave + 1);
         g_graphics->drawText(waveText, windowWidth - 100, 10);
 
         drawPlayerID();
@@ -384,7 +369,7 @@ void RTypeGame::drawTutorial()
 
 void RTypeGame::setCurrentWave(int nb)
 {
-    gameLogicSystem.currentWave = nb;
+    tickSystem.getGameLogicSystem().currentWave = nb;
 }
 
 void RTypeGame::updateScore(std::vector<std::pair<int, int>> vec)
