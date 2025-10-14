@@ -83,7 +83,7 @@ void GameMediator::notify(const int &event, const std::string &data)
     }
     else
     {
-        throw UnknownEventException(gameEvent);
+        std::cerr << "[ERROR] Unknown event received by mediator: " << event << std::endl;
     }
 }
 
