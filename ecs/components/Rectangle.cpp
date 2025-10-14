@@ -32,3 +32,8 @@ Rectangle Rectangle::deserialize(const uint8_t *data, size_t size)
     std::memcpy(&rect, data, sizeof(Rectangle));
     return rect;
 }
+
+bool Rectangle::operator==(const Rectangle &other) const
+{
+    return x == other.x && y == other.y && w == other.w && h == other.h;
+}

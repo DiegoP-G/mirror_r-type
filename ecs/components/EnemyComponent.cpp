@@ -15,6 +15,12 @@ void EnemyComponent::update(float deltaTime)
     }
 }
 
+bool EnemyComponent::operator==(const EnemyComponent &other) const
+{
+    return type == other.type && shootingType == other.shootingType && attackCooldown == other.attackCooldown &&
+           currentCooldown == other.currentCooldown && scoreValue == other.scoreValue;
+}
+
 std::vector<uint8_t> EnemyComponent::serialize() const
 {
     //  std::cout << "An enemy component has been serialize" << std::endl;

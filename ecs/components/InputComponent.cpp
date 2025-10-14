@@ -20,6 +20,12 @@ std::vector<uint8_t> InputComponent::serialize() const
     return data;
 }
 
+bool InputComponent::operator==(const InputComponent &other) const
+{
+    return up == other.up && down == other.down && left == other.left && right == other.right && fire == other.fire &&
+           enter == other.enter;
+}
+
 InputComponent InputComponent::deserialize(const uint8_t *data, size_t size)
 {
     size_t expectedSize = 6; // up, down, left, right, fire, enter

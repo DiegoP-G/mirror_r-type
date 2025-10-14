@@ -45,3 +45,8 @@ VelocityComponent VelocityComponent::deserialize(const uint8_t *data, size_t siz
     std::memcpy(&comp.maxSpeed, data + sizeof(Vector2D), sizeof(float));
     return comp;
 }
+
+bool VelocityComponent::operator==(const VelocityComponent &other) const
+{
+    return velocity == other.velocity && maxSpeed == other.maxSpeed;
+}

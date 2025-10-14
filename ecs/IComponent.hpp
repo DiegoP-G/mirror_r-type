@@ -28,4 +28,9 @@ class IComponent
     virtual void render()
     {
     }
+
+    virtual bool operator==(const IComponent &other) const
+    {
+        return false;
+    }
 };

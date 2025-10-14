@@ -18,6 +18,11 @@ void ColliderComponent::update(float deltaTime)
 {
 }
 
+bool ColliderComponent::operator==(const ColliderComponent &other) const
+{
+    return hitbox == other.hitbox && isActive == other.isActive && isTrigger == other.isTrigger;
+}
+
 std::vector<uint8_t> ColliderComponent::serialize() const
 {
     std::vector<uint8_t> data;

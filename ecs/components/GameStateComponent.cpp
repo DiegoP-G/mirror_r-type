@@ -22,6 +22,11 @@ std::vector<uint8_t> GameStateComponent::serialize() const
     return data;
 }
 
+bool GameStateComponent::operator==(const GameStateComponent &other) const
+{
+    return score == other.score && gameOver == other.gameOver && started == other.started;
+}
+
 GameStateComponent GameStateComponent::deserialize(const uint8_t *data, size_t size)
 {
     size_t expectedSize = sizeof(int) + 2 * sizeof(bool); // score + gameOver + started

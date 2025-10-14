@@ -17,4 +17,5 @@ class TransformComponent : public IComponent
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
     static TransformComponent deserialize(const uint8_t *data, size_t size);
+    bool operator==(const TransformComponent &other) const;
 };

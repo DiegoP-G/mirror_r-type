@@ -17,6 +17,11 @@ std::vector<uint8_t> GravityComponent::serialize() const
     return data;
 }
 
+bool GravityComponent::operator==(const GravityComponent &other) const
+{
+    return gravity == other.gravity && terminalVelocity == other.terminalVelocity;
+}
+
 GravityComponent GravityComponent::deserialize(const uint8_t *data, size_t size)
 {
     size_t expectedSize = 2 * sizeof(float); // gravity + terminalVelocity

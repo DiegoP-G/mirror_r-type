@@ -97,9 +97,11 @@ void RTypeServer::update(float deltaTime)
     movementSystem.update(entityManager, deltaTime);
     // 4. Envoyer les updates de mouvement (toutes les entités actives)
     // 2. AVANT applyPendingChanges, envoyer ce qui a été créé/détruit
-    sendNewEntities();       // Envoie les entités dans entitiesToCreate
-    sendDestroyedEntities(); // Envoie les IDs dans entitiesToDestroy
-    sendMovementUpdates();
+    sendNewEntities(); // Envoie les entités dans entitiesToCreate
+    // sendDestroyedEntities(); // Envoie les IDs dans entitiesToDestroy
+    // sendMovementUpdates();
+
+    sendAllEntities();
     entityManager.applyPendingChanges();
     // 4. Envoyer les updates de mouvement (toutes les entités actives)
     sendHealthUpdates();
@@ -223,7 +225,6 @@ Entity *RTypeServer::getEntityByPlayerID(int playerID)
 }
 
 // NEED TO ADD THE PLAYER ID TO THE INPUT
-
 void RTypeServer::handlePlayerInput(const std::string &input)
 {
     InputComponent inputComp;
@@ -268,22 +269,17 @@ void RTypeServer::createBackground()
     createBackgroundEntity((float)tileWidth);
 }
 
-void RTypeServer::sendEntities()
+void RTypeServer::sendEntities(size_t tick)
 {
-    // auto data = entityManager.serializeAllEntities();
-    // auto data = entityManager.serializeAllPlayers();
-    // std::string serializedData(data.begin(), data.end());
-    // mediator.notify(GameMediatorEvent::UpdatePlayers, serializedData);
+    auto &manager = entityManager;
+    auto entities = manager.getAllEntities();
 
-    // auto dataEnemies = entityManager.serializeAllEnemies();
-    // std::string serializedDataEnemies(dataEnemies.begin(), dataEnemies.end());
-    // mediator.notify(GameMediatorEvent::UpdateEnemies, serializedDataEnemies);
-
-    // auto dataProjectiles = entityManager.serializeAllProjectiles();
-    // std::string serializedDataProjectiles(dataProjectiles.begin(),
-    // dataProjectiles.end());
-    // mediator.notify(GameMediatorEvent::UpdateProjectiles,
-    // serializedDataProjectiles);
+    for (size_t i = 0; i < entities.size(); ++i)
+    {
+        auto data = manager.serializeEntityFull(entities[i]->getID());
+        std::string serializedData(data.begin(), data.end());
+    }
+    mediator.notify(GameMediatorEvent::EntityCreated, serializedData);
 }
 
 // Update the number of players and the number of ready players

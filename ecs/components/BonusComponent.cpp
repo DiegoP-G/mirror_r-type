@@ -20,6 +20,18 @@ void BonusComponent::update(float deltyatime)
 {
 }
 
+bool BonusComponent::operator==(const BonusComponent &other) const
+{
+    if (bonus.size() != other.bonus.size())
+        return false;
+    for (size_t i = 0; i < bonus.size(); ++i)
+    {
+        if (bonus[i] != other.bonus[i])
+            return false;
+    }
+    return true;
+}
+
 std::vector<uint8_t> BonusComponent::serialize() const
 {
     std::vector<uint8_t> buffer;

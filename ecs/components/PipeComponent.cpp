@@ -22,6 +22,11 @@ std::vector<uint8_t> PipeComponent::serialize() const
     return data;
 }
 
+bool PipeComponent::operator==(const PipeComponent &other) const
+{
+    return isTopPipe == other.isTopPipe && gapHeight == other.gapHeight && hasScored == other.hasScored;
+}
+
 PipeComponent PipeComponent::deserialize(const uint8_t *data, size_t size)
 {
     size_t expectedSize = sizeof(bool) + sizeof(float) + sizeof(bool); // isTopPipe + gapHeight + hasScored

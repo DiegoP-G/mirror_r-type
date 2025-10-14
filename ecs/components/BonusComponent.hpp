@@ -14,4 +14,6 @@ class BonusComponent : public IComponent
     std::vector<uint8_t> serialize() const override;
     static BonusComponent deserialize(const uint8_t *data, size_t size);
     std::vector<std::tuple<TypeBonus, int>> bonus;
+
+    bool operator==(const BonusComponent &other) const;
 };

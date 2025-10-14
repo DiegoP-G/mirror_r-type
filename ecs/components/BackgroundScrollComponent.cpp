@@ -16,6 +16,11 @@ std::vector<uint8_t> BackgroundScrollComponent::serialize() const
     return data;
 }
 
+bool BackgroundScrollComponent::operator==(const BackgroundScrollComponent &other) const
+{
+    return scrollSpeed == other.scrollSpeed && active == other.active && texture == other.texture;
+}
+
 BackgroundScrollComponent BackgroundScrollComponent::deserialize(const uint8_t *data, size_t size)
 {
     // scrollSpeed + active minimum

@@ -17,6 +17,11 @@ std::vector<uint8_t> JumpComponent::serialize() const
     return data;
 }
 
+bool JumpComponent::operator==(const JumpComponent &other) const
+{
+    return jumpStrength == other.jumpStrength && canJump == other.canJump;
+}
+
 JumpComponent JumpComponent::deserialize(const uint8_t *data, size_t size)
 {
     size_t expectedSize = sizeof(float) + sizeof(bool); // jumpStrength + canJump

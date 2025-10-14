@@ -17,6 +17,11 @@ std::vector<uint8_t> CenteredComponent::serialize() const
     return data;
 }
 
+bool CenteredComponent::operator==(const CenteredComponent &other) const
+{
+    return offsetX == other.offsetX && offsetY == other.offsetY;
+}
+
 CenteredComponent CenteredComponent::deserialize(const uint8_t *data, size_t size)
 {
     size_t expectedSize = 2 * sizeof(float); // offsetX + offsetY

@@ -19,4 +19,6 @@ class SpriteComponent : public IComponent
     void render() override;
     std::vector<uint8_t> serialize() const override;
     static SpriteComponent deserialize(const uint8_t *data, size_t size);
+
+    bool operator==(const SpriteComponent &other) const;
 };

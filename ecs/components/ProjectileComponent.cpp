@@ -55,3 +55,9 @@ ProjectileComponent ProjectileComponent::deserialize(const uint8_t *data, size_t
 
     return comp;
 }
+
+bool ProjectileComponent::operator==(const ProjectileComponent &other) const
+{
+    return damage == other.damage && lifeTime == other.lifeTime && remainingLife == other.remainingLife &&
+           owner_id == other.owner_id && owner_type == other.owner_type;
+}

@@ -9,16 +9,6 @@
 
 struct EntitySnapshot
 {
-};
-
-struct GameSnapshot
-{
-    int tickNumber;
-    int timestamp;
-};
-
-struct EntitySnapshot
-{
     int entityId;
     float x, y;
     float velocityX, velocityY;

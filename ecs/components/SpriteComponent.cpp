@@ -19,6 +19,13 @@ void SpriteComponent::render()
 {
 }
 
+bool SpriteComponent::operator==(const SpriteComponent &other) const
+{
+    return spriteTexture == other.spriteTexture && srcRect == other.srcRect && width == other.width &&
+           height == other.height && isVisible == other.isVisible && r == other.r && g == other.g && b == other.b &&
+           a == other.a;
+}
+
 std::vector<uint8_t> SpriteComponent::serialize() const
 {
     std::vector<uint8_t> data;

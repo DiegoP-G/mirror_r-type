@@ -13,6 +13,11 @@ std::vector<uint8_t> HealthComponent::serialize() const
     return data;
 }
 
+bool HealthComponent::operator==(const HealthComponent &other) const
+{
+    return health == other.health && maxHealth == other.maxHealth;
+}
+
 HealthComponent HealthComponent::deserialize(const uint8_t *data, size_t size)
 {
     size_t expectedSize = 2 * sizeof(float); // health + maxHealth

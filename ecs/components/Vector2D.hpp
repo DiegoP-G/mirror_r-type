@@ -16,4 +16,6 @@ class Vector2D
 
     std::vector<uint8_t> serialize() const;
     static Vector2D deserialize(const uint8_t *data, size_t size);
+
+    bool operator==(const Vector2D &other) const;
 };

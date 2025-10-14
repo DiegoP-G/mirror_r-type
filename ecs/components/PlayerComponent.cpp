@@ -35,6 +35,13 @@ std::vector<uint8_t> PlayerComponent::serialize() const
     return data;
 }
 
+bool PlayerComponent::operator==(const PlayerComponent &other) const
+{
+    return score == other.score && lives == other.lives && attackCooldown == other.attackCooldown &&
+           currentCooldown == other.currentCooldown && playerID == other.playerID && isLocal == other.isLocal &&
+           isReady == other.isReady;
+}
+
 PlayerComponent PlayerComponent::deserialize(const uint8_t *data, size_t size)
 {
     size_t expectedSize = 3 * sizeof(int) + sizeof(float) + sizeof(bool);

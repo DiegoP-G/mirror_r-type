@@ -9,6 +9,7 @@ class JumpComponent : public IComponent
 
     JumpComponent(float jump = -400.0f);
 
+    bool operator==(const JumpComponent &other) const;
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
     static JumpComponent deserialize(const uint8_t *data, size_t size);

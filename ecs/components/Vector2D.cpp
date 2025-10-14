@@ -16,6 +16,11 @@ Vector2D &Vector2D::operator+=(const Vector2D &v)
     return *this;
 }
 
+bool Vector2D::operator==(const Vector2D &v) const
+{
+    return x == v.x && y == v.y;
+}
+
 Vector2D Vector2D::operator*(float scalar) const
 {
     return Vector2D(x * scalar, y * scalar);

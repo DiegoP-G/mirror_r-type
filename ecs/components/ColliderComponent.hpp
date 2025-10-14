@@ -13,6 +13,7 @@ class ColliderComponent : public IComponent
     ColliderComponent(float w, float h);
     ColliderComponent(float w, float h, bool isAct);
 
+    bool operator==(const ColliderComponent &other) const;
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
     static ColliderComponent deserialize(const uint8_t *data, size_t size);

@@ -23,6 +23,15 @@ void AnimatedSpriteComponent::setFrame(int frame)
     left = frameWidth * frame;
 }
 
+bool AnimatedSpriteComponent::operator==(const AnimatedSpriteComponent &other) const
+{
+    return textureID == other.textureID && currentFrame == other.currentFrame && left == other.left &&
+           top == other.top && frameWidth == other.frameWidth && frameHeight == other.frameHeight &&
+           totalFrames == other.totalFrames && animationInterval == other.animationInterval &&
+           rotationAngle == other.rotationAngle && scale == other.scale && elapsedTime == other.elapsedTime &&
+           currentDirection == other.currentDirection;
+}
+
 void AnimatedSpriteComponent::update(float deltaTime)
 {
 }

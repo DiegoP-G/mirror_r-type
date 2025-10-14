@@ -32,6 +32,13 @@ std::vector<uint8_t> LaserWarningComponent::serialize() const
     return data;
 }
 
+bool LaserWarningComponent::operator==(const LaserWarningComponent &other) const
+{
+    return appearanceTime == other.appearanceTime && warningTime == other.warningTime &&
+           activeTime == other.activeTime && isActive == other.isActive && warningShown == other.warningShown &&
+           width == other.width && height == other.height;
+}
+
 LaserWarningComponent LaserWarningComponent::deserialize(const uint8_t *data, size_t size)
 {
     size_t expectedSize = 3 * sizeof(float) + 2 * sizeof(bool) + 2 * sizeof(float);

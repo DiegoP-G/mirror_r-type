@@ -45,3 +45,8 @@ TransformComponent TransformComponent::deserialize(const uint8_t *data, size_t s
     std::memcpy(&comp.rotation, data + 2 * sizeof(Vector2D), sizeof(float));
     return comp;
 }
+
+bool TransformComponent::operator==(const TransformComponent &other) const
+{
+    return position == other.position && scale == other.scale && rotation == other.rotation;
+}

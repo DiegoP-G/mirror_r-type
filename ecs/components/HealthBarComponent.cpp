@@ -24,6 +24,11 @@ std::vector<uint8_t> HealthBarComponent::serialize() const
     return data;
 }
 
+bool HealthBarComponent::operator==(const HealthBarComponent &other) const
+{
+    return width == other.width && height == other.height && offsetY == other.offsetY;
+}
+
 HealthBarComponent HealthBarComponent::deserialize(const uint8_t *data, size_t size)
 {
     if (size != sizeof(float) * 3)
