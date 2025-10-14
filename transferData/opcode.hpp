@@ -145,3 +145,28 @@ constexpr uint8_t OPCODE_LOBBY_INFO = 0x60;
 constexpr uint8_t OPCODE_GAME_STATE_UPDATE = 0x61;
 // [SERVER → CLIENT, TCP]
 // Sends info about game state (INGAME or INLOBBY)
+
+constexpr uint8_t OPCODE_CREATE_LOBBY = 0x70;
+// [CLIENT → SERVER, TCP]
+// Request to create a new lobby
+// Payload: lobby_name (string)
+
+constexpr uint8_t OPCODE_JOIN_LOBBY = 0x71;
+// [CLIENT → SERVER, TCP]
+// Request to join an existing lobby
+// Payload: lobby_name (string)
+
+constexpr uint8_t OPCODE_LOBBY_CREATED = 0x72;
+// [SERVER → CLIENT, TCP]
+// Confirmation that lobby was created
+// Payload: lobby_name (string)
+
+constexpr uint8_t OPCODE_LOBBY_JOINED = 0x73;
+// [SERVER → CLIENT, TCP]
+// Confirmation that player joined lobby
+// Payload: lobby_name (string)
+
+constexpr uint8_t OPCODE_LOBBY_ERROR = 0x74;
+// [SERVER → CLIENT, TCP]
+// Error joining/creating lobby
+// Payload: error_message (string)

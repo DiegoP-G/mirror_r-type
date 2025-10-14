@@ -11,7 +11,8 @@
 #pragma once
 enum GameState
 {
-    LOBBY,
+    MENUIP,
+    MENULOBBY,
     INGAME,
     MENU,
     GAMEOVER
