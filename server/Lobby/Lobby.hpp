@@ -29,6 +29,7 @@ class Lobby
     bool isRunning() const;
 
     float getDeltaTime();
+    std::unique_ptr<RTypeServer> &getRTypeServer();
 
   private:
     void update(); // Now uses stored _deltaTime

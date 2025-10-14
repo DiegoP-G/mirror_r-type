@@ -2,6 +2,7 @@
 #include "../Game/RTypeServer.hpp"
 #include <chrono>
 #include <iostream>
+#include <memory>
 #include <thread>
 
 Lobby::Lobby(const std::string &uid, GameMediator &gameMediator)
@@ -106,4 +107,9 @@ float Lobby::getDeltaTime()
 {
     std::lock_guard<std::mutex> lock(_mutex);
     return _deltaTime;
+}
+
+std::unique_ptr<RTypeServer> &Lobby::getRTypeServer()
+{
+    return _rtypeGame;
 }
