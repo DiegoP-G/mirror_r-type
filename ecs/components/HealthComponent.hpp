@@ -7,9 +7,9 @@ class HealthComponent : public IComponent
     float health;
     float maxHealth;
 
-    HealthComponent(float h, float hMax) : health(h), maxHealth(hMax) {};
+    HealthComponent(float h, float hMax) : health(h), maxHealth(hMax){};
 
-    HealthComponent(float h) : health(h), maxHealth(h) {};
+    HealthComponent(float h) : health(h), maxHealth(h){};
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;
