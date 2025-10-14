@@ -7,7 +7,7 @@
 #include "../../transferData/structTransfer.hpp"
 #include "../../transferData/transferData.hpp"
 
-#define SERVER_PORT 8081
+constexpr int SERVER_PORT = 8081;
 
 int sendInTcp()
 {

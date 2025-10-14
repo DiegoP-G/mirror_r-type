@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------------------------
  * *
  *                                                                                      *
- * EPITECH PROJECT - Tue, Apr, 2025 * Title           - JETPACK-MIRROR *
+ * EPITECH PROJECT - Tue, Apr, 2025 * Title           - RTYPE-MIRROR *
  * Description     - * serializers *
  *                                                                                      *
  * ------------------------------------------------------------------------------------

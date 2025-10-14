@@ -3,7 +3,7 @@
 #include "../../transferData/transferData.hpp"
 #include <arpa/inet.h>
 
-#define PORT 8081
+constexpr int PORT = 8081;
 
 int main()
 {

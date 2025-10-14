@@ -22,7 +22,7 @@
 #include <string>
 #include <unordered_map>
 
-#define TEXT_SIZE 24
+constexpr int TEXT_SIZE = 24;
 
 class GraphicsManager
 {

@@ -30,7 +30,7 @@ the opcode, payload length, and extended fields, enabling reliable and
 extensible client-server interaction. 
 
 This format exists because we needed to create a network communication protocol
-to use in a multiplayer game inspired by Jetpack Joyride.
+to use in a multiplayer game inspired by R-Type.
 
 Moreover this document contains the format of the files that can be used by the
 server to generate the game's map.
