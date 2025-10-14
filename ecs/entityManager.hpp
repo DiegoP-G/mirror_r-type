@@ -1,6 +1,7 @@
 #pragma once
 #include "entity.hpp"
 #include <array>
+#include <cstdint>
 #include <memory>
 #include <vector>
 
@@ -33,6 +34,8 @@ class EntityManager
     // Sérialisation complète d'une seule entité (TCP)
     std::vector<uint8_t> serializeEntityFull(EntityID id) const;
 
+    std::vector<uint8_t> serializeAllEntities() const;
+
     // Sérialisation des mouvements de toutes les entités (UDP)
     std::vector<uint8_t> serializeAllMovements() const;
     std::vector<uint8_t> serializeAllHealth() const;
@@ -45,6 +48,8 @@ class EntityManager
 
     // Désérialisation complète d'une entité (TCP)
     void deserializeEntityFull(const std::vector<uint8_t> &data);
+
+    std::vector<Entity *> deserializeAllEntities(const std::vector<uint8_t> &data);
 
     // Désérialisation des mouvements (UDP)
     void deserializeAllMovements(const std::vector<uint8_t> &data);

@@ -497,6 +497,72 @@ void EntityManager::markEntityForDestruction(EntityID id)
     entitiesToDestroy.push_back(id);
 }
 
+std::vector<uint8_t> EntityManager::serializeAllEntities() const
+{
+    std::vector<uint8_t> data;
+    uint32_t entityCount = 0;
+
+    for (const auto &entity : entities)
+    {
+        if (entity && entity->isActive())
+            entityCount++;
+    }
+
+    data.insert(data.end(), reinterpret_cast<const uint8_t *>(&entityCount),
+                reinterpret_cast<const uint8_t *>(&entityCount) + sizeof(entityCount));
+
+    for (const auto &entity : entities)
+    {
+        if (!entity || !entity->isActive())
+            continue;
+
+        auto serialized = entity->serialize();
+        uint32_t entitySize = static_cast<uint32_t>(serialized.size());
+
+        data.insert(data.end(), reinterpret_cast<const uint8_t *>(&entitySize),
+                    reinterpret_cast<const uint8_t *>(&entitySize) + sizeof(entitySize));
+        data.insert(data.end(), serialized.begin(), serialized.end());
+    }
+
+    return data;
+}
+
+std::vector<Entity *> EntityManager::deserializeAllEntities(const std::vector<uint8_t> &data)
+{
+    std::vector<Entity *> deserializedEntities;
+
+    if (data.size() < sizeof(uint32_t))
+        return deserializedEntities;
+
+    size_t offset = 0;
+    uint32_t entityCount = 0;
+
+    std::memcpy(&entityCount, data.data() + offset, sizeof(entityCount));
+    offset += sizeof(entityCount);
+
+    for (uint32_t i = 0; i < entityCount && offset < data.size(); ++i)
+    {
+        if (offset + sizeof(uint32_t) > data.size())
+            break;
+
+        uint32_t entitySize;
+        std::memcpy(&entitySize, data.data() + offset, sizeof(entitySize));
+        offset += sizeof(entitySize);
+
+        if (offset + entitySize > data.size())
+            break;
+
+        std::vector<uint8_t> entityData(data.begin() + offset, data.begin() + offset + entitySize);
+        offset += entitySize;
+
+        auto &newEntity = createEntity();
+        size_t bytesRead = newEntity.deserialize(entityData.data(), entityData.size());
+        deserializedEntities.push_back(&newEntity);
+    }
+
+    return deserializedEntities;
+}
+
 // === COMMUN - Appliquer les changements ===
 void EntityManager::applyPendingChanges()
 {
