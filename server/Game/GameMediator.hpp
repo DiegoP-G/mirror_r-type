@@ -1,11 +1,9 @@
 #pragma once
-#include "../Include/Errors/EventUnknown.hpp"
+#include "../Lobby/LobbyManager.hpp"
 #include "../Mediator/IMediator.hpp"
 #include "../Network/NetworkManager.hpp"
 #include "RTypeServer.hpp"
-#include <chrono>
 #include <functional>
-#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -14,6 +12,7 @@ enum GameMediatorEvent
 {
     TickNetwork,
     TickLogic,
+    CreateLobby,
     AddPlayer,
     SetupNetwork,
     InitECS,
@@ -41,7 +40,8 @@ class GameMediator : public IMediator
 {
   private:
     NetworkManager &_networkManager;
-    RTypeServer &_rTypeServer;
+    LobbyManager &_lobbyManager;
+    // RTypeServer &_rTypeServer;
 
     std::unordered_map<GameMediatorEvent, std::function<void(const std::string &)>> _mediatorMap;
 

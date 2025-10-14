@@ -8,22 +8,23 @@
 #include "GameMediator.hpp"
 #include "../Network/NetworkManager.hpp"
 
-GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTypeServer(*new RTypeServer(*this))
+GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lobbyManager(*new LobbyManager(*this))
 {
     _mediatorMap = {
-        // Logique de jeu
-        {GameMediatorEvent::TickLogic, [this](const std::string &data) -> void { _rTypeServer.run(std::stof(data)); }},
+        // // Logique de jeu
+        // {GameMediatorEvent::TickLogic, [this](const std::string &data) -> void { _rTypeServer.run(std::stof(data));
+        // }},
 
-        // Input joueur
-        {GameMediatorEvent::InitECS, [this](const std::string &data) -> void { _rTypeServer.init(); }},
+        // // Input joueur
+        // {GameMediatorEvent::InitECS, [this](const std::string &data) -> void { _rTypeServer.init(); }},
 
         // Réseau
         {GameMediatorEvent::SetupNetwork, [this](const std::string &data) -> void {}},
 
         {GameMediatorEvent::TickNetwork, [this](const std::string &data) -> void { _networkManager.updateAllPoll(); }},
 
-        // Joueurs
-        {GameMediatorEvent::AddPlayer, [this](const std::string &data) -> void { _rTypeServer.createPlayer(data); }},
+        // // Joueurs
+        // {GameMediatorEvent::AddPlayer, [this](const std::string &data) -> void { _rTypeServer.createPlayer(data); }},
 
         // Création d'entité (TCP - fiable)
         {GameMediatorEvent::EntityCreated,
@@ -44,9 +45,9 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
         {GameMediatorEvent::HealthUpdate,
          [this](const std::string &data) -> void { _networkManager.sendDataAllClientUDP(data, OPCODE_HEALTH_UPDATE); }},
 
-        // Input joueur
-        {GameMediatorEvent::PlayerInput,
-         [this](const std::string &data) -> void { _rTypeServer.handlePlayerInput(data); }},
+        // // Input joueur
+        // {GameMediatorEvent::PlayerInput,
+        //  [this](const std::string &data) -> void { _rTypeServer.handlePlayerInput(data); }},
 
         {GameMediatorEvent::LobbyInfoUpdate, // contains playerReady / playerMax
          [this](const std::string &data) -> void {
@@ -69,6 +70,8 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
          [this](const std::string &data) -> void {
              _networkManager.sendDataAllClientTCP(data, OPCODE_GAME_STATE_UPDATE);
          }},
+        {GameMediatorEvent::CreateLobby,
+         [this](const std::string &data) -> void { _lobbyManager.createLobby("test"); }},
     };
 }
 
@@ -87,7 +90,7 @@ void GameMediator::notify(const int &event, const std::string &data)
     }
 }
 
-std::vector<std::string> GameMediator::getAllActiveEntities()
-{
-    return _rTypeServer.serializeAllActiveEntities();
-}
+// std::vector<std::string> GameMediator::getAllActiveEntities()
+// {
+//     return _rTypeServer.serializeAllActiveEntities();
+// }
