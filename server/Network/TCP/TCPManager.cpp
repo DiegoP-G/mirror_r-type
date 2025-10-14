@@ -217,7 +217,11 @@ void TCPManager::handleClientRead(int fd, size_t &index)
 
             // Nettoyer
             _writeBuffers.erase(fd);
+
+            std::cout << "Before removing the client" << std::endl;
             _networkManagerRef.getClientManager().removeClient(fd);
+            std::cout << "Notifying the mediator" << std::endl;
+            _networkManagerRef.getGameMediator().notify(GameMediatorEvent::PlayerDisconnected, "", "", fd);
             _pollFds.erase(_pollFds.begin() + index);
             --index;
             return;
@@ -281,6 +285,7 @@ void TCPManager::update()
             //   std::cout << "[TCP] Client " << fd << " error/hangup" << std::endl;
             _writeBuffers.erase(fd);
             _networkManagerRef.getClientManager().removeClient(fd);
+            _networkManagerRef.getGameMediator().notify(GameMediatorEvent::PlayerDisconnected, "", "", fd);
             _pollFds.erase(_pollFds.begin() + i);
             --i;
         }

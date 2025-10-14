@@ -84,6 +84,8 @@ void Lobby::removePlayer(int fd)
 {
     std::lock_guard<std::mutex> lock(_mutex);
     _connectedClients.erase(fd);
+    _rtypeGame->removePlayer(fd);
+
     std::cout << "[Lobby] Player " << fd << " left lobby " << _uid << std::endl;
 }
 

@@ -116,7 +116,24 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
              rtype->createPlayer(clientFd);
              _networkManager.sendAllEntitiesToClient(clientFd);
          }},
-    };
+        {GameMediatorEvent::PlayerDisconnected, [this](const std::string &, const std::string &, int clientFd) -> void {
+             std::shared_ptr<Lobby> lobby = _lobbyManager.getLobbyOfPlayer(clientFd);
+             if (!lobby)
+             {
+                 std::cerr << "[PlayerDisconnected] Player not in a lobby.\n";
+                 return;
+             }
+             std::cout << "lobby player size before remove: " << lobby->getPlayers().size() << std::endl;
+             lobby->removePlayer(clientFd);
+
+             std::cout << "lobby player size after remove: " << lobby->getPlayers().size() << std::endl;
+             if (lobby->getPlayers().size() == 0)
+             {
+                 std::cout << "[PlayerDisconnected] Lobby " << lobby->getUid() << " is empty. Removing it."
+                           << std::endl;
+                 _lobbyManager.removeLobby(lobby->getUid());
+             }
+         }}};
 }
 
 void GameMediator::notify(const int &event, const std::string &data, const std::string &lobbyUid, int clientFd)

@@ -64,6 +64,8 @@ class RTypeServer
         std::cout << _lobbyUID << std::endl;
     }
 
+    void removePlayer(int id);
+
     std::vector<std::string> serializeAllActiveEntities()
     {
         std::vector<std::string> result;

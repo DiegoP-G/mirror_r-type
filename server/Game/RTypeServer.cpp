@@ -32,6 +32,20 @@ void RTypeServer::createPlayer(int playerId)
     _playersScores.push_back({playerId, 0});
 }
 
+void RTypeServer::removePlayer(int id)
+{
+    Entity *entity = getEntityByPlayerID(id);
+    if (entity)
+    {
+        entityManager.markEntityForDestruction(entity->getID());
+        std::cout << "[RTypeServer] Player " << id << " removed from the game.\n";
+    }
+    else
+    {
+        std::cout << "[RTypeServer] Player " << id << " not found in the game.\n";
+    }
+}
+
 void RTypeServer::update(float deltaTime)
 {
     enum GameState
@@ -54,7 +68,7 @@ void RTypeServer::update(float deltaTime)
     backgroundSystem.update(entityManager, deltaTime);
     playerSystem.update(entityManager, deltaTime);
     inputSystem.update(entityManager, deltaTime);
-    if (_state == GameState::INGAME)
+    if (_state == (GameState)GameState::INGAME)
     {
         gameLogicSystem.update(entityManager, deltaTime, mediator);
 

@@ -49,6 +49,7 @@ void ClientManager::removeClient(int socket)
     if (it != _clients.end())
     {
         std::cout << "Removing client: " << it->second.getName() << " (socket " << socket << ")\n";
+
         _clients.erase(it);
         close(socket);
     }
