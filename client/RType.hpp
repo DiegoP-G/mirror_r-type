@@ -9,6 +9,7 @@
 #include <unordered_map>
 
 #pragma once
+
 enum GameState
 {
     MENUIP,
@@ -66,7 +67,7 @@ class RTypeGame
   public:
     void reset();
 
-    RTypeGame(NetworkECSMediator med) : _med(med){};
+    RTypeGame(NetworkECSMediator med) : _med(med) {};
 
     void markPlayerAsDead(int playerId);
 

@@ -29,7 +29,6 @@ void NetworkManager::updateAllPoll()
 void NetworkManager::addNewPlayer(int socket)
 {
     // std::cout << "NEW SOCKETTT" << socket << std::endl;
-    // _gameMediator.notify(AddPlayer, serializeInt(socket));
 }
 
 // Vérifier si l'adresse est valide (sin_family initialisé)
@@ -75,13 +74,10 @@ void NetworkManager::sendDataAllClientTCP(std::string data, int opcode)
 
 void NetworkManager::sendDataToLobbyTCP(std::shared_ptr<Lobby> lobby, const std::string &data, int opcode)
 {
-    std::cout << "test" << std::endl;
     auto players = lobby->getPlayers();
-    std::cout << "------------------------ HERE " << std::endl;
 
     for (int fd : players)
     {
-        std::cout << "IN PLAYER " << fd << std::endl;
         _TCPManager.sendMessage(fd, opcode, data);
     }
 }

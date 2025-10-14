@@ -275,6 +275,7 @@ void RTypeGame::render()
         g_graphics->drawText(waveText, windowWidth - 100, 10);
 
         drawPlayerID();
+        renderSystem.update(entityManager);
     }
     else if (_state == GameState::GAMEOVER)
     {

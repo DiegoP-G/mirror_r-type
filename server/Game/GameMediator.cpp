@@ -18,21 +18,6 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
         {GameMediatorEvent::TickNetwork,
          [this](const std::string &, const std::string &, int) -> void { _networkManager.updateAllPoll(); }},
 
-        {GameMediatorEvent::AddPlayer,
-         [this](const std::string &data, const std::string &lobbyUid, int clientFd) -> void {
-             std::shared_ptr<Lobby> lobby = _lobbyManager.getLobby(lobbyUid);
-             if (!lobby)
-             {
-                 std::cout << "[AddPlayer] Lobby not found, creating: " << lobbyUid << "\n";
-                 lobby = _lobbyManager.createLobby(lobbyUid);
-             }
-
-             std::unique_ptr<RTypeServer> &rtype = lobby->getRTypeServer();
-             int id = deserializeInt(data);
-             rtype->createPlayer(data);
-             lobby->addPlayer(id);
-         }},
-
         {GameMediatorEvent::EntityCreated,
          [this](const std::string &data, const std::string &lobbyUid, int) -> void {
              auto lobby = _lobbyManager.getLobby(lobbyUid);
@@ -124,13 +109,11 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
         {GameMediatorEvent::JoinLobby,
          [this](const std::string &data, const std::string &, int clientFd) -> void {
              auto lobby = _lobbyManager.getLobby(data);
-             if (!lobby)
-             {
-                 std::cout << "[JoinLobby] Client " << clientFd << " joining " << data << std::endl;
-             }
+
+             std::cout << "[JoinLobby] Client " << clientFd << " joining " << data << std::endl;
              std::unique_ptr<RTypeServer> &rtype = lobby->getRTypeServer();
-             rtype->createPlayer(data);
              lobby->addPlayer(clientFd);
+             rtype->createPlayer(clientFd);
              _networkManager.sendAllEntitiesToClient(clientFd);
          }},
     };

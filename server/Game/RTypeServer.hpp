@@ -41,7 +41,7 @@ class RTypeServer
 
     Entity *player = nullptr;
     bool gameOver = false;
-    GameState _state = LOBBY;
+    GameState _state = INGAME;
 
     bool running = false;
 
@@ -98,7 +98,7 @@ class RTypeServer
 
     bool init();
 
-    void createPlayer(const std::string &);
+    void createPlayer(int clientFd);
 
     void update(float deltaTime);
 

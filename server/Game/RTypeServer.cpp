@@ -13,11 +13,10 @@ bool RTypeServer::init()
     return true;
 }
 
-void RTypeServer::createPlayer(const std::string &id)
+void RTypeServer::createPlayer(int playerId)
 {
     Entity &playerEntity = entityManager.createEntity();
 
-    int playerId = deserializeInt(id);
     playerEntity.addComponent<PlayerComponent>(playerId, false, 0.25f);
     playerEntity.addComponent<TransformComponent>(100.0f, 300.0f);
     playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
@@ -35,7 +34,16 @@ void RTypeServer::createPlayer(const std::string &id)
 
 void RTypeServer::update(float deltaTime)
 {
-    std::cout << "caca" << std::endl;
+    enum GameState
+    {
+        MENUIP,
+        MENULOBBY,
+        LOBBY,
+        INGAME,
+        MENU,
+        GAMEOVER
+    };
+
     if (tick % 60 == 0)
         std::cout << "-------------60 tick passed--------------" << tick / 60 << std::endl;
 

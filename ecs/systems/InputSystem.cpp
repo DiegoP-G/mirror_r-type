@@ -37,7 +37,6 @@ void InputSystem::handleEvents(EntityManager &entityManager)
     if (!g_graphics)
         return;
 
-    std::cout << "test" << std::endl;
     sf::Event event;
     while (g_graphics->getWindow().pollEvent(event))
     {
