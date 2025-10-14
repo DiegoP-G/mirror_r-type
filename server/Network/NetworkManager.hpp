@@ -28,6 +28,7 @@ class NetworkManager
   public:
     NetworkManager(GameMediator &ref);
     ~NetworkManager();
+
     inline ClientManager &getClientManager()
     {
         return _clientManager;

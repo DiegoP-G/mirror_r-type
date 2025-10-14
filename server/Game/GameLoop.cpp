@@ -1,6 +1,8 @@
 #include "GameLoop.hpp"
+#include "AdministratorPanel.hpp"
 #include "GameMediator.hpp"
 #include <chrono>
+#include <thread>
 
 Orchestrator::GameLoop::GameLoop()
 {
@@ -20,9 +22,15 @@ void Orchestrator::GameLoop::loop()
     std::chrono::duration<double> accumulatedTime(0);
     _gameMediator.notify(GameMediatorEvent::InitECS, "");
 
+    AdministratorPanel adminPanel;
+    adminPanel.setClientManager(_gameMediator.getNetworkManager().getClientManager());
+    _gameMediator.getNetworkManager().getClientManager().setAdministratorPanel(adminPanel);
+
+    // Start the admin panel in a separate thread
+    std::thread adminPanelThread([&adminPanel]() { adminPanel.run(); });
+
     while (true)
     {
-
         _gameMediator.notify(GameMediatorEvent::TickNetwork);
 
         auto currentTime = std::chrono::high_resolution_clock::now();
@@ -35,8 +43,9 @@ void Orchestrator::GameLoop::loop()
         {
             double deltaTime = tickDuration.count(); // 1/60 s
             _gameMediator.notify(GameMediatorEvent::TickLogic, std::to_string(deltaTime));
-
             accumulatedTime -= tickDuration;
         }
     }
+
+    adminPanelThread.join();
 }

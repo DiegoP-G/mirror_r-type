@@ -1,4 +1,5 @@
 #include "ClientManager.hpp"
+#include "../AdministratorPanel.hpp"
 #include "Client.hpp"
 #include <iostream>
 #include <unistd.h>
@@ -27,6 +28,11 @@ void ClientManager::addClient(const Client &c)
         return;
     }
 
+    if (_adminPanel)
+    {
+        std::string logMessage = "Client connected: " + c.getName() + " (socket " + std::to_string(sock) + ")";
+        _adminPanel->addLog(logMessage);
+    }
     auto result = _clients.emplace(sock, c);
     if (result.second)
         std::cout << "[DEBUG] Client successfully added." << std::endl;
