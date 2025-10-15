@@ -2,6 +2,7 @@
 #include "../client/assetsPath.hpp"
 #include "Network/ClientManager.hpp"
 #include "NetworkManager.hpp"
+#include "sqlAPI.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
@@ -20,6 +21,7 @@ class AdministratorPanel
     std::unique_ptr<sf::Font> _font;
     ClientManager *_clientManager;
     NetworkManager &_networkManager;
+    sqlAPI sqlApi;
 
     std::unordered_map<int, sf::RectangleShape> _kickButtons;
 
