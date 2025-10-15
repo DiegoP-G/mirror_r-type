@@ -34,7 +34,7 @@ if (NOT SQLite3_FOUND)
     FetchContent_Declare(
         sqlite3
         GIT_REPOSITORY https://github.com/sqlite/sqlite.git
-        GIT_TAG        version-3.43.1 # Replace with the desired version
+        GIT_TAG        version-3.45.1 # Replace with the desired version
     )
     FetchContent_MakeAvailable(sqlite3)
 
