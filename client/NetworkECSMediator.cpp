@@ -162,12 +162,12 @@ NetworkECSMediator::NetworkECSMediator()
 
              case OPCODE_GAME_STATE_UPDATE: {
                  _game->getMutex().lock();
-                 GameState currentWave = static_cast<GameState>(deserializeInt(data));
+                 int state = deserializeInt(data);
 
-                 std::cout << "CURRENT WAVE NOW" << currentWave << std::endl;
+                 std::cout << "CURRENT STATE NOW" << state << std::endl;
                  if (_game)
                  {
-                     _game->setCurrentState(currentWave);
+                     _game->setCurrentState(static_cast<GameState>(state));
                  }
                  _game->getMutex().unlock();
                  break;

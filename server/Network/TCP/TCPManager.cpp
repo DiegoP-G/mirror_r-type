@@ -87,7 +87,6 @@ void TCPManager::handleNewConnection()
 
     // Notifier la création du joueur
     _networkManagerRef.addNewPlayer(cfd);
-    _networkManagerRef.sendAllEntitiesToClient(cfd);
 }
 
 void TCPManager::sendMessage(int fd, uint8_t opcode, const std::string &payload)
@@ -218,7 +217,11 @@ void TCPManager::handleClientRead(int fd, size_t &index)
 
             // Nettoyer
             _writeBuffers.erase(fd);
+
+            std::cout << "Before removing the client" << std::endl;
             _networkManagerRef.getClientManager().removeClient(fd);
+            std::cout << "Notifying the mediator" << std::endl;
+            _networkManagerRef.getGameMediator().notify(GameMediatorEvent::PlayerDisconnected, "", "", fd);
             _pollFds.erase(_pollFds.begin() + index);
             --index;
             return;
@@ -229,7 +232,7 @@ void TCPManager::handleClientRead(int fd, size_t &index)
         //         << ", " << payload.size() << " bytes)" << std::endl;
 
         // Notifier le médiateur
-        _networkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload);
+        _networkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload, "", fd);
     }
 }
 
@@ -282,6 +285,7 @@ void TCPManager::update()
             //   std::cout << "[TCP] Client " << fd << " error/hangup" << std::endl;
             _writeBuffers.erase(fd);
             _networkManagerRef.getClientManager().removeClient(fd);
+            _networkManagerRef.getGameMediator().notify(GameMediatorEvent::PlayerDisconnected, "", "", fd);
             _pollFds.erase(_pollFds.begin() + i);
             --i;
         }

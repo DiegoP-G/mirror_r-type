@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <cstdint>
 #include <fcntl.h>
+#include <memory>
 #include <netinet/in.h>
 #include <poll.h>
 #include <string>
@@ -27,7 +28,7 @@ void NetworkManager::updateAllPoll()
 
 void NetworkManager::addNewPlayer(int socket)
 {
-    _gameMediator.notify(AddPlayer, serializeInt(socket));
+    // std::cout << "NEW SOCKETTT" << socket << std::endl;
 }
 
 // Vérifier si l'adresse est valide (sin_family initialisé)
@@ -71,12 +72,22 @@ void NetworkManager::sendDataAllClientTCP(std::string data, int opcode)
     }
 }
 
+void NetworkManager::sendDataToLobbyTCP(std::shared_ptr<Lobby> lobby, const std::string &data, int opcode)
+{
+    auto players = lobby->getPlayers();
+
+    for (int fd : players)
+    {
+        _TCPManager.sendMessage(fd, opcode, data);
+    }
+}
+
 void NetworkManager::sendAllEntitiesToClient(int clientFd)
 {
     //   std::cout << "[NetworkManager] Sending all existing entities to new client " << clientFd << std::endl;
 
     // Récupérer toutes les entités actives depuis le serveur de jeu
-    std::vector<std::string> allEntities = _gameMediator.getAllActiveEntities();
+    std::vector<std::string> allEntities = _gameMediator.getAllActiveEntitiesFromLobby(clientFd);
 
     //   std::cout << "[NetworkManager] Sending " << allEntities.size() << " entities to client " << clientFd <<
     //   std::endl;
@@ -91,4 +102,26 @@ void NetworkManager::sendAllEntitiesToClient(int clientFd)
     }
 
     //   std::cout << "[NetworkManager] Finished sending entities to client " << clientFd << std::endl;
+}
+
+void NetworkManager::sendDataToLobbyUDP(std::shared_ptr<Lobby> lobby, const std::string &data, int opcode)
+{
+    auto players = lobby->getPlayers();
+    std::vector<sockaddr_in> validAddrs;
+
+    for (int fd : players)
+    {
+        auto clientOpt = _clientManager.getClient(fd);
+        if (!clientOpt)
+            continue;
+
+        sockaddr_in addr = clientOpt->getTrueAddr();
+        if (addr.sin_family == AF_INET && addr.sin_port != 0)
+            validAddrs.push_back(addr);
+        else
+            std::cout << "[UDP] Skipping client " << fd << " (UDP not authenticated yet)\n";
+    }
+
+    if (!validAddrs.empty())
+        _UDPManager.sendTo(validAddrs, opcode, data);
 }
