@@ -134,7 +134,8 @@ target_include_directories(GameServer PRIVATE
     ${CMAKE_SOURCE_DIR}/server/Include
     ${CMAKE_SOURCE_DIR}/transferData
     ${CMAKE_SOURCE_DIR}/ecs
-    ${SQLite3_INCLUDE_DIR} # Add this line to include SQLite headers
+    ${SQLite3_INCLUDE_DIR}
+    ${SQLite3_INCLUDE_DIR}/src
 )
 
 target_link_libraries(GameServer
