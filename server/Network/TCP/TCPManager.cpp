@@ -75,6 +75,17 @@ void TCPManager::handleNewConnection()
     // Initialiser le buffer d'écriture vide
     _writeBuffers[cfd] = "";
 
+    if (_networkManagerRef.getClientManager().isBannedIP(inet_ntoa(client_addr.sin_addr)))
+    {
+        sendMessage(cfd, OPCODE_BAN_NOTIFICATION, "");
+        handleClientWrite(cfd);
+
+        _networkManagerRef.getClientManager().removeClient(cfd);
+        _networkManagerRef.getClientManager().addAdminPanelLog(std::string("Banned client ") +
+                                                               inet_ntoa(client_addr.sin_addr) + " tried to connect.");
+        return;
+    }
+
     std::cout << "[TCP] Client " << cfd << " connected" << std::endl;
 
     // Générer le code UDP

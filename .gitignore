@@ -26,3 +26,4 @@ libtransferData.a
 *TMP*
 _deps/
 build/
+*.sqlite
