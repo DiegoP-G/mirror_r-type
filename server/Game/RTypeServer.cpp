@@ -258,7 +258,22 @@ void RTypeServer::handlePlayerInput(const std::string &input)
         auto playerEntity = getEntityByPlayerID(playerId);
         if (playerEntity)
         {
-            playerEntity->addComponent<InputComponent>(inputComp);
+            // ✅ Update existing InputComponent safely
+            if (!playerEntity->hasComponent<InputComponent>())
+            {
+                playerEntity->addComponent<InputComponent>(inputComp);
+            }
+            else
+            {
+                auto &existingInput = playerEntity->getComponent<InputComponent>();
+                existingInput.fire = inputComp.fire;
+                existingInput.up = inputComp.up;
+                existingInput.down = inputComp.down;
+                existingInput.left = inputComp.left;
+                existingInput.right = inputComp.right;
+                existingInput.enter = inputComp.enter;
+                // copy any other relevant fields
+            }
 
             if (inputComp.enter)
             {

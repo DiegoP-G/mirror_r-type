@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(RTypeProject)
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
 # ---- C++ standards ----
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
