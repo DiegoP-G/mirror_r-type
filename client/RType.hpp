@@ -69,10 +69,12 @@ class RTypeGame
   public:
     void reset();
 
-    RTypeGame(NetworkECSMediator med) : _med(med){};
+    RTypeGame(NetworkECSMediator med) : _med(med) {};
 
     void markPlayerAsDead(int playerId);
 
+    void handleJoystickInput();
+    void checkJoystickConnection();
     void setWinnerId(int id);
 
     void setGameOver(bool value)
