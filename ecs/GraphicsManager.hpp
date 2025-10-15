@@ -56,6 +56,9 @@ class GraphicsManager
 
     bool lobbyMenuInitialized = false;
 
+    std::unique_ptr<TextBox> _usernameTextbox;
+    std::unique_ptr<TextBox> _passwordTextbox;
+
   public:
     GraphicsManager(NetworkECSMediator med);
     ~GraphicsManager();
@@ -115,6 +118,8 @@ class GraphicsManager
     void drawLobbyMenu();
     MenuAction handleLobbyMenuClick(int mouseX, int mouseY);
     std::unique_ptr<TextBox> &getLobbyTextBox();
+    std::unique_ptr<TextBox> &getUsernameTextBox();
+    std::unique_ptr<TextBox> &getPasswordTextBox();
 };
 
 extern GraphicsManager *g_graphics;

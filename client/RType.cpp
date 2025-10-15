@@ -74,19 +74,48 @@ void RTypeGame::handleEvents()
             running = false;
             std::cout << "Running is set to false" << std::endl;
         }
-        if (_state == GameState::MENU && event.type == sf::Event::MouseButtonPressed)
+
+        keybindMenu->handleEvent(event, g_graphics->getWindow());
+
+        if (_state == GameState::MENULOGIN)
         {
-            auto mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
-            auto action = g_graphics->handleMenuClick(mousePos.x, mousePos.y);
-            if (action == GraphicsManager::MenuAction::PLAY)
+            if (event.type == sf::Event::MouseButtonPressed)
             {
-                _state = GameState::MENUIP;
-                std::cout << "Switching to MENUIP state" << std::endl;
+                sf::Vector2i mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
+                g_graphics->getUsernameTextBox()->checkInFocus(mousePos);
+                g_graphics->getPasswordTextBox()->checkInFocus(mousePos);
             }
-            else if (action == GraphicsManager::MenuAction::QUIT)
+
+            // Pass keyboard events to the focused textbox
+            g_graphics->getUsernameTextBox()->typeInBox(event);
+            g_graphics->getPasswordTextBox()->typeInBox(event);
+
+            // Handle login menu clicks
+            if (event.type == sf::Event::MouseButtonPressed)
             {
-                running = false;
-                std::cout << "Quitting game" << std::endl;
+                auto mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
+                auto action = g_graphics->handleMenuClick(mousePos.x, mousePos.y);
+
+                if (action == GraphicsManager::MenuAction::PLAY)
+                {
+                    std::string username = g_graphics->getUsernameTextBox()->getText();
+                    std::string password = g_graphics->getPasswordTextBox()->getText();
+
+                    std::cout << "Sign in with: " << username << std::endl;
+                    // Process login here
+
+                    // Transition to next state
+                    _state = GameState::MENULOBBY;
+                }
+                else if (action == GraphicsManager::MenuAction::QUIT)
+                {
+                    // Handle login
+                    std::string username = g_graphics->getUsernameTextBox()->getText();
+                    std::string password = g_graphics->getPasswordTextBox()->getText();
+
+                    std::cout << "Login with: " << username << std::endl;
+                    // Process login here
+                }
             }
         }
         // Handle IP entry menu
@@ -135,7 +164,7 @@ void RTypeGame::handleEvents()
             }
             else if (action == GraphicsManager::MenuAction::BACK)
             {
-                _state = GameState::MENUIP;
+                _state = GameState::MENULOGIN;
                 std::cout << "[Client] Going back to IP menu" << std::endl;
             }
         }
@@ -251,7 +280,7 @@ void RTypeGame::render()
         g_graphics->getWindow().clear(sf::Color::Black);
         g_graphics->drawText("Your ip was banned by an administrator.", 0, windowHeight / 2);
     }
-    else if (_state == GameState::MENU)
+    else if (_state == GameState::MENULOGIN)
     {
         g_graphics->drawMenu();
         keybindMenu->draw(g_graphics->getWindow());
@@ -483,7 +512,7 @@ void RTypeGame::setCurrentState(GameState newState)
     // std::cout << "Switching game state to " << static_cast<int>(newState) << std::endl;
     switch (newState)
     {
-    case GameState::MENU:
+    case GameState::MENULOGIN:
         std::cout << "In MENU state" << std::endl;
         break;
     case GameState::MENUIP:

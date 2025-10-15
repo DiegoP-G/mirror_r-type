@@ -249,27 +249,36 @@ void GraphicsManager::initMenuUI()
     menuTitle.setFillColor(sf::Color::White);
     menuTitle.setPosition(window.getSize().x / 2.0f - 100, 100);
 
-    // Play Button
+    // Username textbox
+    _usernameTextbox = std::make_unique<TextBox>(font, [](const char *) {}, 300, 40);
+    _usernameTextbox->setPosition(window.getSize().x / 2.0f - 150, 200);
+
+    // Password textbox
+    _passwordTextbox = std::make_unique<TextBox>(font, [](const char *) {}, 300, 40);
+    _passwordTextbox->setPosition(window.getSize().x / 2.0f - 150, 270);
+    _passwordTextbox->setPasswordMode(true);
+
+    // Signin Button (formerly Play)
     playButton.setSize(sf::Vector2f(200, 60));
     playButton.setFillColor(sf::Color(70, 130, 180));
-    playButton.setPosition(window.getSize().x / 2.0f - 100, 250);
+    playButton.setPosition(window.getSize().x / 2.0f - 100, 340);
 
     playButtonText.setFont(font);
-    playButtonText.setString("PLAY");
+    playButtonText.setString("SIGNIN");
     playButtonText.setCharacterSize(30);
     playButtonText.setFillColor(sf::Color::White);
-    playButtonText.setPosition(window.getSize().x / 2.0f - 50, 265);
+    playButtonText.setPosition(window.getSize().x / 2.0f - 60, 355);
 
-    // Quit Button
+    // Login Button (formerly Quit)
     quitButton.setSize(sf::Vector2f(200, 60));
     quitButton.setFillColor(sf::Color(180, 70, 70));
-    quitButton.setPosition(window.getSize().x / 2.0f - 100, 350);
+    quitButton.setPosition(window.getSize().x / 2.0f - 100, 420);
 
     quitButtonText.setFont(font);
-    quitButtonText.setString("QUIT");
+    quitButtonText.setString("LOGIN");
     quitButtonText.setCharacterSize(30);
     quitButtonText.setFillColor(sf::Color::White);
-    quitButtonText.setPosition(window.getSize().x / 2.0f - 50, 365);
+    quitButtonText.setPosition(window.getSize().x / 2.0f - 50, 435);
 
     menuInitialized = true;
 }
@@ -281,6 +290,28 @@ void GraphicsManager::drawMenu()
 
     window.draw(menuBackground);
     window.draw(menuTitle);
+
+    // Draw textbox labels
+    sf::Text usernameLabel;
+    usernameLabel.setFont(font);
+    usernameLabel.setString("Username:");
+    usernameLabel.setCharacterSize(20);
+    usernameLabel.setFillColor(sf::Color::White);
+    usernameLabel.setPosition(window.getSize().x / 2.0f - 150, 175);
+    window.draw(usernameLabel);
+
+    sf::Text passwordLabel;
+    passwordLabel.setFont(font);
+    passwordLabel.setString("Password:");
+    passwordLabel.setCharacterSize(20);
+    passwordLabel.setFillColor(sf::Color::White);
+    passwordLabel.setPosition(window.getSize().x / 2.0f - 150, 245);
+    window.draw(passwordLabel);
+
+    // Draw textboxes
+    _usernameTextbox->draw(window);
+    _passwordTextbox->draw(window);
+
     window.draw(playButton);
     window.draw(playButtonText);
     window.draw(quitButton);
@@ -416,4 +447,18 @@ std::unique_ptr<TextBox> &GraphicsManager::getLobbyTextBox()
     if (!lobbyMenuInitialized)
         initLobbyMenuUI();
     return _lobbyTextbox;
+}
+
+std::unique_ptr<TextBox> &GraphicsManager::getUsernameTextBox()
+{
+    if (!menuInitialized)
+        initMenuUI();
+    return _usernameTextbox;
+}
+
+std::unique_ptr<TextBox> &GraphicsManager::getPasswordTextBox()
+{
+    if (!menuInitialized)
+        initMenuUI();
+    return _passwordTextbox;
 }

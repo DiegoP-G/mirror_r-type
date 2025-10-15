@@ -29,7 +29,7 @@ void ClientGame::startServer(const char *serverIp)
         return;
     }
     _networkThread = std::thread(&ClientGame::networkLoop, this);
-    _game.setCurrentState(GameState::MENULOBBY);
+    _game.setCurrentState(GameState::MENULOGIN);
     std::cout << "[Client] Connected successfully, showing lobby menu" << std::endl;
 }
 

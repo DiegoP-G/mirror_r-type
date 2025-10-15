@@ -16,7 +16,7 @@ enum GameState
     MENULOBBY,
     LOBBY,
     INGAME,
-    MENU,
+    MENULOGIN,
     GAMEOVER,
     KICKED,
     BAN,
@@ -55,7 +55,7 @@ class RTypeGame
     int _winnerId = -1;
     bool showLobbyInfo = false;
 
-    GameState _state = GameState::MENU;
+    GameState _state = GameState::MENUIP;
 
     KeybindManager keybindManager;
     KeybindMenu *keybindMenu;
