@@ -9,8 +9,11 @@
 #include <unordered_map>
 
 #pragma once
+
 enum GameState
 {
+    MENUIP,
+    MENULOBBY,
     LOBBY,
     INGAME,
     MENU,

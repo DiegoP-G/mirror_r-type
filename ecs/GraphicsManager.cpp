@@ -233,3 +233,187 @@ void GraphicsManager::stopSound(const std::string &name)
         it->second.stop();
     }
 }
+
+void GraphicsManager::initMenuUI()
+{
+    if (menuInitialized)
+        return;
+    // Background
+    menuBackground.setSize(sf::Vector2f(window.getSize().x, window.getSize().y));
+    menuBackground.setFillColor(sf::Color(30, 30, 30, 200));
+
+    // Title
+    menuTitle.setFont(font);
+    menuTitle.setString("R-TYPE");
+    menuTitle.setCharacterSize(72);
+    menuTitle.setFillColor(sf::Color::White);
+    menuTitle.setPosition(window.getSize().x / 2.0f - 100, 100);
+
+    // Play Button
+    playButton.setSize(sf::Vector2f(200, 60));
+    playButton.setFillColor(sf::Color(70, 130, 180));
+    playButton.setPosition(window.getSize().x / 2.0f - 100, 250);
+
+    playButtonText.setFont(font);
+    playButtonText.setString("PLAY");
+    playButtonText.setCharacterSize(30);
+    playButtonText.setFillColor(sf::Color::White);
+    playButtonText.setPosition(window.getSize().x / 2.0f - 50, 265);
+
+    // Quit Button
+    quitButton.setSize(sf::Vector2f(200, 60));
+    quitButton.setFillColor(sf::Color(180, 70, 70));
+    quitButton.setPosition(window.getSize().x / 2.0f - 100, 350);
+
+    quitButtonText.setFont(font);
+    quitButtonText.setString("QUIT");
+    quitButtonText.setCharacterSize(30);
+    quitButtonText.setFillColor(sf::Color::White);
+    quitButtonText.setPosition(window.getSize().x / 2.0f - 50, 365);
+
+    menuInitialized = true;
+}
+
+void GraphicsManager::drawMenu()
+{
+    if (!menuInitialized)
+        initMenuUI();
+
+    window.draw(menuBackground);
+    window.draw(menuTitle);
+    window.draw(playButton);
+    window.draw(playButtonText);
+    window.draw(quitButton);
+    window.draw(quitButtonText);
+}
+
+GraphicsManager::MenuAction GraphicsManager::handleMenuClick(int mouseX, int mouseY)
+{
+    sf::Vector2f mousePos(mouseX, mouseY);
+
+    if (playButton.getGlobalBounds().contains(mousePos))
+    {
+        return MenuAction::PLAY;
+    }
+
+    if (quitButton.getGlobalBounds().contains(mousePos))
+    {
+        return MenuAction::QUIT;
+    }
+
+    return MenuAction::NONE;
+}
+
+void GraphicsManager::initLobbyMenuUI()
+{
+    if (lobbyMenuInitialized)
+        return;
+
+    // Background
+    lobbyMenuBackground.setSize(sf::Vector2f(window.getSize().x, window.getSize().y));
+    lobbyMenuBackground.setFillColor(sf::Color(30, 30, 30, 200));
+
+    // Title
+    lobbyMenuTitle.setFont(font);
+    lobbyMenuTitle.setString("SELECT LOBBY");
+    lobbyMenuTitle.setCharacterSize(60);
+    lobbyMenuTitle.setFillColor(sf::Color::White);
+    lobbyMenuTitle.setPosition(window.getSize().x / 2.0f - 200, 80);
+
+    // Create Lobby Button
+    createLobbyButton.setSize(sf::Vector2f(250, 60));
+    createLobbyButton.setFillColor(sf::Color(70, 180, 130));
+    createLobbyButton.setPosition(window.getSize().x / 2.0f - 125, 300);
+
+    createLobbyButtonText.setFont(font);
+    createLobbyButtonText.setString("CREATE LOBBY");
+    createLobbyButtonText.setCharacterSize(28);
+    createLobbyButtonText.setFillColor(sf::Color::White);
+    createLobbyButtonText.setPosition(window.getSize().x / 2.0f - 100, 312);
+
+    // Join Lobby Button
+    joinLobbyButton.setSize(sf::Vector2f(250, 60));
+    joinLobbyButton.setFillColor(sf::Color(70, 130, 180));
+    joinLobbyButton.setPosition(window.getSize().x / 2.0f - 125, 400);
+
+    joinLobbyButtonText.setFont(font);
+    joinLobbyButtonText.setString("JOIN LOBBY");
+    joinLobbyButtonText.setCharacterSize(28);
+    joinLobbyButtonText.setFillColor(sf::Color::White);
+    joinLobbyButtonText.setPosition(window.getSize().x / 2.0f - 90, 412);
+
+    // Back Button
+    backButton.setSize(sf::Vector2f(200, 50));
+    backButton.setFillColor(sf::Color(180, 70, 70));
+    backButton.setPosition(50, window.getSize().y - 100);
+
+    backButtonText.setFont(font);
+    backButtonText.setString("BACK");
+    backButtonText.setCharacterSize(24);
+    backButtonText.setFillColor(sf::Color::White);
+    backButtonText.setPosition(105, window.getSize().y - 90);
+
+    // Lobby name textbox
+    _lobbyTextbox = std::make_unique<TextBox>(font, [](const char *) {}, 400, 50);
+    _lobbyTextbox->setPosition(window.getSize().x / 2.0f - 200, 200);
+
+    lobbyMenuInitialized = true;
+}
+
+void GraphicsManager::drawLobbyMenu()
+{
+    if (!lobbyMenuInitialized)
+        initLobbyMenuUI();
+
+    window.draw(lobbyMenuBackground);
+    window.draw(lobbyMenuTitle);
+
+    // Draw instruction text
+    sf::Text instructionText;
+    instructionText.setFont(font);
+    instructionText.setString("Enter lobby name:");
+    instructionText.setCharacterSize(24);
+    instructionText.setFillColor(sf::Color::White);
+    instructionText.setPosition(window.getSize().x / 2.0f - 200, 160);
+    window.draw(instructionText);
+
+    // Draw textbox
+    _lobbyTextbox->draw(window);
+
+    // Draw buttons
+    window.draw(createLobbyButton);
+    window.draw(createLobbyButtonText);
+    window.draw(joinLobbyButton);
+    window.draw(joinLobbyButtonText);
+    window.draw(backButton);
+    window.draw(backButtonText);
+}
+
+GraphicsManager::MenuAction GraphicsManager::handleLobbyMenuClick(int mouseX, int mouseY)
+{
+    sf::Vector2f mousePos(mouseX, mouseY);
+
+    if (createLobbyButton.getGlobalBounds().contains(mousePos))
+    {
+        return MenuAction::CREATE_LOBBY;
+    }
+
+    if (joinLobbyButton.getGlobalBounds().contains(mousePos))
+    {
+        return MenuAction::JOIN_LOBBY;
+    }
+
+    if (backButton.getGlobalBounds().contains(mousePos))
+    {
+        return MenuAction::BACK;
+    }
+
+    return MenuAction::NONE;
+}
+
+std::unique_ptr<TextBox> &GraphicsManager::getLobbyTextBox()
+{
+    if (!lobbyMenuInitialized)
+        initLobbyMenuUI();
+    return _lobbyTextbox;
+}

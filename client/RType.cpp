@@ -74,11 +74,76 @@ void RTypeGame::handleEvents()
             running = false;
             std::cout << "Running is set to false" << std::endl;
         }
+        if (_state == GameState::MENU && event.type == sf::Event::MouseButtonPressed)
+        {
+            auto mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
+            auto action = g_graphics->handleMenuClick(mousePos.x, mousePos.y);
+            if (action == GraphicsManager::MenuAction::PLAY)
+            {
+                _state = GameState::MENUIP;
+                std::cout << "Switching to MENUIP state" << std::endl;
+            }
+            else if (action == GraphicsManager::MenuAction::QUIT)
+            {
+                running = false;
+                std::cout << "Quitting game" << std::endl;
+            }
+        }
+        // Handle IP entry menu
+        if (_state == GameState::MENUIP)
+        {
+            if (event.type == sf::Event::MouseButtonPressed)
+                g_graphics->getTextBox()->checkInFocus(sf::Mouse::getPosition(g_graphics->getWindow()));
 
-        if (event.type == sf::Event::MouseButtonPressed)
-            g_graphics->getTextBox()->checkInFocus(sf::Mouse::getPosition(g_graphics->getWindow()));
+            g_graphics->getTextBox()->typeInBox(event);
+        }
 
-        g_graphics->getTextBox()->typeInBox(event);
+        // Handle lobby menu clicks
+        if (_state == GameState::MENULOBBY && event.type == sf::Event::MouseButtonPressed)
+        {
+            auto mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
+
+            g_graphics->getLobbyTextBox()->checkInFocus(mousePos);
+
+            auto action = g_graphics->handleLobbyMenuClick(mousePos.x, mousePos.y);
+
+            if (action == GraphicsManager::MenuAction::CREATE_LOBBY)
+            {
+                std::string lobbyName = g_graphics->getLobbyTextBox()->getText();
+                if (!lobbyName.empty())
+                {
+                    std::cout << "[Client] Creating lobby: " << lobbyName << std::endl;
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, lobbyName, OPCODE_CREATE_LOBBY);
+                }
+                else
+                {
+                    std::cout << "[Client] Lobby name cannot be empty!" << std::endl;
+                }
+            }
+            else if (action == GraphicsManager::MenuAction::JOIN_LOBBY)
+            {
+                std::string lobbyName = g_graphics->getLobbyTextBox()->getText();
+                if (!lobbyName.empty())
+                {
+                    std::cout << "[Client] Joining lobby: " << lobbyName << std::endl;
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, lobbyName, OPCODE_JOIN_LOBBY);
+                }
+                else
+                {
+                    std::cout << "[Client] Lobby name cannot be empty!" << std::endl;
+                }
+            }
+            else if (action == GraphicsManager::MenuAction::BACK)
+            {
+                _state = GameState::MENUIP;
+                std::cout << "[Client] Going back to IP menu" << std::endl;
+            }
+        }
+        // Handle lobby textbox typing
+        if (_state == GameState::MENULOBBY)
+        {
+            g_graphics->getLobbyTextBox()->typeInBox(event);
+        }
         keybindMenu->handleEvent(event, g_graphics->getWindow());
 
         if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
@@ -172,36 +237,17 @@ void RTypeGame::update(float deltaTime)
 
 void RTypeGame::render()
 {
-
     g_graphics->clear();
 
-    // Render all entities
-    renderSystem.update(entityManager);
-
-    if (gameOver)
-    {
-        std::string gameOverText = "Game Over!";
-        if (_winnerId == _playerId)
-        {
-            gameOverText = "YOU WIN!";
-            g_graphics->drawText(gameOverText, 250, 250, 0, 255, 0); // Vert
-        }
-        else if (_winnerId == -1)
-        {
-            gameOverText = "DRAW - No Winners";
-            g_graphics->drawText(gameOverText, 200, 250, 255, 255, 0); // Jaune
-        }
-        else
-        {
-            gameOverText = "Player " + std::to_string(_winnerId) + " Wins!";
-            g_graphics->drawText(gameOverText, 200, 250, 255, 0, 0); // Rouge
-        }
-
-        g_graphics->drawText("Press ESC to quit", 220, 300);
-    }
+    std::cout << "Rendering frame in state: " << static_cast<int>(_state) << std::endl;
 
     if (_state == GameState::MENU)
-    { // STATE HERE WHEN NOT CONNECTED TO THE SERVER
+    {
+        g_graphics->drawMenu();
+        keybindMenu->draw(g_graphics->getWindow());
+    }
+    else if (_state == GameState::MENUIP)
+    {
         g_graphics->drawText("Type the IP to connect in the text-box:", 0, 0);
         g_graphics->drawText("SeymourPintatGodeFeytGrodard-Type", 0, 30);
         g_graphics->getTextBox()->setPosition(200, 500);
@@ -213,9 +259,20 @@ void RTypeGame::render()
         g_graphics->getWindow().clear(sf::Color::Black);
         g_graphics->drawText("You have been kicked by an administrator.", 0, windowHeight / 2);
     }
-    else
+    else if (_state == GameState::MENULOBBY)
     {
-        // drawHitbox();
+        // Draw lobby selection menu
+        g_graphics->drawLobbyMenu();
+        keybindMenu->draw(g_graphics->getWindow());
+    }
+    else if (_state == GameState::LOBBY)
+    {
+        renderSystem.update(entityManager);
+        drawWaitingForPlayers();
+        drawTutorial();
+    }
+    else if (_state == GameState::INGAME)
+    {
         std::string scoreText = "Score: " + std::to_string(score);
         g_graphics->drawText(scoreText, 10, 10);
 
@@ -223,10 +280,15 @@ void RTypeGame::render()
         g_graphics->drawText(waveText, windowWidth - 100, 10);
 
         drawPlayerID();
+        renderSystem.update(entityManager);
+    }
+    else if (_state == GameState::GAMEOVER)
+    {
+        std::string gameOverText = "Game Over! Your score: " + std::to_string(score);
+        g_graphics->drawText(gameOverText, 200, 300);
+        g_graphics->drawText("Press ESC to exit", 200, 350);
     }
 
-    drawWaitingForPlayers();
-    drawTutorial();
     g_graphics->present();
 }
 
@@ -254,6 +316,11 @@ void RTypeGame::sendInputPlayer()
 
     _mutex.lock();
 
+    std::cout << "In sendInputPlayer\n";
+    if (!player)
+    {
+        std::cout << "Player is null\n";
+    }
     if (!player || !player->isActive())
     {
         _mutex.unlock();
@@ -262,6 +329,8 @@ void RTypeGame::sendInputPlayer()
 
     if (player->hasComponent<InputComponent>())
     {
+        std::cout << "Sending player input\n";
+        std::cout << "is enter pressed ? " << player->getComponent<InputComponent>().enter << std::endl;
         auto &input = player->getComponent<InputComponent>();
         auto &playerComp = player->getComponent<PlayerComponent>();
 
@@ -406,6 +475,28 @@ void RTypeGame::updateScore(std::vector<std::pair<int, int>> vec)
 
 void RTypeGame::setCurrentState(GameState newState)
 {
+    // std::cout << "Switching game state to " << static_cast<int>(newState) << std::endl;
+    switch (newState)
+    {
+    case GameState::MENU:
+        std::cout << "In MENU state" << std::endl;
+        break;
+    case GameState::MENUIP:
+        std::cout << "In MENUIP state" << std::endl;
+        break;
+    case GameState::MENULOBBY:
+        std::cout << "In MENULOBBY state" << std::endl;
+        break;
+    case GameState::INGAME:
+        std::cout << "In INGAME state" << std::endl;
+        break;
+    case GameState::GAMEOVER:
+        std::cout << "In GAMEOVER state" << std::endl;
+        break;
+    default:
+        std::cout << "In UNKNOWN state" << std::endl;
+        break;
+    }
     _state = newState;
 }
 

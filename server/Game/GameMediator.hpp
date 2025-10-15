@@ -1,11 +1,9 @@
 #pragma once
-#include "../Include/Errors/EventUnknown.hpp"
+#include "../Lobby/LobbyManager.hpp"
 #include "../Mediator/IMediator.hpp"
 #include "../Network/NetworkManager.hpp"
 #include "RTypeServer.hpp"
-#include <chrono>
 #include <functional>
-#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -19,6 +17,7 @@ enum GameMediatorEvent
     InitECS,
     LobbyInfoUpdate,
     GameStateUpdate,
+    PlayerDisconnected,
     UpdateEntities = 0x21,
     UpdatePlayers = 0x23,
     UpdateEnemies = 0x24,
@@ -32,6 +31,8 @@ enum GameMediatorEvent
     HealthUpdate = 0x40,
     UpdateWave = 0x50,
     UpdateScore = 0x51,
+    CreateLobby = 0x70,
+    JoinLobby = 0x71
 };
 
 class NetworkManager;
@@ -41,21 +42,23 @@ class GameMediator : public IMediator
 {
   private:
     NetworkManager &_networkManager;
-    RTypeServer &_rTypeServer;
+    LobbyManager &_lobbyManager;
 
-    std::unordered_map<GameMediatorEvent, std::function<void(const std::string &)>> _mediatorMap;
+    std::unordered_map<GameMediatorEvent, std::function<void(const std::string &, const std::string &, int)>>
+        _mediatorMap;
 
   public:
     GameMediator();
     ~GameMediator() = default;
 
-    void notify(const int &event, const std::string &data = "") override;
+    void notify(const int &event, const std::string &data = "", const std::string &lobbyUID = "",
+                int clientFd = -1) override;
     inline void sendMessageToAll(const std::string &data) override
     {
         return;
     };
 
-    std::vector<std::string> getAllActiveEntities();
+    std::vector<std::string> getAllActiveEntitiesFromLobby(int fd);
 
     std::string toString(GameMediatorEvent event)
     {
