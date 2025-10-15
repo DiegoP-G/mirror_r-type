@@ -12,7 +12,7 @@ class sqlAPI
   private:
     void createOpenDatabase();
     void closeDb();
-    bool sqlAPI::tableExists(std::string name);
+    bool tableExists(std::string name);
 
   public:
     sqlAPI(std::string dbName);

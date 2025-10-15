@@ -3,7 +3,8 @@
 #include <arpa/inet.h>
 
 AdministratorPanel::AdministratorPanel(NetworkManager &networkManager)
-    : _clientManager(nullptr), _playerListScrollOffset(0), _logsScrollOffset(0), _networkManager(networkManager)
+    : _clientManager(nullptr), _playerListScrollOffset(0), _logsScrollOffset(0), _networkManager(networkManager),
+      _sqlApi("db.sqlite")
 {
     sf::Font font;
     if (!font.loadFromFile(PathFormater::formatAssetPath(fontPath)))

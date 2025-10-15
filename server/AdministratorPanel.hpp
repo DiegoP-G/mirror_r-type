@@ -21,7 +21,7 @@ class AdministratorPanel
     std::unique_ptr<sf::Font> _font;
     ClientManager *_clientManager;
     NetworkManager &_networkManager;
-    sqlAPI sqlApi;
+    sqlAPI _sqlApi;
 
     std::unordered_map<int, sf::RectangleShape> _kickButtons;
 

@@ -84,6 +84,7 @@ target_link_libraries(ecs PUBLIC
     sfml-window
     sfml-system
     sfml-audio
+    sqlite3
 )
 
 # ---- Client executable ----
