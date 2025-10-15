@@ -10,6 +10,6 @@ constexpr char sqlSchema[] = R"(
 
     CREATE TABLE IF NOT EXISTS BannedIp (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
-        Ip VARCHAR(16) NOT NULL,
+        Ip VARCHAR(16) NOT NULL
     );
 )";

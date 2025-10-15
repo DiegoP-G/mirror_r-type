@@ -49,4 +49,6 @@ class AdministratorPanel
             _logs.push_back(log);
     };
     void run();
+
+    bool isBannedIp(std::string);
 };

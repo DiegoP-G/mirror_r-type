@@ -287,3 +287,17 @@ void AdministratorPanel::run()
         window.display();
     }
 }
+
+bool AdministratorPanel::isBannedIp(std::string target)
+{
+    auto allBannedIps = _sqlApi.getAllBannedIps();
+
+    for (auto &ip : allBannedIps)
+    {
+        if (ip == target)
+        {
+            return true;
+        }
+    }
+    return false;
+}

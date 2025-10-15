@@ -66,10 +66,6 @@ void sqlAPI::createOpenDatabase()
     {
         std::cout << "Tables already exist. Skipping creation." << std::endl;
     }
-
-    // Close the database
-    sqlite3_close(_db);
-    _db = nullptr;
 }
 
 void sqlAPI::closeDb()

@@ -18,7 +18,8 @@ enum GameState
     INGAME,
     MENU,
     GAMEOVER,
-    KICKED
+    KICKED,
+    BAN,
 };
 
 class RTypeGame
@@ -137,5 +138,10 @@ class RTypeGame
     void setKickState()
     {
         _state = GameState::KICKED;
+    };
+
+    void setBanState()
+    {
+        _state = GameState::BAN;
     };
 };

@@ -56,7 +56,6 @@ bool ClientManager::removeClient(int socket)
     if (it != _clients.end())
     {
         std::cout << "Removing client: " << it->second.getName() << " (socket " << socket << ")\n";
-
         _clients.erase(it);
         close(socket);
         return true;
@@ -108,4 +107,21 @@ Client *ClientManager::getClientByAdress(std::string adress)
 std::unordered_map<int, Client> &ClientManager::getClientsMap()
 {
     return _clients;
+}
+
+bool ClientManager::isBannedIP(std::string ip)
+{
+    if (_adminPanel)
+    {
+        return _adminPanel->isBannedIp(ip);
+    }
+    return false;
+}
+
+void ClientManager::addAdminPanelLog(std::string log)
+{
+    if (_adminPanel)
+    {
+        _adminPanel->addLog(log);
+    }
 }

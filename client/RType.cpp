@@ -241,7 +241,17 @@ void RTypeGame::render()
 
     std::cout << "Rendering frame in state: " << static_cast<int>(_state) << std::endl;
 
-    if (_state == GameState::MENU)
+    if (_state == GameState::KICKED)
+    {
+        g_graphics->getWindow().clear(sf::Color::Black);
+        g_graphics->drawText("You have been kicked by an administrator.", 0, windowHeight / 2);
+    }
+    else if (_state == GameState::BAN)
+    {
+        g_graphics->getWindow().clear(sf::Color::Black);
+        g_graphics->drawText("Your ip was banned by an administrator.", 0, windowHeight / 2);
+    }
+    else if (_state == GameState::MENU)
     {
         g_graphics->drawMenu();
         keybindMenu->draw(g_graphics->getWindow());
@@ -253,11 +263,6 @@ void RTypeGame::render()
         g_graphics->getTextBox()->setPosition(200, 500);
         g_graphics->getTextBox()->draw(g_graphics->getWindow());
         keybindMenu->draw(g_graphics->getWindow());
-    }
-    else if (_state == GameState::KICKED)
-    {
-        g_graphics->getWindow().clear(sf::Color::Black);
-        g_graphics->drawText("You have been kicked by an administrator.", 0, windowHeight / 2);
     }
     else if (_state == GameState::MENULOBBY)
     {

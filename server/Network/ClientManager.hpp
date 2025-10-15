@@ -28,5 +28,8 @@ class ClientManager
     Client *getClientByCodeUDP(int code);
     Client *getClientByAdress(std::string adress);
 
+    bool isBannedIP(std::string ip);
+    void addAdminPanelLog(std::string log);
+
     std::unordered_map<int, Client> &getClientsMap();
 };
