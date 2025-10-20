@@ -28,6 +28,7 @@ class NetworkManager
   public:
     NetworkManager(GameMediator &ref);
     ~NetworkManager();
+
     inline ClientManager &getClientManager()
     {
         return _clientManager;
@@ -52,4 +53,9 @@ class NetworkManager
     void sendDataAllClientTCP(std::string data, int opcode);
     void sendDataToLobbyTCP(std::shared_ptr<Lobby>, const std::string &data, int opcode);
     void sendDataToLobbyUDP(std::shared_ptr<Lobby>, const std::string &data, int opcode);
+
+    TCPManager &getTCPManager()
+    {
+        return _TCPManager;
+    };
 };

@@ -1,4 +1,6 @@
 #include "ClientManager.hpp"
+#include "../../transferData/opcode.hpp"
+#include "../AdministratorPanel.hpp"
 #include "Client.hpp"
 #include <iostream>
 #include <unistd.h>
@@ -27,6 +29,11 @@ void ClientManager::addClient(const Client &c)
         return;
     }
 
+    if (_adminPanel)
+    {
+        std::string logMessage = "Client connected: " + c.getName() + " socket: " + std::to_string(sock);
+        _adminPanel->addLog(logMessage);
+    }
     auto result = _clients.emplace(sock, c);
     if (result.second)
         std::cout << "[DEBUG] Client successfully added." << std::endl;
@@ -43,19 +50,20 @@ void ClientManager::addClient(const Client &c)
     std::cout << "=== addClient DEBUG END ===" << std::endl;
 }
 
-void ClientManager::removeClient(int socket)
+bool ClientManager::removeClient(int socket)
 {
     auto it = _clients.find(socket);
     if (it != _clients.end())
     {
         std::cout << "Removing client: " << it->second.getName() << " (socket " << socket << ")\n";
-
         _clients.erase(it);
         close(socket);
+        return true;
     }
     else
     {
         std::cerr << "Client with socket " << socket << " not found.\n";
+        return false;
     }
 }
 
@@ -99,4 +107,21 @@ Client *ClientManager::getClientByAdress(std::string adress)
 std::unordered_map<int, Client> &ClientManager::getClientsMap()
 {
     return _clients;
+}
+
+bool ClientManager::isBannedIP(std::string ip)
+{
+    if (_adminPanel)
+    {
+        return _adminPanel->isBannedIp(ip);
+    }
+    return false;
+}
+
+void ClientManager::addAdminPanelLog(std::string log)
+{
+    if (_adminPanel)
+    {
+        _adminPanel->addLog(log);
+    }
 }
