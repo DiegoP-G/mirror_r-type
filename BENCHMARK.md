@@ -98,8 +98,8 @@ We chose **C++** because it strikes the right balance:
 
 ### **Conclusion**
 We chose **SFML** because it provides the best balance between simplicity, C++ integration, and multimedia support.
-Our team already had experience with it, allowing us to focus on the engine and gameplay logic rather than setup complexity.
-For a 2D networked project like R-Type, **SFML** is the most efficient and developer-friendly choice.
++ Our team already had experience with it, allowing us to focus on the engine and gameplay logic rather than setup complexity.
++ For a 2D networked project like R-Type, **SFML** is the most efficient and developer-friendly choice.
 ---
 
 ## **Data compression benchmark**
