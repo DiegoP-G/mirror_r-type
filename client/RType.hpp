@@ -26,10 +26,13 @@ class RTypeGame
   private:
     int _playerId;
     std::mutex _mutex;
+    TickSystem tickSystem;
 
     EntityManager entityManager;
     RenderSystem renderSystem;
-    TickSystem tickSystem;
+
+    BackgroundSystem backgroundSystem;
+    AnimationSystem animationSystem;
 
     NetworkECSMediator _med;
 
@@ -83,6 +86,10 @@ class RTypeGame
     {
         _playerId = id;
     };
+    int getPlayerId()
+    {
+        return _playerId;
+    };
     void setPlayerReady(int value)
     {
         _playerReady = value;
@@ -122,4 +129,8 @@ class RTypeGame
 
     void drawHitbox();
     void drawPlayerID();
+    TickSystem &getTickSystem()
+    {
+        return tickSystem;
+    };
 };

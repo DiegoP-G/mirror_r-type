@@ -9,13 +9,14 @@ void PlayerSystem::update(EntityManager &entityManager, float deltaTime)
         auto &input = entity->getComponent<InputComponent>();
         auto &playerComp = entity->getComponent<PlayerComponent>();
         playerComp.currentCooldown -= deltaTime;
+#ifdef SERVER_BUILD
         if (input.fire && playerComp.currentCooldown <= 0)
         {
             fire(entityManager, entity);
             input.fire = false;
             playerComp.currentCooldown = playerComp.attackCooldown;
         }
-
+#endif
         handlePositionPlayer(entity);
     }
 }

@@ -54,6 +54,9 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
     _handlers[OPCODE_GAME_STATE_UPDATE] = [this](const std::string &payload, int opcode) {
         _med.notify(UPDATE_DATA, payload, opcode);
     };
+    _handlers[OPCODE_ALL_ENTITY_UPT] = [this](const std::string &payload, int opcode) {
+        _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
+    };
 }
 
 void Receiver::onCodeUdp(const std::string &payload)
@@ -65,7 +68,6 @@ void Receiver::onCodeUdp(const std::string &payload)
     }
 
     int udpCode = deserializeInt(payload);
-    std::cout << "[RECEIVER] UDP code received: " << udpCode << std::endl;
 
     sendFrameUDP(_udpSocket, OPCODE_UDP_AUTH, payload, _serverAddr, sizeof(_serverAddr));
 }
@@ -82,7 +84,6 @@ void Receiver::onCloseConnection(const std::string &)
 
 void Receiver::onChatBroadcast(const std::string &payload)
 {
-    std::cout << "[RECEIVER] Chat: " << payload << std::endl;
 }
 
 void Receiver::receiveTCPMessage()
@@ -104,9 +105,6 @@ void Receiver::receiveTCPMessage()
             onCloseConnection("");
             break;
         }
-
-        std::cout << "[RECEIVER] TCP message: opcode=0x" << std::hex << (int)opcode << std::dec << ", "
-                  << payload.size() << " bytes" << std::endl;
 
         auto it = _handlers.find(opcode);
         if (it != _handlers.end())

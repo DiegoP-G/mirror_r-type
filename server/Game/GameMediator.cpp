@@ -26,7 +26,7 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
         {GameMediatorEvent::AddPlayer, [this](const std::string &data) -> void { _rTypeServer.createPlayer(data); }},
 
         // Création d'entité (TCP - fiable)
-        {GameMediatorEvent::EntityCreated,
+        {GameMediatorEvent::EntitiesCreated,
          [this](const std::string &data) -> void { _networkManager.sendDataAllClientTCP(data, OPCODE_ENTITY_CREATE); }},
 
         // Destruction d'entité (TCP - fiable)
@@ -68,6 +68,10 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
         {GameMediatorEvent::GameStateUpdate,
          [this](const std::string &data) -> void {
              _networkManager.sendDataAllClientTCP(data, OPCODE_GAME_STATE_UPDATE);
+         }},
+        {GameMediatorEvent::AllEntitiesUpdates,
+         [this](const std::string &data) -> void {
+             _networkManager.sendDataAllClientUDP(data, OPCODE_ALL_ENTITY_UPT);
          }},
     };
 }

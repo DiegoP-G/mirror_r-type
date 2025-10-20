@@ -35,13 +35,12 @@ void RTypeServer::createPlayer(const std::string &id)
 
 void RTypeServer::update(float deltaTime)
 {
-    if (tick % 60 == 0)
-        std::cout << "-------------60 tick passed--------------" << tick / 60 << std::endl;
+
+    std::cout << "-------------60 tick passed--------------" << _tick << std::endl;
 
     if (gameOver)
         return;
 
-    // 1. Traiter tous les systèmes
     backgroundSystem.update(entityManager, deltaTime);
     playerSystem.update(entityManager, deltaTime);
     inputSystem.update(entityManager, deltaTime);
@@ -59,7 +58,6 @@ void RTypeServer::update(float deltaTime)
         collisionSystem.update(entityManager, _playersScores, updateScore);
         if (updateScore)
         {
-            puts("SENDING SCORE UPDATE");
             auto serializedScores = entityManager.serializePlayersScores(_playersScores);
             std::string serializedData(serializedScores.begin(), serializedScores.end());
             mediator.notify(GameMediatorEvent::UpdateScore, serializedData);
@@ -95,101 +93,15 @@ void RTypeServer::update(float deltaTime)
         updateLobbyStatus();
     }
     movementSystem.update(entityManager, deltaTime);
-    // 4. Envoyer les updates de mouvement (toutes les entités actives)
-    // 2. AVANT applyPendingChanges, envoyer ce qui a été créé/détruit
-    sendNewEntities(); // Envoie les entités dans entitiesToCreate
-    // sendDestroyedEntities(); // Envoie les IDs dans entitiesToDestroy
-    // sendMovementUpdates();
 
-    sendAllEntities();
+    sendNewEntities();
+    sendDestroyedEntities();
+
     entityManager.applyPendingChanges();
-    // 4. Envoyer les updates de mouvement (toutes les entités actives)
-    sendHealthUpdates();
+    sendEntitiesUpdates();
     sendGameStateUpdates();
 
-    tick++;
-}
-
-void RTypeServer::sendGameStateUpdates()
-{
-    // THINK THATS IT
-    mediator.notify(GameMediatorEvent::GameStateUpdate, serializeInt(_state));
-}
-
-void RTypeServer::sendNewEntities()
-{
-    // Parcourir les entités créées dans entitiesToCreate
-    auto &manager = entityManager;
-
-    // Pour chaque nouvelle entité créée ce tick
-    for (const auto &entity : manager.getEntitiesToCreate())
-    {
-        // std::cout << "Sending new entites" << std::endl;
-        // std::cout << "Entity :" << entity->getID() << std::endl;
-        auto data = manager.serializeEntityFull(entity->getID());
-        std::string serializedData(data.begin(), data.end());
-        mediator.notify(GameMediatorEvent::EntityCreated, serializedData);
-    }
-}
-
-void RTypeServer::sendDestroyedEntities()
-{
-    auto &manager = entityManager;
-
-    // Pour chaque entité détruite ce tick
-    for (EntityID id : manager.getEntitiesToDestroy())
-    {
-        std::cout << "--DESTROY id " << id << std::endl;
-        auto data = serializeInt(id);
-        mediator.notify(GameMediatorEvent::EntityDestroyed, data);
-    }
-}
-
-void RTypeServer::sendMovementUpdates()
-{
-    auto data = entityManager.serializeAllMovements();
-    std::string serializedData(data.begin(), data.end());
-    mediator.notify(GameMediatorEvent::MovementUpdate, serializedData);
-}
-
-void RTypeServer::sendHealthUpdates()
-{
-    auto data = entityManager.serializeAllHealth();
-    std::string serializedData(data.begin(), data.end());
-    int winnerID = -1;
-    bool game_over = false;
-
-    for (auto &entity : entityManager.getInactiveEntitiesWithComponents<PlayerComponent>())
-    {
-        auto &health = entity->getComponent<HealthComponent>();
-        auto &playerComp = entity->getComponent<PlayerComponent>();
-        std::cout << "Player ID " << playerComp.playerID << " - Health: " << health.health << "/" << health.maxHealth
-                  << std::endl;
-    }
-
-    std::vector<Entity *> deadPlayers = entityManager.getPlayersDead(winnerID, game_over);
-
-    for (auto *entity : deadPlayers)
-    {
-        auto &playerComp = entity->getComponent<PlayerComponent>();
-
-        mediator.notify(GameMediatorEvent::PlayerDead, serializeInt(playerComp.playerID));
-        std::cout << "Player " << playerComp.playerID << " is dead." << std::endl;
-    }
-    if (game_over && winnerID != -1)
-    {
-        std::cout << "Player " << winnerID << " is the winner!" << std::endl;
-        mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID));
-        this->gameOver = true;
-    }
-    else if (game_over)
-    {
-        std::cout << "It's a draw! No winners." << std::endl;
-        mediator.notify(GameMediatorEvent::GameOver, serializeInt(-1));
-        this->gameOver = true;
-    }
-
-    mediator.notify(GameMediatorEvent::HealthUpdate, serializedData);
+    _tick++;
 }
 
 void RTypeServer::restart()
@@ -267,19 +179,6 @@ void RTypeServer::createBackground()
 
     createBackgroundEntity(0.0f);
     createBackgroundEntity((float)tileWidth);
-}
-
-void RTypeServer::sendEntities(size_t tick)
-{
-    auto &manager = entityManager;
-    auto entities = manager.getAllEntities();
-
-    for (size_t i = 0; i < entities.size(); ++i)
-    {
-        auto data = manager.serializeEntityFull(entities[i]->getID());
-        std::string serializedData(data.begin(), data.end());
-    }
-    mediator.notify(GameMediatorEvent::EntityCreated, serializedData);
 }
 
 // Update the number of players and the number of ready players

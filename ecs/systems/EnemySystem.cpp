@@ -47,8 +47,12 @@ void EnemySystem::update(EntityManager &entityManager, float deltaTime)
         }
         else
         {
+#ifdef SERVER_BUILD
+            std::cout << "here in server buidl";
             enemy.currentCooldown = enemy.attackCooldown;
+
             enemyFire(entityManager, entity);
+#endif
         }
 
         if (transform.position.x < -50.0f)

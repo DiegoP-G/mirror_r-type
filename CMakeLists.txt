@@ -25,19 +25,31 @@ target_include_directories(transferData PUBLIC
     ecs
 )
 
-# ---- ECS + Components library ----
+# ---- ECS sources ----
 file(GLOB_RECURSE ECS_SOURCES
     ecs/*.cpp
 )
-add_library(ecs ${ECS_SOURCES})
-target_include_directories(ecs PUBLIC ecs)
 
-# ECS depends on SFML
-target_link_libraries(ecs PUBLIC
+# ---- ECS library for client ----
+add_library(ecs_client ${ECS_SOURCES})
+target_compile_definitions(ecs_client PUBLIC CLIENT_BUILD)
+target_include_directories(ecs_client PUBLIC ecs)
+target_link_libraries(ecs_client PUBLIC
     sfml-graphics
     sfml-window
     sfml-system
-	sfml-audio
+    sfml-audio
+)
+
+# ---- ECS library for server ----
+add_library(ecs_server ${ECS_SOURCES})
+target_compile_definitions(ecs_server PUBLIC SERVER_BUILD)
+target_include_directories(ecs_server PUBLIC ecs)
+target_link_libraries(ecs_server PUBLIC
+    sfml-graphics
+    sfml-window
+    sfml-system
+    sfml-audio
 )
 
 # ---- Client executable ----
@@ -48,6 +60,7 @@ list(FILTER CLIENT_SOURCES EXCLUDE REGEX ".*build.*")
 list(FILTER CLIENT_SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
 
 add_executable(RTypeClient ${CLIENT_SOURCES})
+target_compile_definitions(RTypeClient PRIVATE CLIENT_BUILD)
 
 target_include_directories(RTypeClient PRIVATE
     ${CMAKE_SOURCE_DIR}
@@ -59,11 +72,11 @@ target_include_directories(RTypeClient PRIVATE
 
 target_link_libraries(RTypeClient
     transferData
-    ecs
+    ecs_client
     sfml-graphics
     sfml-window
     sfml-system
-	sfml-audio
+    sfml-audio
 )
 
 # ---- Server executable ----
@@ -75,6 +88,7 @@ list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
 list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*exempleTranfersData.*")
 
 add_executable(GameServer ${SERVER_SOURCES})
+target_compile_definitions(GameServer PRIVATE SERVER_BUILD)
 
 target_include_directories(GameServer PRIVATE
     ${CMAKE_SOURCE_DIR}
@@ -91,7 +105,7 @@ target_include_directories(GameServer PRIVATE
 
 target_link_libraries(GameServer
     transferData
-    ecs
+    ecs_server
     ${LIBCONFIG_LIBRARIES}
     sfml-graphics
     sfml-window

@@ -45,7 +45,7 @@ class RTypeServer
     int playerNb = 0;
 
     int score = 0;
-    int tick = 0;
+    int _tick = 0;
 
     const float ENEMY_SPEED = -200.0f;
 
@@ -104,4 +104,6 @@ class RTypeServer
     void sendEntities();
 
     void handlePlayerInput(const std::string &);
+
+    void sendEntitiesUpdates();
 };

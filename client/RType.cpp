@@ -144,10 +144,11 @@ void RTypeGame::update(float deltaTime)
     if (gameOver)
         return;
 
-    tickSystem.update(deltaTime, entityManager);
+    tickSystem.update(entityManager);
+    backgroundSystem.update(entityManager, deltaTime);
+    animationSystem.update(entityManager, deltaTime);
 
     entityManager.applyPendingChanges();
-    // std::cout << "UPT END\n";
     if (player == nullptr)
     {
         // std::cout << "Player not found, searching...\n";
@@ -263,9 +264,6 @@ void RTypeGame::run()
     //     return;
     // }
 
-    const float TARGET_FPS = 60.0f;
-    const float FRAME_TIME = 1.0f / TARGET_FPS;
-
     sf::Clock clock;
     float accumulator = 0.0f;
 
@@ -280,7 +278,6 @@ void RTypeGame::run()
             deltaTime = 0.05f;
         }
 
-        accumulator += deltaTime;
         handleEvents();
         // handleEvents();
         if (running == false)
@@ -288,13 +285,10 @@ void RTypeGame::run()
         sendInputPlayer();
 
         // Fixed timestep update
-        while (accumulator >= FRAME_TIME)
-        {
-            _mutex.lock();
-            update(FRAME_TIME);
-            _mutex.unlock();
-            accumulator -= FRAME_TIME;
-        }
+
+        _mutex.lock();
+        update(deltaTime);
+        _mutex.unlock();
 
         render();
         // render();

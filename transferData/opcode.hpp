@@ -100,7 +100,7 @@
 // Updates la vie de toutes les entités
 // Payload: liste compressée (EntityID, healtcomponent)
 
-#define OPCODE_CHAT_MESSAGE 0x30
+#define OPCODE_ALL_ENTITY_UPT 0x30
 // [CLIENT → SERVER, TCP]
 // Sends a text message (global or private).
 // Payload: [ target (1 byte: 0 = global, 1 = private) | msg (string) ]
@@ -140,6 +140,6 @@
 // Payload: [ players_ready (1 byte) | total_players (1 byte) ]
 // Purpose: client can display lobby info, like "players ready: X / Y".
 
-#define OPCODE_GAME_STATE_UPDATE 61
+#define OPCODE_GAME_STATE_UPDATE 0x61
 // [SERVER → CLIENT, TCP]
 // Sends info about game state (INGAME or INLOBBY)
