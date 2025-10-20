@@ -48,10 +48,10 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
              _networkManager.sendDataAllClientUDP(data, OPCODE_MOVEMENT_UPDATE);
          }},
 
-        {GameMediatorEvent::MovementUpdateLZ4,
+        {GameMediatorEvent::MovementUpdateZlib,
          [this](const std::string &data) -> void
          {
-             _networkManager.sendDataAllClientUDP(data, OPCODE_MOVEMENT_UPDATE_LZ4);
+             _networkManager.sendDataAllClientUDP(data, OPCODE_MOVEMENT_UPDATE_ZLIB);
          }},
 
         {GameMediatorEvent::HealthUpdate,
@@ -60,14 +60,14 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTy
              _networkManager.sendDataAllClientUDP(data, OPCODE_HEALTH_UPDATE);
          }},
 
-        {GameMediatorEvent::HealthUpdateLZ4,
+        {GameMediatorEvent::HealthUpdateZlib,
          [this](const std::string &data) -> void {
-            _networkManager.sendDataAllClientUDP(data, OPCODE_HEALTH_UPDATE_LZ4);
+            _networkManager.sendDataAllClientUDP(data, OPCODE_HEALTH_UPDATE_ZLIB);
          }},
 
-        {GameMediatorEvent::ProjectilesUpdateLZ4,
+        {GameMediatorEvent::ProjectilesUpdateZlib,
          [this](const std::string &data) -> void {
-            _networkManager.sendDataAllClientUDP(data, OPCODE_PROJECTILES_UPDATE_LZ4);
+            _networkManager.sendDataAllClientUDP(data, OPCODE_PROJECTILES_UPDATE_ZLIB);
          }},
 
         // Input joueur

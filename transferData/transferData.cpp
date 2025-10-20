@@ -5,8 +5,9 @@
 #include <tuple>
 #include <unistd.h>
 #include <vector>
-#include <lz4.h>
+#include <zlib.h>
 
+/*
 bool tryCompressLZ4(const std::string &in, std::string &out,
     int minThreshold, int margin)
 {
@@ -29,8 +30,51 @@ bool tryCompressLZ4(const std::string &in, std::string &out,
     std::memcpy(out.data(), &orig, sizeof(uint32_t));
     std::memcpy(out.data() + headerSize, dst.data(), compressedSize);
     return true;
+}*/
+
+bool tryCompressZlib(const std::string &in, std::string &out, int minThreshold, int margin)
+{
+    out.clear();
+
+    const int srcSize = static_cast<int>(in.size());
+    if (srcSize < minThreshold) return false;
+
+    // Resize output to hold header + worst-case compressed size
+    const int headerSize = sizeof(uint32_t);
+    out.resize(headerSize + compressBound(srcSize));
+
+    // Reserve space for header
+    unsigned long destLen = static_cast<unsigned long>(out.size() - headerSize);
+
+    int res = compress2(
+        reinterpret_cast<unsigned char*>(out.data() + headerSize), // compressed data
+        &destLen,
+        reinterpret_cast<const unsigned char*>(in.data()),         // input data
+        srcSize,
+        Z_BEST_SPEED
+    );
+
+    if (res != Z_OK) {
+        out.clear();
+        return false;
+    }
+
+    // Check if compression is worthwhile
+    if (destLen + headerSize >= static_cast<unsigned long>(srcSize - margin)) {
+        out.clear();
+        return false;
+    }
+
+    // Store original size in first 4 bytes
+    uint32_t origSize = static_cast<uint32_t>(srcSize);
+    std::memcpy(out.data(), &origSize, headerSize);
+
+    // Resize out to actual frame size
+    out.resize(headerSize + destLen);
+    return true;
 }
 
+/*
 bool LZ4DecompressPayload(const std::string &in, std::string &out)
 {
     out.clear();
@@ -46,6 +90,27 @@ bool LZ4DecompressPayload(const std::string &in, std::string &out)
     out.resize(origSize);
     const int decompressed = LZ4_decompress_safe(src, out.data(), srcSize, (int)origSize);
     if (decompressed != (int)origSize) {
+        out.clear();
+        return false;
+    }
+    return true;
+}*/
+
+bool ZlibDecompressPayload(const std::string &in, std::string &out)
+{
+    out.clear();
+    if (in.size() < sizeof(uint32_t)) return false;
+
+    unsigned long origSize = 0;
+    std::memcpy(&origSize, in.data(), sizeof(uint32_t));
+    if (origSize == 0) return false;
+
+    const unsigned char *src = (const unsigned char *)(in.data() + sizeof(uint32_t));
+    unsigned long srcSize = in.size() - sizeof(uint32_t);
+
+    out.resize(origSize);
+    int res = uncompress((unsigned char *)&out[0], &origSize, src, srcSize);
+    if (res != Z_OK) {
         out.clear();
         return false;
     }

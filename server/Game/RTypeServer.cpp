@@ -150,10 +150,10 @@ void::RTypeServer::sendMovementUpdates()
     std::string raw(dataVec.begin(), dataVec.end());
 
     std::string compressed;
-    const bool ok = tryCompressLZ4(raw, compressed);
+    const bool ok = tryCompressZlib(raw, compressed);
 
     if (ok)
-        mediator.notify(GameMediatorEvent::MovementUpdateLZ4, compressed);
+        mediator.notify(GameMediatorEvent::MovementUpdateZlib, compressed);
     else
         mediator.notify(GameMediatorEvent::MovementUpdate, raw);
 }
@@ -197,10 +197,10 @@ void RTypeServer::sendHealthUpdates()
     }
 
     std::string compressed;
-    const bool ok = tryCompressLZ4(raw, compressed);
+    const bool ok = tryCompressZlib(raw, compressed);
 
     if (ok)
-        mediator.notify(GameMediatorEvent::HealthUpdateLZ4, compressed);
+        mediator.notify(GameMediatorEvent::HealthUpdateZlib, compressed);
     else
         mediator.notify(GameMediatorEvent::HealthUpdate, raw);
 }

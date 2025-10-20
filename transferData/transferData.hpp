@@ -30,11 +30,15 @@ bool handleOPCode(uint8_t opcode, bool debug = false);
 
 // Will only compress if size >= minThreshold and compressed_size + header < size - margin
 // Returns true if compressed and stored intoout
-bool tryCompressLZ4(const std::string &in, std::string &out, int minThreshold = 96, int margin = 8);
+//bool tryCompressLZ4(const std::string &in, std::string &out, int minThreshold = 96, int margin = 8);
+
+bool tryCompressZlib(const std::string &in, std::string &out, int minTreshold = 96, int margin = 8);
 
 // Decompresses paylod produced by tryCompressLZ4
 // Returns trye on success
-bool LZ4DecompressPayload(const std::string &in, std::string &out);
+//bool LZ4DecompressPayload(const std::string &in, std::string &out);
+
+bool ZlibDecompressPayload(const std::string &in, std::string &out);
 
 bool sendFrameTCP(int socket, uint8_t opcode, const std::string &payload);
 std::tuple<uint8_t, std::string> receiveFrameTCP(int socket, std::string &buffer);

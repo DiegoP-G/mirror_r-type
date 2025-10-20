@@ -26,10 +26,10 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
 
-    _handlers[OPCODE_MOVEMENT_UPDATE_LZ4] = [this](const std::string &payload, int) {
+    _handlers[OPCODE_MOVEMENT_UPDATE_ZLIB] = [this](const std::string &payload, int) {
         std::string raw;
-        if (!LZ4DecompressPayload(payload, raw)) {
-            std::cerr << "[Receiver] LZ4 decompress failed for movement update" << std::endl;
+        if (!ZlibDecompressPayload(payload, raw)) {
+            std::cerr << "[Receiver] Zlib decompress failed for movement update" << std::endl;
             return;
         }
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, raw, OPCODE_MOVEMENT_UPDATE);
@@ -39,19 +39,19 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
 
-    _handlers[OPCODE_HEALTH_UPDATE_LZ4] = [this](const std::string &payload, int) {
+    _handlers[OPCODE_HEALTH_UPDATE_ZLIB] = [this](const std::string &payload, int) {
         std::string raw;
-        if (!LZ4DecompressPayload(payload, raw)) {
-            std::cerr << "[Receiver] LZ4 decompress failed for heatlh update" << std::endl;
+        if (!ZlibDecompressPayload(payload, raw)) {
+            std::cerr << "[Receiver] Zlib decompress failed for heatlh update" << std::endl;
             return;
         }
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, raw, OPCODE_HEALTH_UPDATE);
     };
 
-    _handlers[OPCODE_PROJECTILES_UPDATE_LZ4] = [this](const std::string &payload, int) {
+    _handlers[OPCODE_PROJECTILES_UPDATE_ZLIB] = [this](const std::string &payload, int) {
         std::string raw;
-        if (!LZ4DecompressPayload(payload, raw)) {
-            std::cerr << "[Receiver] LZ4 decompress failed for projectiles update" << std::endl;
+        if (!ZlibDecompressPayload(payload, raw)) {
+            std::cerr << "[Receiver] Zlib decompress failed for projectiles update" << std::endl;
             return;
         }
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, raw, OPCODE_PROJECTILES_UPDATE);
