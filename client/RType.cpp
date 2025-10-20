@@ -380,7 +380,7 @@ void RTypeGame::render()
 
 void RTypeGame::restart()
 {
-    entityManager = EntityManager();
+    entityManager.clear();
     score = 0;
     gameOver = false;
 }

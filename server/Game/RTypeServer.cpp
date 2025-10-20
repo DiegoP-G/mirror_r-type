@@ -1,4 +1,3 @@
-
 #include "RTypeServer.hpp"
 #include "../../ecs/GraphicsManager.hpp"
 #include "../../ecs/allComponentsInclude.hpp"
@@ -15,6 +14,8 @@ bool RTypeServer::init()
 
 void RTypeServer::createPlayer(int playerId)
 {
+    std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+
     Entity &playerEntity = entityManager.createEntity();
 
     playerEntity.addComponent<PlayerComponent>(playerId, false, 0.25f);
@@ -34,6 +35,8 @@ void RTypeServer::createPlayer(int playerId)
 
 void RTypeServer::removePlayer(int id)
 {
+    std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+
     Entity *entity = getEntityByPlayerID(id);
     if (entity)
     {
@@ -65,28 +68,41 @@ void RTypeServer::update(float deltaTime)
         return;
 
     // 1. Traiter tous les systèmes
-    backgroundSystem.update(entityManager, deltaTime);
-    playerSystem.update(entityManager, deltaTime);
-    inputSystem.update(entityManager, deltaTime);
+    {
+        std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+        backgroundSystem.update(entityManager, deltaTime);
+        playerSystem.update(entityManager, deltaTime);
+        inputSystem.update(entityManager, deltaTime);
+    }
+
     if (_state == (GameState)GameState::INGAME)
     {
-        gameLogicSystem.update(entityManager, deltaTime, mediator);
+        {
+            std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+            gameLogicSystem.update(entityManager, deltaTime, mediator);
 
-        boundarySystem.update(entityManager, deltaTime);
-        cleanupSystem.update(entityManager, deltaTime);
-        enemySystem.update(entityManager, deltaTime);
-        projectileSystem.update(entityManager, deltaTime);
-        bonusSystem.update(entityManager, deltaTime);
+            boundarySystem.update(entityManager, deltaTime);
+            cleanupSystem.update(entityManager, deltaTime);
+            enemySystem.update(entityManager, deltaTime);
+            projectileSystem.update(entityManager, deltaTime);
+            bonusSystem.update(entityManager, deltaTime);
+        }
 
         bool updateScore = false;
-        collisionSystem.update(entityManager, _playersScores, updateScore);
+        {
+            std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+            collisionSystem.update(entityManager, _playersScores, updateScore);
+        }
+
         if (updateScore)
         {
             puts("SENDING SCORE UPDATE");
+            std::lock_guard<std::mutex> lock(entityManager.entityMutex);
             auto serializedScores = entityManager.serializePlayersScores(_playersScores);
             std::string serializedData(serializedScores.begin(), serializedScores.end());
             mediator.notify(GameMediatorEvent::UpdateScore, serializedData, _lobbyUID);
         }
+
         if (gameLogicSystem.allWavesCompleted && !gameOver)
         {
             std::cout << "[Server] 🏆 All waves completed! Determining winner..." << std::endl;
@@ -117,14 +133,24 @@ void RTypeServer::update(float deltaTime)
     {
         updateLobbyStatus();
     }
-    movementSystem.update(entityManager, deltaTime);
+
+    {
+        std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+        movementSystem.update(entityManager, deltaTime);
+    }
+
     // 4. Envoyer les updates de mouvement (toutes les entités actives)
     // 2. AVANT applyPendingChanges, envoyer ce qui a été créé/détruit
     sendNewEntities();       // Envoie les entités dans entitiesToCreate
     sendDestroyedEntities(); // Envoie les IDs dans entitiesToDestroy
     sendMovementUpdates();
-    entityManager.applyPendingChanges();
-    // 4. Envoyer les updates de mouvement (toutes les entités actives)
+
+    {
+        std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+        entityManager.applyPendingChanges();
+    }
+
+    // // 4. Envoyer les updates de mouvement (toutes les entités actives)
     sendHealthUpdates();
     sendGameStateUpdates();
 
@@ -139,15 +165,24 @@ void RTypeServer::sendGameStateUpdates()
 
 void RTypeServer::sendNewEntities()
 {
-    // Parcourir les entités créées dans entitiesToCreate
-    auto &manager = entityManager;
+    std::vector<std::vector<uint8_t>> serializedEntities;
 
-    // Pour chaque nouvelle entité créée ce tick
-    for (const auto &entity : manager.getEntitiesToCreate())
     {
-        // std::cout << "Sending new entites" << std::endl;
-        // std::cout << "Entity :" << entity->getID() << std::endl;
-        auto data = manager.serializeEntityFull(entity->getID());
+        std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+
+        // Serialize entities safely while still in entitiesToCreate
+        for (const auto &entityPtr : entityManager.getEntitiesToCreate())
+        {
+            if (entityPtr)
+            {
+                serializedEntities.push_back(entityManager.serializeEntityFull(entityPtr->getID()));
+            }
+        }
+    }
+
+    // Send serialized data outside the lock
+    for (auto &data : serializedEntities)
+    {
         std::string serializedData(data.begin(), data.end());
         mediator.notify(GameMediatorEvent::EntityCreated, serializedData, _lobbyUID);
     }
@@ -155,6 +190,7 @@ void RTypeServer::sendNewEntities()
 
 void RTypeServer::sendDestroyedEntities()
 {
+    std::lock_guard<std::mutex> lock(entityManager.entityMutex);
     auto &manager = entityManager;
 
     // Pour chaque entité détruite ce tick
@@ -168,6 +204,7 @@ void RTypeServer::sendDestroyedEntities()
 
 void RTypeServer::sendMovementUpdates()
 {
+    std::lock_guard<std::mutex> lock(entityManager.entityMutex);
     auto data = entityManager.serializeAllMovements();
     std::string serializedData(data.begin(), data.end());
     mediator.notify(GameMediatorEvent::MovementUpdate, serializedData, _lobbyUID);
@@ -175,6 +212,8 @@ void RTypeServer::sendMovementUpdates()
 
 void RTypeServer::sendHealthUpdates()
 {
+    std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+
     auto data = entityManager.serializeAllHealth();
     std::string serializedData(data.begin(), data.end());
     int winnerID = -1;
@@ -215,7 +254,8 @@ void RTypeServer::sendHealthUpdates()
 
 void RTypeServer::restart()
 {
-    entityManager = EntityManager();
+    std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+    entityManager.clear();
 
     score = 0;
     gameOver = false;
@@ -235,6 +275,8 @@ void RTypeServer::run(float deltaTime)
 
 Entity *RTypeServer::getEntityByPlayerID(int playerID)
 {
+    // NOTE: This assumes the mutex is already locked by the caller
+    // If called independently, wrap the call in a lock_guard
     auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
     for (auto *entity : players)
     {
@@ -249,6 +291,8 @@ Entity *RTypeServer::getEntityByPlayerID(int playerID)
 
 void RTypeServer::handlePlayerInput(const std::string &input)
 {
+    std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+
     InputComponent inputComp;
 
     int playerId = deserializePlayerInput(input, inputComp);
@@ -286,6 +330,8 @@ void RTypeServer::handlePlayerInput(const std::string &input)
 
 void RTypeServer::createBackground()
 {
+    std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+
     // sf::Texture *backgroundTexture = g_graphics->getTexture("background");
     std::cout << "Background created" << std::endl;
     int tileWidth = 800;
@@ -327,6 +373,8 @@ void RTypeServer::sendEntities()
 // Update the number of players and the number of ready players
 void RTypeServer::updateLobbyStatus()
 {
+    std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+
     auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
     playerNb = static_cast<int>(players.size());
     playerReady = 0;

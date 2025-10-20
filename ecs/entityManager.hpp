@@ -2,6 +2,7 @@
 #include "entity.hpp"
 #include <array>
 #include <memory>
+#include <mutex>
 #include <vector>
 
 class EntityManager
@@ -17,6 +18,17 @@ class EntityManager
   public:
     EntityManager();
     void update(float deltaTime);
+    std::mutex entityMutex;
+
+    void clear()
+    {
+        std::lock_guard<std::mutex> lock(entityMutex);
+        entities.clear();
+        for (auto &list : entitiesByComponent)
+            list.clear();
+        entitiesToDestroy.clear();
+        entitiesToCreate.clear();
+    }
 
     const std::vector<EntityID> &getEntitiesToDestroy() const
     {
@@ -153,7 +165,6 @@ class EntityManager
 
     Entity *getEntityByID(EntityID id);
     size_t getActiveEntityCount() const;
-    void clear();
 
     std::vector<std::unique_ptr<Entity>> &getEntities()
     {
