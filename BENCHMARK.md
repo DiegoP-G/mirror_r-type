@@ -1,6 +1,6 @@
 # **R-Type Benchmark**
 ---
-### **Benchmark criteria table**
+### **Main progamming language benchmark**
 
 | Criteria | C++ | C | Haskell | Python |
 | :--- | :--- | :--- | :--- | :--- |
@@ -50,3 +50,44 @@ We chose **C++** because it strikes the right balance:
 + With better abstractions and maintainability
 + While avoiding the impracticalities of **Haskell** and **Python** for a real-time, networked ECS-based game.
 ---
+
+### **Data compression benchmark**
+
+| Criteria | LZ4 | Zlib | RLE |
+| :--- | :--- | :--- | :--- |
+| Compression ratio | :star::star: | :star::star::star::star: | :star: |
+| Compression speed | :star::star::star::star: | :star::star: | :star::star::star: |
+| Decompression speed | :star::star::star::star: | :star::star::star: | :star::star::star:|
+| CPU usage | :star::star::star::star: | :star::star: | :star::star::star::star: |
+| Implementation complexity | :star::star::star: | :star::star::star: | :star::star: |
+---
+### **Description of criteria**
+**1. Compression ratio**
++ **LZ4** is focused on speed and provides weaker compression (typically 20–30%).
++ **Zlib** achieves a strong balance between compression rate and data integrity, often reducing packet size by 50–70%, which helps lower network bandwidth usage.
++ **RLE (Run-Length Encoding)** only works efficiently on repetitive data, leading to poor results for mixed binary payloads like network packets.
+
+**2. Compression speed**
++ **LZ4** is extremely fast: one of the fastest general-purpose algorithms, ideal for real-time systems.
++ **Zlib** is slower due to its more advanced deflate algorithm but remains performant at low compression levels.
++ **RLE** is simple and relatively fast, but its speed advantage is often offset by its inefficiency on non-repetitive data.
+
+**3. Decompression speed**
++ **LZ4** and **RLE** decompress extremely fast, which is critical for real-time applications.
++ **Zlib** is slightly slower, but its decompression remains fast enough for packet handling, especially since game packets are small (hundreds of bytes).
+
+**4. CPU usage**
++ **LZ4** uses less CPU than **Zlib**, which is why it’s often used in high-throughput systems (databases, game engines).
++ **Zlib** consumes more CPU time during compression, but the cost is acceptable given the improved ratio and bandwidth savings.
++ **RLE** uses minimal CPU but provides minimal benefits.
+
+**5. Implementation complexity**
++ Both **Zlib** and **LZ4** provide mature, cross-platform libraries and C APIs.
++ **RLE** is easy to implement manually but unsuitable for general-purpose binary compression.
+---
+
+### **Conclusion**
+We chose **Zlib** because it offers the best compromise between compression efficiency and speed for our network packets:
++ While **LZ4** is faster, its weaker compression led to larger payloads and no real gain in performance.
++ **RLE** was discarded as it only works well on highly repetitive data.
++ **Zlib** gives us smaller packets, reliable results, and consistent performance across all types of game data.
