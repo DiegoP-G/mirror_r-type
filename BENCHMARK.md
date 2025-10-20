@@ -1,7 +1,7 @@
 # **R-Type Benchmark**
 ---
 
-### **Main progamming language benchmark**
+## **Main progamming language benchmark**
 
 | Criteria | C++ | C | Haskell | Python |
 | :--- | :--- | :--- | :--- | :--- |
@@ -54,7 +54,7 @@ We chose **C++** because it strikes the right balance:
 + While avoiding the impracticalities of **Haskell** and **Python** for a real-time, networked ECS-based game.
 ---
 
-### **Graphical library benchmark**
+## **Graphical library benchmark**
 
 | Criteria | SFML | SDL2 | Raylib |
 | :--- | :--- | :--- | :--- |
@@ -102,7 +102,7 @@ Our team already had experience with it, allowing us to focus on the engine and 
 For a 2D networked project like R-Type, **SFML** is the most efficient and developer-friendly choice.
 ---
 
-### **Data compression benchmark**
+## **Data compression benchmark**
 
 | Criteria | LZ4 | Zlib | RLE |
 | :--- | :--- | :--- | :--- |
