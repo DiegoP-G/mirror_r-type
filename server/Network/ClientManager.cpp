@@ -125,3 +125,14 @@ void ClientManager::addAdminPanelLog(std::string log)
         _adminPanel->addLog(log);
     }
 }
+
+bool ClientManager::checkLoginCreds(const std::string &username, const std::string &password)
+{
+    printf("Check login creds\n");
+    if (_adminPanel) {
+        printf("In _admin panel\n");
+        return _adminPanel->getSqlApi().validateCredentials(username, password);
+    }
+    printf("Out _admin panel\n");
+    return false;
+}

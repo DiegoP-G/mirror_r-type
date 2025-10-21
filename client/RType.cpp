@@ -6,6 +6,8 @@
 #include "../ecs/systems.hpp"
 #include "../ecs/textBox.hpp"
 #include "../transferData/opcode.hpp"
+#include "../transferData/transferData.hpp"
+#include "../transferData/hashUtils.hpp"
 #include "Network/NetworkManager.hpp"
 #include "assetsPath.hpp"
 #include "windowSize.hpp"
@@ -96,25 +98,24 @@ void RTypeGame::handleEvents()
                 auto mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
                 auto action = g_graphics->handleMenuClick(mousePos.x, mousePos.y);
 
-                if (action == GraphicsManager::MenuAction::PLAY)
+                if (action == GraphicsManager::MenuAction::LOGIN)
                 {
+                    std::string username = g_graphics->getUsernameTextBox()->getText();
+                    std::string password = g_graphics->getPasswordTextBox()->getText();
+
+                    std::cout << "Login in with: " << username << std::endl;
+
+                    std::string loginData = serializeString(username) + serializeString(hashPassword(password));
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, loginData, OPCODE_LOGIN_REQUEST);
+                }
+                else if (action == GraphicsManager::MenuAction::SIGNIN)
+                {
+                    // Handle signin
                     std::string username = g_graphics->getUsernameTextBox()->getText();
                     std::string password = g_graphics->getPasswordTextBox()->getText();
 
                     std::cout << "Sign in with: " << username << std::endl;
-                    // Process login here
-
-                    // Transition to next state
-                    _state = GameState::MENULOBBY;
-                }
-                else if (action == GraphicsManager::MenuAction::QUIT)
-                {
-                    // Handle login
-                    std::string username = g_graphics->getUsernameTextBox()->getText();
-                    std::string password = g_graphics->getPasswordTextBox()->getText();
-
-                    std::cout << "Login with: " << username << std::endl;
-                    // Process login here
+                    // Process signin here
                 }
             }
         }
@@ -283,6 +284,7 @@ void RTypeGame::render()
     else if (_state == GameState::MENULOGIN)
     {
         g_graphics->drawMenu();
+        g_graphics->updateErrorMessage();
         keybindMenu->draw(g_graphics->getWindow());
     }
     else if (_state == GameState::MENUIP)

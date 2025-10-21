@@ -13,10 +13,40 @@ NetworkECSMediator::NetworkECSMediator()
 {
     _mediatorMap = {
         // === ENVOI VERS LE SERVEUR ===
-        {static_cast<int>(NetworkECSMediatorEvent::SEND_DATA_TCP),
-         [this](const std::string &data, uint8_t opcode) {
+        {static_cast<int>(NetworkECSMediatorEvent::SEND_DATA_TCP), [this](const std::string &data, uint8_t opcode) {
              std::cout << "[Client] Sending TCP opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
              _sender->sendTcp(opcode, data);
+             if (opcode == OPCODE_LOGIN_RESPONSE) {
+                std::cout << "Receive LOGIN response from server\n";
+                _game->getMutex().lock();
+                std::string response = deserializeString(data);
+                
+                // First byte indicates success (1) or failure (0)
+                bool success = response[0] == 1;
+
+                // Rest of the response is the message
+                std::string message = response.substr(1);
+
+                if (success)
+                {
+                    std::cout << "[Client] Login successful: " << message << std::endl;
+                    if (_game)
+                    {
+                    _game->setCurrentState(GameState::MENULOBBY);
+                    }
+                }
+                else
+                {
+                    std::cout << "[Client] Login failed: " << message << std::endl;
+                    // Show error message to user
+                    if (_game && g_graphics)
+                    {
+                    g_graphics->showErrorMessage(message);
+                    }
+                }
+
+                _game->getMutex().unlock();
+            }
          }},
 
         {static_cast<int>(NetworkECSMediatorEvent::SEND_DATA_UDP),
@@ -29,6 +59,7 @@ NetworkECSMediator::NetworkECSMediator()
              if (_game)
                  _game->setPlayerId(playerId);
          }},
+         
 
         // === RÉCEPTION DEPUIS LE SERVEUR ===
         {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), [this](const std::string &data, uint8_t opcode) {

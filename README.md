@@ -19,6 +19,7 @@ A C++ multiplayer game engine built with Entity-Component-System (ECS) architect
 - libconfig++ +1.7.3
 - CMake 3.16+
 - SQLite 3.45.1
+- OpenSSL 3.0.13
 
 ### Building
 

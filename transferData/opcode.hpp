@@ -180,3 +180,13 @@ constexpr uint8_t OPCODE_LOBBY_ERROR = 0x74;
 // [SERVER → CLIENT, TCP]
 // Error joining/creating lobby
 // Payload: error_message (string)
+
+constexpr uint8_t OPCODE_LOGIN_REQUEST = 0x80;
+// [CLIENT → SERVER, TCP]
+// Send login credentials to server
+// Payload: [ username (string) | password (string) ]
+
+constexpr uint8_t OPCODE_LOGIN_RESPONSE = 0x81;
+// [SERVER → CLIENT, TCP]
+// Login response from server
+// Payload: [ success (1 byte: 0 = failure, 1 = success) | message (string) ]

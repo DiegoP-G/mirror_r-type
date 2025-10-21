@@ -133,7 +133,45 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
                            << std::endl;
                  _lobbyManager.removeLobby(lobby->getUid());
              }
-         }}};
+         }},
+        {GameMediatorEvent::LoginReqest,
+        [this](const std::string &data, const std::string &, int clientFd) -> void {
+            std::cout << "[GameMediator] LoginRequest event triggered for clientFd: " << clientFd << std::endl;
+            // Extract username and password
+
+            size_t offset = 0;
+            std::string username = deserializeString(data.substr(offset));
+            offset += sizeof(int) + username.size();
+            std::string password = deserializeString(data.substr(offset));
+
+            std::cout << "[Server] Login request from client " << clientFd << ": " << username <<std::endl;
+
+            bool success = _networkManager.getClientManager().checkLoginCreds(username, password);
+            std::string message;
+
+            if (success)
+            {
+                message = "Welcome, " + username + "!";
+                std::cout << "[Server] Login successful for " << username << std::endl;
+            }
+            else
+            {
+                message = "Invalid username or password";
+                std::cout << "[Server] Login failed for " << username << std::endl;
+            }
+
+            // Send response
+            std::string response;
+            response.push_back(success ? 1 : 0); // First byte: success flag
+            response.append(message);            // Rest: message
+            std::string serializedResponse = serializeString(response);
+
+            std::cout << "Sending login response to : " << clientFd << "\n";
+            _networkManager.getTCPManager().sendMessage(clientFd, OPCODE_LOGIN_RESPONSE, serializedResponse);
+        }},
+        {GameMediatorEvent::LoginResponse,
+         [this](const std::string &data, const std::string &, int clientFd) -> void {}},
+        };
 }
 
 void GameMediator::notify(const int &event, const std::string &data, const std::string &lobbyUid, int clientFd)

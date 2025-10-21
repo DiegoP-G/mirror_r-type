@@ -1,6 +1,7 @@
 #include "sqlAPI.hpp"
 #include "sqlSchema.hpp"
 #include <iostream>
+#include "../transferData/hashUtils.hpp"
 
 sqlAPI::sqlAPI(std::string name) : _dbName(name)
 {
@@ -78,6 +79,7 @@ void sqlAPI::closeDb()
 
 bool sqlAPI::addPlayerEntry(const std::string &name, const std::string &password)
 {
+    std::string hashedPassword = hashPassword(password);
     std::string query = "INSERT INTO Players (Name, Password, Score) VALUES (?, ?, 0);";
     sqlite3_stmt *stmt;
 
@@ -88,7 +90,7 @@ bool sqlAPI::addPlayerEntry(const std::string &name, const std::string &password
     }
 
     sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, hashedPassword.c_str(), -1, SQLITE_STATIC);
 
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
@@ -193,4 +195,40 @@ bool sqlAPI::deleteBannedIpById(int id)
     bool success = (sqlite3_step(stmt) == SQLITE_DONE);
     sqlite3_finalize(stmt);
     return success;
+}
+
+bool sqlAPI::validateCredentials(const std::string &name, const std::string &password)
+{
+    std::string query = "SELECT Password FROM Players WHERE Name = ?;";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(_db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(_db) << std::endl;
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+    
+    if (sqlite3_step(stmt) != SQLITE_ROW)
+    {
+        // User not found
+        sqlite3_finalize(stmt);
+        std::cout << "User " << name << " not found.\n";
+        return false;
+    }
+    
+    // Get the stored hashed password
+    std::string storedHash = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+    sqlite3_finalize(stmt);
+    
+    try {
+    // Verify the password against the stored hash
+        bool res = verifyPassword(password, storedHash);
+        return res;
+    } catch (const std::runtime_error &e) {
+        std::cerr << "[Auth] Exception verifying password for user '" << name << "': " << e.what()
+              << " storedHash=\"" << storedHash << "\"" << std::endl;
+        return false;
+    }
 }

@@ -13,6 +13,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
 # ---- FetchContent for dependencies ----
 include(FetchContent)
 
+# ---- OpenSSL ---- (MOVED TO TOP, BEFORE TARGETS)
+find_package(OpenSSL REQUIRED)
+
+# Make sure to include OpenSSL headers
+include_directories(${OPENSSL_INCLUDE_DIR})
+
 # ---- SFML ----
 find_package(SFML 2.5 COMPONENTS graphics window system audio QUIET)
 
@@ -65,11 +71,23 @@ endif()
 add_library(transferData
     transferData/transferData.cpp
     transferData/serializers.cpp
+    transferData/hashUtils.cpp
 )
+
 target_include_directories(transferData PUBLIC
     transferData
     ecs
 )
+
+# Link libcrypt for password hashing
+find_library(CRYPT_LIB crypt REQUIRED)
+
+if (CRYPT_LIB)
+    message(STATUS "Found libcrypt library: ${CRYPT_LIB}")
+    target_link_libraries(transferData PRIVATE ${CRYPT_LIB})
+else()
+    message(FATAL_ERROR "libcrypt library not found")
+endif()
 
 # ---- ECS + Components library ----
 file(GLOB_RECURSE ECS_SOURCES
@@ -111,6 +129,7 @@ target_link_libraries(RTypeClient
     sfml-window
     sfml-system
     sfml-audio
+    OpenSSL::Crypto
 )
 
 # ---- Server executable ----
@@ -143,8 +162,19 @@ target_link_libraries(GameServer
     sfml-graphics
     sfml-window
     sfml-system
+    ${OPENSSL_LIBRARIES}
+    OpenSSL::Crypto
 )
 target_compile_options(GameServer PRIVATE ${LIBCONFIG_CFLAGS_OTHER})
+
+# filepath: /home/keyvan/repos/mirror_r-type/CMakeLists.txt
+target_sources(GameServer PRIVATE
+    transferData/hashUtils.cpp
+)
+
+target_sources(RTypeClient PRIVATE
+    transferData/hashUtils.cpp
+)
 
 # ---- Custom targets for convenience ----
 add_custom_target(client DEPENDS RTypeClient)
@@ -156,3 +186,4 @@ set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
     "${CMAKE_SOURCE_DIR}/RTypeClient"
     "${CMAKE_SOURCE_DIR}/GameServer"
 )
+

@@ -28,4 +28,5 @@ class sqlAPI
     bool addBannedIp(const std::string &ip);
     std::vector<std::string> getAllBannedIps();
     bool deleteBannedIpById(int id);
+    bool validateCredentials(const std::string &name, const std::string &password);
 };

@@ -11,6 +11,7 @@
 
 #include "GraphicsManager.hpp"
 #include "../client/NetworkECSMediator.hpp"
+#include "../client/windowSize.hpp"
 #include "../client/assetsPath.hpp"
 #include "textBox.hpp"
 #include <SFML/Graphics/Font.hpp>
@@ -19,7 +20,9 @@
 
 GraphicsManager *g_graphics = nullptr;
 
-GraphicsManager::GraphicsManager(NetworkECSMediator med) : _med(med)
+GraphicsManager::GraphicsManager(NetworkECSMediator med) : _med(med), 
+    _showError(false),
+    _errorMessage("")
 {
 }
 
@@ -259,26 +262,26 @@ void GraphicsManager::initMenuUI()
     _passwordTextbox->setPasswordMode(true);
 
     // Signin Button (formerly Play)
-    playButton.setSize(sf::Vector2f(200, 60));
-    playButton.setFillColor(sf::Color(70, 130, 180));
-    playButton.setPosition(window.getSize().x / 2.0f - 100, 340);
+    loginButton.setSize(sf::Vector2f(200, 60));
+    loginButton.setFillColor(sf::Color(70, 130, 180));
+    loginButton.setPosition(window.getSize().x / 2.0f - 100, 340);
 
-    playButtonText.setFont(font);
-    playButtonText.setString("SIGNIN");
-    playButtonText.setCharacterSize(30);
-    playButtonText.setFillColor(sf::Color::White);
-    playButtonText.setPosition(window.getSize().x / 2.0f - 60, 355);
+    loginButtonText.setFont(font);
+    loginButtonText.setString("LOGIN");
+    loginButtonText.setCharacterSize(30);
+    loginButtonText.setFillColor(sf::Color::White);
+    loginButtonText.setPosition(window.getSize().x / 2.0f - 60, 355);
 
     // Login Button (formerly Quit)
-    quitButton.setSize(sf::Vector2f(200, 60));
-    quitButton.setFillColor(sf::Color(180, 70, 70));
-    quitButton.setPosition(window.getSize().x / 2.0f - 100, 420);
+    signinButton.setSize(sf::Vector2f(200, 60));
+    signinButton.setFillColor(sf::Color(180, 70, 70));
+    signinButton.setPosition(window.getSize().x / 2.0f - 100, 420);
 
-    quitButtonText.setFont(font);
-    quitButtonText.setString("LOGIN");
-    quitButtonText.setCharacterSize(30);
-    quitButtonText.setFillColor(sf::Color::White);
-    quitButtonText.setPosition(window.getSize().x / 2.0f - 50, 435);
+    signinButtonText.setFont(font);
+    signinButtonText.setString("SIGNIN");
+    signinButtonText.setCharacterSize(30);
+    signinButtonText.setFillColor(sf::Color::White);
+    signinButtonText.setPosition(window.getSize().x / 2.0f - 50, 435);
 
     menuInitialized = true;
 }
@@ -312,24 +315,24 @@ void GraphicsManager::drawMenu()
     _usernameTextbox->draw(window);
     _passwordTextbox->draw(window);
 
-    window.draw(playButton);
-    window.draw(playButtonText);
-    window.draw(quitButton);
-    window.draw(quitButtonText);
+    window.draw(loginButton);
+    window.draw(loginButtonText);
+    window.draw(signinButton);
+    window.draw(signinButtonText);
 }
 
 GraphicsManager::MenuAction GraphicsManager::handleMenuClick(int mouseX, int mouseY)
 {
     sf::Vector2f mousePos(mouseX, mouseY);
 
-    if (playButton.getGlobalBounds().contains(mousePos))
+    if (loginButton.getGlobalBounds().contains(mousePos))
     {
-        return MenuAction::PLAY;
+        return MenuAction::LOGIN;
     }
 
-    if (quitButton.getGlobalBounds().contains(mousePos))
+    if (signinButton.getGlobalBounds().contains(mousePos))
     {
-        return MenuAction::QUIT;
+        return MenuAction::SIGNIN;
     }
 
     return MenuAction::NONE;
@@ -461,4 +464,77 @@ std::unique_ptr<TextBox> &GraphicsManager::getPasswordTextBox()
     if (!menuInitialized)
         initMenuUI();
     return _passwordTextbox;
+}
+
+void GraphicsManager::showErrorMessage(const std::string& message)
+{
+    _errorMessage = message;
+    _showError = true;
+    _errorMessageClock.restart();
+    
+    std::cout << "Showing error message: " << message << std::endl;
+}
+
+void GraphicsManager::updateErrorMessage()
+{
+    // Check if we need to show an error message
+    printf("show error: %d\n", _showError);
+    if (_showError) {
+        // Create a background rectangle
+        sf::RectangleShape errorBackground;
+        errorBackground.setSize(sf::Vector2f(600, 100));
+        errorBackground.setFillColor(sf::Color(200, 0, 0, 220)); // Semi-transparent red
+        errorBackground.setOutlineColor(sf::Color::White);
+        errorBackground.setOutlineThickness(2);
+        
+        // Center the background on screen
+        float bgX = (windowWidth - errorBackground.getSize().x) / 2;
+        float bgY = (windowHeight - errorBackground.getSize().y) / 2;
+        errorBackground.setPosition(bgX, bgY);
+        
+        // Draw the background
+        window.draw(errorBackground);
+        
+        // Draw the error text
+        sf::Text errorText;
+        errorText.setFont(font);
+        errorText.setString(_errorMessage);
+        errorText.setCharacterSize(20);
+        errorText.setFillColor(sf::Color::White);
+        
+        // Center the text on the background
+        sf::FloatRect textBounds = errorText.getLocalBounds();
+        float textX = bgX + (errorBackground.getSize().x - textBounds.width) / 2;
+        float textY = bgY + (errorBackground.getSize().y - textBounds.height) / 2 - 10;
+        errorText.setPosition(textX, textY);
+        
+        window.draw(errorText);
+        
+        // Add a dismissal instruction
+        sf::Text dismissText;
+        dismissText.setFont(font);
+        dismissText.setString("Press any key to dismiss");
+        dismissText.setCharacterSize(15);
+        dismissText.setFillColor(sf::Color(220, 220, 220));
+        
+        // Position below the error message
+        sf::FloatRect dismissBounds = dismissText.getLocalBounds();
+        float dismissX = bgX + (errorBackground.getSize().x - dismissBounds.width) / 2;
+        float dismissY = textY + textBounds.height + 15;
+        dismissText.setPosition(dismissX, dismissY);
+        
+        window.draw(dismissText);
+        
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+            if (_showError && (event.type == sf::Event::KeyPressed || event.type == sf::Event::MouseButtonPressed)) {
+                printf("SHOW ERROR: FALSE\n");
+                _showError = false;
+                break;
+            }
+        }
+    }
 }

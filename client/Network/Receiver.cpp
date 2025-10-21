@@ -60,6 +60,12 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
     _handlers[OPCODE_BAN_NOTIFICATION] = [this](const std::string &payload, int opcode) {
         _med.notify(UPDATE_DATA, payload, opcode);
     };
+    _handlers[OPCODE_LOGIN_REQUEST] = [this](const std::string &payload, int opcode) {
+        _med.notify(SEND_DATA_TCP, payload, opcode);
+    };
+    _handlers[OPCODE_LOGIN_RESPONSE] = [this](const std::string &payload, int opcode) {
+        _med.notify(SEND_DATA_TCP, payload, opcode);
+    };
 }
 
 void Receiver::onCodeUdp(const std::string &payload)

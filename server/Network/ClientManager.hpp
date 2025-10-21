@@ -30,6 +30,7 @@ class ClientManager
 
     bool isBannedIP(std::string ip);
     void addAdminPanelLog(std::string log);
+    bool checkLoginCreds(const std::string &username, const std::string &password);
 
     std::unordered_map<int, Client> &getClientsMap();
 };

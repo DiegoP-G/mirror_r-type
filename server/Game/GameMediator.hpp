@@ -32,7 +32,9 @@ enum GameMediatorEvent
     UpdateWave = 0x50,
     UpdateScore = 0x51,
     CreateLobby = 0x70,
-    JoinLobby = 0x71
+    JoinLobby = 0x71,
+    LoginReqest = 0x80,
+    LoginResponse = 0x81,
 };
 
 class NetworkManager;
