@@ -136,3 +136,17 @@ bool ClientManager::checkLoginCreds(const std::string &username, const std::stri
     printf("Out _admin panel\n");
     return false;
 }
+
+
+bool ClientManager::addNewPlayerEntry(const std::string &username, const std::string &password)
+{
+    if (_adminPanel) {
+        try {
+            _adminPanel->getSqlApi().addPlayerEntry(username, password);
+        } catch (std::exception &e) {
+            throw;
+        }
+        return true;
+    }
+    return false;
+}

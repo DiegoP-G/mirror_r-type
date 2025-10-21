@@ -46,6 +46,36 @@ NetworkECSMediator::NetworkECSMediator()
                 }
 
                 _game->getMutex().unlock();
+            } else if (opcode == OPCODE_SIGNIN_RESPONSE) {
+                std::cout << "Receive LOGIN response from server\n";
+                _game->getMutex().lock();
+                std::string response = deserializeString(data);
+                
+                // First byte indicates success (1) or failure (0)
+                bool success = response[0] == 1;
+
+                // Rest of the response is the message
+                std::string message = response.substr(1);
+
+                if (success)
+                {
+                    std::cout << "[Client] Signin successful: " << message << std::endl;
+                    if (_game)
+                    {
+                    _game->setCurrentState(GameState::MENULOBBY);
+                    }
+                }
+                else
+                {
+                    std::cout << "[Client] Signin failed: " << message << std::endl;
+                    // Show error message to user
+                    if (_game && g_graphics)
+                    {
+                    g_graphics->showErrorMessage(message);
+                    }
+                }
+
+                _game->getMutex().unlock();
             }
          }},
 

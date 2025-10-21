@@ -22,7 +22,7 @@ class sqlAPI
     };
 
     std::vector<std::pair<int, std::string>> getAllScores();
-    bool addPlayerEntry(const std::string &name, const std::string &password);
+    void addPlayerEntry(const std::string &name, const std::string &password);
     bool updatePlayerScore(const std::string &name, int newScore);
 
     bool addBannedIp(const std::string &ip);

@@ -169,7 +169,41 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
             std::cout << "Sending login response to : " << clientFd << "\n";
             _networkManager.getTCPManager().sendMessage(clientFd, OPCODE_LOGIN_RESPONSE, serializedResponse);
         }},
+        {GameMediatorEvent::SigninRequest,
+        [this](const std::string &data, const std::string &, int clientFd) -> void {
+            std::cout << "[GameMediator] SigninRequest event triggered for clientFd: " << clientFd << std::endl;
+            // Extract username and password
+
+            size_t offset = 0;
+            std::string username = deserializeString(data.substr(offset));
+            offset += sizeof(int) + username.size();
+            std::string password = deserializeString(data.substr(offset));
+
+            std::cout << "[Server] Sign request from client " << clientFd << ": " << username <<std::endl;
+
+            std::string message;
+            bool success = false;
+            try {
+                _networkManager.getClientManager().addNewPlayerEntry(username, password);
+                message = "Welcome, " + username + "!";
+                success = true;
+            } catch (std::exception &e) {
+                message = e.what();
+                success = false;
+            }
+
+            // Send response
+            std::string response;
+            response.push_back(success ? 1 : 0); // First byte: success flag
+            response.append(message);            // Rest: message
+            std::string serializedResponse = serializeString(response);
+
+            std::cout << "Sending signin response to : " << clientFd << "\n";
+            _networkManager.getTCPManager().sendMessage(clientFd, OPCODE_SIGNIN_RESPONSE, serializedResponse);
+        }},
         {GameMediatorEvent::LoginResponse,
+         [this](const std::string &data, const std::string &, int clientFd) -> void {}},
+        {GameMediatorEvent::SigninResponse,
          [this](const std::string &data, const std::string &, int clientFd) -> void {}},
         };
 }

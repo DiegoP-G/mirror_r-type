@@ -190,3 +190,13 @@ constexpr uint8_t OPCODE_LOGIN_RESPONSE = 0x81;
 // [SERVER → CLIENT, TCP]
 // Login response from server
 // Payload: [ success (1 byte: 0 = failure, 1 = success) | message (string) ]
+
+constexpr uint8_t OPCODE_SIGNIN_REQUEST = 0x82;
+// [CLIENT → SERVER, TCP]
+// Sends sign-in credentials to the server.
+// Payload: [ username (string) | password (string) ]
+
+constexpr uint8_t OPCODE_SIGNIN_RESPONSE = 0x83;
+// [SERVER → CLIENT, TCP]
+// Signin response from server
+// Payload: [ success (1 byte: 0 = failure, 1 = success) | message (string) ]

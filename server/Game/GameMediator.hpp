@@ -35,6 +35,8 @@ enum GameMediatorEvent
     JoinLobby = 0x71,
     LoginReqest = 0x80,
     LoginResponse = 0x81,
+    SigninRequest = 0x82,
+    SigninResponse = 0x83,
 };
 
 class NetworkManager;

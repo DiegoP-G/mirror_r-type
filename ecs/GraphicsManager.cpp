@@ -237,7 +237,7 @@ void GraphicsManager::stopSound(const std::string &name)
     }
 }
 
-void GraphicsManager::initMenuUI()
+void GraphicsManager::initLoginMenu()
 {
     if (menuInitialized)
         return;
@@ -270,7 +270,12 @@ void GraphicsManager::initMenuUI()
     loginButtonText.setString("LOGIN");
     loginButtonText.setCharacterSize(30);
     loginButtonText.setFillColor(sf::Color::White);
-    loginButtonText.setPosition(window.getSize().x / 2.0f - 60, 355);
+    // loginButtonText.setPosition(window.getSize().x / 2.0f - 60, 355);
+    sf::FloatRect loginTextBounds = loginButtonText.getLocalBounds();
+    loginButtonText.setPosition(
+        loginButton.getPosition().x + (loginButton.getSize().x - loginTextBounds.width) / 2,
+        loginButton.getPosition().y + (loginButton.getSize().y - loginTextBounds.height) / 2 - loginTextBounds.top
+    );
 
     // Login Button (formerly Quit)
     signinButton.setSize(sf::Vector2f(200, 60));
@@ -281,7 +286,12 @@ void GraphicsManager::initMenuUI()
     signinButtonText.setString("SIGNIN");
     signinButtonText.setCharacterSize(30);
     signinButtonText.setFillColor(sf::Color::White);
-    signinButtonText.setPosition(window.getSize().x / 2.0f - 50, 435);
+    // signinButtonText.setPosition(window.getSize().x / 2.0f - 50, 435);
+    sf::FloatRect signinTextBounds = signinButtonText.getLocalBounds();
+    signinButtonText.setPosition(
+        signinButton.getPosition().x + (signinButton.getSize().x - signinTextBounds.width) / 2,
+        signinButton.getPosition().y + (signinButton.getSize().y - signinTextBounds.height) / 2 - signinTextBounds.top
+    );
 
     menuInitialized = true;
 }
@@ -289,7 +299,7 @@ void GraphicsManager::initMenuUI()
 void GraphicsManager::drawMenu()
 {
     if (!menuInitialized)
-        initMenuUI();
+        initLoginMenu();
 
     window.draw(menuBackground);
     window.draw(menuTitle);
@@ -455,14 +465,14 @@ std::unique_ptr<TextBox> &GraphicsManager::getLobbyTextBox()
 std::unique_ptr<TextBox> &GraphicsManager::getUsernameTextBox()
 {
     if (!menuInitialized)
-        initMenuUI();
+        initLoginMenu();
     return _usernameTextbox;
 }
 
 std::unique_ptr<TextBox> &GraphicsManager::getPasswordTextBox()
 {
     if (!menuInitialized)
-        initMenuUI();
+        initLoginMenu();
     return _passwordTextbox;
 }
 

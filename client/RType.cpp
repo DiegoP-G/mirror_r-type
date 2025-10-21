@@ -115,7 +115,9 @@ void RTypeGame::handleEvents()
                     std::string password = g_graphics->getPasswordTextBox()->getText();
 
                     std::cout << "Sign in with: " << username << std::endl;
-                    // Process signin here
+
+                    std::string loginData = serializeString(username) + serializeString(hashPassword(password));
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, loginData, OPCODE_SIGNIN_REQUEST);
                 }
             }
         }

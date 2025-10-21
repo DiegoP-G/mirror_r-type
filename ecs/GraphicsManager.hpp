@@ -114,7 +114,7 @@ class GraphicsManager
     sf::Texture &createTextureFromPath(const std::string &filePath, const std::string &name);
     bool registerTheTexture();
 
-    void initMenuUI();
+    void initLoginMenu();
     void drawMenu();
     MenuAction handleMenuClick(int mouseX, int mouseY);
 

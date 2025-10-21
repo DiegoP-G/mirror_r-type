@@ -77,24 +77,63 @@ void sqlAPI::closeDb()
     }
 }
 
-bool sqlAPI::addPlayerEntry(const std::string &name, const std::string &password)
+void sqlAPI::addPlayerEntry(const std::string &name, const std::string &password)
 {
+    // Check if name or password is empty
+    if (name.empty() || password.empty())
+    {
+        throw std::runtime_error("Name or password cannot be empty.");
+    }
+
+    // Check if the name already exists in the database
+    std::string checkQuery = "SELECT COUNT(*) FROM Players WHERE Name = ?;";
+    sqlite3_stmt *checkStmt;
+
+    if (sqlite3_prepare_v2(_db, checkQuery.c_str(), -1, &checkStmt, nullptr) != SQLITE_OK)
+    {
+        throw std::runtime_error("Failed to prepare statement for name check: " + std::string(sqlite3_errmsg(_db)));
+    }
+
+    sqlite3_bind_text(checkStmt, 1, name.c_str(), -1, SQLITE_STATIC);
+
+    if (sqlite3_step(checkStmt) == SQLITE_ROW)
+    {
+        int count = sqlite3_column_int(checkStmt, 0);
+        sqlite3_finalize(checkStmt);
+
+        if (count > 0)
+        {
+            throw std::runtime_error("Username already exists: " + name);
+        }
+    }
+    else
+    {
+        sqlite3_finalize(checkStmt);
+        throw std::runtime_error("Failed to check if username exists.");
+    }
+
+    // Hash the password
     std::string hashedPassword = hashPassword(password);
+
+    // Insert the new player into the database
     std::string query = "INSERT INTO Players (Name, Password, Score) VALUES (?, ?, 0);";
     sqlite3_stmt *stmt;
 
     if (sqlite3_prepare_v2(_db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
     {
-        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(_db) << std::endl;
-        return false;
+        throw std::runtime_error("Failed to prepare statement: " + std::string(sqlite3_errmsg(_db)));
     }
 
     sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 2, hashedPassword.c_str(), -1, SQLITE_STATIC);
 
-    bool success = (sqlite3_step(stmt) == SQLITE_DONE);
+    if (sqlite3_step(stmt) != SQLITE_DONE)
+    {
+        sqlite3_finalize(stmt);
+        throw std::runtime_error("Failed to insert new player: " + std::string(sqlite3_errmsg(_db)));
+    }
+
     sqlite3_finalize(stmt);
-    return success;
 }
 
 bool sqlAPI::updatePlayerScore(const std::string &name, int newScore)
