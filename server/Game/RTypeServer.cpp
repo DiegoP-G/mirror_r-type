@@ -75,7 +75,7 @@ void RTypeServer::update(float deltaTime)
         inputSystem.update(entityManager, deltaTime);
     }
 
-    if (_state == (GameState)GameState::INGAME)
+    if ((GameState)_state == (GameState)GameState::INGAME)
     {
         {
             std::lock_guard<std::mutex> lock(entityManager.entityMutex);
