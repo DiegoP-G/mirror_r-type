@@ -1,13 +1,28 @@
 #pragma once
 
-#include <arpa/inet.h>
+#ifdef _WIN32
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #pragma comment(lib, "ws2_32.lib")
+    #include <windows.h>
+#else
+    #include <arpa/inet.h>
+    #include <netinet/in.h>
+    #include <sys/socket.h>
+    #include <unistd.h>
+    #include <poll.h>
+#endif
+
 #include <map>
-#include <netinet/in.h>
-#include <poll.h>
 #include <queue>
 #include <string>
-#include <sys/socket.h>
-#include <unistd.h>
 #include <vector>
 
 class NetworkManager;
@@ -15,8 +30,13 @@ class NetworkManager;
 class TCPManager
 {
   private:
-    int _listenFd;
-    std::vector<pollfd> _pollFds;
+    #ifdef _WIN32
+      SOCKET _listenFd;
+        std::vector<WSAPOLLFD> _pollFds;
+    #else
+        int _listenFd;
+        std::vector<struct pollfd> _pollFds;
+    #endif
     NetworkManager &_networkManagerRef;
 
     // Buffer d'écriture par client (données brutes à envoyer)

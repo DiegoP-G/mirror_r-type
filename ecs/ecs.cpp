@@ -1,6 +1,8 @@
 #include "ecs.hpp"
 #include "components/InputComponent.hpp"
 #include <cstring>
+#include <string>
+#include <sstream>
 
 const std::string &serializePlayerInput(const InputComponent &player, int playerId)
 {
