@@ -52,6 +52,7 @@ We chose **C++** because it strikes the right balance:
 + The performance of **C**
 + With better abstractions and maintainability
 + While avoiding the impracticalities of **Haskell** and **Python** for a real-time, networked ECS-based game.
+
 ---
 
 ## **Graphical library benchmark**
@@ -98,8 +99,53 @@ We chose **C++** because it strikes the right balance:
 
 ### **Conclusion**
 We chose **SFML** because it provides the best balance between simplicity, C++ integration, and multimedia support.
-+ Our team already had experience with it, allowing us to focus on the engine and gameplay logic rather than setup complexity.
-+ For a 2D networked project like R-Type, **SFML** is the most efficient and developer-friendly choice.
+Our team already had experience with it, allowing us to focus on the engine and gameplay logic rather than setup complexity.
+For a 2D networked project like R-Type, **SFML** is the most efficient and developer-friendly choice.
+
+---
+
+## **Database benchmark**
+
+| Criteria | SQLite | MySQL | MariaDB |
+| :--- | :--- | :--- | :--- |
+| Setup simplicity | :star::star::star::star: | :star::star: | :star::star: |
+| Performance (small data) | :star::star::star::star: | :star::star::star: | :star::star::star: |
+| Resource usage | :star::star::star::star: | :star::star: | :star::star: |
+| Concurrency/scalability | :star::star: | :star::star::star::star: | :star::star::star::star: |
+| Portability/integration | :star::star::star::star: | :star::star::star: | :star::star::star: |
+| Suitability for local storage | :star::star::star::star: | :star::star: | :star::star: |
+---
+
+### **Description of criteria**
+
+**1. Setup simplicity**
++ **SQLite** requires no server: it’s just a file-based database, ideal for quick integration.
++ **MySQL** and **MariaDB** both require a running database server, setup, and configuration.
+
+**2. Performance (small data)**
++ For small datasets like scores and bans, **SQLite** is extremely fast due to minimal overhead.
++ **MySQL** and **MariaDB** perform better on larger datasets but are slower for lightweight, local storage.
+
+**3. Resource usage**
++ **SQLite** is very light (a few hundred kilobytes), while **MySQL**/**MariaDB** consume significantly more memory and CPU.
+
+**4. Concurrency/scalability**
++ **SQLite** is limited to a few simultaneous writers.
++ **MySQL** and **MariaDB** are designed for multi-user environments and large-scale databases.
+
+**5. Portability/integration**
++ **SQLite** works on all platforms, stored in a single '.db' file: easy to ship with the game.
++ **MySQL**/**MariaDB** require external services, making deployment more complex.
+
+**6. Suitability for local storage**
++ **SQLite** excels for local data persistence in client or server-side applications.
++ **MySQL**/**MariaDB** are overkill for this kind of lightweight use.
+---
+
+### **Conclusion**
+We chose **SQLite** because it’s lightweight, self-contained, and perfectly suited for local data like player scores and banned IPs.
+It integrates easily into our C++ project without requiring a separate database server, making it simple, efficient, and portable for our needs.
+
 ---
 
 ## **Data compression benchmark**
@@ -141,7 +187,8 @@ We chose **SFML** because it provides the best balance between simplicity, C++ i
 
 ### **Conclusion**
 We chose **Zlib** because it offers the best compromise between compression efficiency and speed for our network packets:
-+ While **LZ4** is faster, its weaker compression led to larger payloads and no real gain in performance.
-+ **RLE** was discarded as it only works well on highly repetitive data.
-+ **Zlib** gives us smaller packets, reliable results, and consistent performance across all types of game data.
+While **LZ4** is faster, its weaker compression led to larger payloads and no real gain in performance.
+**RLE** was discarded as it only works well on highly repetitive data.
+**Zlib** gives us smaller packets, reliable results, and consistent performance across all types of game data.
+
 ---
