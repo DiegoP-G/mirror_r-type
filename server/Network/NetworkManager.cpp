@@ -94,6 +94,7 @@ void NetworkManager::sendDataToLobbyTCP(std::shared_ptr<Lobby> lobby, const std:
 
     for (int fd : players)
     {
+        std::cout << "[TCP] Sending to lobby player fd: " << fd << std::endl;
         _TCPManager.sendMessage(fd, opcode, data);
     }
 }

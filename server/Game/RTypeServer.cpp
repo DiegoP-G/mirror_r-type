@@ -121,12 +121,16 @@ void RTypeServer::update(float deltaTime)
     // 4. Envoyer les updates de mouvement (toutes les entités actives)
     // 2. AVANT applyPendingChanges, envoyer ce qui a été créé/détruit
     sendNewEntities();       // Envoie les entités dans entitiesToCreate
+
     sendDestroyedEntities(); // Envoie les IDs dans entitiesToDestroy
     sendMovementUpdates();
+    std::cout << "Applying pending changes" << std::endl;
     entityManager.applyPendingChanges();
     // 4. Envoyer les updates de mouvement (toutes les entités actives)
-    sendHealthUpdates();
+    std::cout << "Sending healthupdates" << std::endl;
+    sendHealthUpdates(); 
     sendGameStateUpdates();
+    std::cout << "Finishing update states" << std::endl;
 
     tick++;
 }
@@ -148,9 +152,13 @@ void RTypeServer::sendNewEntities()
         // std::cout << "Sending new entites" << std::endl;
         // std::cout << "Entity :" << entity->getID() << std::endl;
         auto data = manager.serializeEntityFull(entity->getID());
+        std::cout << "Serialzing " << entity->getID() << std::endl;
         std::string serializedData(data.begin(), data.end());
+        std::cout << "Before notifying for " << entity->getID() << std::endl;
         mediator.notify(GameMediatorEvent::EntityCreated, serializedData, _lobbyUID);
+        
     }
+    std::cout << "Finished sending newEntities" << std::endl;
 }
 
 void RTypeServer::sendDestroyedEntities()

@@ -8,8 +8,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
 
-include(FetchContent)
+# ---- Windows: Define NOMINMAX globally ----
+if (WIN32)
+    add_compile_definitions(NOMINMAX)
+endif()
 
+include(FetchContent)
 # ---- SFML ----
 find_package(SFML 2.5 COMPONENTS graphics window system audio QUIET)
 
