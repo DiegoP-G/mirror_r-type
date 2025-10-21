@@ -76,6 +76,13 @@ NetworkECSMediator::NetworkECSMediator()
                 }
 
                 _game->getMutex().unlock();
+            } else if (opcode == OPCODE_SERVER_PUB_KEY) {
+                std::cout << "Receive Server public key\n";
+                _game->getMutex().lock();
+                
+                // _game->_med. SET SERVER PUB KEY HERE
+
+                _game->getMutex().unlock();
             }
          }},
 

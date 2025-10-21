@@ -263,7 +263,7 @@ bool sqlAPI::validateCredentials(const std::string &name, const std::string &pas
     
     try {
     // Verify the password against the stored hash
-        bool res = verifyPassword(password, storedHash);
+        bool res = verifyPassword(storedHash, password);
         return res;
     } catch (const std::runtime_error &e) {
         std::cerr << "[Auth] Exception verifying password for user '" << name << "': " << e.what()

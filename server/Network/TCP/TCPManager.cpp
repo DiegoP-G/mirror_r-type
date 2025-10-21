@@ -1,6 +1,7 @@
 #include "TCPManager.hpp"
 #include "../../../transferData/opcode.hpp"
 #include "../../../transferData/transferData.hpp"
+#include "../../../transferData/hashUtils.hpp"
 #include "../Client.hpp"
 #include "../NetworkManager.hpp"
 #include <cerrno>
@@ -49,6 +50,32 @@ TCPManager::~TCPManager()
     close(_listenFd);
 }
 
+void TCPManager::sendAESKey(int clientFd)
+{
+    /* GENERATE AND SEND SERVER PUBLIC KEY */
+    EVP_PKEY *serverKey = generateDHKeyPair();
+    if (!serverKey)
+    {
+        std::cerr << "Failed to generate server DH key pair" << std::endl;
+        return;
+    }
+
+    // Extract and send the server's public key to the client
+    unsigned char *serverPubKey = nullptr;
+    size_t serverPubKeyLen = 0;
+    EVP_PKEY_get_raw_public_key(serverKey, nullptr, &serverPubKeyLen);
+    serverPubKey = new unsigned char[serverPubKeyLen];
+    EVP_PKEY_get_raw_public_key(serverKey, serverPubKey, &serverPubKeyLen);
+
+    // Send the server's public key to the client
+    std::string serverPubKeyStr(reinterpret_cast<char *>(serverPubKey), serverPubKeyLen);
+
+    _networkManagerRef.getGameMediator().getNetworkManager().getTCPManager().sendMessage(clientFd, OPCODE_SERVER_PUB_KEY, serverPubKeyStr);
+    delete[] serverPubKey;
+    _networkManagerRef.setServerPubKey(serverKey);
+}
+
+
 void TCPManager::handleNewConnection()
 {
     sockaddr_in client_addr;
@@ -95,6 +122,7 @@ void TCPManager::handleNewConnection()
     // Envoyer les messages de connexion
     sendMessage(cfd, OPCODE_PLAYER_ID, serializeInt(cfd));
     sendMessage(cfd, OPCODE_CODE_UDP, serializeInt(code_udp));
+    sendAESKey(cfd);
 
     // Notifier la création du joueur
     _networkManagerRef.addNewPlayer(cfd);

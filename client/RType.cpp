@@ -105,7 +105,8 @@ void RTypeGame::handleEvents()
 
                     std::cout << "Login in with: " << username << std::endl;
 
-                    std::string loginData = serializeString(username) + serializeString(hashPassword(password));
+                    std::string loginData = serializeString(username) + serializeString(password);
+                    // std::string cryptedDate =  ENCRYPT DATA HERE
                     _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, loginData, OPCODE_LOGIN_REQUEST);
                 }
                 else if (action == GraphicsManager::MenuAction::SIGNIN)
@@ -116,7 +117,8 @@ void RTypeGame::handleEvents()
 
                     std::cout << "Sign in with: " << username << std::endl;
 
-                    std::string loginData = serializeString(username) + serializeString(hashPassword(password));
+                    std::string loginData = serializeString(username) + serializeString(password);
+                    // std::string cryptedDate =  ENCRYPT DATA HERE
                     _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, loginData, OPCODE_SIGNIN_REQUEST);
                 }
             }

@@ -25,6 +25,11 @@ class NetworkManager
     UDPManager _UDPManager;
     TCPManager _TCPManager;
 
+    EVP_PKEY *_serverPubKey;
+    EVP_PKEY *_clientPubKey;
+    std::string _aesKey;
+    std::string _aesIV;
+
   public:
     NetworkManager(GameMediator &ref);
     ~NetworkManager();
@@ -58,4 +63,33 @@ class NetworkManager
     {
         return _TCPManager;
     };
+
+    void setServerPubKey(EVP_PKEY *key)
+    {
+      if (key) {
+        _serverPubKey = key;
+      }
+    }
+
+    void setClientPubKey(EVP_PKEY *key)
+    {
+      if (key) {
+        _clientPubKey = key;
+      }
+    }
+
+    void setAesKey(std::string &key)
+    {
+      _aesKey = key;
+    }
+
+    void setAesIV(std::string &iv)
+    {
+      _aesIV = iv;
+    }
+
+    EVP_PKEY *getServerPubKey() { return _serverPubKey; };
+    EVP_PKEY *getClientPubKey() { return _clientPubKey; };
+    std::string &getAesKey() { return _aesKey; };
+    std::string &getAesIV() { return _aesIV; };
 };

@@ -137,12 +137,14 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
         {GameMediatorEvent::LoginReqest,
         [this](const std::string &data, const std::string &, int clientFd) -> void {
             std::cout << "[GameMediator] LoginRequest event triggered for clientFd: " << clientFd << std::endl;
-            // Extract username and password
-
+            
+            std::vector<uint8_t> encryptedData(data.begin(), data.end());
+            std::string decryptedData = decryptAES(encryptedData, _networkManager.getAesKey(), _networkManager.getAesIV());
+            
             size_t offset = 0;
-            std::string username = deserializeString(data.substr(offset));
+            std::string username = deserializeString(decryptedData.substr(offset));
             offset += sizeof(int) + username.size();
-            std::string password = deserializeString(data.substr(offset));
+            std::string password = deserializeString(decryptedData.substr(offset));
 
             std::cout << "[Server] Login request from client " << clientFd << ": " << username <<std::endl;
 
@@ -205,6 +207,31 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
          [this](const std::string &data, const std::string &, int clientFd) -> void {}},
         {GameMediatorEvent::SigninResponse,
          [this](const std::string &data, const std::string &, int clientFd) -> void {}},
+        {GameMediatorEvent::ClientPubAesKey,
+         [this](const std::string &data, const std::string &, int clientFd) -> void {
+            std::cout << "[GameMediator] Received client AES key " << clientFd << std::endl;
+            std::string clientPubKey = deserializeString(data);
+            EVP_PKEY *clientKey = EVP_PKEY_new_raw_public_key(EVP_PKEY_DH, nullptr,
+                reinterpret_cast<const unsigned char *>(clientPubKeyData.data()),
+                clientPubKeyData.size());
+                _networkManager.setClientPubKey(clientKey);
+
+            EVP_PKEY *serverKey = _networkManager.getServerPubKey();
+            if (!serverKey) {
+                return;
+            }
+
+            if (!generateAESKeyAndIV(serverKey, clientKey, _networkManager.getAesKey(), _networkManager.getAesIV()))
+            {
+                std::cerr << "Failed to generate AES key and IV" << std::endl;
+                EVP_PKEY_free(serverKey);
+                EVP_PKEY_free(clientKey);
+                return;
+            }
+
+            EVP_PKEY_free(serverKey);
+            EVP_PKEY_free(clientKey);
+         }},
         };
 }
 

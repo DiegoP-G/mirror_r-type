@@ -200,3 +200,13 @@ constexpr uint8_t OPCODE_SIGNIN_RESPONSE = 0x83;
 // [SERVER → CLIENT, TCP]
 // Signin response from server
 // Payload: [ success (1 byte: 0 = failure, 1 = success) | message (string) ]
+
+constexpr uint8_t OPCODE_SERVER_PUB_KEY = 0x90;
+// [SERVER → CLIENT, TCP]
+// AES server key 
+// Payload: [ success (1 byte: 0 = failure, 1 = success) | message (string) ]
+
+constexpr uint8_t OPCODE_CLIENT_PUB_KEY = 0x91;
+// [CLIENT → SERVER, TCP]
+// AES server key 
+// Payload: [ success (1 byte: 0 = failure, 1 = success) | message (string) ]

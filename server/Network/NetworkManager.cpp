@@ -12,7 +12,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-NetworkManager::NetworkManager(GameMediator &ref) : _gameMediator(ref), _UDPManager(*this), _TCPManager(*this)
+NetworkManager::NetworkManager(GameMediator &ref) : _gameMediator(ref), _UDPManager(*this),
+    _TCPManager(*this), _serverPubKey(nullptr), _clientPubKey(nullptr), _aesIV(""), _aesKey("")
 {
 }
 
