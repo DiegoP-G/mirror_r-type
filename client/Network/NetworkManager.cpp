@@ -33,12 +33,14 @@
 NetworkManager::NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver)
     : _med(med), _sender(sender), _receiver(receiver), _tcpSocket(-1), _udpSocket(-1), _shouldStop(false)
 {
-    WSADATA wsaData;
- 
-    int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (result != 0) {
-        printf("WSAStartup failed: %d\n", result);
-    }
+    #ifdef _WIN32
+        WSADATA wsaData;
+    
+        int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
+        if (result != 0) {
+            printf("WSAStartup failed: %d\n", result);
+        }
+    #endif
 }
 
 NetworkManager::~NetworkManager()

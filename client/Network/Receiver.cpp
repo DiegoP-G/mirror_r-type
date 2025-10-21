@@ -92,7 +92,11 @@ void Receiver::onCloseConnection(const std::string &)
     std::cout << "[RECEIVER] Server closed connection" << std::endl;
     if (_tcpSocket != -1)
     {
+        #ifdef _WIN32
         closesocket(_tcpSocket);
+        #else
+        close(_tcpSocket);
+        #endif
         _tcpSocket = -1;
     }
 }

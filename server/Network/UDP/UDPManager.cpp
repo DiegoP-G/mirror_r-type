@@ -33,7 +33,7 @@ typedef WSAPOLLFD pollfd;
 UDPManager::UDPManager(NetworkManager& ref) : _NetworkManagerRef(ref)
 {
     _udpFd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (_udpFd == INVALID_SOCKET) {
+    if (_udpFd == -1) {
 #ifdef _WIN32
         int error = WSAGetLastError();
         throw std::runtime_error("UDP socket failed with error: " + std::to_string(error));
