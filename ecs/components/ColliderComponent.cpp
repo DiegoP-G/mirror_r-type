@@ -30,7 +30,7 @@ std::vector<uint8_t> ColliderComponent::serialize() const
 
 ColliderComponent ColliderComponent::deserialize(const uint8_t *data, size_t size)
 {
-    size_t expectedSize = sizeof(Rectangle) + 2 * sizeof(bool); // hitbox + isActive + isTrigger
+    size_t expectedSize = sizeof(Rect) + 2 * sizeof(bool); // hitbox + isActive + isTrigger
     if (size < expectedSize)
     {
         throw "ColliderComponent::deserialize - données trop petites";
@@ -39,8 +39,8 @@ ColliderComponent ColliderComponent::deserialize(const uint8_t *data, size_t siz
     ColliderComponent comp;
     size_t offset = 0;
 
-    comp.hitbox = Rectangle::deserialize(data, sizeof(Rectangle));
-    offset += sizeof(Rectangle);
+    comp.hitbox = Rect::deserialize(data, sizeof(Rect));
+    offset += sizeof(Rect);
 
     comp.isActive = static_cast<bool>(data[offset++]);
     comp.isTrigger = static_cast<bool>(data[offset]);

@@ -1,6 +1,6 @@
 #pragma once
+#include <../sqlite/sqlite3.h>
 #include <iostream>
-#include <sqlite3.h>
 #include <vector>
 
 class sqlAPI

@@ -142,7 +142,8 @@ void RTypeServer::update(float deltaTime)
 
     // 4. Envoyer les updates de mouvement (toutes les entités actives)
     // 2. AVANT applyPendingChanges, envoyer ce qui a été créé/détruit
-    sendNewEntities();       // Envoie les entités dans entitiesToCreate
+    sendNewEntities(); // Envoie les entités dans entitiesToCreate
+
     sendDestroyedEntities(); // Envoie les IDs dans entitiesToDestroy
     sendMovementUpdates();
 
@@ -154,6 +155,7 @@ void RTypeServer::update(float deltaTime)
     // // 4. Envoyer les updates de mouvement (toutes les entités actives)
     sendHealthUpdates();
     sendGameStateUpdates();
+    std::cout << "Finishing update states" << std::endl;
 
     tick++;
 }
@@ -185,8 +187,10 @@ void RTypeServer::sendNewEntities()
     for (auto &data : serializedEntities)
     {
         std::string serializedData(data.begin(), data.end());
+        // std::cout << "Before notifying for " << entity->getID() << std::endl;
         mediator.notify(GameMediatorEvent::EntityCreated, serializedData, _lobbyUID);
     }
+    std::cout << "Finished sending newEntities" << std::endl;
 }
 
 void RTypeServer::sendDestroyedEntities()
@@ -203,7 +207,7 @@ void RTypeServer::sendDestroyedEntities()
     }
 }
 
-void::RTypeServer::sendMovementUpdates()
+void ::RTypeServer::sendMovementUpdates()
 {
     std::lock_guard<std::mutex> lock(entityManager.entityMutex);
 
@@ -232,8 +236,8 @@ void RTypeServer::sendHealthUpdates()
     {
         auto &health = entity->getComponent<HealthComponent>();
         auto &playerComp = entity->getComponent<PlayerComponent>();
-        std::cout << "Player ID " << playerComp.playerID << " - Health: " << health.health
-                  << "/" << health.maxHealth << std::endl;
+        std::cout << "Player ID " << playerComp.playerID << " - Health: " << health.health << "/" << health.maxHealth
+                  << std::endl;
     }
 
     std::vector<Entity *> deadPlayers = entityManager.getPlayersDead(winnerID, game_over);
@@ -265,7 +269,6 @@ void RTypeServer::sendHealthUpdates()
     else
         mediator.notify(GameMediatorEvent::HealthUpdate, raw, _lobbyUID);
 }
-
 
 void RTypeServer::restart()
 {

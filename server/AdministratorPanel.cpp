@@ -1,6 +1,24 @@
 #include "AdministratorPanel.hpp"
 #include "Network/ClientManager.hpp"
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#include <windows.h>
+#else
 #include <arpa/inet.h>
+#include <netinet/in.h>
+#include <poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
 
 AdministratorPanel::AdministratorPanel(NetworkManager &networkManager)
     : _clientManager(nullptr), _playerListScrollOffset(0), _logsScrollOffset(0), _networkManager(networkManager),

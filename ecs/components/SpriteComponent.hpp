@@ -1,13 +1,13 @@
 #pragma once
 #include "../IComponent.hpp"
-#include "Rectangle.hpp"
+#include "Rect.hpp"
 #include <SFML/Graphics.hpp>
 
 class SpriteComponent : public IComponent
 {
   public:
     int spriteTexture;
-    Rectangle srcRect;
+    Rect srcRect;
     int width, height;
     bool isVisible;
     uint8_t r, g, b, a;

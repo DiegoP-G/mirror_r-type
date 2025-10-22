@@ -40,15 +40,15 @@ std::vector<uint8_t> SpriteComponent::serialize() const
 
 SpriteComponent SpriteComponent::deserialize(const uint8_t *data, size_t size)
 {
-    size_t expectedSize = sizeof(Rectangle) + sizeof(int) * 2 + 1 /*bool*/ + 4 /*r,g,b,a*/ + 1 /*texture id*/;
+    size_t expectedSize = sizeof(Rect) + sizeof(int) * 2 + 1 /*bool*/ + 4 /*r,g,b,a*/ + 1 /*texture id*/;
     if (size < expectedSize)
     {
         throw "SpriteComponent::deserialize - données trop petites";
     }
 
     SpriteComponent comp;
-    comp.srcRect = Rectangle::deserialize(data, sizeof(Rectangle));
-    size_t offset = sizeof(Rectangle);
+    comp.srcRect = Rect::deserialize(data, sizeof(Rect));
+    size_t offset = sizeof(Rect);
 
     std::memcpy(&comp.width, data + offset, sizeof(int));
     offset += sizeof(int);

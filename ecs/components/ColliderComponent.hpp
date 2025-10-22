@@ -1,11 +1,11 @@
 #pragma once
 #include "../IComponent.hpp"
-#include "Rectangle.hpp"
+#include "Rect.hpp"
 
 class ColliderComponent : public IComponent
 {
   public:
-    Rectangle hitbox;
+    Rect hitbox;
     bool isActive;
     bool isTrigger;
 

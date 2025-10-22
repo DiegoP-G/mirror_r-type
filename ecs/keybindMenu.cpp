@@ -1,4 +1,5 @@
 #include "keybindMenu.hpp"
+#include "../client/KeybindManager.hpp"
 #include "GraphicsManager.hpp"
 #include <iostream>
 

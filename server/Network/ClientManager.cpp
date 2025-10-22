@@ -3,7 +3,26 @@
 #include "../AdministratorPanel.hpp"
 #include "Client.hpp"
 #include <iostream>
+
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#include <windows.h>
+#else
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <poll.h>
+#include <sys/socket.h>
 #include <unistd.h>
+#endif
 
 void ClientManager::addClient(const Client &c)
 {
@@ -57,7 +76,11 @@ bool ClientManager::removeClient(int socket)
     {
         std::cout << "Removing client: " << it->second.getName() << " (socket " << socket << ")\n";
         _clients.erase(it);
+#ifdef _WIN32
+        closesocket(socket);
+#else
         close(socket);
+#endif // WIN_32
         return true;
     }
     else
