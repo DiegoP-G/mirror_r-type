@@ -32,6 +32,7 @@ void ClientGame::startServer(const char *serverIp)
     _networkThread = std::thread(&ClientGame::networkLoop, this);
     _game.setCurrentState(GameState::MENULOBBY);
     std::cout << "[Client] Connected successfully, showing lobby menu" << std::endl;
+    _med.setupVoiceChat();
 }
 
 bool ClientGame::init(const char *serverIp, int port)

@@ -56,17 +56,32 @@ void VoiceManager::startRecording(std::function<void(const std::vector<u_int8_t>
 
     PaStreamParameters inputParams;
     inputParams.device = Pa_GetDefaultInputDevice();
+    if (inputParams.device == paNoDevice)
+    {
+        std::cerr << "[Voice] No input device found!" << std::endl;
+        return;
+    }
+
     inputParams.channelCount = 1;
     inputParams.sampleFormat = paInt16;
     inputParams.suggestedLatency = Pa_GetDeviceInfo(inputParams.device)->defaultLowInputLatency;
     inputParams.hostApiSpecificStreamInfo = nullptr;
 
-    Pa_OpenStream(&inputStream, &inputParams, nullptr,
-                  8000, // 8kHz sample rate
-                  160,  // 20ms chunks (160 samples à 8kHz)
-                  paClipOff, recordCallback, this);
+    PaError err = Pa_OpenStream(&inputStream, &inputParams, nullptr, 8000, 160, paClipOff, recordCallback, this);
 
-    Pa_StartStream(inputStream);
+    if (err != paNoError)
+    {
+        std::cerr << "[Voice] Failed to open input stream: " << Pa_GetErrorText(err) << std::endl;
+        return;
+    }
+
+    err = Pa_StartStream(inputStream);
+    if (err != paNoError)
+    {
+        std::cerr << "[Voice] Failed to start stream: " << Pa_GetErrorText(err) << std::endl;
+        return;
+    }
+
     isRecording = true;
     std::cout << "[Voice] Recording started (8-bit, 8kHz)" << std::endl;
 }

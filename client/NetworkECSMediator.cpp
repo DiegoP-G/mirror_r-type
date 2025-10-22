@@ -218,6 +218,7 @@ void NetworkECSMediator::notify(NetworkECSMediatorEvent event, const std::string
 
 void NetworkECSMediator::setupVoiceChat()
 {
+    voiceChatEnabled = true;
     _voiceManager->startRecording([this](const std::vector<u_int8_t> &audioData) {
         _sender->sendUdp(OPCODE_VOICE_DATA, std::string(audioData.begin(), audioData.end()));
     });
