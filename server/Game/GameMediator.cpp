@@ -1,118 +1,188 @@
-/*
-** EPITECH PROJECT, 2025
-** mirror_r-type
-** File description:
-** GameMediator
-*/
-
 #include "GameMediator.hpp"
 #include "../Network/NetworkManager.hpp"
+#include <iostream>
+#include <memory>
 
-GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _rTypeServer(*new RTypeServer(*this))
+std::string generateLobbyUid()
 {
+    static int counter = 0;
+    return "lobby_" + std::to_string(++counter);
+}
+
+GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lobbyManager(*new LobbyManager(*this))
+{
+
     _mediatorMap = {
-        // Logique de jeu
-        {GameMediatorEvent::TickLogic, [this](const std::string &data) -> void
-         { _rTypeServer.run(std::stof(data)); }},
+        {GameMediatorEvent::SetupNetwork, [this](const std::string &, const std::string &, int) -> void {}},
 
-        // Input joueur
-        {GameMediatorEvent::InitECS, [this](const std::string &data) -> void
-         { _rTypeServer.init(); }},
-
-        // Réseau
-        {GameMediatorEvent::SetupNetwork, [this](const std::string &data) -> void {}},
-
-        {GameMediatorEvent::TickNetwork, [this](const std::string &data) -> void
+        {GameMediatorEvent::TickNetwork,
+         [this](const std::string &, const std::string &, int) -> void
          { _networkManager.updateAllPoll(); }},
 
-        // Joueurs
-        {GameMediatorEvent::AddPlayer, [this](const std::string &data) -> void
-         { _rTypeServer.createPlayer(data); }},
-
-        // Création d'entité (TCP - fiable)
         {GameMediatorEvent::EntityCreated,
-         [this](const std::string &data) -> void
-         { _networkManager.sendDataAllClientTCP(data, OPCODE_ENTITY_CREATE); }},
-
-        // Destruction d'entité (TCP - fiable)
-        {GameMediatorEvent::EntityDestroyed,
-         [this](const std::string &data) -> void
+         [this](const std::string &data, const std::string &lobbyUid, int) -> void
          {
-             _networkManager.sendDataAllClientTCP(data, OPCODE_ENTITY_DESTROY);
+             auto lobby = _lobbyManager.getLobby(lobbyUid);
+             if (lobby)
+                 _networkManager.sendDataToLobbyTCP(lobby, data, OPCODE_ENTITY_CREATE);
          }},
 
-        // Updates de mouvement (UDP - rapide)
-        {GameMediatorEvent::MovementUpdate,
-         [this](const std::string &data) -> void
+        {GameMediatorEvent::EntityDestroyed,
+         [this](const std::string &data, const std::string &lobbyUid, int) -> void
          {
-             _networkManager.sendDataAllClientUDP(data, OPCODE_MOVEMENT_UPDATE);
+             auto lobby = _lobbyManager.getLobby(lobbyUid);
+             if (lobby)
+                 _networkManager.sendDataToLobbyTCP(lobby, data, OPCODE_ENTITY_DESTROY);
+         }},
+
+        {GameMediatorEvent::MovementUpdate,
+         [this](const std::string &data, const std::string &lobbyUid, int) -> void
+         {
+             auto lobby = _lobbyManager.getLobby(lobbyUid);
+             if (lobby)
+                 _networkManager.sendDataToLobbyUDP(lobby, data, OPCODE_MOVEMENT_UPDATE);
          }},
 
         {GameMediatorEvent::MovementUpdateZlib,
-         [this](const std::string &data) -> void
+         [this](const std::string &data, const std::string &lobbyUid, int) -> void
          {
-             _networkManager.sendDataAllClientUDP(data, OPCODE_MOVEMENT_UPDATE_ZLIB);
+            auto lobby = _lobbyManager.getLobby(lobbyUid);
+             if (lobby)
+                 _networkManager.sendDataToLobbyUDP(lobby, data, OPCODE_MOVEMENT_UPDATE_ZLIB);
          }},
 
         {GameMediatorEvent::HealthUpdate,
-         [this](const std::string &data) -> void
+         [this](const std::string &data, const std::string &lobbyUid, int) -> void
          {
-             _networkManager.sendDataAllClientUDP(data, OPCODE_HEALTH_UPDATE);
+             auto lobby = _lobbyManager.getLobby(lobbyUid);
+             if (lobby)
+                 _networkManager.sendDataToLobbyUDP(lobby, data, OPCODE_HEALTH_UPDATE);
          }},
 
         {GameMediatorEvent::HealthUpdateZlib,
-         [this](const std::string &data) -> void {
-            _networkManager.sendDataAllClientUDP(data, OPCODE_HEALTH_UPDATE_ZLIB);
+         [this](const std::string &data, const std::string &lobbyUid, int) -> void
+         {
+            auto lobby = _lobbyManager.getLobby(lobbyUid);
+             if (lobby)
+                 _networkManager.sendDataToLobbyUDP(lobby, data, OPCODE_HEALTH_UPDATE_ZLIB);
          }},
 
         {GameMediatorEvent::ProjectilesUpdateZlib,
-         [this](const std::string &data) -> void {
-            _networkManager.sendDataAllClientUDP(data, OPCODE_PROJECTILES_UPDATE_ZLIB);
+         [this](const std::string &data, const std::string &lobbyUid, int) -> void
+         {
+            auto lobby = _lobbyManager.getLobby(lobbyUid);
+             if (lobby)
+                 _networkManager.sendDataToLobbyUDP(lobby, data, OPCODE_PROJECTILES_UPDATE_ZLIB);
          }},
 
         // Input joueur
         {GameMediatorEvent::PlayerInput,
-         [this](const std::string &data) -> void
-         { _rTypeServer.handlePlayerInput(data); }},
-
-        {GameMediatorEvent::LobbyInfoUpdate, // contains playerReady / playerMax
-         [this](const std::string &data) -> void
+         [this](const std::string &data, const std::string &lobbyUid, int clientFd) -> void
          {
-             std::cout << "sending" << std::endl;
-             _networkManager.sendDataAllClientTCP(data, OPCODE_LOBBY_INFO);
+             InputComponent inputComp;
+             int playerId = deserializePlayerInput(data, inputComp);
+             std::shared_ptr<Lobby> lobby = _lobbyManager.getLobbyOfPlayer(playerId);
+             if (!lobby)
+             {
+                 std::cerr << "[PlayerInput] Player not in a lobby.\n";
+                 return;
+             }
+             std::unique_ptr<RTypeServer> &rtype = lobby->getRTypeServer();
+             rtype->handlePlayerInput(data);
          }},
-        // Wave update
-        {GameMediatorEvent::UpdateWave,
-         [this](const std::string &data) -> void
-         { _networkManager.sendDataAllClientTCP(data, OPCODE_UPDATE_WAVE); }},
 
-        // Score update
+        {GameMediatorEvent::LobbyInfoUpdate,
+         [this](const std::string &data, const std::string &lobbyUid, int) -> void
+         {
+             auto lobby = _lobbyManager.getLobby(lobbyUid);
+             if (lobby)
+                 _networkManager.sendDataToLobbyTCP(lobby, data, OPCODE_LOBBY_INFO);
+         }},
+
+        {GameMediatorEvent::UpdateWave,
+         [this](const std::string &data, const std::string &lobbyUid, int) -> void
+         {
+             auto lobby = _lobbyManager.getLobby(lobbyUid);
+             if (lobby)
+                 _networkManager.sendDataToLobbyTCP(lobby, data, OPCODE_UPDATE_WAVE);
+         }},
+
         {GameMediatorEvent::UpdateScore,
-         [this](const std::string &data) -> void
-         { _networkManager.sendDataAllClientTCP(data, OPCODE_UPDATE_SCORE); }},
+         [this](const std::string &data, const std::string &lobbyUid, int) -> void
+         {
+             auto lobby = _lobbyManager.getLobby(lobbyUid);
+             if (lobby)
+                 _networkManager.sendDataToLobbyTCP(lobby, data, OPCODE_UPDATE_SCORE);
+         }},
 
         {GameMediatorEvent::GameOver,
-         [this](const std::string &data) -> void
-         { _networkManager.sendDataAllClientTCP(data, OPCODE_GAME_OVER); }},
-        {GameMediatorEvent::PlayerDead,
-         [this](const std::string &data) -> void
-         { _networkManager.sendDataAllClientTCP(data, OPCODE_PLAYER_DEAD); }},
-        {GameMediatorEvent::GameStateUpdate,
-         [this](const std::string &data) -> void
+         [this](const std::string &data, const std::string &lobbyUid, int) -> void
          {
-             _networkManager.sendDataAllClientTCP(data, OPCODE_GAME_STATE_UPDATE);
+             auto lobby = _lobbyManager.getLobby(lobbyUid);
+             if (lobby)
+                 _networkManager.sendDataToLobbyTCP(lobby, data, OPCODE_GAME_OVER);
          }},
-    };
+
+        {GameMediatorEvent::PlayerDead,
+         [this](const std::string &data, const std::string &lobbyUid, int) -> void
+         {
+             auto lobby = _lobbyManager.getLobby(lobbyUid);
+             if (lobby)
+                 _networkManager.sendDataToLobbyTCP(lobby, data, OPCODE_PLAYER_DEAD);
+         }},
+
+        {GameMediatorEvent::GameStateUpdate,
+         [this](const std::string &data, const std::string &lobbyUid, int) -> void
+         {
+             auto lobby = _lobbyManager.getLobby(lobbyUid);
+             if (lobby)
+                 _networkManager.sendDataToLobbyTCP(lobby, data, OPCODE_GAME_STATE_UPDATE);
+         }},
+
+        {GameMediatorEvent::CreateLobby,
+         [this](const std::string &data, const std::string &, int) -> void
+         { _lobbyManager.createLobby(data); }},
+
+        {GameMediatorEvent::JoinLobby,
+         [this](const std::string &data, const std::string &, int clientFd) -> void
+         {
+             auto lobby = _lobbyManager.getLobby(data);
+
+             std::cout << "[JoinLobby] Client " << clientFd << " joining " << data << std::endl;
+             std::unique_ptr<RTypeServer> &rtype = lobby->getRTypeServer();
+             lobby->addPlayer(clientFd);
+             rtype->createPlayer(clientFd);
+             _networkManager.sendAllEntitiesToClient(clientFd);
+         }},
+        {GameMediatorEvent::PlayerDisconnected, [this](const std::string &, const std::string &, int clientFd) -> void
+         {
+             std::shared_ptr<Lobby> lobby = _lobbyManager.getLobbyOfPlayer(clientFd);
+             if (!lobby)
+             {
+                 std::cerr << "[PlayerDisconnected] Player not in a lobby.\n";
+                 return;
+             }
+             std::cout << "lobby player size before remove: " << lobby->getPlayers().size() << std::endl;
+             lobby->removePlayer(clientFd);
+
+             std::cout << "lobby player size after remove: " << lobby->getPlayers().size() << std::endl;
+             if (lobby->getPlayers().size() == 0)
+             {
+                 std::cout << "[PlayerDisconnected] Lobby " << lobby->getUid() << " is empty. Removing it."
+                           << std::endl;
+                 _lobbyManager.removeLobby(lobby->getUid());
+             }
+         }}};
 }
 
-void GameMediator::notify(const int &event, const std::string &data)
+void GameMediator::notify(const int &event, const std::string &data, const std::string &lobbyUid, int clientFd)
 {
     const GameMediatorEvent &gameEvent = static_cast<GameMediatorEvent>(event);
     auto it = _mediatorMap.find(gameEvent);
 
     if (it != _mediatorMap.end())
     {
-        it->second(data);
+        it->second(data, lobbyUid, clientFd);
     }
     else
     {
@@ -120,7 +190,11 @@ void GameMediator::notify(const int &event, const std::string &data)
     }
 }
 
-std::vector<std::string> GameMediator::getAllActiveEntities()
+std::vector<std::string> GameMediator::getAllActiveEntitiesFromLobby(int clientFd)
 {
-    return _rTypeServer.serializeAllActiveEntities();
+    std::shared_ptr<Lobby> lobby = _lobbyManager.getLobbyOfPlayer(clientFd);
+    if (!lobby)
+        return {};
+    std::unique_ptr<RTypeServer> &rtype = lobby->getRTypeServer();
+    return rtype->serializeAllActiveEntities();
 }

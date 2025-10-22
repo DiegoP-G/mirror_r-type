@@ -9,12 +9,17 @@
 #include <unordered_map>
 
 #pragma once
+
 enum GameState
 {
+    MENUIP,
+    MENULOBBY,
     LOBBY,
     INGAME,
     MENU,
-    GAMEOVER
+    GAMEOVER,
+    KICKED,
+    BAN,
 };
 
 class RTypeGame
@@ -68,6 +73,8 @@ class RTypeGame
 
     void markPlayerAsDead(int playerId);
 
+    void handleJoystickInput();
+    void checkJoystickConnection();
     void setWinnerId(int id);
 
     void setGameOver(bool value)
@@ -129,4 +136,14 @@ class RTypeGame
 
     void drawHitbox();
     void drawPlayerID();
+
+    void setKickState()
+    {
+        _state = GameState::KICKED;
+    };
+
+    void setBanState()
+    {
+        _state = GameState::BAN;
+    };
 };

@@ -14,7 +14,10 @@
 #include <functional>
 #include <iostream>
 
-// void ClientGame::startServer(const char *serverIp)
+// Joystick configuration constants
+const float JOYSTICK_DEADZONE = 25.0f; // Deadzone threshold (0-100)
+const unsigned int JOYSTICK_ID = 0;    // Default joystick ID
+
 bool RTypeGame::init(NetworkECSMediator med, std::function<void(const char *)> networkCb)
 {
     sf::Font dummy;
@@ -32,8 +35,25 @@ bool RTypeGame::init(NetworkECSMediator med, std::function<void(const char *)> n
 
     running = true;
 
+    // Check for connected joysticks
+    checkJoystickConnection();
+
     std::cout << "R-Type initialized!" << std::endl;
     return true;
+}
+
+void RTypeGame::checkJoystickConnection()
+{
+    for (unsigned int i = 0; i < sf::Joystick::Count; ++i)
+    {
+        if (sf::Joystick::isConnected(i))
+        {
+            std::cout << "Joystick " << i << " connected!" << std::endl;
+            std::cout << "Button count: " << sf::Joystick::getButtonCount(i) << std::endl;
+            std::cout << "Has X axis: " << sf::Joystick::hasAxis(i, sf::Joystick::X) << std::endl;
+            std::cout << "Has Y axis: " << sf::Joystick::hasAxis(i, sf::Joystick::Y) << std::endl;
+        }
+    }
 }
 
 void RTypeGame::createTextures()
@@ -58,6 +78,85 @@ void RTypeGame::createTextures()
     g_graphics->storeTexture("bonus_life", bonusLifeTexture);
 }
 
+void RTypeGame::handleJoystickInput()
+{
+    if (!player || !player->hasComponent<InputComponent>())
+        return;
+
+    if (!sf::Joystick::isConnected(JOYSTICK_ID))
+        return;
+
+    auto &input = player->getComponent<InputComponent>();
+
+    if (sf::Joystick::hasAxis(JOYSTICK_ID, sf::Joystick::X))
+    {
+        float xAxis = sf::Joystick::getAxisPosition(JOYSTICK_ID, sf::Joystick::X);
+
+        if (xAxis < -JOYSTICK_DEADZONE)
+            input.left = true;
+        else if (xAxis > JOYSTICK_DEADZONE)
+            input.right = true;
+        else
+        {
+            input.left = false;
+            input.right = false;
+        }
+    }
+
+    if (sf::Joystick::hasAxis(JOYSTICK_ID, sf::Joystick::Y))
+    {
+        float yAxis = sf::Joystick::getAxisPosition(JOYSTICK_ID, sf::Joystick::Y);
+
+        if (yAxis < -JOYSTICK_DEADZONE)
+            input.up = true;
+        else if (yAxis > JOYSTICK_DEADZONE)
+            input.down = true;
+        else
+        {
+            input.up = false;
+            input.down = false;
+        }
+    }
+
+    if (sf::Joystick::hasAxis(JOYSTICK_ID, sf::Joystick::PovX))
+    {
+        float povX = sf::Joystick::getAxisPosition(JOYSTICK_ID, sf::Joystick::PovX);
+        if (povX < -50.0f)
+            input.left = true;
+        else if (povX > 50.0f)
+            input.right = true;
+    }
+
+    if (sf::Joystick::hasAxis(JOYSTICK_ID, sf::Joystick::PovY))
+    {
+        float povY = sf::Joystick::getAxisPosition(JOYSTICK_ID, sf::Joystick::PovY);
+        if (povY < -50.0f)
+            input.up = true;
+        else if (povY > 50.0f)
+            input.down = true;
+    }
+
+    if (sf::Joystick::isButtonPressed(JOYSTICK_ID, 0))
+    {
+        if (!input.fire)
+            g_graphics->playSound("pew");
+        input.fire = true;
+    }
+    else
+    {
+        input.fire = false;
+    }
+
+    if (sf::Joystick::isButtonPressed(JOYSTICK_ID, 7))
+    {
+        input.enter = true;
+    }
+    else
+    {
+        input.enter = false;
+    }
+}
+
 void RTypeGame::handleEvents()
 {
     sf::Event event;
@@ -75,10 +174,76 @@ void RTypeGame::handleEvents()
             std::cout << "Running is set to false" << std::endl;
         }
 
-        if (event.type == sf::Event::MouseButtonPressed)
-            g_graphics->getTextBox()->checkInFocus(sf::Mouse::getPosition(g_graphics->getWindow()));
+        if (_state == GameState::MENU && event.type == sf::Event::MouseButtonPressed)
+        {
+            auto mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
+            auto action = g_graphics->handleMenuClick(mousePos.x, mousePos.y);
+            if (action == GraphicsManager::MenuAction::PLAY)
+            {
+                _state = GameState::MENUIP;
+                std::cout << "Switching to MENUIP state" << std::endl;
+            }
+            else if (action == GraphicsManager::MenuAction::QUIT)
+            {
+                running = false;
+                std::cout << "Quitting game" << std::endl;
+            }
+        }
 
-        g_graphics->getTextBox()->typeInBox(event);
+        if (_state == GameState::MENUIP)
+        {
+            if (event.type == sf::Event::MouseButtonPressed)
+                g_graphics->getTextBox()->checkInFocus(sf::Mouse::getPosition(g_graphics->getWindow()));
+
+            g_graphics->getTextBox()->typeInBox(event);
+        }
+
+        if (_state == GameState::MENULOBBY && event.type == sf::Event::MouseButtonPressed)
+        {
+            auto mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
+
+            g_graphics->getLobbyTextBox()->checkInFocus(mousePos);
+
+            auto action = g_graphics->handleLobbyMenuClick(mousePos.x, mousePos.y);
+
+            if (action == GraphicsManager::MenuAction::CREATE_LOBBY)
+            {
+                std::string lobbyName = g_graphics->getLobbyTextBox()->getText();
+                if (!lobbyName.empty())
+                {
+                    std::cout << "[Client] Creating lobby: " << lobbyName << std::endl;
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, lobbyName, OPCODE_CREATE_LOBBY);
+                }
+                else
+                {
+                    std::cout << "[Client] Lobby name cannot be empty!" << std::endl;
+                }
+            }
+            else if (action == GraphicsManager::MenuAction::JOIN_LOBBY)
+            {
+                std::string lobbyName = g_graphics->getLobbyTextBox()->getText();
+                if (!lobbyName.empty())
+                {
+                    std::cout << "[Client] Joining lobby: " << lobbyName << std::endl;
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, lobbyName, OPCODE_JOIN_LOBBY);
+                }
+                else
+                {
+                    std::cout << "[Client] Lobby name cannot be empty!" << std::endl;
+                }
+            }
+            else if (action == GraphicsManager::MenuAction::BACK)
+            {
+                _state = GameState::MENUIP;
+                std::cout << "[Client] Going back to IP menu" << std::endl;
+            }
+        }
+
+        if (_state == GameState::MENULOBBY)
+        {
+            g_graphics->getLobbyTextBox()->typeInBox(event);
+        }
+
         keybindMenu->handleEvent(event, g_graphics->getWindow());
 
         if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
@@ -106,7 +271,8 @@ void RTypeGame::handleEvents()
                     input.right = isPressed;
                     break;
                 case sf::Keyboard::Space:
-                    g_graphics->playSound("pew");
+                    if (isPressed)
+                        g_graphics->playSound("pew");
                     input.fire = isPressed;
                     break;
                 case sf::Keyboard::Enter:
@@ -123,9 +289,6 @@ void RTypeGame::handleEvents()
 void RTypeGame::findMyPlayer()
 {
     auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
-    // std::cout << "[CLIENT] Looking for player with ID: " << _playerId <<
-    // std::endl; std::cout << "[CLIENT] Found " << players.size() << " entities
-    // with PlayerComponent" << std::endl;
 
     for (auto *entity : players)
     {
@@ -144,73 +307,58 @@ void RTypeGame::update(float deltaTime)
     if (gameOver)
         return;
 
-    // Update systems
-    // gameLogicSystem.update(entityManager, deltaTime);
-    //   backgroundSystem.update(entityManager, deltaTime);
-    // movementSystem.update(entityManager, deltaTime);
-    // playerSystem.update(entityManager, deltaTime);
     animationSystem.update(entityManager, deltaTime);
-    // inputSystem.update(entityManager, deltaTime);
-    // boundarySyste>m.update(entityManager, deltaTime);
-    // cleanupSystem.update(entityManager, deltaTime);
-    // enemySystem.update(entityManager, deltaTime);
-    // collisionSystem.update(entityManager);
-    // laserWarningSystem.update(entityManager, deltaTime);
-    // // Check game over
-    // if (player && !player->isActive())
-    // {
-    //     gameOver = true;
-    // }
+
     entityManager.applyPendingChanges();
-    // std::cout << "UPT END\n";
+
     if (player == nullptr)
     {
-        // std::cout << "Player not found, searching...\n";
         findMyPlayer();
     }
+
+    handleJoystickInput();
 }
 
 void RTypeGame::render()
 {
-
     g_graphics->clear();
 
-    // Render all entities
-    renderSystem.update(entityManager);
-
-    if (gameOver)
+    if (_state == GameState::KICKED)
     {
-        std::string gameOverText = "Game Over!";
-        if (_winnerId == _playerId)
-        {
-            gameOverText = "YOU WIN!";
-            g_graphics->drawText(gameOverText, 250, 250, 0, 255, 0); // Vert
-        }
-        else if (_winnerId == -1)
-        {
-            gameOverText = "DRAW - No Winners";
-            g_graphics->drawText(gameOverText, 200, 250, 255, 255, 0); // Jaune
-        }
-        else
-        {
-            gameOverText = "Player " + std::to_string(_winnerId) + " Wins!";
-            g_graphics->drawText(gameOverText, 200, 250, 255, 0, 0); // Rouge
-        }
-
-        g_graphics->drawText("Press ESC to quit", 220, 300);
+        g_graphics->getWindow().clear(sf::Color::Black);
+        g_graphics->drawText("You have been kicked by an administrator.", 0, windowHeight / 2);
     }
-
-    if (_state == GameState::MENU)
-    { // STATE HERE WHEN NOT CONNECTED TO THE SERVER
+    else if (_state == GameState::BAN)
+    {
+        g_graphics->getWindow().clear(sf::Color::Black);
+        g_graphics->drawText("Your ip was banned by an administrator.", 0, windowHeight / 2);
+    }
+    else if (_state == GameState::MENU)
+    {
+        g_graphics->drawMenu();
+        keybindMenu->draw(g_graphics->getWindow());
+    }
+    else if (_state == GameState::MENUIP)
+    {
         g_graphics->drawText("Type the IP to connect in the text-box:", 0, 0);
         g_graphics->drawText("SeymourPintatGodeFeytGrodard-Type", 0, 30);
         g_graphics->getTextBox()->setPosition(200, 500);
         g_graphics->getTextBox()->draw(g_graphics->getWindow());
         keybindMenu->draw(g_graphics->getWindow());
     }
-    else
+    else if (_state == GameState::MENULOBBY)
     {
-        // drawHitbox();
+        g_graphics->drawLobbyMenu();
+        keybindMenu->draw(g_graphics->getWindow());
+    }
+    else if (_state == GameState::LOBBY)
+    {
+        renderSystem.update(entityManager);
+        drawWaitingForPlayers();
+        drawTutorial();
+    }
+    else if (_state == GameState::INGAME)
+    {
         std::string scoreText = "Score: " + std::to_string(score);
         g_graphics->drawText(scoreText, 10, 10);
 
@@ -218,25 +366,27 @@ void RTypeGame::render()
         g_graphics->drawText(waveText, windowWidth - 100, 10);
 
         drawPlayerID();
+        renderSystem.update(entityManager);
+    }
+    else if (_state == GameState::GAMEOVER)
+    {
+        std::string gameOverText = "Game Over! Your score: " + std::to_string(score);
+        g_graphics->drawText(gameOverText, 200, 300);
+        g_graphics->drawText("Press ESC to exit", 200, 350);
     }
 
-    drawWaitingForPlayers();
-    drawTutorial();
     g_graphics->present();
 }
 
 void RTypeGame::restart()
 {
-    entityManager = EntityManager();
+    entityManager.clear();
     score = 0;
     gameOver = false;
-
-    // createPlayer();
 }
 
 void cleanup()
 {
-
     if (g_graphics)
     {
         delete g_graphics;
@@ -246,7 +396,6 @@ void cleanup()
 
 void RTypeGame::sendInputPlayer()
 {
-
     _mutex.lock();
 
     if (!player || !player->isActive())
@@ -263,9 +412,6 @@ void RTypeGame::sendInputPlayer()
         std::string inputData = serializePlayerInput(input, playerComp.playerID);
 
         _med.notify(NetworkECSMediatorEvent::SEND_DATA_UDP, inputData, OPCODE_PLAYER_INPUT);
-
-        // std::cout << "Sent player input for player " << playerComp.playerID <<
-        // std::endl;
     }
 
     _mutex.unlock();
@@ -273,11 +419,6 @@ void RTypeGame::sendInputPlayer()
 
 void RTypeGame::run()
 {
-    // if (!init(_med))
-    // {
-    //     return;
-    // }
-
     const float TARGET_FPS = 60.0f;
     const float FRAME_TIME = 1.0f / TARGET_FPS;
 
@@ -285,11 +426,11 @@ void RTypeGame::run()
     float accumulator = 0.0f;
 
     g_graphics->playSound("music", true);
+
     while (running)
     {
         float deltaTime = clock.restart().asSeconds();
 
-        // Cap delta time to prevent large jumps
         if (deltaTime > 0.05f)
         {
             deltaTime = 0.05f;
@@ -297,12 +438,12 @@ void RTypeGame::run()
 
         accumulator += deltaTime;
         handleEvents();
-        // handleEvents();
+
         if (running == false)
             break;
+
         sendInputPlayer();
 
-        // Fixed timestep update
         while (accumulator >= FRAME_TIME)
         {
             _mutex.lock();
@@ -312,7 +453,6 @@ void RTypeGame::run()
         }
 
         render();
-        // render();
     }
 
     cleanup();
@@ -320,7 +460,6 @@ void RTypeGame::run()
 
 void RTypeGame::createBackground()
 {
-    // sf::Texture *backgroundTexture = g_graphics->getTexture("background");
     int tileWidth = 800;
     int tileHeight = 600;
 
@@ -341,23 +480,19 @@ void RTypeGame::createBackground()
 
 void RTypeGame::drawWaitingForPlayers()
 {
-    // Format the waiting text
     if (_playerNb == 0 || _playerReady >= _playerNb)
     {
-
         return;
     }
 
     std::string waitingText =
         "Waiting for players to be ready: " + std::to_string(_playerReady) + " / " + std::to_string(_playerNb);
 
-    // Choose a screen position (centered horizontally)
     int windowWidth = g_graphics->getWindow().getSize().x;
     int windowHeight = g_graphics->getWindow().getSize().y;
-    float textX = windowWidth / 2.0f - 200.0f; // Adjust for centering
+    float textX = windowWidth / 2.0f - 200.0f;
     float textY = windowHeight / 2.0f - 50.0f;
 
-    // Draw the text on screen
     g_graphics->drawText(waitingText, textX, textY);
 }
 
@@ -365,16 +500,15 @@ void RTypeGame::drawTutorial()
 {
     if (_playerNb == 0 || _playerReady >= _playerNb)
     {
-
         return;
     }
 
-    std::string moveText = "Use ARROW KEYS to move";
-    std::string shootText = "Press SPACE to shoot";
+    std::string moveText = "Use ARROW KEYS or LEFT STICK to move";
+    std::string shootText = "Press SPACE or BUTTON A to shoot";
 
     int windowWidth = g_graphics->getWindow().getSize().x;
     int windowHeight = g_graphics->getWindow().getSize().y;
-    float textX = windowWidth / 2.0f - 100.0f;
+    float textX = windowWidth / 2.0f - 150.0f;
     float textY = windowHeight / 2.0f + 10.0f;
     float textY2 = windowHeight / 2.0f + 60.0f;
 
@@ -401,12 +535,32 @@ void RTypeGame::updateScore(std::vector<std::pair<int, int>> vec)
 
 void RTypeGame::setCurrentState(GameState newState)
 {
+    switch (newState)
+    {
+    case GameState::MENU:
+        std::cout << "In MENU state" << std::endl;
+        break;
+    case GameState::MENUIP:
+        std::cout << "In MENUIP state" << std::endl;
+        break;
+    case GameState::MENULOBBY:
+        std::cout << "In MENULOBBY state" << std::endl;
+        break;
+    case GameState::INGAME:
+        std::cout << "In INGAME state" << std::endl;
+        break;
+    case GameState::GAMEOVER:
+        std::cout << "In GAMEOVER state" << std::endl;
+        break;
+    default:
+        std::cout << "In UNKNOWN state" << std::endl;
+        break;
+    }
     _state = newState;
 }
 
 void RTypeGame::drawHitbox()
 {
-    // --- Debug: draw hitboxes ---
     auto entities = entityManager.getEntitiesWithComponent<ColliderComponent>();
     for (auto e : entities)
     {
@@ -427,11 +581,10 @@ void RTypeGame::drawHitbox()
         }
         else
         {
-            // Default position (just in case)
             hitboxRect.setPosition(collider.hitbox.x, collider.hitbox.y);
         }
 
-        hitboxRect.setFillColor(sf::Color(0, 0, 0, 0)); // transparent
+        hitboxRect.setFillColor(sf::Color(0, 0, 0, 0));
         hitboxRect.setOutlineThickness(1.0f);
         hitboxRect.setOutlineColor(sf::Color::Red);
 
@@ -441,7 +594,6 @@ void RTypeGame::drawHitbox()
 
 void RTypeGame::drawPlayerID()
 {
-    // --- Debug: draw hitboxes ---
     auto entities = entityManager.getEntitiesWithComponent<PlayerComponent>();
     for (auto e : entities)
     {
@@ -471,7 +623,7 @@ void RTypeGame::markPlayerAsDead(int playerId)
             if (entity->hasComponent<HealthComponent>())
             {
                 auto &healthComp = entity->getComponent<HealthComponent>();
-                healthComp.health = 0; // Set health to 0 to mark as dead
+                healthComp.health = 0;
                 std::cout << "Player " << playerId << " marked as dead." << std::endl;
             }
             break;

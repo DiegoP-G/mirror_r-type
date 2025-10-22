@@ -11,6 +11,7 @@ class Client
     std::string _adress;
     sockaddr_in _trueAddr;
     int _code_UDP;
+    std::string _lobbyUID;
 
   public:
     Client() = default;

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(RTypeProject)
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
 # ---- C++ standards ----
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -24,6 +25,23 @@ if (NOT SFML_FOUND)
         GIT_TAG 2.6.1
     )
     FetchContent_MakeAvailable(SFML)
+endif()
+
+# ---- SQLite3 ----
+find_package(SQLite3 QUIET)
+
+if (NOT SQLite3_FOUND)
+    message(STATUS "SQLite3 not found, fetching it using FetchContent...")
+    FetchContent_Declare(
+        sqlite3
+        GIT_REPOSITORY https://github.com/sqlite/sqlite.git
+        GIT_TAG        version-3.45.1 # Replace with the desired version
+    )
+    FetchContent_MakeAvailable(sqlite3)
+
+    # Set SQLite3 include and library paths
+    set(SQLite3_INCLUDE_DIR ${sqlite3_SOURCE_DIR})
+    set(SQLite3_LIBRARIES sqlite3)
 endif()
 
 # ---- libconfig++ ----
@@ -84,6 +102,7 @@ target_link_libraries(ecs PUBLIC
     sfml-window
     sfml-system
     sfml-audio
+    sqlite3
 )
 
 # ---- Client executable ----
@@ -133,6 +152,8 @@ target_include_directories(GameServer PRIVATE
     ${CMAKE_SOURCE_DIR}/server/Include
     ${CMAKE_SOURCE_DIR}/transferData
     ${CMAKE_SOURCE_DIR}/ecs
+    ${SQLite3_INCLUDE_DIR}
+    ${SQLite3_INCLUDE_DIR}/src
 )
 
 target_link_libraries(GameServer
@@ -142,6 +163,7 @@ target_link_libraries(GameServer
     sfml-graphics
     sfml-window
     sfml-system
+    ${SQLite3_LIBRARIES} # Ensure SQLite is linked
 )
 target_compile_options(GameServer PRIVATE ${LIBCONFIG_CFLAGS_OTHER})
 
