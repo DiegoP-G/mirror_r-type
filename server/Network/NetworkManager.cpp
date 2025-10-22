@@ -87,21 +87,12 @@ void NetworkManager::sendAllEntitiesToClient(int clientFd)
     //   std::cout << "[NetworkManager] Sending all existing entities to new client " << clientFd << std::endl;
 
     // Récupérer toutes les entités actives depuis le serveur de jeu
-    std::vector<std::string> allEntities = _gameMediator.getAllActiveEntitiesFromLobby(clientFd);
+    std::string allEntities = _gameMediator.getAllActiveEntitiesFromLobby(clientFd);
 
-    //   std::cout << "[NetworkManager] Sending " << allEntities.size() << " entities to client " << clientFd <<
-    //   std::endl;
-
-    // Envoyer chaque entité au nouveau client via TCP
-    for (const auto &entityData : allEntities)
+    if (!allEntities.empty())
     {
-        if (!entityData.empty())
-        {
-            _TCPManager.sendMessage(clientFd, OPCODE_ENTITY_CREATE, entityData);
-        }
+        _TCPManager.sendMessage(clientFd, OPCODE_ENTITY_CREATE, allEntities);
     }
-
-    //   std::cout << "[NetworkManager] Finished sending entities to client " << clientFd << std::endl;
 }
 
 void NetworkManager::sendDataToLobbyUDP(std::shared_ptr<Lobby> lobby, const std::string &data, int opcode)

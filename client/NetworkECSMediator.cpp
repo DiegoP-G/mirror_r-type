@@ -37,7 +37,7 @@ NetworkECSMediator::NetworkECSMediator()
 
              switch (opcode)
              {
-                 // Création complète d'une entité (TCP)
+
              case OPCODE_ENTITY_CREATE: {
                  std::cout << "[Client] ========== ENTITY_CREATE received ==========" << std::endl;
                  std::cout << "[Client] Data size: " << data.size() << " bytes" << std::endl;
@@ -47,8 +47,7 @@ NetworkECSMediator::NetworkECSMediator()
 
                  // Log avant désérialisation
                  std::cout << "[Client] Entities before: " << _game->getEntityManager().getEntityCount() << std::endl;
-
-                 _game->getEntityManager().deserializeEntityFull(bytes);
+                 receiveNewEntities(bytes);
 
                  // Log après désérialisation
                  std::cout << "[Client] Entities after: " << _game->getEntityManager().getEntityCount() << std::endl;
@@ -351,5 +350,38 @@ void NetworkECSMediator::deserializeHealth(const std::vector<uint8_t> &data)
         auto &health = entity->getComponent<HealthComponent>();
         health.health = comp.health;
         health.maxHealth = comp.maxHealth;
+    }
+}
+
+void NetworkECSMediator::receiveNewEntities(const std::vector<uint8_t> &data)
+{
+    size_t offset = 0;
+
+    // 1. Lire le tick du serveur
+
+    uint32_t serverTick = *reinterpret_cast<const uint32_t *>(&data[offset]);
+    offset += sizeof(uint32_t);
+    // if (_game->getTickSystem().lastServerTick < serverTick)
+    //     _game->getTickSystem().lastServerTick = serverTick;
+
+    // 3. Lire le nombre d'entités
+    uint32_t entityCount = *reinterpret_cast<const uint32_t *>(&data[offset]);
+    offset += sizeof(uint32_t);
+
+    std::cout << "📦 Received " << entityCount << " entities for tick " << serverTick << std::endl;
+    // if (serverTick == 0)
+    //     _game->getTickSystem().predictionEnabled = true;
+
+    // 4. Désérialiser toutes les entités du serveur
+    for (uint32_t i = 0; i < entityCount; ++i)
+    {
+        uint32_t entitySize = *reinterpret_cast<const uint32_t *>(&data[offset]);
+        offset += sizeof(uint32_t);
+
+        std::vector<uint8_t> entityData(data.begin() + offset, data.begin() + offset + entitySize);
+        offset += entitySize;
+
+        // Désérialise dans l'EntityManager serveur
+        _game->getEntityManager().deserializeEntityFull(entityData);
     }
 }

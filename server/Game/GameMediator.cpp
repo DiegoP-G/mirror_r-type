@@ -143,7 +143,7 @@ void GameMediator::notify(const int &event, const std::string &data, const std::
     }
 }
 
-std::vector<std::string> GameMediator::getAllActiveEntitiesFromLobby(int clientFd)
+std::string GameMediator::getAllActiveEntitiesFromLobby(int clientFd)
 {
     std::shared_ptr<Lobby> lobby = _lobbyManager.getLobbyOfPlayer(clientFd);
     if (!lobby)

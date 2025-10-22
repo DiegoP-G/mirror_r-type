@@ -53,7 +53,7 @@ class GameMediator : public IMediator
         return;
     };
 
-    std::vector<std::string> getAllActiveEntitiesFromLobby(int fd);
+    std::string getAllActiveEntitiesFromLobby(int fd);
 
     std::string toString(GameMediatorEvent event)
     {

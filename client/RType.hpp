@@ -110,8 +110,6 @@ class RTypeGame
 
     void createTextures();
 
-    void createBackground();
-
     void createPlayer();
 
     void drawWaitingForPlayers();

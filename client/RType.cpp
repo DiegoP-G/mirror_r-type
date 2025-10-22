@@ -308,7 +308,6 @@ void RTypeGame::update(float deltaTime)
         return;
 
     animationSystem.update(entityManager, deltaTime);
-
     entityManager.applyPendingChanges();
 
     if (player == nullptr)
@@ -430,13 +429,11 @@ void RTypeGame::run()
     while (running)
     {
         float deltaTime = clock.restart().asSeconds();
-
         if (deltaTime > 0.05f)
         {
             deltaTime = 0.05f;
         }
 
-        accumulator += deltaTime;
         handleEvents();
 
         if (running == false)
@@ -444,38 +441,14 @@ void RTypeGame::run()
 
         sendInputPlayer();
 
-        while (accumulator >= FRAME_TIME)
-        {
-            _mutex.lock();
-            update(FRAME_TIME);
-            _mutex.unlock();
-            accumulator -= FRAME_TIME;
-        }
+        _mutex.lock();
+        update(FRAME_TIME);
+        _mutex.unlock();
 
         render();
     }
 
     cleanup();
-}
-
-void RTypeGame::createBackground()
-{
-    int tileWidth = 800;
-    int tileHeight = 600;
-
-    auto createBackgroundEntity = [&](float x) -> Entity & {
-        auto &backgroundEntity = entityManager.createEntity();
-
-        backgroundEntity.addComponent<TransformComponent>(x, 0.0f, 1.0f, 1.0f, 0.0f);
-        backgroundEntity.addComponent<SpriteComponent>(tileWidth, tileHeight, 255, 255, 255,
-                                                       GraphicsManager::Texture::BACKGROUND);
-        backgroundEntity.addComponent<BackgroundScrollComponent>(-300.0f, true);
-
-        return backgroundEntity;
-    };
-
-    createBackgroundEntity(0.0f);
-    createBackgroundEntity((float)tileWidth);
 }
 
 void RTypeGame::drawWaitingForPlayers()

@@ -109,73 +109,6 @@ Background created
 [RTypeServer] Players ready: 0 / 0
 [RTypeServer] Players ready: 0 / 0
 [RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
--------------60 tick passed--------------2
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
-[RTypeServer] Players ready: 0 / 0
 [DEBUG] Buffer size before read: 0
 [DEBUG] Buffer size after read: 5 (read 5 bytes)
 [DEBUG] Opcode: 0x71
@@ -185,12 +118,78 @@ Background created
 [DEBUG] Frame complete! Extracting payload...
 [DEBUG] Payload extracted (3 bytes), buffer remaining: 0 bytes
 [JoinLobby] Client 12 joining lol
-[Lobby] addPlayer called on 0x2c9525a0
+[Lobby] addPlayer called on 0x336e55a0
 [Lobby] Player 12 joined lobby lol
-[RTypeServer] Serialized 2 active entities
 [DEBUG] Buffer size before read: 0
 [DEBUG] No data available (EAGAIN/EWOULDBLOCK)
 [RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+-------------60 tick passed--------------2
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
 [RTypeServer] Players ready: 0 / 1
 [RTypeServer] Players ready: 0 / 1
 [RTypeServer] Players ready: 0 / 1
@@ -294,264 +293,270 @@ Background created
 [RTypeServer] Players ready: 0 / 1
 [RTypeServer] Players ready: 0 / 1
 [RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
 [RTypeServer] Players ready: 1 / 1
 Spawning wave 1hihi
-Random pos: 842 172
-Random pos: 829 356
-Random pos: 848 375
-Random pos: 842 541
-SPWAN BONUS on 850  424
-[UDP] Received OPCODE_UDP_AUTH² : 1003 from: 16777343
-[UDP] Client not found with UDP code 1003
-[UDP] Received OPCODE_UDP_AUTH² : 1003 from: 16777343
-[UDP] Client not found with UDP code 1003
-[UDP] Received OPCODE_UDP_AUTH² : 1009 from: 16777343
-[UDP] Client not found with UDP code 1009
-[UDP] Received OPCODE_UDP_AUTH² : 1015 from: 16777343
-[UDP] Client not found with UDP code 1015
+Random pos: 807 440
+Random pos: 816 148
+Random pos: 848 184
+Random pos: 845 246
+SPWAN BONUS on 850  326
 -------------60 tick passed--------------5
---DESTROY id 1019
---DESTROY id 1019
 BULLET OWNER ID: 12
 BULLET OWNER ID: 12
 -------------60 tick passed--------------6
 -------------60 tick passed--------------7
---DESTROY id 1033
---DESTROY id 1033
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
 -------------60 tick passed--------------8
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
-right pressed
 -------------60 tick passed--------------9
---DESTROY id 1045
---DESTROY id 1045
 --DESTROY id 1020
-BONUS DESTOYED HIHI
---DESTROY id 1007
+--DESTROY id 1010
+--DESTROY id 1010
 --DESTROY id 1021
 -------------60 tick passed--------------10
---DESTROY id 1008
+--DESTROY id 1011
+--DESTROY id 1011
+BULLET OWNER ID: 12
 --DESTROY id 1008
 -------------60 tick passed--------------11
---DESTROY id 1012
---DESTROY id 1057
---DESTROY id 1017
---DESTROY id 1057
---DESTROY id 1010
---DESTROY id 1015
 BULLET OWNER ID: 12
---DESTROY id 1016
---DESTROY id 1016
-BULLET OWNER ID: 12
--------------60 tick passed--------------12
-BULLET OWNER ID: 12
---DESTROY id 1013
---DESTROY id 1013
---DESTROY id 1026
---DESTROY id 1031
---DESTROY id 1029
---DESTROY id 1022
---DESTROY id 1022
-BULLET OWNER ID: 12
--------------60 tick passed--------------13
---DESTROY id 1071
---DESTROY id 1071
---DESTROY id 1011
---DESTROY id 1009
 --DESTROY id 1018
+--DESTROY id 1024
+--DESTROY id 1024
+--DESTROY id 1014
 --DESTROY id 1014
 BULLET OWNER ID: 12
---DESTROY id 1030
---DESTROY id 1030
---DESTROY id 1038
+--DESTROY id 1025
+--DESTROY id 1025
+-------------60 tick passed--------------12
+--DESTROY id 1007
+BULLET OWNER ID: 12
+--DESTROY id 1022
+--DESTROY id 1032
+BULLET OWNER ID: 12
+--DESTROY id 1009
+-------------60 tick passed--------------13
+--DESTROY id 1012
+--DESTROY id 1013
+--DESTROY id 1036
+--DESTROY id 1036
+--DESTROY id 1046
+--DESTROY id 1028
+--DESTROY id 1017
+--DESTROY id 1019
+--DESTROY id 1028
+--DESTROY id 1015
+--DESTROY id 1016
+BULLET OWNER ID: 12
+--DESTROY id 1037
+--DESTROY id 1037
 -------------60 tick passed--------------14
 BULLET OWNER ID: 12
---DESTROY id 1041
---DESTROY id 1043
---DESTROY id 1058
---DESTROY id 1027
---DESTROY id 1027
---DESTROY id 1025
-BULLET OWNER ID: 12
+--DESTROY id 1044
 --DESTROY id 1059
 --DESTROY id 1023
---DESTROY id 1024
---DESTROY id 1032
---DESTROY id 1028
---DESTROY id 1034
---DESTROY id 1034
+--DESTROY id 1026
+--DESTROY id 1027
+BULLET OWNER ID: 12
+--DESTROY id 1060
+--DESTROY id 1031
+--DESTROY id 1033
+--DESTROY id 1029
+--DESTROY id 1030
 -------------60 tick passed--------------15
---DESTROY id 1086
---DESTROY id 1086
---DESTROY id 1072
-BULLET OWNER ID: 12
---DESTROY id 1050
-SENDING SCORE UPDATE
---DESTROY id 1004
---DESTROY id 1053
---DESTROY id 1073
---DESTROY id 1042
---DESTROY id 1042
-BULLET OWNER ID: 12
--------------60 tick passed--------------16
---DESTROY id 1037
---DESTROY id 1039
---DESTROY id 1074
---DESTROY id 1035
---DESTROY id 1036
---DESTROY id 1044
---DESTROY id 1040
-BULLET OWNER ID: 12
---DESTROY id 1087
---DESTROY id 1046
---DESTROY id 1046
---DESTROY id 1064
---DESTROY id 1099
---DESTROY id 1099
---DESTROY id 1067
--------------60 tick passed--------------17
-BULLET OWNER ID: 12
---DESTROY id 1088
 --DESTROY id 1049
---DESTROY id 1051
---DESTROY id 1054
---DESTROY id 1054
---DESTROY id 1047
---DESTROY id 1048
---DESTROY id 1055
---DESTROY id 1056
+--DESTROY id 1049
+SENDING SCORE UPDATE
+--DESTROY id 1006
+--DESTROY id 1073
 BULLET OWNER ID: 12
 --DESTROY id 1052
-SENDING SCORE UPDATE
---DESTROY id 1005
---DESTROY id 1089
--------------60 tick passed--------------18
---DESTROY id 1079
---DESTROY id 1060
---DESTROY id 1060
---DESTROY id 1077
---DESTROY id 1108
---DESTROY id 1108
+--DESTROY id 1040
+--DESTROY id 1040
+--DESTROY id 1057
+--DESTROY id 1050
+--DESTROY id 1034
+--DESTROY id 1035
+--DESTROY id 1050
+--DESTROY id 1038
+--DESTROY id 1039
+-------------60 tick passed--------------16
+--DESTROY id 1043
+--DESTROY id 1045
+--DESTROY id 1041
+--DESTROY id 1042
+BULLET OWNER ID: 12
+--DESTROY id 1074
+--DESTROY id 1068
+-------------60 tick passed--------------17
 --DESTROY id 1063
---DESTROY id 1065
--------------60 tick passed--------------19
+--DESTROY id 1063
+BULLET OWNER ID: 12
+--DESTROY id 1053
+--DESTROY id 1053
+--DESTROY id 1047
+--DESTROY id 1048
+--DESTROY id 1075
+--DESTROY id 1051
+BULLET OWNER ID: 12
+--DESTROY id 1056
+--DESTROY id 1058
+--DESTROY id 1054
+--DESTROY id 1055
+--DESTROY id 1064
+--DESTROY id 1064
+--DESTROY id 1076
+-------------60 tick passed--------------18
+BULLET OWNER ID: 12
+--DESTROY id 1089
+--DESTROY id 1084
+--DESTROY id 1100
 --DESTROY id 1061
 --DESTROY id 1062
---DESTROY id 1069
---DESTROY id 1070
+--DESTROY id 1065
 --DESTROY id 1066
---DESTROY id 1068
+BULLET OWNER ID: 12
+--DESTROY id 1079
+--DESTROY id 1079
 --DESTROY id 1090
---DESTROY id 1092
--------------60 tick passed--------------20
-BULLET OWNER ID: 12
---DESTROY id 1100
---DESTROY id 1078
---DESTROY id 1080
---DESTROY id 1075
---DESTROY id 1076
---DESTROY id 1084
---DESTROY id 1085
---DESTROY id 1081
---DESTROY id 1082
---DESTROY id 1083
---DESTROY id 1114
---DESTROY id 1114
-BULLET OWNER ID: 12
+-------------60 tick passed--------------19
+--DESTROY id 1070
+--DESTROY id 1071
+--DESTROY id 1072
+--DESTROY id 1067
+--DESTROY id 1069
 --DESTROY id 1101
--------------60 tick passed--------------21
---DESTROY id 1104
 BULLET OWNER ID: 12
 --DESTROY id 1102
---DESTROY id 1115
---DESTROY id 1091
---DESTROY id 1093
---DESTROY id 1097
+--DESTROY id 1080
+--DESTROY id 1080
 --DESTROY id 1098
--------------60 tick passed--------------22
+-------------60 tick passed--------------20
+BULLET OWNER ID: 12
+SENDING SCORE UPDATE
+--DESTROY id 1005
+--DESTROY id 1112
+--DESTROY id 1077
+--DESTROY id 1078
+--DESTROY id 1081
+--DESTROY id 1082
+--DESTROY id 1086
+--DESTROY id 1087
+--DESTROY id 1088
+--DESTROY id 1083
+--DESTROY id 1085
+--DESTROY id 1093
+--DESTROY id 1093
+-------------60 tick passed--------------21
+--DESTROY id 1107
+BULLET OWNER ID: 12
 --DESTROY id 1094
+--DESTROY id 1094
+--DESTROY id 1091
+--DESTROY id 1092
+BULLET OWNER ID: 12
 --DESTROY id 1095
 --DESTROY id 1096
+-------------60 tick passed--------------22
+--DESTROY id 1097
+--DESTROY id 1099
 BULLET OWNER ID: 12
---DESTROY id 1116
+--DESTROY id 1119
+--DESTROY id 1125
+--DESTROY id 1113
 BULLET OWNER ID: 12
---DESTROY id 1110
---DESTROY id 1123
---DESTROY id 1123
--------------60 tick passed--------------23
---DESTROY id 1117
-BULLET OWNER ID: 12
---DESTROY id 1103
 --DESTROY id 1105
+--DESTROY id 1105
+-------------60 tick passed--------------23
+--DESTROY id 1126
+--DESTROY id 1103
+--DESTROY id 1104
 --DESTROY id 1106
---DESTROY id 1107
+--DESTROY id 1108
+--DESTROY id 1114
+--DESTROY id 1133
+BULLET OWNER ID: 12
+--DESTROY id 1109
+--DESTROY id 1110
+--DESTROY id 1111
+SENDING SCORE UPDATE
+--DESTROY id 1131
+--DESTROY id 1004
+--DESTROY id 1134
+-------------60 tick passed--------------24
+--DESTROY id 1124
+--DESTROY id 1115
+--DESTROY id 1116
+--DESTROY id 1117
+--DESTROY id 1118
+--DESTROY id 1120
+-------------60 tick passed--------------25
+--DESTROY id 1121
+--DESTROY id 1122
+--DESTROY id 1123
+-------------60 tick passed--------------26
+--DESTROY id 1127
+--DESTROY id 1128
+--DESTROY id 1129
+--DESTROY id 1130
+--DESTROY id 1132
+-------------60 tick passed--------------27
+--DESTROY id 1142
+BULLET OWNER ID: 12
+--DESTROY id 1135
+--DESTROY id 1136
+--DESTROY id 1137
+--DESTROY id 1138
+--DESTROY id 1139
+--DESTROY id 1140
+--DESTROY id 1141
+BULLET OWNER ID: 12
+-------------60 tick passed--------------28
+--DESTROY id 1149
+--DESTROY id 1146
+--DESTROY id 1147
+--DESTROY id 1148
+BULLET OWNER ID: 12
+--DESTROY id 1150
+-------------60 tick passed--------------29
+BULLET OWNER ID: 12
+--DESTROY id 1143
+--DESTROY id 1144
+--DESTROY id 1151
+BULLET OWNER ID: 12
 SENDING SCORE UPDATE
 --DESTROY id 1003
---DESTROY id 1124
-BULLET OWNER ID: 12
--------------60 tick passed--------------24
---DESTROY id 1119
---DESTROY id 1129
---DESTROY id 1129
---DESTROY id 1109
---DESTROY id 1111
---DESTROY id 1112
---DESTROY id 1113
--------------60 tick passed--------------25
+--DESTROY id 1152
+--DESTROY id 1153
+--DESTROY id 1154
+--DESTROY id 1155
+[UDP] Received OPCODE_UDP_AUTH² : 1154 from: 16777343
+[UDP] Client not found with UDP code 1154
+-------------60 tick passed--------------30
+-------------60 tick passed--------------31
+--DESTROY id 1145
+-------------60 tick passed--------------32
+-------------60 tick passed--------------33
+-------------60 tick passed--------------34
+Spawning wave 2hihi
+Random pos: 812 110
+Random pos: 843 511
+Random pos: 824 167
+Random pos: 836 396
+SPWAN BONUS on 850  397
+-------------60 tick passed--------------35
+-------------60 tick passed--------------36
+Removing client: client (socket 12)
+lobby player size before remove: 1
+[RTypeServer] Player 12 not found in the game.
+[Lobby] Player 12 left lobby lol
+lobby player size after remove: 0
+[PlayerDisconnected] Lobby lol is empty. Removing it.
+[Lobby] Stopping RTypeServer for lobby lol
+[Lobby] Exiting game loop for lobby lol
+[LobbyManager] Removed lobby lol
+[Lobby] Destroying lobby lol at 0x336e55a0

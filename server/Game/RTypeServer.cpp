@@ -162,29 +162,98 @@ void RTypeServer::sendGameStateUpdates()
     mediator.notify(GameMediatorEvent::GameStateUpdate, serializeInt(_state), _lobbyUID);
 }
 
+// void RTypeServer::sendNewEntities()
+// {
+//     std::vector<std::vector<uint8_t>> serializedEntities;
+
+//     {
+//         std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+
+//         // Serialize entities safely while still in entitiesToCreate
+//         for (const auto &entityPtr : entityManager.getEntitiesToCreate())
+//         {
+//             if (entityPtr)
+//             {
+//                 serializedEntities.push_back(entityManager.serializeEntityFull(entityPtr->getID()));
+//             }
+//         }
+//     }
+
+//     // Send serialized data outside the lock
+//     for (auto &data : serializedEntities)
+//     {
+//         std::string serializedData(data.begin(), data.end());
+//         mediator.notify(GameMediatorEvent::EntitiesCreated, serializedData, _lobbyUID);
+//     }
+// }
+
 void RTypeServer::sendNewEntities()
 {
-    std::vector<std::vector<uint8_t>> serializedEntities;
+    auto &manager = entityManager;
+    std::vector<uint8_t> data;
 
+    uint32_t tick = _tick;
+    // Ajouter le tick au début
+    data.insert(data.end(), reinterpret_cast<uint8_t *>(&tick), reinterpret_cast<uint8_t *>(&tick) + sizeof(tick));
+
+    // Nombre d'entités à envoyer
+    uint32_t entityCount = static_cast<uint32_t>(manager.getEntitiesToCreate().size());
+    if (entityCount == 0)
+        return;
+    data.insert(data.end(), reinterpret_cast<uint8_t *>(&entityCount),
+                reinterpret_cast<uint8_t *>(&entityCount) + sizeof(entityCount));
+
+    // Sérialiser chaque entité dans le buffer
+    for (const auto &entity : manager.getEntitiesToCreate())
     {
-        std::lock_guard<std::mutex> lock(entityManager.entityMutex);
+        auto entityData = manager.serializeEntityFull(entity->getID());
 
-        // Serialize entities safely while still in entitiesToCreate
-        for (const auto &entityPtr : entityManager.getEntitiesToCreate())
+        // Taille de l'entité
+        uint32_t entitySize = static_cast<uint32_t>(entityData.size());
+        data.insert(data.end(), reinterpret_cast<uint8_t *>(&entitySize),
+                    reinterpret_cast<uint8_t *>(&entitySize) + sizeof(entitySize));
+
+        // Données de l'entité
+        data.insert(data.end(), entityData.begin(), entityData.end());
+    }
+    // Envoi via le mediator (ou directement via ton réseau)
+    std::string serializedData(data.begin(), data.end());
+    mediator.notify(GameMediatorEvent::EntitiesCreated, serializedData, _lobbyUID);
+}
+std::string RTypeServer::serializeAllActiveEntities()
+{
+    auto &manager = entityManager;
+    std::vector<uint8_t> data;
+
+    uint32_t tick = _tick;
+    // Ajouter le tick au début
+    data.insert(data.end(), reinterpret_cast<uint8_t *>(&tick), reinterpret_cast<uint8_t *>(&tick) + sizeof(tick));
+
+    // Nombre d'entités à envoyer
+    uint32_t entityCount = static_cast<uint32_t>(manager.getEntitiesToCreate().size());
+    if (entityCount == 0)
+        return "";
+    data.insert(data.end(), reinterpret_cast<uint8_t *>(&entityCount),
+                reinterpret_cast<uint8_t *>(&entityCount) + sizeof(entityCount));
+
+    // Parcourir toutes les entités actives
+    for (auto &entity : entityManager.getEntities())
+    {
+        if (entity)
         {
-            if (entityPtr)
-            {
-                serializedEntities.push_back(entityManager.serializeEntityFull(entityPtr->getID()));
-            }
+            auto entityData = manager.serializeEntityFull(entity->getID());
+
+            // Taille de l'entité
+            uint32_t entitySize = static_cast<uint32_t>(entityData.size());
+            data.insert(data.end(), reinterpret_cast<uint8_t *>(&entitySize),
+                        reinterpret_cast<uint8_t *>(&entitySize) + sizeof(entitySize));
+
+            // Données de l'entité
+            data.insert(data.end(), entityData.begin(), entityData.end());
         }
     }
-
-    // Send serialized data outside the lock
-    for (auto &data : serializedEntities)
-    {
-        std::string serializedData(data.begin(), data.end());
-        mediator.notify(GameMediatorEvent::EntitiesCreated, serializedData, _lobbyUID);
-    }
+    std::string serializedData(data.begin(), data.end());
+    return serializedData;
 }
 
 void RTypeServer::sendDestroyedEntities()
