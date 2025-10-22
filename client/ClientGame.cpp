@@ -13,6 +13,7 @@ ClientGame::ClientGame()
     _med.setSender(&_sender);
     _med.setReceiver(&_receiver);
     _med.setRTypeGame(&_game);
+    _med.setVoiceManager(&_voiceManager);
 }
 
 ClientGame::~ClientGame()

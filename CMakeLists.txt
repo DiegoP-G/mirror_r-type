@@ -85,6 +85,10 @@ target_link_libraries(ecs PUBLIC
     sqlite3_lib
 )
 
+# ---- PortAudio (pour le client uniquement) ----
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
+
 # ---- Client ----
 file(GLOB_RECURSE CLIENT_SOURCES client/*.cpp)
 list(FILTER CLIENT_SOURCES EXCLUDE REGEX ".*build.*")
@@ -97,6 +101,7 @@ target_include_directories(RTypeClient PRIVATE
     ${CMAKE_SOURCE_DIR}/client/Network
     ${CMAKE_SOURCE_DIR}/transferData
     ${CMAKE_SOURCE_DIR}/ecs
+    ${PORTAUDIO_INCLUDE_DIRS}   
 )
 target_link_libraries(RTypeClient PRIVATE
     transferData
@@ -105,6 +110,8 @@ target_link_libraries(RTypeClient PRIVATE
     sfml-window
     sfml-system
     sfml-audio
+    ${PORTAUDIO_LIBRARIES}   
+
 )
 
 # ---- Server ----
@@ -137,6 +144,9 @@ target_link_libraries(GameServer PRIVATE
     sfml-system
     sqlite3_lib  # ✅ Lier SQLite au serveur
 )
+
+
+
 
 # ---- Windows ----
 if (WIN32)

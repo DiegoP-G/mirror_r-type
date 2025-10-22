@@ -2,6 +2,8 @@
 #include "../transferData/opcode.hpp"
 #include "../transferData/transferData.hpp"
 #include "Network/Receiver.hpp"
+#include "VoiceManager.hpp"
+
 #include "RType.hpp"
 #include <cstdint>
 #include <exception>
@@ -75,7 +77,14 @@ NetworkECSMediator::NetworkECSMediator()
 
                  break;
              }
-
+             case OPCODE_VOICE_DATA: {
+                 if (voiceChatEnabled)
+                 {
+                     std::vector<u_int8_t> audioData(data.begin(), data.end());
+                     _voiceManager->playAudio(audioData);
+                 }
+                 break;
+             }
              // Updates de mouvement (UDP)
              case OPCODE_MOVEMENT_UPDATE: {
                  _game->getMutex().lock();
@@ -205,4 +214,11 @@ void NetworkECSMediator::notify(NetworkECSMediatorEvent event, const std::string
     {
         throw std::runtime_error("notify: No handler registered for event " + std::to_string(static_cast<int>(event)));
     }
+}
+
+void NetworkECSMediator::setupVoiceChat()
+{
+    _voiceManager->startRecording([this](const std::vector<u_int8_t> &audioData) {
+        _sender->sendUdp(OPCODE_VOICE_DATA, std::string(audioData.begin(), audioData.end()));
+    });
 }

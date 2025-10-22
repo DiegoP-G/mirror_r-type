@@ -19,6 +19,7 @@ enum NetworkECSMediatorEvent
 class Sender;
 class Receiver;
 class RTypeGame;
+class VoiceManager;
 
 class NetworkECSMediator
 {
@@ -28,6 +29,9 @@ class NetworkECSMediator
     RTypeGame *_game{nullptr};
 
     std::unordered_map<int, std::function<void(const std::string &, uint8_t)>> _mediatorMap;
+
+    VoiceManager *_voiceManager{nullptr};
+    bool voiceChatEnabled = false;
 
   public:
     NetworkECSMediator();
@@ -44,6 +48,13 @@ class NetworkECSMediator
     {
         _game = g;
     }
+
+    void setVoiceManager(VoiceManager *v)
+    {
+        _voiceManager = v;
+    }
+
+    void setupVoiceChat();
 
     void reset()
     {
