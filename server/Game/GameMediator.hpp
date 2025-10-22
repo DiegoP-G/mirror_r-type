@@ -74,4 +74,9 @@ class GameMediator : public IMediator
             return "UnknownEvent";
         }
     }
+
+    NetworkManager &getNetworkManager()
+    {
+        return _networkManager;
+    };
 };

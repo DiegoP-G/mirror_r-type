@@ -13,6 +13,7 @@ Lobby::Lobby(const std::string &uid, GameMediator &gameMediator)
 
 Lobby::~Lobby()
 {
+    std::cout << "[Lobby] Destroying lobby " << _uid << " at " << this << std::endl;
     stop();
 }
 
@@ -75,6 +76,7 @@ void Lobby::stop()
 
 void Lobby::addPlayer(int fd)
 {
+    std::cout << "[Lobby] addPlayer called on " << this << std::endl;
     std::lock_guard<std::mutex> lock(_mutex);
     _connectedClients.insert(fd);
     std::cout << "[Lobby] Player " << fd << " joined lobby " << _uid << std::endl;

@@ -17,6 +17,7 @@ A C++ multiplayer game engine built with Entity-Component-System (ECS) architect
 - C++17 compatible compiler
 - SFML
 - CMake 3.16+
+- SQLite 3.45.1
 
 ### Building
 

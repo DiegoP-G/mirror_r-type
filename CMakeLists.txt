@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(RTypeProject)
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -14,6 +15,7 @@ if (WIN32)
 endif()
 
 include(FetchContent)
+
 # ---- SFML ----
 find_package(SFML 2.5 COMPONENTS graphics window system audio QUIET)
 
@@ -26,6 +28,27 @@ if (NOT SFML_FOUND)
     )
     set(BUILD_SHARED_LIBS TRUE CACHE BOOL "Build SFML as shared libs" FORCE)
     FetchContent_MakeAvailable(SFML)
+endif()
+
+# ---- SQLite3 local ----
+# Assumer que sqlite3.h et sqlite3.c sont dans le dossier sqlite/
+set(SQLITE3_DIR ${CMAKE_SOURCE_DIR}/sqlite)
+
+if(EXISTS ${SQLITE3_DIR}/sqlite3.c AND EXISTS ${SQLITE3_DIR}/sqlite3.h)
+    message(STATUS "Using local SQLite3 from ${SQLITE3_DIR}")
+    
+    add_library(sqlite3_lib STATIC ${SQLITE3_DIR}/sqlite3.c)
+    target_include_directories(sqlite3_lib PUBLIC ${SQLITE3_DIR})
+    
+    # Désactiver les warnings SQLite sur MSVC
+    if(MSVC)
+        target_compile_options(sqlite3_lib PRIVATE /W0)
+    endif()
+    
+    # Alias pour correspondre à la convention
+    add_library(unofficial::sqlite3::sqlite3 ALIAS sqlite3_lib)
+else()
+    message(FATAL_ERROR "SQLite3 files not found in ${SQLITE3_DIR}. Please add sqlite3.c and sqlite3.h to the sqlite/ directory.")
 endif()
 
 # ---- transferData (STATIC) ----
@@ -59,6 +82,7 @@ target_link_libraries(ecs PUBLIC
     sfml-window 
     sfml-system 
     sfml-audio
+    sqlite3_lib
 )
 
 # ---- Client ----
@@ -102,6 +126,7 @@ target_include_directories(GameServer PRIVATE
     ${CMAKE_SOURCE_DIR}/server/Include
     ${CMAKE_SOURCE_DIR}/transferData
     ${CMAKE_SOURCE_DIR}/ecs
+    ${SQLITE3_DIR}  # ✅ Ajouter le dossier SQLite pour le serveur
 )
 
 target_link_libraries(GameServer PRIVATE
@@ -110,6 +135,7 @@ target_link_libraries(GameServer PRIVATE
     sfml-graphics
     sfml-window
     sfml-system
+    sqlite3_lib  # ✅ Lier SQLite au serveur
 )
 
 # ---- Windows ----
@@ -133,7 +159,7 @@ if (WIN32)
         $<TARGET_FILE_DIR:RTypeClient>
     )
     
-    # Copy SFML DLLs for GameServer (doesn't use audio)
+    # Copy SFML DLLs for GameServer
     add_custom_command(TARGET GameServer POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:sfml-graphics>
@@ -146,15 +172,13 @@ if (WIN32)
         $<TARGET_FILE_DIR:GameServer>
     )
 
-    # Copy OpenAL DLL for RTypeClient (required for SFML-audio)
+    # Copy OpenAL DLL for RTypeClient
     add_custom_command(TARGET RTypeClient POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_BINARY_DIR}/_deps/sfml-src/extlibs/bin/x64/openal32.dll"
         $<TARGET_FILE_DIR:RTypeClient>
         COMMENT "Copying OpenAL DLL for RTypeClient"
     )
-    
-    # GameServer doesn't use audio, so no OpenAL needed
 endif()
 
 # ---- Linux ----

@@ -73,7 +73,6 @@ int main(int argc, char **argv)
 
         clientGame.init("0.0.0.0", 8081);
         clientGame.start();
-        std::cout << "out of start" << std::endl;
     }
     catch (const std::exception &e)
     {

@@ -31,3 +31,4 @@ build/
 CMakeSettings*
 *exe
 .vs
+*.sqlite

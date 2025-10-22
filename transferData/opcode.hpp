@@ -146,6 +146,16 @@ constexpr uint8_t OPCODE_GAME_STATE_UPDATE = 0x61;
 // [SERVER → CLIENT, TCP]
 // Sends info about game state (INGAME or INLOBBY)
 
+constexpr uint8_t OPCODE_KICK_NOTIFICATION = 0x62;
+// [SERVER → CLIENT, TCP]
+// Notifies the client that it has been kicked from the server.
+// Payload: none
+
+constexpr uint8_t OPCODE_BAN_NOTIFICATION = 0x63;
+// [SERVER → CLIENT, TCP]
+// Notifies the client's ip that it has been ban from the server.
+// Payload: none
+
 constexpr uint8_t OPCODE_CREATE_LOBBY = 0x70;
 // [CLIENT → SERVER, TCP]
 // Request to create a new lobby

@@ -49,20 +49,28 @@ std::shared_ptr<Lobby> LobbyManager::getLobby(const std::string &uid)
 
 void LobbyManager::removeLobby(const std::string &uid)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
+    std::unique_lock<std::mutex> lock(_mutex);
+
     auto it = _lobbies.find(uid);
     if (it == _lobbies.end())
         return;
 
-    it->second->stop();
+    // Grab thread object and lobby ptr safely before releasing the lock
+    auto thread_it = _threads.find(uid);
+    auto lobby = it->second;
 
-    if (_threads.find(uid) != _threads.end() && _threads[uid].joinable())
+    _lobbies.erase(it);
+    lock.unlock(); // 🔓 release before stopping or joining
+
+    lobby->stop();
+
+    if (thread_it != _threads.end() && thread_it->second.joinable())
     {
-        _threads[uid].join();
-        _threads.erase(uid);
+        thread_it->second.join();
+        std::lock_guard<std::mutex> relock(_mutex);
+        _threads.erase(thread_it);
     }
 
-    _lobbies.erase(uid);
     std::cout << "[LobbyManager] Removed lobby " << uid << std::endl;
 }
 

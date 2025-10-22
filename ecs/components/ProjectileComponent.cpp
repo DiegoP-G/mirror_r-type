@@ -13,7 +13,8 @@ void ProjectileComponent::update(float deltaTime)
 
 std::vector<uint8_t> ProjectileComponent::serialize() const
 {
-    std::vector<uint8_t> data(sizeof(float) * 3 + sizeof(EntityID));
+    std::vector<uint8_t> data(sizeof(float) * 3 + sizeof(EntityID) + sizeof(ENTITY_TYPE));
+
     size_t offset = 0;
 
     std::memcpy(data.data() + offset, &damage, sizeof(float));
