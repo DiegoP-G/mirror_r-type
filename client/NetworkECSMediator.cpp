@@ -216,10 +216,36 @@ void NetworkECSMediator::notify(NetworkECSMediatorEvent event, const std::string
     }
 }
 
-void NetworkECSMediator::setupVoiceChat()
+void NetworkECSMediator::setupVoiceChat(int deviceIndex)
 {
+    if (!_voiceManager)
+    {
+        std::cerr << "[Voice] ❌ VoiceManager not initialized!" << std::endl;
+        return;
+    }
+    if (voiceChatEnabled)
+    {
+        std::cout << "[Voice] Stopping previous recording..." << std::endl;
+        _voiceManager->stopRecording();
+    }
     voiceChatEnabled = true;
-    _voiceManager->startRecording([this](const std::vector<u_int8_t> &audioData) {
-        _sender->sendUdp(OPCODE_VOICE_DATA, std::string(audioData.begin(), audioData.end()));
-    });
+    _voiceManager->startRecording(
+        [this](const std::vector<u_int8_t> &audioData) {
+            _sender->sendUdp(OPCODE_VOICE_DATA, std::string(audioData.begin(), audioData.end()));
+        },
+        deviceIndex);
+}
+
+void NetworkECSMediator::stopVoiceChat()
+{
+    if (_voiceManager)
+    {
+        _voiceManager->stopRecording();
+        voiceChatEnabled = false;
+        std::cout << "[Voice] ✓ Voice chat disabled" << std::endl;
+    }
+    else
+    {
+        std::cerr << "[Voice] ⚠ VoiceManager not available for stopping" << std::endl;
+    }
 }

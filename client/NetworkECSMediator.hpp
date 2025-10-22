@@ -29,7 +29,6 @@ class NetworkECSMediator
     RTypeGame *_game{nullptr};
 
     std::unordered_map<int, std::function<void(const std::string &, uint8_t)>> _mediatorMap;
-
     VoiceManager *_voiceManager{nullptr};
     bool voiceChatEnabled = false;
 
@@ -54,7 +53,12 @@ class NetworkECSMediator
         _voiceManager = v;
     }
 
-    void setupVoiceChat();
+    void setupVoiceChat(int deviceIndex = -1);
+    void stopVoiceChat();
+    VoiceManager &getVoiceManager()
+    {
+        return *_voiceManager;
+    }
 
     void reset()
     {
