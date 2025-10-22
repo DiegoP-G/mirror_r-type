@@ -76,11 +76,13 @@ NetworkECSMediator::NetworkECSMediator()
                  break;
              }
 
-             // Updates de mouvement (UDP)
-             case OPCODE_MOVEMENT_UPDATE: {
+             case OPCODE_UPDATE_ENTITIES: {
+
                  _game->getMutex().lock();
                  std::vector<uint8_t> bytes(data.begin(), data.end());
-                 _game->getEntityManager().deserializeAllMovements(bytes);
+
+                 receiveEntitiesUpdates(bytes);
+
                  _game->getMutex().unlock();
                  break;
              }
@@ -105,14 +107,6 @@ NetworkECSMediator::NetworkECSMediator()
                  _game->getMutex().unlock();
                  //  _game->drawWaitingForPlayers((int)playersReady,
                  //  (int)totalPlayers);
-                 break;
-             }
-
-             case OPCODE_HEALTH_UPDATE: {
-                 _game->getMutex().lock();
-                 std::vector<uint8_t> bytes(data.begin(), data.end());
-                 _game->getEntityManager().deserializeAllHealth(bytes);
-                 _game->getMutex().unlock();
                  break;
              }
 
@@ -204,5 +198,158 @@ void NetworkECSMediator::notify(NetworkECSMediatorEvent event, const std::string
     else
     {
         throw std::runtime_error("notify: No handler registered for event " + std::to_string(static_cast<int>(event)));
+    }
+}
+
+void NetworkECSMediator::receiveEntitiesUpdates(const std::vector<uint8_t> &data)
+{
+    size_t offset = 0;
+
+    // 1. Lire le tick serveur
+    uint32_t serverTick = *reinterpret_cast<const uint32_t *>(&data[offset]);
+    offset += sizeof(uint32_t);
+
+    // if (_game->getTickSystem().lastServerTick < serverTick)
+    //     _game->getTickSystem().lastServerTick = serverTick;
+
+    std::cout << " tick received: " << serverTick << std::endl;
+
+    EntityManager serverEM; // état serveur temporaire
+
+    uint16_t moveSize = *reinterpret_cast<const uint16_t *>(&data[offset]);
+    offset += sizeof(uint16_t);
+
+    std::vector<uint8_t> moveData(data.begin() + offset, data.begin() + offset + moveSize);
+    offset += moveSize;
+
+    deserializeMovements(moveData);
+
+    uint16_t healthSize = *reinterpret_cast<const uint16_t *>(&data[offset]);
+    offset += sizeof(uint16_t);
+
+    std::vector<uint8_t> healthData(data.begin() + offset, data.begin() + offset + healthSize);
+    deserializeHealth(healthData);
+
+    // std::cout << "bvedoe THE IS nb " << serverEM.getEntities().size() << std::endl;
+    // serverEM.applyPendingChanges();
+    // std::cout << "THE IS nb " << serverEM.getEntities().size() << std::endl;
+    // _game->getTickSystem().onServerUpdate(serverTick, serverEM, _game->getEntityManager());
+}
+
+void NetworkECSMediator::deserializeMovements(const std::vector<uint8_t> &data)
+{
+    if (data.size() < sizeof(uint32_t))
+        return;
+
+    size_t offset = 0;
+
+    // Lire le nombre d'entités
+    uint32_t entityCount;
+    std::memcpy(&entityCount, data.data() + offset, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+
+    // Pour chaque entité
+    for (uint32_t i = 0; i < entityCount && offset < data.size(); ++i)
+    {
+        // Lire EntityID
+        EntityID id;
+        std::memcpy(&id, data.data() + offset, sizeof(EntityID));
+        offset += sizeof(EntityID);
+
+        // Trouver l'entité correspondante
+        Entity *entity = _game->getEntityManager().getEntityByID(id);
+        if (!entity)
+        {
+            // Ignorer les données de cette entité
+            offset += 2 * sizeof(Vector2D); // position + velocity
+            continue;
+        }
+        // Lire position
+        Vector2D position = Vector2D::deserialize(data.data() + offset, sizeof(Vector2D));
+        offset += sizeof(Vector2D);
+
+        // Lire velocity
+        Vector2D velocity = Vector2D::deserialize(data.data() + offset, sizeof(Vector2D));
+        offset += sizeof(Vector2D);
+
+        // if (entity->hasComponent<PlayerComponent>() &&
+        //     entity->getComponent<PlayerComponent>().playerID == _game->getPlayerId())
+        // {
+        //     Entity &entityServ = serverEM.createEntity(id);
+
+        //     entityServ.addComponent<PlayerComponent>(_game->getPlayerId(), true, 0.0);
+        //     entityServ.addComponent<TransformComponent>();
+        //     auto &servTransform = entityServ.getComponent<TransformComponent>();
+        //     auto &clientTransform = entity->getComponent<TransformComponent>();
+        //     servTransform = clientTransform;
+        //     servTransform.position = position;
+
+        //     entityServ.addComponent<VelocityComponent>();
+
+        //     auto &servVel = entityServ.getComponent<VelocityComponent>();
+        //     auto &clientVel = entity->getComponent<VelocityComponent>();
+        //     servVel = clientVel;
+        //     servVel.velocity = velocity;
+
+        //     std::cout << "HERE I GET MY PAYER " << std::endl;
+        //     continue;
+        // }
+
+        // Mettre à jour les composants
+        if (entity->hasComponent<TransformComponent>())
+        {
+            auto &transform = entity->getComponent<TransformComponent>();
+            transform.position = position;
+        }
+
+        if (entity->hasComponent<VelocityComponent>())
+        {
+            auto &vel = entity->getComponent<VelocityComponent>();
+            vel.velocity = velocity;
+        }
+    }
+}
+
+void NetworkECSMediator::deserializeHealth(const std::vector<uint8_t> &data)
+{
+    if (data.size() < sizeof(uint32_t))
+        return;
+
+    size_t offset = 0;
+    uint32_t entityCount = 0;
+
+    std::memcpy(&entityCount, data.data() + offset, sizeof(entityCount));
+    offset += sizeof(entityCount);
+
+    for (uint32_t i = 0; i < entityCount && offset < data.size(); ++i)
+    {
+        if (offset + sizeof(EntityID) > data.size())
+            break;
+
+        EntityID id;
+        std::memcpy(&id, data.data() + offset, sizeof(EntityID));
+        offset += sizeof(EntityID);
+
+        Entity *entity = _game->getEntityManager().getEntityByID(id);
+        if (!entity || !entity->hasComponent<HealthComponent>())
+        {
+            std::cout << "NO ENTITITY ID" << id << std::endl;
+            continue;
+        }
+
+        // Vérifier qu’il reste assez d’octets pour un HealthComponent
+        size_t remaining = data.size() - offset;
+        if (remaining < sizeof(int) * 2)
+        {
+            std::cout << "WTF" << std::endl;
+            break;
+        }
+
+        auto comp = HealthComponent::deserialize(data.data() + offset, sizeof(int) * 2);
+        offset += sizeof(int) * 2;
+
+        auto &health = entity->getComponent<HealthComponent>();
+        health.health = comp.health;
+        health.maxHealth = comp.maxHealth;
     }
 }

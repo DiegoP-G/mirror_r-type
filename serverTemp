@@ -1,0 +1,557 @@
+Opened database successfully!
+Tables already exist. Skipping creation.
+=== addClient DEBUG START ===
+[DEBUG] Client name: client
+[DEBUG] Client socket: 12
+[DEBUG] Existing clients in map:
+[DEBUG] Client successfully added.
+[DEBUG] Clients after insertion: 12
+=== addClient DEBUG END ===
+[TCP] Client 12 connected
+[UDP] Received OPCODE_UDP_AUTH² : 1804289383 from: 16777343
+[DEBUG] Buffer size before read: 0
+[DEBUG] Buffer size after read: 5 (read 5 bytes)
+[DEBUG] Opcode: 0x70
+[DEBUG] Payload length byte: 3
+[DEBUG] Total expected frame size: 5 bytes
+[DEBUG] Current buffer size: 5 bytes
+[DEBUG] Frame complete! Extracting payload...
+[DEBUG] Payload extracted (3 bytes), buffer remaining: 0 bytes
+UID IN MANAGERlol
+ffff
+lol
+IN LOBBY IDIDIDlollol
+[LobbyManager] Created and launched lobby lol
+[DEBUG] Buffer size before read: 0
+[DEBUG] No data available (EAGAIN/EWOULDBLOCK)
+[Lobby] Starting game loop for lobby lol
+Background created
+-------------60 tick passed--------------0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+-------------60 tick passed--------------1
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+-------------60 tick passed--------------2
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 0
+[DEBUG] Buffer size before read: 0
+[DEBUG] Buffer size after read: 5 (read 5 bytes)
+[DEBUG] Opcode: 0x71
+[DEBUG] Payload length byte: 3
+[DEBUG] Total expected frame size: 5 bytes
+[DEBUG] Current buffer size: 5 bytes
+[DEBUG] Frame complete! Extracting payload...
+[DEBUG] Payload extracted (3 bytes), buffer remaining: 0 bytes
+[JoinLobby] Client 12 joining lol
+[Lobby] addPlayer called on 0x2c9525a0
+[Lobby] Player 12 joined lobby lol
+[RTypeServer] Serialized 2 active entities
+[DEBUG] Buffer size before read: 0
+[DEBUG] No data available (EAGAIN/EWOULDBLOCK)
+[RTypeServer] Players ready: 0 / 0
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+-------------60 tick passed--------------3
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+-------------60 tick passed--------------4
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 0 / 1
+[RTypeServer] Players ready: 1 / 1
+Spawning wave 1hihi
+Random pos: 842 172
+Random pos: 829 356
+Random pos: 848 375
+Random pos: 842 541
+SPWAN BONUS on 850  424
+[UDP] Received OPCODE_UDP_AUTH² : 1003 from: 16777343
+[UDP] Client not found with UDP code 1003
+[UDP] Received OPCODE_UDP_AUTH² : 1003 from: 16777343
+[UDP] Client not found with UDP code 1003
+[UDP] Received OPCODE_UDP_AUTH² : 1009 from: 16777343
+[UDP] Client not found with UDP code 1009
+[UDP] Received OPCODE_UDP_AUTH² : 1015 from: 16777343
+[UDP] Client not found with UDP code 1015
+-------------60 tick passed--------------5
+--DESTROY id 1019
+--DESTROY id 1019
+BULLET OWNER ID: 12
+BULLET OWNER ID: 12
+-------------60 tick passed--------------6
+-------------60 tick passed--------------7
+--DESTROY id 1033
+--DESTROY id 1033
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+-------------60 tick passed--------------8
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+right pressed
+-------------60 tick passed--------------9
+--DESTROY id 1045
+--DESTROY id 1045
+--DESTROY id 1020
+BONUS DESTOYED HIHI
+--DESTROY id 1007
+--DESTROY id 1021
+-------------60 tick passed--------------10
+--DESTROY id 1008
+--DESTROY id 1008
+-------------60 tick passed--------------11
+--DESTROY id 1012
+--DESTROY id 1057
+--DESTROY id 1017
+--DESTROY id 1057
+--DESTROY id 1010
+--DESTROY id 1015
+BULLET OWNER ID: 12
+--DESTROY id 1016
+--DESTROY id 1016
+BULLET OWNER ID: 12
+-------------60 tick passed--------------12
+BULLET OWNER ID: 12
+--DESTROY id 1013
+--DESTROY id 1013
+--DESTROY id 1026
+--DESTROY id 1031
+--DESTROY id 1029
+--DESTROY id 1022
+--DESTROY id 1022
+BULLET OWNER ID: 12
+-------------60 tick passed--------------13
+--DESTROY id 1071
+--DESTROY id 1071
+--DESTROY id 1011
+--DESTROY id 1009
+--DESTROY id 1018
+--DESTROY id 1014
+BULLET OWNER ID: 12
+--DESTROY id 1030
+--DESTROY id 1030
+--DESTROY id 1038
+-------------60 tick passed--------------14
+BULLET OWNER ID: 12
+--DESTROY id 1041
+--DESTROY id 1043
+--DESTROY id 1058
+--DESTROY id 1027
+--DESTROY id 1027
+--DESTROY id 1025
+BULLET OWNER ID: 12
+--DESTROY id 1059
+--DESTROY id 1023
+--DESTROY id 1024
+--DESTROY id 1032
+--DESTROY id 1028
+--DESTROY id 1034
+--DESTROY id 1034
+-------------60 tick passed--------------15
+--DESTROY id 1086
+--DESTROY id 1086
+--DESTROY id 1072
+BULLET OWNER ID: 12
+--DESTROY id 1050
+SENDING SCORE UPDATE
+--DESTROY id 1004
+--DESTROY id 1053
+--DESTROY id 1073
+--DESTROY id 1042
+--DESTROY id 1042
+BULLET OWNER ID: 12
+-------------60 tick passed--------------16
+--DESTROY id 1037
+--DESTROY id 1039
+--DESTROY id 1074
+--DESTROY id 1035
+--DESTROY id 1036
+--DESTROY id 1044
+--DESTROY id 1040
+BULLET OWNER ID: 12
+--DESTROY id 1087
+--DESTROY id 1046
+--DESTROY id 1046
+--DESTROY id 1064
+--DESTROY id 1099
+--DESTROY id 1099
+--DESTROY id 1067
+-------------60 tick passed--------------17
+BULLET OWNER ID: 12
+--DESTROY id 1088
+--DESTROY id 1049
+--DESTROY id 1051
+--DESTROY id 1054
+--DESTROY id 1054
+--DESTROY id 1047
+--DESTROY id 1048
+--DESTROY id 1055
+--DESTROY id 1056
+BULLET OWNER ID: 12
+--DESTROY id 1052
+SENDING SCORE UPDATE
+--DESTROY id 1005
+--DESTROY id 1089
+-------------60 tick passed--------------18
+--DESTROY id 1079
+--DESTROY id 1060
+--DESTROY id 1060
+--DESTROY id 1077
+--DESTROY id 1108
+--DESTROY id 1108
+--DESTROY id 1063
+--DESTROY id 1065
+-------------60 tick passed--------------19
+--DESTROY id 1061
+--DESTROY id 1062
+--DESTROY id 1069
+--DESTROY id 1070
+--DESTROY id 1066
+--DESTROY id 1068
+--DESTROY id 1090
+--DESTROY id 1092
+-------------60 tick passed--------------20
+BULLET OWNER ID: 12
+--DESTROY id 1100
+--DESTROY id 1078
+--DESTROY id 1080
+--DESTROY id 1075
+--DESTROY id 1076
+--DESTROY id 1084
+--DESTROY id 1085
+--DESTROY id 1081
+--DESTROY id 1082
+--DESTROY id 1083
+--DESTROY id 1114
+--DESTROY id 1114
+BULLET OWNER ID: 12
+--DESTROY id 1101
+-------------60 tick passed--------------21
+--DESTROY id 1104
+BULLET OWNER ID: 12
+--DESTROY id 1102
+--DESTROY id 1115
+--DESTROY id 1091
+--DESTROY id 1093
+--DESTROY id 1097
+--DESTROY id 1098
+-------------60 tick passed--------------22
+--DESTROY id 1094
+--DESTROY id 1095
+--DESTROY id 1096
+BULLET OWNER ID: 12
+--DESTROY id 1116
+BULLET OWNER ID: 12
+--DESTROY id 1110
+--DESTROY id 1123
+--DESTROY id 1123
+-------------60 tick passed--------------23
+--DESTROY id 1117
+BULLET OWNER ID: 12
+--DESTROY id 1103
+--DESTROY id 1105
+--DESTROY id 1106
+--DESTROY id 1107
+SENDING SCORE UPDATE
+--DESTROY id 1003
+--DESTROY id 1124
+BULLET OWNER ID: 12
+-------------60 tick passed--------------24
+--DESTROY id 1119
+--DESTROY id 1129
+--DESTROY id 1129
+--DESTROY id 1109
+--DESTROY id 1111
+--DESTROY id 1112
+--DESTROY id 1113
+-------------60 tick passed--------------25

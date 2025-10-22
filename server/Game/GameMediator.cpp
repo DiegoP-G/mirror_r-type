@@ -18,7 +18,7 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
         {GameMediatorEvent::TickNetwork,
          [this](const std::string &, const std::string &, int) -> void { _networkManager.updateAllPoll(); }},
 
-        {GameMediatorEvent::EntityCreated,
+        {GameMediatorEvent::EntitiesCreated,
          [this](const std::string &data, const std::string &lobbyUid, int) -> void {
              auto lobby = _lobbyManager.getLobby(lobbyUid);
              if (lobby)
@@ -32,18 +32,11 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
                  _networkManager.sendDataToLobbyTCP(lobby, data, OPCODE_ENTITY_DESTROY);
          }},
 
-        {GameMediatorEvent::MovementUpdate,
+        {GameMediatorEvent::UpdateEntities,
          [this](const std::string &data, const std::string &lobbyUid, int) -> void {
              auto lobby = _lobbyManager.getLobby(lobbyUid);
              if (lobby)
-                 _networkManager.sendDataToLobbyUDP(lobby, data, OPCODE_MOVEMENT_UPDATE);
-         }},
-
-        {GameMediatorEvent::HealthUpdate,
-         [this](const std::string &data, const std::string &lobbyUid, int) -> void {
-             auto lobby = _lobbyManager.getLobby(lobbyUid);
-             if (lobby)
-                 _networkManager.sendDataToLobbyUDP(lobby, data, OPCODE_HEALTH_UPDATE);
+                 _networkManager.sendDataToLobbyUDP(lobby, data, OPCODE_UPDATE_ENTITIES);
          }},
 
         {GameMediatorEvent::PlayerInput,

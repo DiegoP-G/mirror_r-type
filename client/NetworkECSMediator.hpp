@@ -54,4 +54,7 @@ class NetworkECSMediator
     }
 
     void notify(NetworkECSMediatorEvent event, const std::string &data, uint8_t opcode = -1);
+    void receiveEntitiesUpdates(const std::vector<uint8_t> &data);
+    void deserializeHealth(const std::vector<uint8_t> &data);
+    void deserializeMovements(const std::vector<uint8_t> &data);
 };

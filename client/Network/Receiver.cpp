@@ -22,10 +22,7 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
 
-    _handlers[OPCODE_MOVEMENT_UPDATE] = [this](const std::string &payload, int opcode) {
-        _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
-    };
-    _handlers[OPCODE_HEALTH_UPDATE] = [this](const std::string &payload, int opcode) {
+    _handlers[OPCODE_UPDATE_ENTITIES] = [this](const std::string &payload, int opcode) {
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
 

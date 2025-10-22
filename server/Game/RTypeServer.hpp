@@ -49,7 +49,7 @@ class RTypeServer
     int playerNb = 0;
 
     int score = 0;
-    int tick = 0;
+    int _tick = 0;
 
     std::string _lobbyUID;
     const float ENEMY_SPEED = -200.0f;
@@ -87,8 +87,8 @@ class RTypeServer
         std::cout << "[RTypeServer] Serialized " << result.size() << " active entities\n";
         return result;
     }
-    void sendMovementUpdates();
-    void sendHealthUpdates();
+
+    void sendEntitiesUpdates();
     void sendNewEntities();
     void sendDestroyedEntities();
     void createBackground();
