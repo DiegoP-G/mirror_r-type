@@ -16,6 +16,24 @@ endif()
 
 include(FetchContent)
 
+FetchContent_Declare(
+    portaudio
+    GIT_REPOSITORY https://github.com/PortAudio/portaudio.git
+    GIT_TAG v19.7.0
+    GIT_SHALLOW TRUE
+)
+
+# On construit la lib statique uniquement
+set(PA_BUILD_SHARED OFF CACHE BOOL "Build shared library" FORCE)
+set(PA_BUILD_STATIC ON CACHE BOOL "Build static library" FORCE)
+set(PA_USE_JACK OFF CACHE BOOL "Disable JACK" FORCE)
+set(PA_USE_ASIO OFF CACHE BOOL "Disable ASIO" FORCE)
+set(PA_USE_WASAPI OFF CACHE BOOL "Disable WASAPI" FORCE)
+set(PA_USE_WDMKS OFF CACHE BOOL "Disable WDMKS" FORCE)
+set(PA_USE_DS OFF CACHE BOOL "Disable DirectSound" FORCE)
+
+FetchContent_MakeAvailable(portaudio)
+
 # ---- SFML ----
 find_package(SFML 2.5 COMPONENTS graphics window system audio QUIET)
 
@@ -85,9 +103,6 @@ target_link_libraries(ecs PUBLIC
     sqlite3_lib
 )
 
-# ---- PortAudio (pour le client uniquement) ----
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(PORTAUDIO REQUIRED portaudio-2.0)
 
 # ---- Client ----
 file(GLOB_RECURSE CLIENT_SOURCES client/*.cpp)
@@ -110,6 +125,7 @@ target_link_libraries(RTypeClient PRIVATE
     sfml-window
     sfml-system
     sfml-audio
+    portaudio_static
     ${PORTAUDIO_LIBRARIES}   
 
 )
@@ -139,6 +155,7 @@ target_include_directories(GameServer PRIVATE
 target_link_libraries(GameServer PRIVATE
     transferData
     ecs
+    portaudio_static
     sfml-graphics
     sfml-window
     sfml-system
