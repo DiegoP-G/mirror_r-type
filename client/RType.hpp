@@ -4,6 +4,17 @@
 #include "../ecs/systems.hpp"
 #include "../ecs/textBox.hpp"
 #include "NetworkECSMediator.hpp"
+#ifdef _WIN32
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <winsock2.h>
+
+    #include <windows.h>
+#endif
 #include <SFML/Window/Keyboard.hpp>
 #include <mutex>
 #include <unordered_map>

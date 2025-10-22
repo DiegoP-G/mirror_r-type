@@ -13,7 +13,7 @@
 #include "../components/JumpComponent.hpp"
 #include "../components/LaserWarningComponent.hpp"
 #include "../components/PlayerComponent.hpp"
-#include "../components/Rectangle.hpp"
+#include "../components/Rect.hpp"
 #include "../components/Vector2D.hpp"
 #include "getActualPosition.hpp"
 

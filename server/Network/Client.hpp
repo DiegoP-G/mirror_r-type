@@ -1,5 +1,20 @@
 #pragma once
-#include <netinet/in.h>
+
+#ifdef _WIN32
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #pragma comment(lib, "ws2_32.lib")
+    #include <windows.h>
+#else
+    #include <netinet/in.h>
+#endif
 #include <string>
 
 class Client

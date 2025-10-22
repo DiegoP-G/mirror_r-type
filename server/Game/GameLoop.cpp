@@ -6,6 +6,7 @@
 
 Orchestrator::GameLoop::GameLoop()
 {
+    std::cout << "GameLoop initialized." << std::endl;
 }
 
 Orchestrator::GameLoop::~GameLoop()
