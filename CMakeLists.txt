@@ -94,7 +94,11 @@ file(GLOB_RECURSE ECS_SOURCES
     ecs/*.cpp
 )
 add_library(ecs ${ECS_SOURCES})
-target_include_directories(ecs PUBLIC ecs)
+target_include_directories(ecs PUBLIC
+    ecs
+    server
+    ${CMAKE_SOURCE_DIR}/server/Game
+)
 
 # ECS depends on SFML
 target_link_libraries(ecs PUBLIC

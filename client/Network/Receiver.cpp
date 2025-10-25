@@ -72,6 +72,9 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
     _handlers[OPCODE_SIGNIN_RESPONSE] = [this](const std::string &payload, int opcode) {
         _med.notify(SEND_DATA_TCP, payload, opcode);
     };
+    _handlers[OPCODE_SERVER_PUB_KEY] = [this](const std::string &payload, int opcode) {
+        _med.notify(SEND_DATA_TCP, payload, opcode);
+    };
 }
 
 void Receiver::onCodeUdp(const std::string &payload)

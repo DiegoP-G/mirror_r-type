@@ -12,7 +12,7 @@
 
 NetworkManager::NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver)
     : _med(med), _sender(sender), _receiver(receiver), _tcpSocket(-1), _udpSocket(-1), _shouldStop(false),
-    _serverPubKey(nullptr), _clientPubKey(nullptr), _aesIV(""), _aesKey("")
+    _serverPubKey(nullptr)
 {
 }
 

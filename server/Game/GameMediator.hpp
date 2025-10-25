@@ -1,8 +1,7 @@
 #pragma once
-#include "../Lobby/LobbyManager.hpp"
-#include "../Mediator/IMediator.hpp"
-#include "../Network/NetworkManager.hpp"
-#include "../../transferData/hashUtils.hpp"
+#include "Lobby/LobbyManager.hpp"
+#include "Mediator/IMediator.hpp"
+#include "Network/NetworkManager.hpp"
 #include "RTypeServer.hpp"
 #include <functional>
 #include <string>
@@ -38,8 +37,8 @@ enum GameMediatorEvent
     LoginResponse = 0x81,
     SigninRequest = 0x82,
     SigninResponse = 0x83,
-    ServerPubAesKey = 0x91,
-    ClientPubAesKey = 0x91,
+    ServerPubKey = 0x90,
+    ClientIVKey = 0x92,
 };
 
 class NetworkManager;

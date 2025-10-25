@@ -7,7 +7,7 @@
 #include "../ecs/textBox.hpp"
 #include "../transferData/opcode.hpp"
 #include "../transferData/transferData.hpp"
-#include "../transferData/hashUtils.hpp"
+#include "transferData/hashUtils.hpp"
 #include "Network/NetworkManager.hpp"
 #include "assetsPath.hpp"
 #include "windowSize.hpp"
@@ -102,24 +102,37 @@ void RTypeGame::handleEvents()
                 {
                     std::string username = g_graphics->getUsernameTextBox()->getText();
                     std::string password = g_graphics->getPasswordTextBox()->getText();
-
-                    std::cout << "Login in with: " << username << std::endl;
-
                     std::string loginData = serializeString(username) + serializeString(password);
-                    // std::string cryptedDate =  ENCRYPT DATA HERE
-                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, loginData, OPCODE_LOGIN_REQUEST);
+                    std::vector<uint8_t> encryptedData;
+                    unsigned char tag[16];
+
+                    if (!aesEncryptWithTag(_med.getNetworkManager().getAesKey(), _med.getNetworkManager().getAesIV(),
+                            loginData, encryptedData)) {
+                        std::cerr << "Client failed to encrypt data\n";
+                        EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
+                        return;
+                    }
+                    std::string encryptedDataStr(encryptedData.begin(), encryptedData.end());
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, encryptedDataStr, OPCODE_LOGIN_REQUEST);
                 }
                 else if (action == GraphicsManager::MenuAction::SIGNIN)
                 {
-                    // Handle signin
                     std::string username = g_graphics->getUsernameTextBox()->getText();
                     std::string password = g_graphics->getPasswordTextBox()->getText();
-
-                    std::cout << "Sign in with: " << username << std::endl;
-
                     std::string loginData = serializeString(username) + serializeString(password);
-                    // std::string cryptedDate =  ENCRYPT DATA HERE
-                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, loginData, OPCODE_SIGNIN_REQUEST);
+                    std::vector<uint8_t> encryptedData;
+
+                    unsigned char tag[16];
+                    if (!aesEncryptWithTag(_med.getNetworkManager().getAesKey(), _med.getNetworkManager().getAesIV(),
+                            loginData, encryptedData)) {
+                        std::cerr << "Client failed to encrypt data\n";
+                        EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
+                        return;
+                    }
+                    std::string encryptedDataStr(encryptedData.begin(), encryptedData.end());
+                    EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
+
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, encryptedDataStr, OPCODE_SIGNIN_REQUEST);
                 }
             }
         }

@@ -1,6 +1,7 @@
 #include "hashUtils.hpp"
 
-std::string generateRandomSalt() {
+std::string generateRandomSalt()
+{
     const char charset[] =
         "abcdefghijklmnopqrstuvwxyz"
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -12,14 +13,16 @@ std::string generateRandomSalt() {
     std::uniform_int_distribution<> distribution(0, sizeof(charset) - 2);
 
     std::ostringstream salt;
-    for (size_t i = 0; i < saltLength; ++i) {
+    for (size_t i = 0; i < saltLength; ++i)
+    {
         salt << charset[distribution(generator)];
     }
 
     return salt.str();
 }
 
-std::string hashPassword(const std::string &password) {
+std::string hashPassword(const std::string &password)
+{
     // Generate a salt for bcrypt (e.g., "$2b$12$" for bcrypt with cost 12)
     std::string randomSalt = generateRandomSalt();
     std::string salt = "$2b$12$" + randomSalt;
@@ -28,7 +31,8 @@ std::string hashPassword(const std::string &password) {
 
     // Hash the password using crypt
     char *hashed = crypt(password.c_str(), salt.c_str());
-    if (!hashed) {
+    if (!hashed)
+    {
         std::cerr << "crypt() failed" << std::endl;
         return "";
     }
@@ -37,7 +41,8 @@ std::string hashPassword(const std::string &password) {
     return std::string(hashed);
 }
 
-bool verifyPassword(const std::string &stored, const std::string &candidate) {
+bool verifyPassword(const std::string &stored, const std::string &candidate)
+{
     // Hash the candidate password using the stored hash as the salt
     // std::string stored(s);
     // std::cerr << "candidate: " << candidate << "\n";
@@ -49,7 +54,6 @@ bool verifyPassword(const std::string &stored, const std::string &candidate) {
     //     std::cerr << "crypt() failed" << std::endl;
     //     return false;
     // }
-
 
     // std::cerr << "Length of hashed: " << std::strlen(hashed) << "\n";
     // std::cerr << "Length of stored: " << stored.size() << "\n";
@@ -65,232 +69,382 @@ bool verifyPassword(const std::string &stored, const std::string &candidate) {
     // }
     // std::cerr << "\n";
 
-
     std::cerr << "verifyPassword: stored=" << stored << " candidate=" << candidate << "\n";
-    std::cerr << "comp " << static_cast<bool>(candidate ==  stored) <<  "\n";
+    std::cerr << "comp " << static_cast<bool>(candidate == stored) << "\n";
     // Compare the hashes
-    return candidate ==  stored;
+    return candidate == stored;
 }
 
-std::vector<uint8_t> encryptAES(const std::string &plaintext, const std::string &key, const std::string &iv)
+static void handleOpensslError(const char *ctxmsg)
 {
-    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
-    if (!ctx)
-        throw std::runtime_error("Failed to create EVP_CIPHER_CTX");
-
-    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, reinterpret_cast<const uint8_t *>(key.data()),
-                           reinterpret_cast<const uint8_t *>(iv.data())) != 1)
-    {
-        EVP_CIPHER_CTX_free(ctx);
-        throw std::runtime_error("Failed to initialize AES encryption");
-    }
-
-    std::vector<uint8_t> ciphertext(plaintext.size() + EVP_CIPHER_block_size(EVP_aes_256_cbc()));
-    int len = 0, ciphertext_len = 0;
-
-    if (EVP_EncryptUpdate(ctx, ciphertext.data(), &len, reinterpret_cast<const uint8_t *>(plaintext.data()),
-                          plaintext.size()) != 1)
-    {
-        EVP_CIPHER_CTX_free(ctx);
-        throw std::runtime_error("Failed to encrypt data");
-    }
-    ciphertext_len += len;
-
-    if (EVP_EncryptFinal_ex(ctx, ciphertext.data() + len, &len) != 1)
-    {
-        EVP_CIPHER_CTX_free(ctx);
-        throw std::runtime_error("Failed to finalize AES encryption");
-    }
-    ciphertext_len += len;
-
-    ciphertext.resize(ciphertext_len);
-    EVP_CIPHER_CTX_free(ctx);
-    return ciphertext;
+    unsigned long e = ERR_get_error();
+    char buf[256];
+    ERR_error_string_n(e, buf, sizeof(buf));
+    if (ctxmsg)
+        std::cerr << ctxmsg << ": ";
+    std::cerr << "OpenSSL error: " << buf << "\n";
 }
 
-bool generateAESKeyAndIV(EVP_PKEY *localKey, EVP_PKEY *peerKey, std::string &aesKey, std::string &aesIV)
+void printOpensslError(const char *ctx)
 {
-    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(localKey, nullptr);
-    if (!ctx)
+    unsigned long e = ERR_get_error();
+    if (e == 0)
     {
-        std::cerr << "Failed to create EVP_PKEY_CTX" << std::endl;
+        if (ctx)
+            std::cerr << ctx << ": (no OpenSSL error)\n";
+        return;
+    }
+    char buf[256];
+    ERR_error_string_n(e, buf, sizeof(buf));
+    if (ctx)
+        std::cerr << ctx << ": ";
+    std::cerr << buf << "\n";
+}
+
+bool generateAESKeyAndIV(unsigned char out_key[AES_KEY_BYTES], unsigned char out_iv[AES_IV_BYTES])
+{
+    if (RAND_bytes(out_key, AES_KEY_BYTES) != 1)
+    {
+        printOpensslError("RAND_bytes key");
         return false;
     }
-
-    // Derive the shared secret
-    if (EVP_PKEY_derive_init(ctx) <= 0)
+    if (RAND_bytes(out_iv, AES_IV_BYTES) != 1)
     {
-        std::cerr << "Failed to initialize key derivation" << std::endl;
-        EVP_PKEY_CTX_free(ctx);
+        printOpensslError("RAND_bytes iv");
         return false;
     }
-
-    if (EVP_PKEY_derive_set_peer(ctx, peerKey) <= 0)
-    {
-        std::cerr << "Failed to set peer key" << std::endl;
-        EVP_PKEY_CTX_free(ctx);
-        return false;
-    }
-
-    size_t secretLen = 0;
-    if (EVP_PKEY_derive(ctx, nullptr, &secretLen) <= 0)
-    {
-        std::cerr << "Failed to determine shared secret length" << std::endl;
-        EVP_PKEY_CTX_free(ctx);
-        return false;
-    }
-
-    std::vector<uint8_t> sharedSecret(secretLen);
-    if (EVP_PKEY_derive(ctx, sharedSecret.data(), &secretLen) <= 0)
-    {
-        std::cerr << "Failed to derive shared secret" << std::endl;
-        EVP_PKEY_CTX_free(ctx);
-        return false;
-    }
-
-    EVP_PKEY_CTX_free(ctx);
-
-    // Derive AES key and IV from the shared secret
-    std::vector<uint8_t> keyMaterial(EVP_MAX_KEY_LENGTH + EVP_MAX_IV_LENGTH);
-    if (!EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha256(), nullptr, sharedSecret.data(), secretLen, 1, keyMaterial.data(),
-                        keyMaterial.data() + EVP_MAX_KEY_LENGTH))
-    {
-        std::cerr << "Failed to derive AES key and IV" << std::endl;
-        return false;
-    }
-
-    aesKey.assign(reinterpret_cast<char *>(keyMaterial.data()), EVP_MAX_KEY_LENGTH);
-    aesIV.assign(reinterpret_cast<char *>(keyMaterial.data() + EVP_MAX_KEY_LENGTH), EVP_MAX_IV_LENGTH);
     return true;
 }
 
-EVP_PKEY *generateDHKeyPair()
+EVP_PKEY *generateRSAKeyPair(int bits)
 {
-    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_DH, nullptr);
+    EVP_PKEY *pkey = nullptr;
+    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
+
     if (!ctx)
     {
-        std::cerr << "Failed to create EVP_PKEY_CTX" << std::endl;
+        printOpensslError("EVP_PKEY_CTX_new_id");
         return nullptr;
     }
-
     if (EVP_PKEY_keygen_init(ctx) <= 0)
     {
-        std::cerr << "Failed to initialize key generation" << std::endl;
+        printOpensslError("EVP_PKEY_keygen_init");
         EVP_PKEY_CTX_free(ctx);
         return nullptr;
     }
-
-    if (EVP_PKEY_CTX_set_dh_paramgen_prime_len(ctx, 2048) <= 0)
+    if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, bits) <= 0)
     {
-        std::cerr << "Failed to set DH parameter length" << std::endl;
+        printOpensslError("EVP_PKEY_CTX_set_rsa_keygen_bits");
         EVP_PKEY_CTX_free(ctx);
         return nullptr;
     }
-
-    EVP_PKEY *key = nullptr;
-    if (EVP_PKEY_keygen(ctx, &key) <= 0)
+    if (EVP_PKEY_keygen(ctx, &pkey) <= 0)
     {
-        std::cerr << "Failed to generate DH key pair" << std::endl;
+        printOpensslError("EVP_PKEY_keygen");
         EVP_PKEY_CTX_free(ctx);
         return nullptr;
     }
-
     EVP_PKEY_CTX_free(ctx);
-    return key;
+    return pkey;
 }
 
-std::vector<uint8_t> aesEncrypt(const std::string &plaintext, const std::string &key, const std::string &iv)
+std::optional<std::vector<unsigned char>> extractPEMBytesFromRSAKeyPair(EVP_PKEY *pkey)
 {
-    // Ensure key and IV sizes are correct
-    if (key.size() != 32 || iv.size() != 16)
+    BIO *mem = BIO_new(BIO_s_mem());
+
+    if (!mem)
     {
-        throw std::invalid_argument("Key must be 32 bytes and IV must be 16 bytes");
+        printOpensslError("BIO_new");
+        return std::nullopt;
+    }
+    if (!PEM_write_bio_PUBKEY(mem, pkey))
+    {
+        printOpensslError("PEM_write_bio_PUBKEY");
+        BIO_free(mem);
+        return std::nullopt;
     }
 
-    // Output buffer for ciphertext
-    std::vector<uint8_t> ciphertext(plaintext.size() + 16); // Add space for padding
-    int len = 0, ciphertext_len = 0;
+    BUF_MEM *bptr = nullptr;
+    BIO_get_mem_ptr(mem, &bptr);
 
-    // Perform encryption in one step
-    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
-    if (!ctx)
-        throw std::runtime_error("Failed to create EVP_CIPHER_CTX");
-
-    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr,
-                           reinterpret_cast<const unsigned char *>(key.data()),
-                           reinterpret_cast<const unsigned char *>(iv.data())) != 1)
+    if (!bptr || bptr->length == 0)
     {
-        EVP_CIPHER_CTX_free(ctx);
-        throw std::runtime_error("Failed to initialize AES encryption");
+        BIO_free(mem);
+        return std::nullopt;
     }
-
-    if (EVP_EncryptUpdate(ctx, ciphertext.data(), &len,
-                          reinterpret_cast<const unsigned char *>(plaintext.data()), plaintext.size()) != 1)
-    {
-        EVP_CIPHER_CTX_free(ctx);
-        throw std::runtime_error("Failed to encrypt data");
-    }
-    ciphertext_len += len;
-
-    if (EVP_EncryptFinal_ex(ctx, ciphertext.data() + len, &len) != 1)
-    {
-        EVP_CIPHER_CTX_free(ctx);
-        throw std::runtime_error("Failed to finalize AES encryption");
-    }
-    ciphertext_len += len;
-
-    EVP_CIPHER_CTX_free(ctx);
-
-    // Resize the ciphertext to the actual length
-    ciphertext.resize(ciphertext_len);
-    return ciphertext;
+    std::vector<unsigned char> pem(bptr->data, bptr->data + bptr->length);
+    BIO_free(mem);
+    return pem;
 }
 
-std::string decryptAES(const std::vector<uint8_t> &ciphertext, const std::string &key, const std::string &iv)
+std::optional<EVP_PKEY *> extractPublicKeyFromPEMBytes(const std::vector<unsigned char> &pem)
 {
-    // Create and initialize the decryption context
+    BIO *mem = BIO_new_mem_buf(pem.data(), (int)pem.size());
+
+    if (!mem)
+    {
+        printOpensslError("BIO_new_mem_buf");
+        return std::nullopt;
+    }
+    EVP_PKEY *pub = PEM_read_bio_PUBKEY(mem, NULL, NULL, NULL);
+    BIO_free(mem);
+    if (!pub)
+    {
+        printOpensslError("PEM_read_bio_PUBKEY");
+        return std::nullopt;
+    }
+    return pub;
+}
+
+std::optional<std::vector<unsigned char>> encryptBytesWithPublicKey(EVP_PKEY *pub, const std::vector<unsigned char> &in)
+{
+    if (!pub) {
+        std::cerr << "encryptBytesWithPublicKey_checked: pub == nullptr\n";
+        return std::nullopt;
+    }
+
+    // compute RSA modulus size (k) and OAEP SHA-256 limit
+    size_t k = (size_t)EVP_PKEY_get_size(pub); // modulus size in bytes
+    const EVP_MD *md = EVP_sha256();
+    int hlen = EVP_MD_size(md); // 32 for SHA-256
+    if (hlen <= 0) {
+        std::cerr << "encryptBytesWithPublicKey_checked: failed to get hash len\n";
+        return std::nullopt;
+    }
+
+    // max plaintext for OAEP with this hash
+    if (k < (size_t)(2 * hlen + 2)) {
+        std::cerr << "encryptBytesWithPublicKey_checked: unexpected small RSA key k=" << k << "\n";
+        return std::nullopt;
+    }
+    size_t max_plaintext = k - 2 * (size_t)hlen - 2;
+
+    std::cerr << "RSA modulus size (bytes): " << k << "\n";
+    std::cerr << "OAEP hash len (bytes): " << hlen << "\n";
+    std::cerr << "OAEP max plaintext allowed: " << max_plaintext << "\n";
+    std::cerr << "Input size: " << in.size() << "\n";
+
+    if (in.size() > max_plaintext) {
+        std::cerr << "encryptBytesWithPublicKey_checked: input (" << in.size()
+                  << " bytes) is too large for RSA-OAEP with this key/hash (max "
+                  << max_plaintext << " bytes). Aborting.\n";
+        return std::nullopt;
+    }
+
+    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(pub, NULL);
+    if (!ctx) {
+        handleOpensslError("EVP_PKEY_CTX_new");
+        return std::nullopt;
+    }
+    if (EVP_PKEY_encrypt_init(ctx) <= 0) {
+        handleOpensslError("EVP_PKEY_encrypt_init");
+        EVP_PKEY_CTX_free(ctx);
+        return std::nullopt;
+    }
+    if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_OAEP_PADDING) <= 0) {
+        handleOpensslError("set_rsa_padding");
+        EVP_PKEY_CTX_free(ctx);
+        return std::nullopt;
+    }
+    if (EVP_PKEY_CTX_set_rsa_oaep_md(ctx, md) <= 0) {
+        handleOpensslError("set_oaep_md");
+        EVP_PKEY_CTX_free(ctx);
+        return std::nullopt;
+    }
+
+    size_t outlen = 0;
+    if (EVP_PKEY_encrypt(ctx, NULL, &outlen, in.data(), in.size()) <= 0) {
+        handleOpensslError("EVP_PKEY_encrypt (size)");
+        EVP_PKEY_CTX_free(ctx);
+        return std::nullopt;
+    }
+    std::vector<unsigned char> out(outlen);
+    if (EVP_PKEY_encrypt(ctx, out.data(), &outlen, in.data(), in.size()) <= 0) {
+        handleOpensslError("EVP_PKEY_encrypt");
+        EVP_PKEY_CTX_free(ctx);
+        return std::nullopt;
+    }
+    out.resize(outlen);
+    EVP_PKEY_CTX_free(ctx);
+    return out;
+}
+
+bool aesEncryptWithTag(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv,
+    const std::string &plaintextStr, std::vector<unsigned char> &ciphertOutWithTag)
+{
+    std::vector<u_int8_t> plaintext(plaintextStr.begin(), plaintextStr.end());
+    unsigned char tag[TAG_BYTES];
+
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (!ctx)
     {
-        throw std::runtime_error("Failed to create EVP_CIPHER_CTX");
+        handleOpensslError("EVP_CIPHER_CTX_new");
+        return false;
     }
-
-    // Initialize the decryption operation (AES-256-CBC)
-    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr,
-                           reinterpret_cast<const unsigned char *>(key.data()),
-                           reinterpret_cast<const unsigned char *>(iv.data())) != 1)
+    if (!EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), NULL, NULL, NULL))
     {
+        handleOpensslError("EVP_EncryptInit_ex");
         EVP_CIPHER_CTX_free(ctx);
-        throw std::runtime_error("Failed to initialize AES decryption");
+        return false;
     }
-
-    // Prepare the output buffer
-    std::vector<uint8_t> plaintext(ciphertext.size() + EVP_CIPHER_block_size(EVP_aes_256_cbc()));
-    int len = 0, plaintext_len = 0;
-
-    // Decrypt the ciphertext
-    if (EVP_DecryptUpdate(ctx, plaintext.data(), &len,
-                          ciphertext.data(), ciphertext.size()) != 1)
+    if (!EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, (int)iv.size(), NULL))
     {
+        handleOpensslError("EVP_CTRL_GCM_SET_IVLEN");
         EVP_CIPHER_CTX_free(ctx);
-        throw std::runtime_error("Failed to decrypt data");
+        return false;
     }
-    plaintext_len += len;
-
-    // Finalize the decryption (handles padding)
-    if (EVP_DecryptFinal_ex(ctx, plaintext.data() + len, &len) != 1)
+    if (!EVP_EncryptInit_ex(ctx, NULL, NULL, key.data(), iv.data()))
     {
+        handleOpensslError("EVP_EncryptInit_ex (key/iv)");
         EVP_CIPHER_CTX_free(ctx);
-        throw std::runtime_error("Failed to finalize AES decryption");
+        return false;
     }
-    plaintext_len += len;
 
-    // Resize the plaintext to the actual length
-    plaintext.resize(plaintext_len);
-
-    // Clean up
+    ciphertOutWithTag.resize(plaintext.size() + TAG_BYTES);
+    int len = 0;
+    if (!EVP_EncryptUpdate(ctx, ciphertOutWithTag.data(), &len, plaintext.data(), (int)plaintext.size()))
+    {
+        handleOpensslError("EVP_EncryptUpdate");
+        EVP_CIPHER_CTX_free(ctx);
+        return false;
+    }
+    int ciphertext_len = len;
+    if (!EVP_EncryptFinal_ex(ctx, ciphertOutWithTag.data() + len, &len))
+    {
+        handleOpensslError("EVP_EncryptFinal_ex");
+        EVP_CIPHER_CTX_free(ctx);
+        return false;
+    }
+    ciphertext_len += len;
+    ciphertOutWithTag.resize(ciphertext_len);
+    if (!EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, TAG_BYTES, tag))
+    {
+        handleOpensslError("EVP_CTRL_GCM_GET_TAG");
+        EVP_CIPHER_CTX_free(ctx);
+        return false;
+    }
     EVP_CIPHER_CTX_free(ctx);
+    ciphertOutWithTag.insert(ciphertOutWithTag.end(), tag, tag + TAG_BYTES);
+    return true;
+}
 
-    // Convert plaintext to a string and return
-    return std::string(plaintext.begin(), plaintext.end());
+static std::optional<std::string> decryptAES(const std::vector<uint8_t> &key,
+    const std::vector<uint8_t> &iv, const std::vector<unsigned char> &ciphertextWithTag, const unsigned char tag[TAG_BYTES])
+{
+    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+    if (!ctx)
+    {
+        printOpensslError("EVP_CIPHER_CTX_new");
+        return std::nullopt;
+    }
+    if (!EVP_DecryptInit_ex(ctx, EVP_aes_256_gcm(), NULL, NULL, NULL))
+    {
+        printOpensslError("EVP_DecryptInit_ex");
+        EVP_CIPHER_CTX_free(ctx);
+        return std::nullopt;
+    }
+    if (!EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, (int)iv.size(), NULL))
+    {
+        printOpensslError("EVP_CTRL_GCM_SET_IVLEN");
+        EVP_CIPHER_CTX_free(ctx);
+        return std::nullopt;
+    }
+    if (!EVP_DecryptInit_ex(ctx, NULL, NULL, key.data(), iv.data()))
+    {
+        printOpensslError("EVP_DecryptInit_ex (key/iv)");
+        EVP_CIPHER_CTX_free(ctx);
+        return std::nullopt;
+    }
+
+    std::vector<unsigned char> plaintext(ciphertextWithTag.size());
+    int outlen = 0;
+    if (!EVP_DecryptUpdate(ctx, plaintext.data(), &outlen, ciphertextWithTag.data(), (int)ciphertextWithTag.size()))
+    {
+        printOpensslError("EVP_DecryptUpdate");
+        EVP_CIPHER_CTX_free(ctx);
+        return std::nullopt;
+    }
+    int plen = outlen;
+
+    if (!EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, TAG_BYTES, (void *)tag))
+    {
+        printOpensslError("EVP_CTRL_GCM_SET_TAG");
+        EVP_CIPHER_CTX_free(ctx);
+        return std::nullopt;
+    }
+    int ret = EVP_DecryptFinal_ex(ctx, plaintext.data() + outlen, &outlen);
+    EVP_CIPHER_CTX_free(ctx);
+    if (ret <= 0)
+    {
+        std::cerr << "AES-GCM tag verification failed (data tampered or wrong key/IV)\n";
+        return std::nullopt;
+    }
+    plen += outlen;
+    plaintext.resize(plen);
+    std::string decryptedText(plaintext.begin(), plaintext.end());
+    return decryptedText;
+}
+
+std::optional<std::string> decryptAESAppendedTag(const std::vector<uint8_t> &key,
+    const std::vector<uint8_t> &iv, const std::vector<unsigned char> &ciphertext_with_tag)
+{
+    if (ciphertext_with_tag.size() < TAG_BYTES) {
+        std::cerr << "decryptAESAppendedTag: buffer too small to contain tag: " << ciphertext_with_tag.size() << "\n";
+        return std::nullopt;
+    }
+
+    size_t ct_len = ciphertext_with_tag.size() - TAG_BYTES;
+
+    // Split into ciphertext and tag
+    std::vector<unsigned char> ciphertext(ct_len);
+    memcpy(ciphertext.data(), ciphertext_with_tag.data(), ct_len);
+
+    unsigned char tag[TAG_BYTES];
+    memcpy(tag, ciphertext_with_tag.data() + ct_len, TAG_BYTES);
+
+    return decryptAES(key, iv, ciphertext, tag);
+}
+
+std::optional<std::vector<uint8_t>> decryptClientAesWithPublicKey(EVP_PKEY *pubKey, const unsigned char *encrypted, size_t encryptedLen)
+{
+    EVP_PKEY_CTX *rsa_ctx = EVP_PKEY_CTX_new(pubKey, NULL);
+    if (!rsa_ctx) {
+        printOpensslError("EVP_PKEY_CTX_new");
+        return std::nullopt;
+    }
+    if (EVP_PKEY_decrypt_init(rsa_ctx) <= 0) {
+        printOpensslError("EVP_PKEY_decrypt_init");
+        return std::nullopt;
+    }
+    if (EVP_PKEY_CTX_set_rsa_padding(rsa_ctx, RSA_PKCS1_OAEP_PADDING) <= 0) {
+        printOpensslError("RSA padding");
+        return std::nullopt;
+    }
+    if (EVP_PKEY_CTX_set_rsa_oaep_md(rsa_ctx, EVP_sha256()) <= 0) {
+        printOpensslError("OAEP md");
+        return std::nullopt;
+    }
+
+    // Get required output length
+    size_t outlen = 0;
+    if (EVP_PKEY_decrypt(rsa_ctx, nullptr, &outlen, encrypted, encryptedLen) <= 0) {
+        printOpensslError("EVP_PKEY_decrypt (size)");
+        return std::nullopt;
+    }
+
+    // Allocate buffer and decrypt
+    std::vector<uint8_t> decrypted_aes(outlen);
+    if (EVP_PKEY_decrypt(rsa_ctx, decrypted_aes.data(), &outlen, encrypted, encryptedLen) <= 0) {
+        printOpensslError("EVP_PKEY_decrypt");
+        return std::nullopt;
+    }
+    decrypted_aes.resize(outlen);
+    EVP_PKEY_CTX_free(rsa_ctx);
+
+    // Sanity check
+    if (decrypted_aes.size() != AES_KEY_BYTES + AES_IV_BYTES) {
+        std::cerr << "Decrypted AES key+IV size mismatch: " << decrypted_aes.size() << "\n";
+        return std::nullopt;
+    }
+    return decrypted_aes;
 }

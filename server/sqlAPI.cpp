@@ -1,7 +1,7 @@
 #include "sqlAPI.hpp"
 #include "sqlSchema.hpp"
 #include <iostream>
-#include "../transferData/hashUtils.hpp"
+#include "transferData/hashUtils.hpp"
 
 sqlAPI::sqlAPI(std::string name) : _dbName(name)
 {
@@ -113,7 +113,7 @@ void sqlAPI::addPlayerEntry(const std::string &name, const std::string &password
     }
 
     // Hash the password
-    std::string hashedPassword = hashPassword(password);
+    // std::string hashedPassword = hashPassword(password);
 
     // Insert the new player into the database
     std::string query = "INSERT INTO Players (Name, Password, Score) VALUES (?, ?, 0);";
@@ -125,7 +125,7 @@ void sqlAPI::addPlayerEntry(const std::string &name, const std::string &password
     }
 
     sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 2, hashedPassword.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_STATIC);
 
     if (sqlite3_step(stmt) != SQLITE_DONE)
     {

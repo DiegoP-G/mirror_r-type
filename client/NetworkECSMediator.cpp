@@ -1,7 +1,9 @@
 #include "NetworkECSMediator.hpp"
 #include "../transferData/opcode.hpp"
 #include "../transferData/transferData.hpp"
+#include "../transferData/hashUtils.hpp"
 #include "Network/Receiver.hpp"
+#include "Network/NetworkManager.hpp"
 #include "RType.hpp"
 #include <cstdint>
 #include <exception>
@@ -9,7 +11,7 @@
 #include <stdexcept>
 #include <string>
 
-NetworkECSMediator::NetworkECSMediator()
+NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networkManager(networkManager)
 {
     _mediatorMap = {
         // === ENVOI VERS LE SERVEUR ===
@@ -77,11 +79,46 @@ NetworkECSMediator::NetworkECSMediator()
 
                 _game->getMutex().unlock();
             } else if (opcode == OPCODE_SERVER_PUB_KEY) {
-                std::cout << "Receive Server public key\n";
+                std::cerr << "Receive Server public key\n";
                 _game->getMutex().lock();
                 
-                // _game->_med. SET SERVER PUB KEY HERE
+                std::vector<unsigned char> pemBytes(data.begin(), data.end());
+                auto publicKey = extractPublicKeyFromPEMBytes(pemBytes);
+                if (!publicKey.has_value()) {
+                    std::cerr << "Client can't extract server public key from PEM bytes.";
+                    _game->getMutex().unlock();
+                    return;
+                }
+                _networkManager.setServerPubKey(*publicKey);
 
+                // Generate IV/Key
+                unsigned char aes_key[AES_KEY_BYTES];
+                unsigned char iv[AES_IV_BYTES];
+                if (!generateAESKeyAndIV(aes_key, iv)) {
+                    std::cerr << "Client failed to generate AES iv/key" << std::endl;
+                }
+
+                std::vector<uint8_t> keyStr(aes_key, aes_key + AES_KEY_BYTES);
+                std::vector<uint8_t> ivStr(iv, iv + AES_IV_BYTES);
+
+                _networkManager.setAesIV(ivStr);
+                _networkManager.setAesKey(keyStr);
+
+                // Then encrypt it and send it to server
+                std::vector<unsigned char> payload;
+                payload.insert(payload.end(), aes_key, aes_key + sizeof(aes_key));
+                payload.insert(payload.end(), iv, iv + sizeof(iv));
+
+                std::optional<std::vector<unsigned char>> encryptedPayload = encryptBytesWithPublicKey(*publicKey, payload);
+
+                if (!encryptedPayload.has_value()) {
+                    std::cerr << "Client failed to encrypt its AES key/IV";
+                    return;
+                }
+
+                std::string payloadStr((*encryptedPayload).begin(), (*encryptedPayload).end());
+
+                notify(SEND_DATA_TCP, payloadStr, OPCODE_CLIENT_IV_KEY);
                 _game->getMutex().unlock();
             }
          }},

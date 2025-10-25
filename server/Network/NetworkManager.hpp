@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../transferData/opcode.hpp"
+#include "../../transferData/hashUtils.hpp"
 #include "../Game/GameMediator.hpp"
 #include "Client.hpp"
 #include "ClientManager.hpp"
@@ -27,8 +28,8 @@ class NetworkManager
 
     EVP_PKEY *_serverPubKey;
     EVP_PKEY *_clientPubKey;
-    std::string _aesKey;
-    std::string _aesIV;
+    std::vector<uint8_t> _aesKey;
+    std::vector<uint8_t> _aesIV;
 
   public:
     NetworkManager(GameMediator &ref);
@@ -78,18 +79,18 @@ class NetworkManager
       }
     }
 
-    void setAesKey(std::string &key)
+    void setAesKey(std::vector<uint8_t> &key)
     {
       _aesKey = key;
     }
 
-    void setAesIV(std::string &iv)
+    void setAesIV(std::vector<uint8_t> &iv)
     {
       _aesIV = iv;
     }
 
     EVP_PKEY *getServerPubKey() { return _serverPubKey; };
     EVP_PKEY *getClientPubKey() { return _clientPubKey; };
-    std::string &getAesKey() { return _aesKey; };
-    std::string &getAesIV() { return _aesIV; };
+    const std::vector<uint8_t> &getAesKey() { return _aesKey; };
+    const std::vector<uint8_t> &getAesIV() { return _aesIV; };
 };

@@ -1,7 +1,7 @@
 #include "TCPManager.hpp"
 #include "../../../transferData/opcode.hpp"
 #include "../../../transferData/transferData.hpp"
-#include "../../../transferData/hashUtils.hpp"
+#include "transferData/hashUtils.hpp"
 #include "../Client.hpp"
 #include "../NetworkManager.hpp"
 #include <cerrno>
@@ -53,26 +53,22 @@ TCPManager::~TCPManager()
 void TCPManager::sendAESKey(int clientFd)
 {
     /* GENERATE AND SEND SERVER PUBLIC KEY */
-    EVP_PKEY *serverKey = generateDHKeyPair();
+    EVP_PKEY *serverKey = generateRSAKeyPair(2048);
     if (!serverKey)
     {
         std::cerr << "Failed to generate server DH key pair" << std::endl;
         return;
     }
-
-    // Extract and send the server's public key to the client
-    unsigned char *serverPubKey = nullptr;
-    size_t serverPubKeyLen = 0;
-    EVP_PKEY_get_raw_public_key(serverKey, nullptr, &serverPubKeyLen);
-    serverPubKey = new unsigned char[serverPubKeyLen];
-    EVP_PKEY_get_raw_public_key(serverKey, serverPubKey, &serverPubKeyLen);
-
-    // Send the server's public key to the client
-    std::string serverPubKeyStr(reinterpret_cast<char *>(serverPubKey), serverPubKeyLen);
-
-    _networkManagerRef.getGameMediator().getNetworkManager().getTCPManager().sendMessage(clientFd, OPCODE_SERVER_PUB_KEY, serverPubKeyStr);
-    delete[] serverPubKey;
     _networkManagerRef.setServerPubKey(serverKey);
+    std::optional<std::vector<uint8_t>> optionalKeyBytes = extractPEMBytesFromRSAKeyPair(serverKey);
+
+    if (!optionalKeyBytes.has_value()) {
+        std::cerr << "Server failed to extract public key from RSA keypair";
+        return;
+    }
+    std::vector<uint8_t> keyBytes = *optionalKeyBytes;
+    std::string serverPubKeyStr(keyBytes.begin(), keyBytes.end());
+    _networkManagerRef.getGameMediator().getNetworkManager().getTCPManager().sendMessage(clientFd, OPCODE_SERVER_PUB_KEY, serverPubKeyStr);
 }
 
 

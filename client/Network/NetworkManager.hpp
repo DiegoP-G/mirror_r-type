@@ -1,14 +1,13 @@
 #pragma once
 
+#include <atomic>
+#include <netinet/in.h>
+#include <poll.h>
 #include "../NetworkECSMediator.hpp"
 #include "../RType.hpp"
 #include "Receiver.hpp"
 #include "Sender.hpp"
-#include <atomic>
-#include <netinet/in.h>
-#include <poll.h>
-#include <vector>
-#include "../../transferData/hashUtils.hpp"
+#include "transferData/hashUtils.hpp"
 
 class NetworkManager
 {
@@ -24,10 +23,9 @@ class NetworkManager
     sockaddr_in _serverAddr;
     std::atomic<bool> _shouldStop;
 
-    EVP_PKEY *_clientPubKey;
     EVP_PKEY *_serverPubKey;
-    std::string _aesKey;
-    std::string _aesIV;
+    std::vector<uint8_t> _aesKey;
+    std::vector<uint8_t> _aesIV;
 
   public:
     NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver);
@@ -49,25 +47,17 @@ class NetworkManager
       }
     }
 
-    void setClientPubKey(EVP_PKEY *key)
-    {
-      if (key) {
-        _clientPubKey = key;
-      }
-    }
-
-    void setAesKey(std::string &key)
+    void setAesKey(std::vector<uint8_t> &key)
     {
       _aesKey = key;
     }
 
-    void setAesIV(std::string &iv)
+    void setAesIV(std::vector<uint8_t> &iv)
     {
       _aesIV = iv;
     }
 
     EVP_PKEY *getServerPubKey() { return _serverPubKey; };
-    EVP_PKEY *getClientPubKey() { return _clientPubKey; };
-    std::string &getAesKey() { return _aesKey; };
-    std::string &getAesIV() { return _aesIV; };
+    const std::vector<uint8_t> &getAesKey() { return _aesKey; };
+    const std::vector<uint8_t> &getAesIV() { return _aesIV; };
 };

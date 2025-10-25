@@ -206,7 +206,7 @@ constexpr uint8_t OPCODE_SERVER_PUB_KEY = 0x90;
 // AES server key 
 // Payload: [ success (1 byte: 0 = failure, 1 = success) | message (string) ]
 
-constexpr uint8_t OPCODE_CLIENT_PUB_KEY = 0x91;
-// [CLIENT → SERVER, TCP]
-// AES server key 
-// Payload: [ success (1 byte: 0 = failure, 1 = success) | message (string) ]
+constexpr uint8_t OPCODE_CLIENT_IV_KEY = 0x92;
+// [SERVER → CLIENT, TCP]
+// Client sends generated AES key and key to server
+// Payload: [ AES_KEY (256 bytes) || IV (16 bytes) ]
