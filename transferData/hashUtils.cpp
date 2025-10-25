@@ -23,56 +23,38 @@ std::string generateRandomSalt()
 
 std::string hashPassword(const std::string &password)
 {
-    // Generate a salt for bcrypt (e.g., "$2b$12$" for bcrypt with cost 12)
     std::string randomSalt = generateRandomSalt();
     std::string salt = "$2b$12$" + randomSalt;
 
-    std::cerr << "hashPassword: salt " << salt << "\n";
-
-    // Hash the password using crypt
     char *hashed = crypt(password.c_str(), salt.c_str());
     if (!hashed)
     {
         std::cerr << "crypt() failed" << std::endl;
         return "";
     }
-    std::cerr << "hashPassword: hash " << hashed << "\n";
 
     return std::string(hashed);
 }
 
 bool verifyPassword(const std::string &stored, const std::string &candidate)
 {
-    // Hash the candidate password using the stored hash as the salt
-    // std::string stored(s);
-    // std::cerr << "candidate: " << candidate << "\n";
+    // Extract the salt from the stored hash (first 29 characters for bcrypt)
+    if (stored.size() < 29)
+    {
+        std::cerr << "verifyPassword: stored hash is too short to contain a valid salt\n";
+        return false;
+    }
 
-    // std::string salt = stored.substr(0, 29);
-    // char *hashed = crypt(candidate.c_str(), salt.c_str());
-    // std::cerr << "verifyPassword: salt " << salt << "\n";
-    // if (!hashed) {
-    //     std::cerr << "crypt() failed" << std::endl;
-    //     return false;
-    // }
+    std::string salt = stored.substr(0, 29);
 
-    // std::cerr << "Length of hashed: " << std::strlen(hashed) << "\n";
-    // std::cerr << "Length of stored: " << stored.size() << "\n";
-    // std::cerr << "Raw hashed: ";
-    // for (size_t i = 0; i < std::strlen(hashed); ++i) {
-    //     std::cerr << static_cast<int>(hashed[i]) << " ";
-    // }
-    // std::cerr << "\n";
+    char *hashed = crypt(candidate.c_str(), salt.c_str());
+    if (!hashed)
+    {
+        std::cerr << "crypt() failed\n";
+        return false;
+    }
 
-    // std::cerr << "Raw stored: ";
-    // for (size_t i = 0; i < stored.size(); ++i) {
-    //     std::cerr << static_cast<int>(stored[i]) << " ";
-    // }
-    // std::cerr << "\n";
-
-    std::cerr << "verifyPassword: stored=" << stored << " candidate=" << candidate << "\n";
-    std::cerr << "comp " << static_cast<bool>(candidate == stored) << "\n";
-    // Compare the hashes
-    return candidate == stored;
+    return stored == hashed;
 }
 
 static void handleOpensslError(const char *ctxmsg)
@@ -218,11 +200,6 @@ std::optional<std::vector<unsigned char>> encryptBytesWithPublicKey(EVP_PKEY *pu
         return std::nullopt;
     }
     size_t max_plaintext = k - 2 * (size_t)hlen - 2;
-
-    std::cerr << "RSA modulus size (bytes): " << k << "\n";
-    std::cerr << "OAEP hash len (bytes): " << hlen << "\n";
-    std::cerr << "OAEP max plaintext allowed: " << max_plaintext << "\n";
-    std::cerr << "Input size: " << in.size() << "\n";
 
     if (in.size() > max_plaintext) {
         std::cerr << "encryptBytesWithPublicKey_checked: input (" << in.size()

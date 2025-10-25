@@ -112,8 +112,7 @@ void sqlAPI::addPlayerEntry(const std::string &name, const std::string &password
         throw std::runtime_error("Failed to check if username exists.");
     }
 
-    // Hash the password
-    // std::string hashedPassword = hashPassword(password);
+    std::string hashedPassword = hashPassword(password);
 
     // Insert the new player into the database
     std::string query = "INSERT INTO Players (Name, Password, Score) VALUES (?, ?, 0);";
@@ -125,7 +124,7 @@ void sqlAPI::addPlayerEntry(const std::string &name, const std::string &password
     }
 
     sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, hashedPassword.c_str(), -1, SQLITE_STATIC);
 
     if (sqlite3_step(stmt) != SQLITE_DONE)
     {

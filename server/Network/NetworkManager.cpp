@@ -13,8 +13,15 @@
 #include <unistd.h>
 
 NetworkManager::NetworkManager(GameMediator &ref) : _gameMediator(ref), _UDPManager(*this),
-    _TCPManager(*this), _serverPubKey(nullptr), _clientPubKey(nullptr)
+    _TCPManager(*this), _serverPubKey(nullptr)
 {
+    EVP_PKEY *serverKey = generateRSAKeyPair(2048);
+    if (!serverKey)
+    {
+        std::cerr << "Failed to generate server DH key pair" << std::endl;
+        return;
+    }
+    setServerPubKey(serverKey);
 }
 
 NetworkManager::~NetworkManager()

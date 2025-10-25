@@ -52,15 +52,7 @@ TCPManager::~TCPManager()
 
 void TCPManager::sendAESKey(int clientFd)
 {
-    /* GENERATE AND SEND SERVER PUBLIC KEY */
-    EVP_PKEY *serverKey = generateRSAKeyPair(2048);
-    if (!serverKey)
-    {
-        std::cerr << "Failed to generate server DH key pair" << std::endl;
-        return;
-    }
-    _networkManagerRef.setServerPubKey(serverKey);
-    std::optional<std::vector<uint8_t>> optionalKeyBytes = extractPEMBytesFromRSAKeyPair(serverKey);
+    std::optional<std::vector<uint8_t>> optionalKeyBytes = extractPEMBytesFromRSAKeyPair(_networkManagerRef.getServerPubKey());
 
     if (!optionalKeyBytes.has_value()) {
         std::cerr << "Server failed to extract public key from RSA keypair";

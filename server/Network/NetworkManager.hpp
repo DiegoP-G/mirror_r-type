@@ -27,7 +27,6 @@ class NetworkManager
     TCPManager _TCPManager;
 
     EVP_PKEY *_serverPubKey;
-    EVP_PKEY *_clientPubKey;
     std::vector<uint8_t> _aesKey;
     std::vector<uint8_t> _aesIV;
 
@@ -72,13 +71,6 @@ class NetworkManager
       }
     }
 
-    void setClientPubKey(EVP_PKEY *key)
-    {
-      if (key) {
-        _clientPubKey = key;
-      }
-    }
-
     void setAesKey(std::vector<uint8_t> &key)
     {
       _aesKey = key;
@@ -90,7 +82,6 @@ class NetworkManager
     }
 
     EVP_PKEY *getServerPubKey() { return _serverPubKey; };
-    EVP_PKEY *getClientPubKey() { return _clientPubKey; };
     const std::vector<uint8_t> &getAesKey() { return _aesKey; };
     const std::vector<uint8_t> &getAesIV() { return _aesIV; };
 };

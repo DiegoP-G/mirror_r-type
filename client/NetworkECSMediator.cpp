@@ -79,7 +79,6 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networ
 
                 _game->getMutex().unlock();
             } else if (opcode == OPCODE_SERVER_PUB_KEY) {
-                std::cerr << "Receive Server public key\n";
                 _game->getMutex().lock();
                 
                 std::vector<unsigned char> pemBytes(data.begin(), data.end());
