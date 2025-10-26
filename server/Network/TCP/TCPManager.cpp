@@ -7,11 +7,11 @@
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
+
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -28,8 +28,6 @@
         std::cerr << msg << ": " << err << std::endl;                                                                  \
     }
 #define close(fd) closesocket(fd)
-// DO NOT redefine POLLIN, POLLOUT, etc. - use Windows native values from winsock2.h
-// DO NOT redefine poll - use WSAPoll directly
 typedef WSAPOLLFD pollfd;
 #else
 #include <arpa/inet.h>
@@ -40,9 +38,8 @@ typedef WSAPOLLFD pollfd;
 #include <unistd.h>
 #endif
 
-TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
+TCPManager::TCPManager(NetworkManager &ref, PrometheusServer &metrics) : _networkManagerRef(ref), _metrics(metrics)
 {
-    // Créer le socket d'écoute
     _listenFd = socket(AF_INET, SOCK_STREAM, 0);
 #ifdef _WIN32
     if (_listenFd == INVALID_SOCKET)
@@ -51,7 +48,6 @@ TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
 #endif
         throw std::runtime_error("TCP socket failed");
 
-        // Non-bloquant
 #ifdef _WIN32
     u_long mode = 1;
     ioctlsocket(_listenFd, FIONBIO, &mode);
@@ -60,7 +56,6 @@ TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
     fcntl(_listenFd, F_SETFL, flags | O_NONBLOCK);
 #endif
 
-    // Réutiliser l'adresse
     int opt = 1;
 #ifdef _WIN32
     setsockopt(_listenFd, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt));
@@ -68,21 +63,17 @@ TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
     setsockopt(_listenFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 #endif
 
-    // Configuration de l'adresse
     _addr.sin_family = AF_INET;
     _addr.sin_addr.s_addr = INADDR_ANY;
     _addr.sin_port = htons(SERVER_PORT);
 
-    // Bind et listen
     if (bind(_listenFd, (sockaddr *)&_addr, sizeof(_addr)) < 0)
         throw std::runtime_error("TCP bind failed");
 
     if (listen(_listenFd, 16) < 0)
         throw std::runtime_error("TCP listen failed");
 
-    // Ajouter au poll (seulement POLLIN pour le listen socket)
     _pollFds.push_back({_listenFd, POLLRDNORM | POLLRDBAND, 0});
-
     std::cout << "[TCP] Server listening on port " << SERVER_PORT << std::endl;
 }
 
@@ -119,7 +110,6 @@ void TCPManager::handleNewConnection()
     }
 #endif
 
-    // Mettre en non-bloquant
 #ifdef _WIN32
     u_long mode = 1;
     ioctlsocket(cfd, FIONBIO, &mode);
@@ -128,20 +118,14 @@ void TCPManager::handleNewConnection()
     fcntl(cfd, F_SETFL, flags | O_NONBLOCK);
 #endif
 
-    // Ajouter au poll (POLLIN seulement au début)
     _pollFds.push_back({cfd, POLLRDNORM | POLLRDBAND, 0});
-
-    // Créer le client
     _networkManagerRef.getClientManager().addClient(Client("client", cfd));
-
-    // Initialiser le buffer d'écriture vide
     _writeBuffers[cfd] = "";
 
     if (_networkManagerRef.getClientManager().isBannedIP(inet_ntoa(client_addr.sin_addr)))
     {
         sendMessage(cfd, OPCODE_BAN_NOTIFICATION, "");
         handleClientWrite(cfd);
-
         _networkManagerRef.getClientManager().removeClient(cfd);
         _networkManagerRef.getClientManager().addAdminPanelLog(std::string("Banned client ") +
                                                                inet_ntoa(client_addr.sin_addr) + " tried to connect.");
@@ -150,29 +134,21 @@ void TCPManager::handleNewConnection()
 
     std::cout << "[TCP] Client " << cfd << " connected" << std::endl;
 
-    // Générer le code UDP
     int code_udp = rand();
     _networkManagerRef.getClientManager().getClient(cfd)->setCodeUDP(code_udp);
 
-    // Envoyer les messages de connexion
     sendMessage(cfd, OPCODE_PLAYER_ID, serializeInt(cfd));
     sendMessage(cfd, OPCODE_CODE_UDP, serializeInt(code_udp));
 
-    // Notifier la création du joueur
     _networkManagerRef.addNewPlayer(cfd);
 }
 
 void TCPManager::sendMessage(int fd, uint8_t opcode, const std::string &payload)
 {
-    // Construire la trame
-    std::cout << "[TCP] sendMessage: fd=" << fd << ", opcode=" << static_cast<int>(opcode)
-              << ", payloadLen=" << payload.size() << std::endl;
     std::vector<uint8_t> frame;
     frame.push_back(opcode);
 
     size_t payloadLen = payload.size();
-
-    // Encoder la longueur
     if (payloadLen <= 253)
     {
         frame.push_back(static_cast<uint8_t>(payloadLen));
@@ -190,32 +166,26 @@ void TCPManager::sendMessage(int fd, uint8_t opcode, const std::string &payload)
             frame.push_back((payloadLen >> (8 * i)) & 0xFF);
     }
 
-    // Ajouter le payload
     frame.insert(frame.end(), payload.begin(), payload.end());
-
-    std::cout << "finishing the frame" << std::endl;
-    // Ajouter au buffer d'écriture
     _writeBuffers[fd].append(reinterpret_cast<char *>(frame.data()), frame.size());
-    std::cout << "Append to the buffer" << std::endl;
-    // Activer POLLOUT pour ce socket
+
     for (auto &pfd : _pollFds)
     {
-        std::cout << "pfd.fd" << pfd.fd << std::endl;
         if (pfd.fd == fd)
         {
             pfd.events |= POLLWRNORM;
             break;
         }
     }
-    std::cout << "finishing" << std::endl;
+
+    _metrics.IncrementTCPSent();
+    _metrics.AddTCPBytes(frame.size());
 }
 
 void TCPManager::handleClientWrite(int fd)
 {
-    // Rien à envoyer
     if (_writeBuffers[fd].empty())
     {
-        // Désactiver POLLOUT
         for (auto &pfd : _pollFds)
         {
             if (pfd.fd == fd)
@@ -227,12 +197,10 @@ void TCPManager::handleClientWrite(int fd)
         return;
     }
 
-    // Essayer d'envoyer ce qui reste dans le buffer
     const char *data = _writeBuffers[fd].data();
     size_t remaining = _writeBuffers[fd].size();
 
     ssize_t sent = write(fd, data, remaining);
-
     if (sent < 0)
     {
 #ifdef _WIN32
@@ -241,20 +209,12 @@ void TCPManager::handleClientWrite(int fd)
 #else
         if (errno == EAGAIN || errno == EWOULDBLOCK)
 #endif
-        {
-            // Buffer plein, on réessaiera au prochain POLLOUT
             return;
-        }
-
-        // Erreur réelle
         perror("[TCP] write error");
         return;
     }
 
-    // Retirer ce qui a été envoyé du buffer
     _writeBuffers[fd].erase(0, sent);
-
-    // Si tout est envoyé, désactiver POLLOUT
     if (_writeBuffers[fd].empty())
     {
         for (auto &pfd : _pollFds)
@@ -270,36 +230,31 @@ void TCPManager::handleClientWrite(int fd)
 
 void TCPManager::handleClientRead(int fd, size_t &index)
 {
-    // Récupérer le buffer de lecture du client
     std::string &readBuffer = _networkManagerRef.getClientManager().getClientsMap()[fd].getBuffer();
 
-    // Lire les messages disponibles
     while (true)
     {
         auto [opcode, payload] = receiveFrameTCP(fd, readBuffer);
 
         if (opcode == OPCODE_INCOMPLETE_DATA)
-        {
-            // Données incomplètes, on attendra plus de données
             break;
+
+        if (opcode != OPCODE_INCOMPLETE_DATA && opcode != OPCODE_CLOSE_CONNECTION)
+        {
+            _metrics.IncrementTCPReceived();
+            _metrics.AddTCPBytes(payload.size() + 2); // opcode + length
         }
 
         if (opcode == OPCODE_CLOSE_CONNECTION)
         {
-            // Nettoyer
             _writeBuffers.erase(fd);
-
-            std::cout << "Before removing the client" << std::endl;
             _networkManagerRef.getClientManager().removeClient(fd);
-            std::cout << "Notifying the mediator" << std::endl;
             _networkManagerRef.getGameMediator().notify(GameMediatorEvent::PlayerDisconnected, "", "", fd);
             _pollFds.erase(_pollFds.begin() + index);
             --index;
             return;
         }
 
-        // Message valide reçu
-        // Notifier le médiateur
         _networkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload, "", fd);
     }
 }
@@ -324,14 +279,12 @@ void TCPManager::update()
 #endif
 
     if (ret == 0)
-        return; // Pas d'événements
+        return;
 
-    // Traiter les événements
     for (size_t i = 0; i < _pollFds.size(); i++)
     {
         pollfd &pfd = _pollFds[i];
 
-        // Socket d'écoute
         if (pfd.fd == _listenFd)
         {
             if (pfd.revents & (POLLRDNORM | POLLRDBAND))
@@ -339,22 +292,14 @@ void TCPManager::update()
             continue;
         }
 
-        // Sockets clients
         int fd = pfd.fd;
 
-        // Gérer l'écriture en premier (pour vider les buffers)
         if (pfd.revents & POLLWRNORM)
-        {
             handleClientWrite(fd);
-        }
 
-        // Puis gérer la lecture
         if (pfd.revents & (POLLRDNORM | POLLRDBAND))
-        {
             handleClientRead(fd, i);
-        }
 
-        // Gérer les erreurs
         if (pfd.revents & (POLLERR | POLLHUP))
         {
             _writeBuffers.erase(fd);

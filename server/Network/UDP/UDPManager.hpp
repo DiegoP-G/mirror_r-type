@@ -20,6 +20,7 @@
 #include <unistd.h>
 #endif
 
+#include "../../Prometheus/PrometheusServer.hpp"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -37,12 +38,13 @@ class UDPManager
     std::vector<struct pollfd> _pollFds;
 #endif
     NetworkManager &_NetworkManagerRef;
+    PrometheusServer &_metrics;
     sockaddr_in _addr;
 
   public:
-    UDPManager(NetworkManager &ref);
+    UDPManager(NetworkManager &ref, PrometheusServer &metrics);
     ~UDPManager();
     void update();
-    void sendTo(std::vector<sockaddr_in> addrs, int opcode, const std::string &data);
+    void sendTo(const std::vector<sockaddr_in> &addrs, int opcode, const std::string &data);
     void handleReceival(uint8_t opcode, const std::string &data);
 };

@@ -75,8 +75,8 @@ endif()
 
 # ---- transferData library ----
 add_library(transferData STATIC ${TRANSFER_SOURCES})
-target_include_directories(transferData PUBLIC 
-    ${CMAKE_SOURCE_DIR}/transferData 
+target_include_directories(transferData PUBLIC
+    ${CMAKE_SOURCE_DIR}/transferData
     ${CMAKE_SOURCE_DIR}/ecs
 )
 
@@ -151,13 +151,18 @@ target_include_directories(GameServer PRIVATE
     ${SQLITE3_DIR}  # ✅ Ajouter le dossier SQLite pour le serveur
 )
 
+target_include_directories(GameServer PRIVATE /usr/local/include)
+
 target_link_libraries(GameServer PRIVATE
     transferData
     ecs
     sfml-graphics
     sfml-window
     sfml-system
-    sqlite3_lib  # ✅ Lier SQLite au serveur
+    sqlite3_lib
+    pthread
+    prometheus-cpp-core
+    prometheus-cpp-pull
 )
 
 # ---- Windows ----

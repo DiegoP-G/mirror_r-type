@@ -27,7 +27,8 @@
 #include <unistd.h>
 #endif
 
-NetworkManager::NetworkManager(GameMediator &ref) : _gameMediator(ref), _UDPManager(*this), _TCPManager(*this)
+NetworkManager::NetworkManager(GameMediator &ref)
+    : _gameMediator(ref), _UDPManager(*this, _metrics), _TCPManager(*this, _metrics)
 {
 }
 
@@ -37,6 +38,7 @@ NetworkManager::~NetworkManager()
 
 void NetworkManager::updateAllPoll()
 {
+    _metrics.IncrementTick();
     _UDPManager.update();
     _TCPManager.update();
 }

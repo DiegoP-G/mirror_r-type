@@ -13,9 +13,15 @@
 #pragma comment(lib, "ws2_32.lib")
 #include <windows.h>
 #else
+#include "../transferData/transferData.hpp"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <poll.h>
+#include <prometheus/counter.h>
+#include <prometheus/exposer.h>
+#include <prometheus/gauge.h>
+#include <prometheus/histogram.h>
+#include <prometheus/registry.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #endif
@@ -58,6 +64,5 @@ int main(int argc, char const *argv[])
     WSACleanup();
     std::cout << "[Windows] Winsock cleaned up" << std::endl;
 #endif
-
     return 0;
 }

@@ -27,6 +27,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #endif
+#include "../Prometheus/PrometheusServer.hpp"
 #include <unordered_map>
 #include <vector>
 
@@ -38,6 +39,7 @@ class NetworkManager
 {
   private:
     GameMediator &_gameMediator;
+    PrometheusServer _metrics;
     ClientManager _clientManager;
     UDPManager _UDPManager;
     TCPManager _TCPManager;

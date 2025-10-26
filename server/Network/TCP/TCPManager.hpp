@@ -20,6 +20,7 @@
 #include <unistd.h>
 #endif
 
+#include "../../Prometheus/PrometheusServer.hpp"
 #include <map>
 #include <queue>
 #include <string>
@@ -38,6 +39,7 @@ class TCPManager
     std::vector<struct pollfd> _pollFds;
 #endif
     NetworkManager &_networkManagerRef;
+    PrometheusServer &_metrics;
 
     // Buffer d'écriture par client (données brutes à envoyer)
     std::map<int, std::string> _writeBuffers;
@@ -49,7 +51,7 @@ class TCPManager
     void handleClientWrite(int fd);
 
   public:
-    TCPManager(NetworkManager &ref);
+    TCPManager(NetworkManager &ref, PrometheusServer &metrics);
     ~TCPManager();
 
     void update();
