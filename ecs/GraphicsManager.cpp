@@ -194,8 +194,8 @@ sf::Font &GraphicsManager::getFont()
 
 bool GraphicsManager::registerTheSound()
 {
-    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/pew.mp3"), "pew");
-    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/music.mp3"), "music");
+    // createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/pew.mp3"), "pew");
+    // createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/music.mp3"), "music");
 
     return true;
 }

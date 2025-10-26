@@ -16,14 +16,27 @@ void signalHandler(int signum)
 int micCallback(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer,
                 const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
 {
+    // outputBuffer peut être null si stream est input-only, ici on ouvre full-duplex donc on l'utilise
+    int16_t *out = static_cast<int16_t *>(outputBuffer);
+
     if (!inputBuffer)
     {
+        // pas de données entrantes : écrire du silence en sortie
+        if (out)
+            std::memset(out, 0, framesPerBuffer * sizeof(int16_t));
         std::cout << "\r⚠️  Pas de données audio reçues" << std::flush;
         return paContinue;
     }
 
     const int16_t *in = static_cast<const int16_t *>(inputBuffer);
 
+    // Copie directe de l'entrée vers la sortie (monitoring)
+    if (out)
+    {
+        std::memcpy(out, in, framesPerBuffer * sizeof(int16_t));
+    }
+
+    // Calcul RMS pour l'affichage (mono)
     float sum = 0.0f;
     for (unsigned long i = 0; i < framesPerBuffer; i++)
     {
@@ -60,6 +73,8 @@ std::vector<int> listInputDevices()
     for (int i = 0; i < numDevices; i++)
     {
         const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
+        if (!info)
+            continue;
 
         // Afficher uniquement les périphériques avec des entrées
         if (info->maxInputChannels > 0)
@@ -96,9 +111,8 @@ int main()
 {
     signal(SIGINT, signalHandler);
 
-    std::cout << "=== Test de Microphone ===" << std::endl;
+    std::cout << "=== Test de Microphone (monitoring activé) ===" << std::endl;
 
-// Supprimer les erreurs ALSA
 #ifndef _WIN32
     freopen("/dev/null", "w", stderr);
 #endif
@@ -166,18 +180,48 @@ int main()
 
     PaStreamParameters inputParams;
     inputParams.device = selectedDevice;
-    inputParams.channelCount = 1;
+    inputParams.channelCount = 1; // on force mono pour monitoring
     inputParams.sampleFormat = paInt16;
     inputParams.suggestedLatency = inputInfo->defaultLowInputLatency;
     inputParams.hostApiSpecificStreamInfo = nullptr;
 
+    // Préparer les paramètres de sortie : utiliser le périphérique de sortie par défaut
+    PaDeviceIndex defaultOut = Pa_GetDefaultOutputDevice();
+    if (defaultOut == paNoDevice)
+    {
+        std::cerr << "❌ Aucun périphérique de sortie disponible!" << std::endl;
+        Pa_Terminate();
+        return 1;
+    }
+    const PaDeviceInfo *outInfo = Pa_GetDeviceInfo(defaultOut);
+
+    PaStreamParameters outputParams;
+    outputParams.device = defaultOut;
+    outputParams.channelCount = 1;
+    outputParams.sampleFormat = paInt16;
+    outputParams.suggestedLatency = outInfo->defaultLowOutputLatency;
+    outputParams.hostApiSpecificStreamInfo = nullptr;
+
+    // Utiliser la fréquence native d'entrée pour éviter erreurs ALSA ; framesPerBuffer 256 par défaut
+    double sampleRate = inputInfo->defaultSampleRate;
+    unsigned long framesPerBuffer = 256;
+
+    // Vérifier support format
+    PaError testErr = Pa_IsFormatSupported(&inputParams, &outputParams, sampleRate);
+    if (testErr != paFormatIsSupported)
+    {
+        std::cerr << "❌ Format non supporté (in/out) : " << Pa_GetErrorText(testErr) << std::endl;
+        Pa_Terminate();
+        return 1;
+    }
+
     PaStream *stream;
-    err = Pa_OpenStream(&stream, &inputParams, nullptr, 16000, 256, paClipOff, micCallback, nullptr);
+    err = Pa_OpenStream(&stream, &inputParams, &outputParams, sampleRate, framesPerBuffer, paClipOff, micCallback,
+                        nullptr);
 
     if (err != paNoError)
     {
         std::cerr << "❌ Impossible d'ouvrir le stream: " << Pa_GetErrorText(err) << std::endl;
-        std::cerr << "   Erreur: " << Pa_GetErrorText(err) << std::endl;
         Pa_Terminate();
         return 1;
     }
@@ -191,8 +235,8 @@ int main()
         return 1;
     }
 
-    std::cout << "\n✓ Enregistrement en cours... (Ctrl+C pour arrêter)" << std::endl;
-    std::cout << "Parlez dans le microphone pour voir la barre de volume:" << std::endl;
+    std::cout << "\n✓ Enregistrement et monitoring en cours... (Ctrl+C pour arrêter)" << std::endl;
+    std::cout << "Parlez dans le microphone pour vous entendre et voir la barre de volume:" << std::endl;
     std::cout << std::endl;
 
     while (running)
