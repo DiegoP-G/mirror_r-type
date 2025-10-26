@@ -268,7 +268,6 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networ
                  _game->getMutex().lock();
                  int state = deserializeInt(data);
 
-                 std::cout << "CURRENT STATE NOW" << state << std::endl;
                  if (_game)
                  {
                      _game->setCurrentState(static_cast<GameState>(state));

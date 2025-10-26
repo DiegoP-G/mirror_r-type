@@ -98,11 +98,11 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
 
         {GameMediatorEvent::GameStateUpdate,
          [this](const std::string &data, const std::string &lobbyUid, int) -> void {
-             std::cout << "updating states" << std::endl;
              auto lobby = _lobbyManager.getLobby(lobbyUid);
              if (lobby)
                  _networkManager.sendDataToLobbyTCP(lobby, data, OPCODE_GAME_STATE_UPDATE);
-         }},
+             std::cout << "Finished updating states" << std::endl;
+            }},
 
         {GameMediatorEvent::CreateLobby,
          [this](const std::string &data, const std::string &, int) -> void { _lobbyManager.createLobby(data); }},

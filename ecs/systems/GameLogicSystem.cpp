@@ -17,7 +17,10 @@ void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, Game
     enemySpawnTimer += deltaTime;
 
     if (currentWave >= waves.size())
+    {
         allWavesCompleted = true;
+        return; // <-- Stop here to prevent invalid read
+    }
 
     waveTimer += deltaTime;
 
@@ -39,21 +42,6 @@ void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, Game
         std::string waveData = serializeInt(currentWave);
         gameMediator.notify(GameMediatorEvent::UpdateWave, waveData);
     }
-
-    // if (stageStatus == 0)
-    // {
-    //     stageStatus = 1;
-    //     stageCount = 1;
-    //     spawnEnemies(entityManager);
-    // }
-    // else if (stageStatus == 1 && stageCount == 1)
-    // {
-    //     if (entityManager.getEntitiesWithComponents<LaserWarningComponent>().empty())
-    //     {
-    //         stageStatus = 1;
-    //         stageCount = 2;
-    //     }
-    // }
 
     updateScore(entityManager);
     checkGameOverConditions(entityManager);

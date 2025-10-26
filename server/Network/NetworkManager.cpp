@@ -1,16 +1,32 @@
 #include "NetworkManager.hpp"
 #include "../../transferData/opcode.hpp"
 #include "../../transferData/transferData.hpp"
-#include <arpa/inet.h>
 #include <cstdint>
 #include <fcntl.h>
 #include <memory>
-#include <netinet/in.h>
-#include <poll.h>
 #include <string>
-#include <sys/socket.h>
 #include <sys/types.h>
-#include <unistd.h>
+
+#ifdef _WIN32
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #pragma comment(lib, "ws2_32.lib")
+    #include <windows.h>
+#else
+    #include <arpa/inet.h>
+    #include <netinet/in.h>
+    #include <sys/socket.h>
+    #include <unistd.h>
+    #include <poll.h>
+    #include <netinet/in.h>
+#endif
 
 NetworkManager::NetworkManager(GameMediator &ref) : _gameMediator(ref), _UDPManager(*this),
     _TCPManager(*this), _serverPubKey(nullptr)
@@ -86,6 +102,7 @@ void NetworkManager::sendDataToLobbyTCP(std::shared_ptr<Lobby> lobby, const std:
 
     for (int fd : players)
     {
+        std::cout << "[TCP] Sending to lobby player fd: " << fd << std::endl;
         _TCPManager.sendMessage(fd, opcode, data);
     }
 }

@@ -1,12 +1,32 @@
 #include "transferData.hpp"
 #include "opcode.hpp"
 #include <cstring>
-#include <sys/socket.h>
+#ifdef _WIN32
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #include <iostream>  // For std::cerr in perror replacement
+    #define ssize_t int
+    #define write(fd, buf, len) send(fd, (const char*)(buf), len, 0)
+    #define read(fd, buf, len) recv(fd, (char*)(buf), len, 0)
+    #define perror(msg) { int err = WSAGetLastError(); std::cerr << msg << ": " << err << std::endl; }
+    #define EAGAIN WSAEWOULDBLOCK
+    #define EWOULDBLOCK WSAEWOULDBLOCK
+    #include <windows.h>
+#else
+    #include <sys/socket.h>
+    #include <unistd.h>
+#endif
 #include <tuple>
-#include <unistd.h>
 #include <vector>
 
-bool sendFrameTCP(int fd, uint8_t opcode, const std::string &payload)
+bool sendFrameTCP(SOCKET fd, uint8_t opcode, const std::string& payload)
 {
     std::vector<uint8_t> frame;
 
@@ -38,7 +58,7 @@ bool sendFrameTCP(int fd, uint8_t opcode, const std::string &payload)
 
     while (sent < total)
     {
-        ssize_t n = write(fd, frame.data() + sent, total - sent);
+        ssize_t n = write(fd, frame.data(), total - sent);
 
         if (n < 0)
         {
@@ -55,58 +75,76 @@ bool sendFrameTCP(int fd, uint8_t opcode, const std::string &payload)
     }
 
     std::cout << "[TCP] Sent frame (opcode: " << static_cast<int>(opcode) << ", payload size: " << payloadLen
-              << ", total frame size: " << total << ") to client " << fd << "\n";
+        << ", total frame size: " << total << ") to client " << fd << "\n";
     return true;
 }
+// ...existing code...
 
-std::tuple<uint8_t, std::string> receiveFrameTCP(int socket, std::string &buffer)
+std::tuple<uint8_t, std::string> receiveFrameTCP(SOCKET socket, std::string& buffer)
 {
     char temp[4096];
 
     std::cout << "[DEBUG] Buffer size before read: " << buffer.size() << std::endl;
 
     ssize_t bytesRead = read(socket, temp, sizeof(temp));
+    
     if (bytesRead < 0)
     {
-        if (errno == EAGAIN || errno == EWOULDBLOCK)
+#ifdef _WIN32
+        int error = WSAGetLastError();
+        if (error == WSAEWOULDBLOCK)
         {
-            // Pas de données disponibles, mais ne pas fermer la connexion
-            std::cout << "[DEBUG] No data available (EAGAIN/EWOULDBLOCK)" << std::endl;
-            bytesRead = 0; // ✅ Correct
-
-            // Si le buffer est vide, retourner INCOMPLETE_DATA
-            if (buffer.empty())
-            {
-                return {OPCODE_INCOMPLETE_DATA, ""};
-            }
-            // Sinon, continuer à traiter le buffer existant
+            // No data available right now on non-blocking socket - not an error
+            std::cout << "[DEBUG] No data available (WOULDBLOCK)" << std::endl;
         }
         else
         {
-            std::cout << "[DEBUG] Connection closed (read error: " << strerror(errno) << ")" << std::endl;
-            return {OPCODE_CLOSE_CONNECTION, ""};
+            std::cerr << "[DEBUG] Read error: " << error << std::endl;
+            return { OPCODE_CLOSE_CONNECTION, "" };
         }
+#else
+        if (errno == EAGAIN || errno == EWOULDBLOCK)
+        {
+            // No data available right now on non-blocking socket - not an error
+            std::cout << "[DEBUG] No data available (WOULDBLOCK)" << std::endl;
+        }
+        else
+        {
+            perror("[DEBUG] Read error");
+            return { OPCODE_CLOSE_CONNECTION, "" };
+        }
+#endif
     }
     else if (bytesRead == 0)
     {
-        // ⚠️ ATTENTION : read() == 0 signifie que le peer a fermé la connexion
-        std::cout << "[DEBUG] Connection closed by peer (read 0 bytes)" << std::endl;
-        return {OPCODE_CLOSE_CONNECTION, ""};
+        // Connection closed by peer ONLY if buffer is empty
+        if (buffer.empty())
+        {
+            std::cout << "[DEBUG] Connection closed by peer" << std::endl;
+            return { OPCODE_CLOSE_CONNECTION, "" };
+        }
+        else
+        {
+            // If buffer has data, this is just a read with no new data
+            std::cout << "[DEBUG] No new data (0 bytes read), but buffer has " << buffer.size() << " bytes" << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << "[DEBUG] Buffer size after read: " << buffer.size() + bytesRead << " (read " << bytesRead << " bytes)" << std::endl;
     }
 
     // Ajouter les nouvelles données au buffer
     if (bytesRead > 0)
     {
         buffer.append(temp, bytesRead);
-        std::cout << "[DEBUG] Buffer size after read: " << buffer.size() << " (read " << bytesRead << " bytes)"
-                  << std::endl;
     }
 
     // Vérifier qu'on a au moins 2 octets pour le header
     if (buffer.size() < 2)
     {
         std::cout << "[DEBUG] Incomplete header (need 2 bytes, have " << buffer.size() << ")" << std::endl;
-        return {OPCODE_INCOMPLETE_DATA, ""};
+        return { OPCODE_INCOMPLETE_DATA, "" };
     }
 
     uint8_t opcode = buffer[0];
@@ -119,73 +157,65 @@ std::tuple<uint8_t, std::string> receiveFrameTCP(int socket, std::string &buffer
 
     if (payloadLenByte == 254)
     {
-        if (buffer.size() < offset + 2)
+        if (buffer.size() < 4)
         {
-            std::cout << "[DEBUG] Incomplete extended length (254, need " << (offset + 2) << " bytes, have "
-                      << buffer.size() << ")" << std::endl;
-            return {OPCODE_INCOMPLETE_DATA, ""};
+            std::cout << "[DEBUG] Incomplete extended length (need 4 bytes, have " << buffer.size() << ")" << std::endl;
+            return { OPCODE_INCOMPLETE_DATA, "" };
         }
-        payloadLen = ((uint8_t)buffer[offset] << 8) | (uint8_t)buffer[offset + 1];
-        offset += 2;
-        std::cout << "[DEBUG] Extended payload length (254): " << payloadLen << std::endl;
+        payloadLen = ((uint8_t)buffer[2] << 8) | (uint8_t)buffer[3];
+        offset = 4;
     }
     else if (payloadLenByte == 255)
     {
-        if (buffer.size() < offset + 8)
+        if (buffer.size() < 10)
         {
-            std::cout << "[DEBUG] Incomplete extended length (255, need " << (offset + 8) << " bytes, have "
-                      << buffer.size() << ")" << std::endl;
-            return {OPCODE_INCOMPLETE_DATA, ""};
+            std::cout << "[DEBUG] Incomplete extended length (need 10 bytes, have " << buffer.size() << ")" << std::endl;
+            return { OPCODE_INCOMPLETE_DATA, "" };
         }
         payloadLen = 0;
         for (int i = 0; i < 8; ++i)
-            payloadLen = (payloadLen << 8) | (uint8_t)buffer[offset + i];
-        offset += 8;
-        std::cout << "[DEBUG] Extended payload length (255): " << payloadLen << std::endl;
+            payloadLen = (payloadLen << 8) | (uint8_t)buffer[2 + i];
+        offset = 10;
     }
 
-    std::cout << "[DEBUG] Total expected frame size: " << (offset + payloadLen) << " bytes" << std::endl;
+    size_t totalFrameSize = offset + payloadLen;
+    std::cout << "[DEBUG] Total expected frame size: " << totalFrameSize << " bytes" << std::endl;
     std::cout << "[DEBUG] Current buffer size: " << buffer.size() << " bytes" << std::endl;
 
-    // Vérifier si tout le payload est là
-    if (buffer.size() < offset + payloadLen)
+    if (buffer.size() < totalFrameSize)
     {
-        std::cout << "[DEBUG] Incomplete payload (need " << (offset + payloadLen) << " bytes, have " << buffer.size()
-                  << ")" << std::endl;
-        return {OPCODE_INCOMPLETE_DATA, ""};
+        std::cout << "[DEBUG] Incomplete frame (need " << totalFrameSize << " bytes, have " << buffer.size() << ")" << std::endl;
+        return { OPCODE_INCOMPLETE_DATA, "" };
     }
 
     std::cout << "[DEBUG] Frame complete! Extracting payload..." << std::endl;
-
-    // Extraire le payload complet
     std::string payload = buffer.substr(offset, payloadLen);
-    buffer.erase(0, offset + payloadLen); // Consomme le frame utilisé
+    buffer.erase(0, totalFrameSize);
+    std::cout << "[DEBUG] Payload extracted (" << payloadLen << " bytes), buffer remaining: " << buffer.size() << " bytes" << std::endl;
 
-    std::cout << "[DEBUG] Payload extracted (" << payload.size() << " bytes), buffer remaining: " << buffer.size()
-              << " bytes" << std::endl;
-
-    return {opcode, payload};
+    return { opcode, payload };
 }
 
-void sendFrameUDP(int sockfd, uint8_t opcode, const std::string &payload, const struct sockaddr_in &addr,
-                  socklen_t addrlen)
+
+void sendFrameUDP(SOCKET sockfd, uint8_t opcode, const std::string& payload, const struct sockaddr_in& addr,
+    socklen_t addrlen)
 {
     std::vector<uint8_t> frame;
     frame.push_back(opcode);                                   // 1 octet : opcode
     frame.insert(frame.end(), payload.begin(), payload.end()); // payload brut
 
-    sendto(sockfd, frame.data(), frame.size(), 0, (const struct sockaddr *)&addr, addrlen);
+    sendto(sockfd, (const char*)frame.data(), frame.size(), 0, (const struct sockaddr*)&addr, addrlen);
 }
 
-std::tuple<uint8_t, std::string> receiveFrameUDP(int sockfd, struct sockaddr_in &addr, socklen_t &addrlen)
+std::tuple<uint8_t, std::string> receiveFrameUDP(SOCKET sockfd, struct sockaddr_in& addr, socklen_t& addrlen)
 {
     char buffer[32000];
-    ssize_t n = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr *)&addr, &addrlen);
+    ssize_t n = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&addr, &addrlen);
 
     if (n <= 0)
-        return {OPCODE_CLOSE_CONNECTION, ""};
+        return { OPCODE_CLOSE_CONNECTION, "" };
 
     uint8_t opcode = buffer[0];
     std::string payload(buffer + 1, n - 1);
-    return {opcode, payload};
+    return { opcode, payload };
 }

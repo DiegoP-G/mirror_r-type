@@ -2,9 +2,26 @@
 #include "../../transferData/opcode.hpp"
 #include "../../transferData/transferData.hpp"
 #include "../NetworkECSMediator.hpp"
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#include <windows.h>
+#else
 #include <arpa/inet.h>
-#include <iostream>
+#include <netinet/in.h>
+#include <sys/socket.h>
 #include <unistd.h>
+#include <poll.h>
+#endif
+#include <iostream>
 
 Receiver::Receiver(NetworkECSMediator &med) : _med(med)
 {
@@ -96,7 +113,11 @@ void Receiver::onCloseConnection(const std::string &)
     std::cout << "[RECEIVER] Server closed connection" << std::endl;
     if (_tcpSocket != -1)
     {
+        #ifdef _WIN32
+        closesocket(_tcpSocket);
+        #else
         close(_tcpSocket);
+        #endif
         _tcpSocket = -1;
     }
 }

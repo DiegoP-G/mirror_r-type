@@ -1,7 +1,7 @@
 #pragma once
-#include "Lobby/LobbyManager.hpp"
-#include "Mediator/IMediator.hpp"
-#include "Network/NetworkManager.hpp"
+#include "../Lobby/LobbyManager.hpp"
+#include "../Mediator/IMediator.hpp"
+#include "../Network/NetworkManager.hpp"
 #include "RTypeServer.hpp"
 #include <functional>
 #include <string>

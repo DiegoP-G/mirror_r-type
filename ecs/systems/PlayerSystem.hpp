@@ -17,4 +17,5 @@ class PlayerSystem
   private:
     void fire(EntityManager &entityManager, Entity *player);
     void handlePositionPlayer(Entity *&entity);
+    void queueBulletCreation(Entity *owner);
 };
