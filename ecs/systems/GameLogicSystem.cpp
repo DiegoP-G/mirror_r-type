@@ -1,6 +1,6 @@
 #include "GameLogicSystem.hpp"
-#include "../../server/Game/GameMediator.hpp"
-#include "../../transferData/transferData.hpp"
+#include "../server/Game/GameMediator.hpp"
+#include "../transferData/transferData.hpp"
 #include "../enemyFactory.hpp"
 #include <cstdlib>
 #include <ctime>

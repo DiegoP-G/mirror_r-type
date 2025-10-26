@@ -180,3 +180,33 @@ constexpr uint8_t OPCODE_LOBBY_ERROR = 0x74;
 // [SERVER → CLIENT, TCP]
 // Error joining/creating lobby
 // Payload: error_message (string)
+
+constexpr uint8_t OPCODE_LOGIN_REQUEST = 0x80;
+// [CLIENT → SERVER, TCP]
+// Send login credentials to server
+// Payload: [ username (string) | password (string) ]
+
+constexpr uint8_t OPCODE_LOGIN_RESPONSE = 0x81;
+// [SERVER → CLIENT, TCP]
+// Login response from server
+// Payload: [ success (1 byte: 0 = failure, 1 = success) | message (string) ]
+
+constexpr uint8_t OPCODE_SIGNIN_REQUEST = 0x82;
+// [CLIENT → SERVER, TCP]
+// Sends sign-in credentials to the server.
+// Payload: [ username (string) | password (string) ]
+
+constexpr uint8_t OPCODE_SIGNIN_RESPONSE = 0x83;
+// [SERVER → CLIENT, TCP]
+// Signin response from server
+// Payload: [ success (1 byte: 0 = failure, 1 = success) | message (string) ]
+
+constexpr uint8_t OPCODE_SERVER_PUB_KEY = 0x90;
+// [SERVER → CLIENT, TCP]
+// AES server key 
+// Payload: [ success (1 byte: 0 = failure, 1 = success) | message (string) ]
+
+constexpr uint8_t OPCODE_CLIENT_IV_KEY = 0x92;
+// [SERVER → CLIENT, TCP]
+// Client sends generated AES key and key to server
+// Payload: [ AES_KEY (256 bytes) || IV (16 bytes) ]

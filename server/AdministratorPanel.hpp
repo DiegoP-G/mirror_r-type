@@ -51,4 +51,8 @@ class AdministratorPanel
     void run();
 
     bool isBannedIp(std::string);
+    sqlAPI &getSqlApi()
+    {
+        return _sqlApi;
+    };
 };

@@ -6,6 +6,8 @@
 #include "../ecs/systems.hpp"
 #include "../ecs/textBox.hpp"
 #include "../transferData/opcode.hpp"
+#include "../transferData/transferData.hpp"
+#include "transferData/hashUtils.hpp"
 #include "Network/NetworkManager.hpp"
 #include "assetsPath.hpp"
 #include "windowSize.hpp"
@@ -185,19 +187,63 @@ void RTypeGame::handleEvents()
             std::cout << "Running is set to false" << std::endl;
         }
 
-        if (_state == GameState::MENU && event.type == sf::Event::MouseButtonPressed)
+        keybindMenu->handleEvent(event, g_graphics->getWindow());
+
+        if (_state == GameState::MENULOGIN)
         {
-            auto mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
-            auto action = g_graphics->handleMenuClick(mousePos.x, mousePos.y);
-            if (action == GraphicsManager::MenuAction::PLAY)
+            if (event.type == sf::Event::MouseButtonPressed)
             {
-                _state = GameState::MENUIP;
-                std::cout << "Switching to MENUIP state" << std::endl;
+                sf::Vector2i mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
+                g_graphics->getUsernameTextBox()->checkInFocus(mousePos);
+                g_graphics->getPasswordTextBox()->checkInFocus(mousePos);
             }
-            else if (action == GraphicsManager::MenuAction::QUIT)
+
+            // Pass keyboard events to the focused textbox
+            g_graphics->getUsernameTextBox()->typeInBox(event);
+            g_graphics->getPasswordTextBox()->typeInBox(event);
+
+            // Handle login menu clicks
+            if (event.type == sf::Event::MouseButtonPressed)
             {
-                running = false;
-                std::cout << "Quitting game" << std::endl;
+                auto mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
+                auto action = g_graphics->handleMenuClick(mousePos.x, mousePos.y);
+
+                if (action == GraphicsManager::MenuAction::LOGIN)
+                {
+                    std::string username = g_graphics->getUsernameTextBox()->getText();
+                    std::string password = g_graphics->getPasswordTextBox()->getText();
+                    std::string loginData = serializeString(username) + serializeString(password);
+                    std::vector<uint8_t> encryptedData;
+                    unsigned char tag[16];
+
+                    if (!aesEncryptWithTag(_med.getNetworkManager().getAesKey(), _med.getNetworkManager().getAesIV(),
+                            loginData, encryptedData)) {
+                        std::cerr << "Client failed to encrypt data\n";
+                        EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
+                        return;
+                    }
+                    std::string encryptedDataStr(encryptedData.begin(), encryptedData.end());
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, encryptedDataStr, OPCODE_LOGIN_REQUEST);
+                }
+                else if (action == GraphicsManager::MenuAction::SIGNIN)
+                {
+                    std::string username = g_graphics->getUsernameTextBox()->getText();
+                    std::string password = g_graphics->getPasswordTextBox()->getText();
+                    std::string loginData = serializeString(username) + serializeString(password);
+                    std::vector<uint8_t> encryptedData;
+
+                    unsigned char tag[16];
+                    if (!aesEncryptWithTag(_med.getNetworkManager().getAesKey(), _med.getNetworkManager().getAesIV(),
+                            loginData, encryptedData)) {
+                        std::cerr << "Client failed to encrypt data\n";
+                        EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
+                        return;
+                    }
+                    std::string encryptedDataStr(encryptedData.begin(), encryptedData.end());
+                    EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
+
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, encryptedDataStr, OPCODE_SIGNIN_REQUEST);
+                }
             }
         }
 
@@ -245,7 +291,7 @@ void RTypeGame::handleEvents()
             }
             else if (action == GraphicsManager::MenuAction::BACK)
             {
-                _state = GameState::MENUIP;
+                _state = GameState::MENULOGIN;
                 std::cout << "[Client] Going back to IP menu" << std::endl;
             }
         }
@@ -344,9 +390,10 @@ void RTypeGame::render()
         g_graphics->getWindow().clear(sf::Color::Black);
         g_graphics->drawText("Your ip was banned by an administrator.", 0, windowHeight / 2);
     }
-    else if (_state == GameState::MENU)
+    else if (_state == GameState::MENULOGIN)
     {
         g_graphics->drawMenu();
+        g_graphics->updateErrorMessage();
         keybindMenu->draw(g_graphics->getWindow());
     }
     else if (_state == GameState::MENUIP)
@@ -548,7 +595,7 @@ void RTypeGame::setCurrentState(GameState newState)
 {
     switch (newState)
     {
-    case GameState::MENU:
+    case GameState::MENULOGIN:
         std::cout << "In MENU state" << std::endl;
         break;
     case GameState::MENUIP:

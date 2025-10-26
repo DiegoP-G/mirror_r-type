@@ -24,6 +24,7 @@
 #include <queue>
 #include <string>
 #include <vector>
+#include "../../../transferData/opcode.hpp"
 
 class NetworkManager;
 
@@ -47,6 +48,7 @@ class TCPManager
     void handleNewConnection();
     void handleClientRead(int fd, size_t &index);
     void handleClientWrite(int fd);
+    void sendAESKey(int clientFd);
 
   public:
     TCPManager(NetworkManager &ref);
