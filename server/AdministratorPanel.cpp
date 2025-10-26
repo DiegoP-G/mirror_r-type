@@ -121,6 +121,46 @@ void AdministratorPanel::kickPlayer(sf::RenderWindow &window, sf::Event &event)
     }
 }
 
+// Add a new method to handle banning a player
+void AdministratorPanel::banPlayer(sf::RenderWindow &window, sf::Event &event)
+{
+    sf::Vector2f mousePos(event.mouseButton.x, event.mouseButton.y);
+
+    for (auto &[id, button] : _banButtons)
+    {
+        if (button.getGlobalBounds().contains(mousePos))
+        {
+            if (_clientManager)
+            {
+                _logs.push_back("Banning client " + std::to_string(id));
+                _networkManager.getTCPManager().sendMessage(id, OPCODE_BAN_NOTIFICATION, "");
+                auto client = _clientManager->getClient(id);
+                if (client)
+                {
+                    std::string ip = inet_ntoa(client->getTrueAddr().sin_addr);
+                    _sqlApi.addBannedIp(ip);
+
+                    auto lobby = _lobbyManager->getLobbyOfPlayer(id);
+                    if (lobby) {
+                        lobby->removePlayer(id);
+                    }
+
+                    _logs.push_back("Client " + std::to_string(id) + " with IP " + ip + " was banned.");
+                }
+                else
+                {
+                    _logs.push_back("Failed to ban client " + std::to_string(id) + ".");
+                }
+            }
+            else
+            {
+                std::cerr << "AdministratorPanel: _clientManager not initialized when trying to ban client."
+                          << std::endl;
+            }
+        }
+    }
+}
+
 void AdministratorPanel::handleEvents(sf::RenderWindow &window)
 {
     sf::Event event;
@@ -141,14 +181,15 @@ void AdministratorPanel::handleEvents(sf::RenderWindow &window)
         if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
         {
             kickPlayer(window, event);
+            banPlayer(window, event); // Handle "Ban" button clicks
         }
     }
 }
 
-std::vector<std::pair<sf::Text, sf::RectangleShape>> AdministratorPanel::buildPlayerList(
+std::vector<std::tuple<sf::Text, sf::RectangleShape, sf::RectangleShape>> AdministratorPanel::buildPlayerList(
     sf::RenderWindow &window, const sf::FloatRect &playerListArea)
 {
-    std::vector<std::pair<sf::Text, sf::RectangleShape>> playerList;
+    std::vector<std::tuple<sf::Text, sf::RectangleShape, sf::RectangleShape>> playerList;
     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
     float y = playerListArea.top + 40 - _playerListScrollOffset; // Apply scroll offset
 
@@ -172,22 +213,34 @@ std::vector<std::pair<sf::Text, sf::RectangleShape>> AdministratorPanel::buildPl
 
         // Create "Kick" button
         sf::RectangleShape kickButton(sf::Vector2f(100.f, 30.f));
-        kickButton.setPosition(playerListArea.left + playerListArea.width - 120.f, y);
+        kickButton.setPosition(playerListArea.left + playerListArea.width - 240.f, y); // Adjust position
+        kickButton.setFillColor(sf::Color::Green);
 
-        // Check if the mouse is over the button
+        // Check if the mouse is over the "Kick" button
         if (kickButton.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos)))
         {
             kickButton.setFillColor(sf::Color::White);
         }
-        else
-        {
-            kickButton.setFillColor(sf::Color::Red);
-        }
 
-        // Store the button for event handling
+        // Store the "Kick" button for event handling
         _kickButtons[id] = kickButton;
 
-        playerList.emplace_back(playerText, kickButton);
+        // Create "Ban" button
+        sf::RectangleShape banButton(sf::Vector2f(100.f, 30.f));
+        banButton.setPosition(playerListArea.left + playerListArea.width - 120.f, y); // Adjust position
+        banButton.setFillColor(sf::Color::Red); // Default blue color for "Ban" button
+
+        // Check if the mouse is over the "Ban" button
+        if (banButton.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos)))
+        {
+            banButton.setFillColor(sf::Color::White); // Change to white on hover
+        }
+
+        // Store the "Ban" button for event handling
+        _banButtons[id] = banButton;
+
+        // Add the player text, "Kick" button, and "Ban" button to the list
+        playerList.emplace_back(playerText, kickButton, banButton);
 
         y += 40; // Move to the next line
     }
@@ -207,9 +260,9 @@ void AdministratorPanel::drawPlayerList(sf::RenderWindow &window, sf::FloatRect 
 
     // Draw players
     float playerY = playerListArea.top + TITLE_HEIGHT - _playerListScrollOffset; // Start below the title
-    std::vector<std::pair<sf::Text, sf::RectangleShape>> playerList = buildPlayerList(window, playerListArea);
+    std::vector<std::tuple<sf::Text, sf::RectangleShape, sf::RectangleShape>> playerList = buildPlayerList(window, playerListArea);
 
-    for (auto &[player, button] : playerList)
+    for (auto &[player, button, banButton] : playerList)
     {
         // Skip drawing if the player is outside the visible area
         if (playerY + 40 < playerListArea.top + TITLE_HEIGHT || playerY > playerListArea.top + playerListArea.height)
@@ -218,21 +271,34 @@ void AdministratorPanel::drawPlayerList(sf::RenderWindow &window, sf::FloatRect 
             continue;
         }
 
-        // Draw the player text and button
+        // Draw the player text and "Kick" button
         player.setPosition(playerListArea.left + 10.f, playerY);
-        button.setPosition(playerListArea.left + playerListArea.width - 120.f, playerY);
+        button.setPosition(playerListArea.left + playerListArea.width - 240.f, playerY);
 
         window.draw(player);
         window.draw(button);
 
-        // Draw button label
-        sf::Text buttonText;
-        buttonText.setFont(*_font.get());
-        buttonText.setString("Kick");
-        buttonText.setCharacterSize(18);
-        buttonText.setFillColor(sf::Color::Black); // Text color (black for contrast on white highlight)
-        buttonText.setPosition(button.getPosition().x + 10.f, button.getPosition().y + 5.f);
-        window.draw(buttonText);
+        // Draw "Kick" button label
+        sf::Text kickButtonText;
+        kickButtonText.setFont(*_font.get());
+        kickButtonText.setString("Kick");
+        kickButtonText.setCharacterSize(18);
+        kickButtonText.setFillColor(sf::Color::Black); // Text color (black for contrast on white highlight)
+        kickButtonText.setPosition(button.getPosition().x + 10.f, button.getPosition().y + 5.f);
+        window.draw(kickButtonText);
+
+        // Draw "Ban" button
+        banButton.setPosition(playerListArea.left + playerListArea.width - 120.f, playerY);
+        window.draw(banButton);
+
+        // Draw "Ban" button label
+        sf::Text banButtonText;
+        banButtonText.setFont(*_font.get());
+        banButtonText.setString("Ban");
+        banButtonText.setCharacterSize(18);
+        banButtonText.setFillColor(sf::Color::Black); // Text color (black for contrast on white highlight)
+        banButtonText.setPosition(banButton.getPosition().x + 10.f, banButton.getPosition().y + 5.f);
+        window.draw(banButtonText);
 
         playerY += 40; // Move to the next line
     }

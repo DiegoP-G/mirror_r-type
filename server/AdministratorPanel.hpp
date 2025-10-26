@@ -27,6 +27,7 @@ class AdministratorPanel
     sqlAPI _sqlApi;
 
     std::unordered_map<int, sf::RectangleShape> _kickButtons;
+    std::unordered_map<int, sf::RectangleShape> _banButtons;
 
     float _playerListScrollOffset;
     float _logsScrollOffset;
@@ -34,12 +35,13 @@ class AdministratorPanel
     std::vector<std::string> _logs;
 
     void handleEvents(sf::RenderWindow &window);
-    std::vector<std::pair<sf::Text, sf::RectangleShape>> buildPlayerList(sf::RenderWindow &window,
-                                                                         const sf::FloatRect &playerListArea);
+    std::vector<std::tuple<sf::Text, sf::RectangleShape, sf::RectangleShape>> buildPlayerList(
+        sf::RenderWindow &window, const sf::FloatRect &playerListArea);
     void drawPlayerList(sf::RenderWindow &window, sf::FloatRect playerListArea);
     void drawLogs(sf::RenderWindow &window, sf::FloatRect logsArea);
     void scrollLogic(sf::RenderWindow &window, sf::Event &event);
     void kickPlayer(sf::RenderWindow &window, sf::Event &event);
+    void banPlayer(sf::RenderWindow &window, sf::Event &event);
 
   public:
     AdministratorPanel(NetworkManager &networkManager);
