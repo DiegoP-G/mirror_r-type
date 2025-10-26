@@ -1,6 +1,7 @@
 #pragma once
 #include "../client/assetsPath.hpp"
 #include "Network/ClientManager.hpp"
+#include "Lobby/LobbyManager.hpp"
 #include "NetworkManager.hpp"
 #include "sqlAPI.hpp"
 #include <SFML/Graphics.hpp>
@@ -14,12 +15,14 @@ constexpr int WINDOWWIDTH = 800;
 constexpr int WINDOWHEIGTH = 600;
 
 class ClientManager;
+class LobbyManager;
 
 class AdministratorPanel
 {
   private:
     std::unique_ptr<sf::Font> _font;
     ClientManager *_clientManager;
+    LobbyManager *_lobbyManager;
     NetworkManager &_networkManager;
     sqlAPI _sqlApi;
 
@@ -42,6 +45,7 @@ class AdministratorPanel
     AdministratorPanel(NetworkManager &networkManager);
 
     void setClientManager(ClientManager &clientManager);
+    void setLobbyManager(LobbyManager &clientManager);
 
     void addLog(std::string log)
     {

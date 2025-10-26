@@ -85,4 +85,9 @@ class GameMediator : public IMediator
     {
         return _networkManager;
     };
+
+    LobbyManager &getLobbyManager()
+    {
+        return _lobbyManager;
+    };
 };

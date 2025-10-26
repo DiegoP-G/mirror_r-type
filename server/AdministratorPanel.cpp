@@ -22,7 +22,7 @@
 
 
 AdministratorPanel::AdministratorPanel(NetworkManager &networkManager)
-    : _clientManager(nullptr), _playerListScrollOffset(0), _logsScrollOffset(0), _networkManager(networkManager),
+    : _clientManager(nullptr), _lobbyManager(nullptr), _playerListScrollOffset(0), _logsScrollOffset(0), _networkManager(networkManager),
       _sqlApi("db.sqlite")
 {
     sf::Font font;
@@ -40,6 +40,11 @@ AdministratorPanel::AdministratorPanel(NetworkManager &networkManager)
 void AdministratorPanel::setClientManager(ClientManager &clientManager)
 {
     _clientManager = &clientManager;
+}
+
+void AdministratorPanel::setLobbyManager(LobbyManager &lobby)
+{
+    _lobbyManager = &lobby;
 }
 
 void AdministratorPanel::scrollLogic(sf::RenderWindow &window, sf::Event &event)
@@ -92,7 +97,12 @@ void AdministratorPanel::kickPlayer(sf::RenderWindow &window, sf::Event &event)
             {
                 _logs.push_back("Kicking client " + std::to_string(id));
                 _networkManager.getTCPManager().sendMessage(id, OPCODE_KICK_NOTIFICATION, "");
-                _networkManager.getTCPManager().sendMessage(id, OPCODE_KICK_NOTIFICATION, "");
+
+                auto lobby = _lobbyManager->getLobbyOfPlayer(id);
+                if (lobby) {
+                    lobby->removePlayer(id);
+                }
+
                 if (_clientManager->removeClient(id))
                 {
                     _logs.push_back("Client " + std::to_string(id) + " was kicked.");
