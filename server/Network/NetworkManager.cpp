@@ -84,9 +84,6 @@ void NetworkManager::sendDataToLobbyTCP(std::shared_ptr<Lobby> lobby, const std:
 
 void NetworkManager::sendAllEntitiesToClient(int clientFd)
 {
-    //   std::cout << "[NetworkManager] Sending all existing entities to new client " << clientFd << std::endl;
-
-    // Récupérer toutes les entités actives depuis le serveur de jeu
     std::string allEntities = _gameMediator.getAllActiveEntitiesFromLobby(clientFd);
 
     if (!allEntities.empty())

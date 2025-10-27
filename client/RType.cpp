@@ -307,9 +307,11 @@ void RTypeGame::update(float deltaTime)
     if (gameOver)
         return;
 
+    tickSystem.update(entityManager);
+    backgroundSystem.update(entityManager, deltaTime);
     animationSystem.update(entityManager, deltaTime);
-    entityManager.applyPendingChanges();
 
+    entityManager.applyPendingChanges();
     if (player == nullptr)
     {
         findMyPlayer();
@@ -373,6 +375,7 @@ void RTypeGame::render()
         g_graphics->drawText(gameOverText, 200, 300);
         g_graphics->drawText("Press ESC to exit", 200, 350);
     }
+    drawHitbox();
 
     g_graphics->present();
 }
@@ -442,7 +445,7 @@ void RTypeGame::run()
         sendInputPlayer();
 
         _mutex.lock();
-        update(FRAME_TIME);
+        update(deltaTime);
         _mutex.unlock();
 
         render();

@@ -12,7 +12,7 @@
 class PlayerSystem
 {
   public:
-    void update(EntityManager &entityManager, float deltaTime);
+    void update(EntityManager &entityManager, float deltaTime, bool cleint = false);
 
   private:
     void fire(EntityManager &entityManager, Entity *player);

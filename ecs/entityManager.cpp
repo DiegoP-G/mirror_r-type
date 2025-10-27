@@ -81,7 +81,7 @@ std::vector<uint8_t> EntityManager::serializeAllMovements() const
 
     for (const auto &entity : entities)
     {
-        if (!entity || !entity->isActive())
+        if (!entity || !entity->isActive() || entity->hasComponent<BackgroundScrollComponent>())
             continue;
 
         EntityID id = entity->getID();

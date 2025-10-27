@@ -106,6 +106,7 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
              std::unique_ptr<RTypeServer> &rtype = lobby->getRTypeServer();
              lobby->addPlayer(clientFd);
              rtype->createPlayer(clientFd);
+             std::cout << "Sending all entities to client " << clientFd << std::endl;
              _networkManager.sendAllEntitiesToClient(clientFd);
          }},
         {GameMediatorEvent::PlayerDisconnected, [this](const std::string &, const std::string &, int clientFd) -> void {

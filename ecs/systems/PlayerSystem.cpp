@@ -1,6 +1,6 @@
 #include "PlayerSystem.hpp"
 
-void PlayerSystem::update(EntityManager &entityManager, float deltaTime)
+void PlayerSystem::update(EntityManager &entityManager, float deltaTime, bool client)
 {
     auto entities = entityManager.getEntitiesWithComponents<InputComponent, PlayerComponent>();
 
@@ -9,7 +9,7 @@ void PlayerSystem::update(EntityManager &entityManager, float deltaTime)
         auto &input = entity->getComponent<InputComponent>();
         auto &playerComp = entity->getComponent<PlayerComponent>();
         playerComp.currentCooldown -= deltaTime;
-        if (input.fire && playerComp.currentCooldown <= 0)
+        if (input.fire && playerComp.currentCooldown <= 0 && !client)
         {
             fire(entityManager, entity);
             input.fire = false;

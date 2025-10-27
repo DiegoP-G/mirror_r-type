@@ -4,6 +4,7 @@
 #include "../ecs/systems.hpp"
 #include "../ecs/textBox.hpp"
 #include "NetworkECSMediator.hpp"
+#include "TickSystem.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include <mutex>
 #include <unordered_map>
@@ -28,6 +29,7 @@ class RTypeGame
     int _playerId;
     std::mutex _mutex;
     EntityManager entityManager;
+    TickSystem tickSystem;
 
     // Systems
     MovementSystem movementSystem;
@@ -96,6 +98,11 @@ class RTypeGame
     void setPlayerId(int id)
     {
         _playerId = id;
+        tickSystem.setPlayerId(id);
+    };
+    int getPlayerId()
+    {
+        return _playerId;
     };
     void setPlayerReady(int value)
     {
@@ -144,4 +151,8 @@ class RTypeGame
     {
         _state = GameState::BAN;
     };
+    TickSystem &getTickSystem()
+    {
+        return tickSystem;
+    }
 };
