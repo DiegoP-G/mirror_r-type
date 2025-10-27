@@ -55,10 +55,14 @@ make -j$(nproc)
 
 The game server exposes Prometheus metrics on **port 8082** for monitoring server performance, player statistics, and network metrics.
 
-#### Quick Setup with Docker Compose
+#### Setup with Docker Compose
 
-1. **Launch the Prometheus instance:**
+1. **Build and launch the Prometheus instance:**
    ```bash
+   # Build the custom Prometheus image
+   docker-compose build
+   
+   # Start Prometheus
    docker-compose up -d
    ```
    This will start Prometheus on **port 9090**.
@@ -88,11 +92,8 @@ The game server exposes Prometheus metrics on **port 8082** for monitoring serve
 #### Available Metrics
 
 The game server exposes various metrics on `http://localhost:8082/metrics`:
-- Player connection/disconnection events
-- Network packet rates (TCP/UDP)
-- Game state updates frequency
-- Server performance metrics (CPU, memory)
-- Game-specific metrics (enemies spawned, projectiles fired, etc.)
+- Packet throughput TCP / UDP
+- Send & Received packets TCP / UDP
 
 ### Gameplay
 
