@@ -2,6 +2,8 @@
 #include "../transferData/opcode.hpp"
 #include "../transferData/transferData.hpp"
 #include "Network/Receiver.hpp"
+#include "VoiceManager.hpp"
+
 #include "RType.hpp"
 #include <cstdint>
 #include <exception>
@@ -75,7 +77,14 @@ NetworkECSMediator::NetworkECSMediator()
 
                  break;
              }
-
+             case OPCODE_VOICE_DATA: {
+                 if (voiceChatEnabled)
+                 {
+                     std::vector<u_int8_t> audioData(data.begin(), data.end());
+                     _voiceManager->feedAudioToRingBuffer(audioData);
+                 }
+                 break;
+             }
              // Updates de mouvement (UDP)
              case OPCODE_MOVEMENT_UPDATE: {
                  _game->getMutex().lock();
@@ -164,7 +173,6 @@ NetworkECSMediator::NetworkECSMediator()
                  _game->getMutex().lock();
                  int state = deserializeInt(data);
 
-                 std::cout << "CURRENT STATE NOW" << state << std::endl;
                  if (_game)
                  {
                      _game->setCurrentState(static_cast<GameState>(state));
@@ -205,5 +213,39 @@ void NetworkECSMediator::notify(NetworkECSMediatorEvent event, const std::string
     else
     {
         throw std::runtime_error("notify: No handler registered for event " + std::to_string(static_cast<int>(event)));
+    }
+}
+
+void NetworkECSMediator::setupVoiceChat(int deviceIndex)
+{
+    if (!_voiceManager)
+    {
+        std::cerr << "[Voice] ❌ VoiceManager not initialized!" << std::endl;
+        return;
+    }
+    if (voiceChatEnabled)
+    {
+        std::cout << "[Voice] Stopping previous recording..." << std::endl;
+        _voiceManager->stopRecording();
+    }
+    voiceChatEnabled = true;
+    _voiceManager->startRecording(
+        [this](const std::vector<u_int8_t> &audioData) {
+            _sender->sendUdp(OPCODE_VOICE_DATA, std::string(audioData.begin(), audioData.end()));
+        },
+        deviceIndex);
+}
+
+void NetworkECSMediator::stopVoiceChat()
+{
+    if (_voiceManager)
+    {
+        _voiceManager->stopRecording();
+        voiceChatEnabled = false;
+        std::cout << "[Voice] ✓ Voice chat disabled" << std::endl;
+    }
+    else
+    {
+        std::cerr << "[Voice] ⚠ VoiceManager not available for stopping" << std::endl;
     }
 }

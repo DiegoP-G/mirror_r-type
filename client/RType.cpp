@@ -9,18 +9,31 @@
 #include "Network/NetworkManager.hpp"
 #include "assetsPath.hpp"
 #include "windowSize.hpp"
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+
+#include <windows.h>
+#endif
 #include <SFML/Graphics/Font.hpp>
 #include <exception>
 #include <functional>
 #include <iostream>
 
-// void ClientGame::startServer(const char *serverIp)
+// Joystick configuration constants
+const float JOYSTICK_DEADZONE = 25.0f; // Deadzone threshold (0-100)
+const unsigned int JOYSTICK_ID = 0;    // Default joystick ID
+
 bool RTypeGame::init(NetworkECSMediator med, std::function<void(const char *)> networkCb)
 {
     sf::Font dummy;
 
     g_graphics = new GraphicsManager(med);
-    // Initialize graphics
     if (!g_graphics->init("R-Type", windowWidth, windowHeight, networkCb))
     {
         std::cerr << "Failed to initialize graphics!" << std::endl;
@@ -30,10 +43,122 @@ bool RTypeGame::init(NetworkECSMediator med, std::function<void(const char *)> n
     createTextures();
     keybindMenu = new KeybindMenu(keybindManager);
 
+    loadAvailableMicrophones();
+
     running = true;
+
+    checkJoystickConnection();
 
     std::cout << "R-Type initialized!" << std::endl;
     return true;
+}
+
+void RTypeGame::drawMicrophoneMenu()
+{
+    if (!_showMicrophoneMenu)
+        return;
+
+    float menuX = 50;
+    float menuY = 100;
+    float lineHeight = 30;
+    float menuWidth = 500;
+    float menuHeight = _availableMicrophones.size() * lineHeight + 80;
+    g_graphics->drawRect(menuX - 10, menuY - 10, menuWidth, menuHeight, 50, 50, 50, 230);
+    g_graphics->drawText("Select Microphone:", menuX, menuY, 255, 255, 255);
+    menuY += lineHeight + 10;
+
+    _microphoneMenuButtons.clear();
+    for (size_t i = 0; i < _availableMicrophones.size(); i++)
+    {
+        const auto &device = _availableMicrophones[i];
+        std::string text = std::to_string(i + 1) + ". " + device.deviceName;
+
+        if (device.isDefaultInput)
+            text += " (DEFAULT)";
+        sf::FloatRect buttonRect(menuX, menuY, menuWidth - 20, lineHeight);
+        _microphoneMenuButtons.push_back(buttonRect);
+
+        if (device.deviceIndex == _selectedMicrophoneIndex)
+        {
+            g_graphics->drawRect(menuX, menuY, menuWidth - 20, lineHeight - 5, 0, 100, 0, 150);
+            g_graphics->drawText(text, menuX + 5, menuY, 0, 255, 0);
+        }
+        else
+        {
+            g_graphics->drawRect(menuX, menuY, menuWidth - 20, lineHeight - 5, 100, 100, 100, 100);
+            g_graphics->drawText(text, menuX + 5, menuY, 255, 255, 255);
+        }
+
+        menuY += lineHeight;
+    }
+    g_graphics->drawText("Click on a device to select it, or press M to close", menuX, menuY + 10, 200, 200, 200);
+}
+
+void RTypeGame::loadAvailableMicrophones()
+{
+    VoiceManager &voiceManager = _med.getVoiceManager();
+
+    _availableMicrophones = voiceManager.getInputDevices();
+    std::cout << "[Client] Loaded " << _availableMicrophones.size() << " microphones" << std::endl;
+    for (size_t i = 0; i < _availableMicrophones.size(); i++)
+    {
+        std::cout << "  [" << i << "] " << _availableMicrophones[i].deviceName
+                  << ((_availableMicrophones[i].isDefaultInput) ? " (DEFAULT)" : "") << std::endl;
+    }
+}
+
+bool RTypeGame::handleMicrophoneMenuClick(int mouseX, int mouseY)
+{
+    if (!_showMicrophoneMenu)
+        return false;
+    float menuX = 50;
+    float menuY = 100;
+    float menuWidth = 500;
+    float menuHeight = _availableMicrophones.size() * 30 + 80;
+
+    sf::FloatRect menuBounds(menuX - 10, menuY - 10, menuWidth, menuHeight);
+
+    if (!menuBounds.contains(mouseX, mouseY))
+    {
+        _showMicrophoneMenu = false;
+        return true;
+    }
+    for (size_t i = 0; i < _microphoneMenuButtons.size(); i++)
+    {
+        if (_microphoneMenuButtons[i].contains(mouseX, mouseY))
+        {
+            selectMicrophone(i);
+            _showMicrophoneMenu = false;
+            return true;
+        }
+    }
+
+    return true;
+}
+
+void RTypeGame::selectMicrophone(int index)
+{
+    if (index >= 0 && index < static_cast<int>(_availableMicrophones.size()))
+    {
+        _selectedMicrophoneIndex = _availableMicrophones[index].deviceIndex;
+        std::cout << "[Client] Selected microphone: " << _availableMicrophones[index].deviceName << std::endl;
+        _med.stopVoiceChat();
+        _med.setupVoiceChat(_selectedMicrophoneIndex);
+    }
+}
+
+void RTypeGame::checkJoystickConnection()
+{
+    for (unsigned int i = 0; i < sf::Joystick::Count; ++i)
+    {
+        if (sf::Joystick::isConnected(i))
+        {
+            std::cout << "Joystick " << i << " connected!" << std::endl;
+            std::cout << "Button count: " << sf::Joystick::getButtonCount(i) << std::endl;
+            std::cout << "Has X axis: " << sf::Joystick::hasAxis(i, sf::Joystick::X) << std::endl;
+            std::cout << "Has Y axis: " << sf::Joystick::hasAxis(i, sf::Joystick::Y) << std::endl;
+        }
+    }
 }
 
 void RTypeGame::createTextures()
@@ -58,6 +183,85 @@ void RTypeGame::createTextures()
     g_graphics->storeTexture("bonus_life", bonusLifeTexture);
 }
 
+void RTypeGame::handleJoystickInput()
+{
+    if (!player || !player->hasComponent<InputComponent>())
+        return;
+
+    if (!sf::Joystick::isConnected(JOYSTICK_ID))
+        return;
+
+    auto &input = player->getComponent<InputComponent>();
+
+    if (sf::Joystick::hasAxis(JOYSTICK_ID, sf::Joystick::X))
+    {
+        float xAxis = sf::Joystick::getAxisPosition(JOYSTICK_ID, sf::Joystick::X);
+
+        if (xAxis < -JOYSTICK_DEADZONE)
+            input.left = true;
+        else if (xAxis > JOYSTICK_DEADZONE)
+            input.right = true;
+        else
+        {
+            input.left = false;
+            input.right = false;
+        }
+    }
+
+    if (sf::Joystick::hasAxis(JOYSTICK_ID, sf::Joystick::Y))
+    {
+        float yAxis = sf::Joystick::getAxisPosition(JOYSTICK_ID, sf::Joystick::Y);
+
+        if (yAxis < -JOYSTICK_DEADZONE)
+            input.up = true;
+        else if (yAxis > JOYSTICK_DEADZONE)
+            input.down = true;
+        else
+        {
+            input.up = false;
+            input.down = false;
+        }
+    }
+
+    if (sf::Joystick::hasAxis(JOYSTICK_ID, sf::Joystick::PovX))
+    {
+        float povX = sf::Joystick::getAxisPosition(JOYSTICK_ID, sf::Joystick::PovX);
+        if (povX < -50.0f)
+            input.left = true;
+        else if (povX > 50.0f)
+            input.right = true;
+    }
+
+    if (sf::Joystick::hasAxis(JOYSTICK_ID, sf::Joystick::PovY))
+    {
+        float povY = sf::Joystick::getAxisPosition(JOYSTICK_ID, sf::Joystick::PovY);
+        if (povY < -50.0f)
+            input.up = true;
+        else if (povY > 50.0f)
+            input.down = true;
+    }
+
+    if (sf::Joystick::isButtonPressed(JOYSTICK_ID, 0))
+    {
+        if (!input.fire)
+            g_graphics->playSound("pew");
+        input.fire = true;
+    }
+    else
+    {
+        input.fire = false;
+    }
+
+    if (sf::Joystick::isButtonPressed(JOYSTICK_ID, 7))
+    {
+        input.enter = true;
+    }
+    else
+    {
+        input.enter = false;
+    }
+}
+
 void RTypeGame::handleEvents()
 {
     sf::Event event;
@@ -69,11 +273,32 @@ void RTypeGame::handleEvents()
             std::cout << "Running is set to false" << std::endl;
         }
 
+        if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::M)
+        {
+            toggleMicrophoneMenu();
+            continue;
+        }
+
+        if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
+        {
+            auto mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
+
+            if (_showMicrophoneMenu && handleMicrophoneMenuClick(mousePos.x, mousePos.y))
+            {
+                continue;
+            }
+        }
+
+        if (_showMicrophoneMenu)
+        {
+            continue;
+        }
         if (gameOver && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
         {
             running = false;
             std::cout << "Running is set to false" << std::endl;
         }
+
         if (_state == GameState::MENU && event.type == sf::Event::MouseButtonPressed)
         {
             auto mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
@@ -89,7 +314,7 @@ void RTypeGame::handleEvents()
                 std::cout << "Quitting game" << std::endl;
             }
         }
-        // Handle IP entry menu
+
         if (_state == GameState::MENUIP)
         {
             if (event.type == sf::Event::MouseButtonPressed)
@@ -98,7 +323,6 @@ void RTypeGame::handleEvents()
             g_graphics->getTextBox()->typeInBox(event);
         }
 
-        // Handle lobby menu clicks
         if (_state == GameState::MENULOBBY && event.type == sf::Event::MouseButtonPressed)
         {
             auto mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
@@ -139,11 +363,12 @@ void RTypeGame::handleEvents()
                 std::cout << "[Client] Going back to IP menu" << std::endl;
             }
         }
-        // Handle lobby textbox typing
+
         if (_state == GameState::MENULOBBY)
         {
             g_graphics->getLobbyTextBox()->typeInBox(event);
         }
+
         keybindMenu->handleEvent(event, g_graphics->getWindow());
 
         if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased)
@@ -171,7 +396,8 @@ void RTypeGame::handleEvents()
                     input.right = isPressed;
                     break;
                 case sf::Keyboard::Space:
-                    g_graphics->playSound("pew");
+                    if (isPressed)
+                        g_graphics->playSound("pew");
                     input.fire = isPressed;
                     break;
                 case sf::Keyboard::Enter:
@@ -188,9 +414,6 @@ void RTypeGame::handleEvents()
 void RTypeGame::findMyPlayer()
 {
     auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
-    // std::cout << "[CLIENT] Looking for player with ID: " << _playerId <<
-    // std::endl; std::cout << "[CLIENT] Found " << players.size() << " entities
-    // with PlayerComponent" << std::endl;
 
     for (auto *entity : players)
     {
@@ -209,37 +432,21 @@ void RTypeGame::update(float deltaTime)
     if (gameOver)
         return;
 
-    // Update systems
-    // gameLogicSystem.update(entityManager, deltaTime);
-    //   backgroundSystem.update(entityManager, deltaTime);
-    // movementSystem.update(entityManager, deltaTime);
-    // playerSystem.update(entityManager, deltaTime);
     animationSystem.update(entityManager, deltaTime);
-    // inputSystem.update(entityManager, deltaTime);
-    // boundarySyste>m.update(entityManager, deltaTime);
-    // cleanupSystem.update(entityManager, deltaTime);
-    // enemySystem.update(entityManager, deltaTime);
-    // collisionSystem.update(entityManager);
-    // laserWarningSystem.update(entityManager, deltaTime);
-    // // Check game over
-    // if (player && !player->isActive())
-    // {
-    //     gameOver = true;
-    // }
+
     entityManager.applyPendingChanges();
-    // std::cout << "UPT END\n";
+
     if (player == nullptr)
     {
-        // std::cout << "Player not found, searching...\n";
         findMyPlayer();
     }
+
+    handleJoystickInput();
 }
 
 void RTypeGame::render()
 {
     g_graphics->clear();
-
-    std::cout << "Rendering frame in state: " << static_cast<int>(_state) << std::endl;
 
     if (_state == GameState::KICKED)
     {
@@ -266,7 +473,6 @@ void RTypeGame::render()
     }
     else if (_state == GameState::MENULOBBY)
     {
-        // Draw lobby selection menu
         g_graphics->drawLobbyMenu();
         keybindMenu->draw(g_graphics->getWindow());
     }
@@ -293,22 +499,19 @@ void RTypeGame::render()
         g_graphics->drawText(gameOverText, 200, 300);
         g_graphics->drawText("Press ESC to exit", 200, 350);
     }
-
+    drawMicrophoneMenu();
     g_graphics->present();
 }
 
 void RTypeGame::restart()
 {
-    entityManager = EntityManager();
+    entityManager.clear();
     score = 0;
     gameOver = false;
-
-    // createPlayer();
 }
 
 void cleanup()
 {
-
     if (g_graphics)
     {
         delete g_graphics;
@@ -318,14 +521,8 @@ void cleanup()
 
 void RTypeGame::sendInputPlayer()
 {
-
     _mutex.lock();
 
-    std::cout << "In sendInputPlayer\n";
-    if (!player)
-    {
-        std::cout << "Player is null\n";
-    }
     if (!player || !player->isActive())
     {
         _mutex.unlock();
@@ -334,17 +531,12 @@ void RTypeGame::sendInputPlayer()
 
     if (player->hasComponent<InputComponent>())
     {
-        std::cout << "Sending player input\n";
-        std::cout << "is enter pressed ? " << player->getComponent<InputComponent>().enter << std::endl;
         auto &input = player->getComponent<InputComponent>();
         auto &playerComp = player->getComponent<PlayerComponent>();
 
         std::string inputData = serializePlayerInput(input, playerComp.playerID);
 
         _med.notify(NetworkECSMediatorEvent::SEND_DATA_UDP, inputData, OPCODE_PLAYER_INPUT);
-
-        // std::cout << "Sent player input for player " << playerComp.playerID <<
-        // std::endl;
     }
 
     _mutex.unlock();
@@ -352,11 +544,6 @@ void RTypeGame::sendInputPlayer()
 
 void RTypeGame::run()
 {
-    // if (!init(_med))
-    // {
-    //     return;
-    // }
-
     const float TARGET_FPS = 60.0f;
     const float FRAME_TIME = 1.0f / TARGET_FPS;
 
@@ -364,11 +551,11 @@ void RTypeGame::run()
     float accumulator = 0.0f;
 
     g_graphics->playSound("music", true);
+
     while (running)
     {
         float deltaTime = clock.restart().asSeconds();
 
-        // Cap delta time to prevent large jumps
         if (deltaTime > 0.05f)
         {
             deltaTime = 0.05f;
@@ -376,12 +563,12 @@ void RTypeGame::run()
 
         accumulator += deltaTime;
         handleEvents();
-        // handleEvents();
+
         if (running == false)
             break;
+
         sendInputPlayer();
 
-        // Fixed timestep update
         while (accumulator >= FRAME_TIME)
         {
             _mutex.lock();
@@ -391,7 +578,6 @@ void RTypeGame::run()
         }
 
         render();
-        // render();
     }
 
     cleanup();
@@ -399,7 +585,6 @@ void RTypeGame::run()
 
 void RTypeGame::createBackground()
 {
-    // sf::Texture *backgroundTexture = g_graphics->getTexture("background");
     int tileWidth = 800;
     int tileHeight = 600;
 
@@ -420,23 +605,19 @@ void RTypeGame::createBackground()
 
 void RTypeGame::drawWaitingForPlayers()
 {
-    // Format the waiting text
     if (_playerNb == 0 || _playerReady >= _playerNb)
     {
-
         return;
     }
 
     std::string waitingText =
         "Waiting for players to be ready: " + std::to_string(_playerReady) + " / " + std::to_string(_playerNb);
 
-    // Choose a screen position (centered horizontally)
     int windowWidth = g_graphics->getWindow().getSize().x;
     int windowHeight = g_graphics->getWindow().getSize().y;
-    float textX = windowWidth / 2.0f - 200.0f; // Adjust for centering
+    float textX = windowWidth / 2.0f - 200.0f;
     float textY = windowHeight / 2.0f - 50.0f;
 
-    // Draw the text on screen
     g_graphics->drawText(waitingText, textX, textY);
 }
 
@@ -444,16 +625,15 @@ void RTypeGame::drawTutorial()
 {
     if (_playerNb == 0 || _playerReady >= _playerNb)
     {
-
         return;
     }
 
-    std::string moveText = "Use ARROW KEYS to move";
-    std::string shootText = "Press SPACE to shoot";
+    std::string moveText = "Use ARROW KEYS or LEFT STICK to move";
+    std::string shootText = "Press SPACE or BUTTON A to shoot";
 
     int windowWidth = g_graphics->getWindow().getSize().x;
     int windowHeight = g_graphics->getWindow().getSize().y;
-    float textX = windowWidth / 2.0f - 100.0f;
+    float textX = windowWidth / 2.0f - 150.0f;
     float textY = windowHeight / 2.0f + 10.0f;
     float textY2 = windowHeight / 2.0f + 60.0f;
 
@@ -480,7 +660,6 @@ void RTypeGame::updateScore(std::vector<std::pair<int, int>> vec)
 
 void RTypeGame::setCurrentState(GameState newState)
 {
-    // std::cout << "Switching game state to " << static_cast<int>(newState) << std::endl;
     switch (newState)
     {
     case GameState::MENU:
@@ -507,7 +686,6 @@ void RTypeGame::setCurrentState(GameState newState)
 
 void RTypeGame::drawHitbox()
 {
-    // --- Debug: draw hitboxes ---
     auto entities = entityManager.getEntitiesWithComponent<ColliderComponent>();
     for (auto e : entities)
     {
@@ -528,11 +706,10 @@ void RTypeGame::drawHitbox()
         }
         else
         {
-            // Default position (just in case)
             hitboxRect.setPosition(collider.hitbox.x, collider.hitbox.y);
         }
 
-        hitboxRect.setFillColor(sf::Color(0, 0, 0, 0)); // transparent
+        hitboxRect.setFillColor(sf::Color(0, 0, 0, 0));
         hitboxRect.setOutlineThickness(1.0f);
         hitboxRect.setOutlineColor(sf::Color::Red);
 
@@ -542,7 +719,6 @@ void RTypeGame::drawHitbox()
 
 void RTypeGame::drawPlayerID()
 {
-    // --- Debug: draw hitboxes ---
     auto entities = entityManager.getEntitiesWithComponent<PlayerComponent>();
     for (auto e : entities)
     {
@@ -572,7 +748,7 @@ void RTypeGame::markPlayerAsDead(int playerId)
             if (entity->hasComponent<HealthComponent>())
             {
                 auto &healthComp = entity->getComponent<HealthComponent>();
-                healthComp.health = 0; // Set health to 0 to mark as dead
+                healthComp.health = 0;
                 std::cout << "Player " << playerId << " marked as dead." << std::endl;
             }
             break;

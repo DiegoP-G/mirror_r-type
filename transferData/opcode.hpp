@@ -180,3 +180,8 @@ constexpr uint8_t OPCODE_LOBBY_ERROR = 0x74;
 // [SERVER → CLIENT, TCP]
 // Error joining/creating lobby
 // Payload: error_message (string)
+
+constexpr uint8_t OPCODE_VOICE_DATA = 0x75;
+// [CLIENT → SERVER, UDP]
+// Sends the client's voice data.
+// Payload: [ user_id (4 bytes) | audio_data (byte array) ]

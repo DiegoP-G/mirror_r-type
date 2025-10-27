@@ -465,7 +465,6 @@ void EntityManager::deserializeAllHealth(const std::vector<uint8_t> &data)
         size_t remaining = data.size() - offset;
         if (remaining < sizeof(int) * 2)
         {
-            std::cout << "WTF" << std::endl;
             break;
         }
 
@@ -500,14 +499,14 @@ void EntityManager::markEntityForDestruction(EntityID id)
 // === COMMUN - Appliquer les changements ===
 void EntityManager::applyPendingChanges()
 {
-    // Ajouter les nouvelles entités
+    // Move new entities into main container
     for (auto &entity : entitiesToCreate)
     {
         entities.push_back(std::move(entity));
     }
     entitiesToCreate.clear();
 
-    // Détruire les entités marquées
+    // Destroy entities marked for deletion
     for (EntityID id : entitiesToDestroy)
     {
         destroyEntityByID(id);

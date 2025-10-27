@@ -4,6 +4,18 @@
 #include "../ecs/systems.hpp"
 #include "../ecs/textBox.hpp"
 #include "NetworkECSMediator.hpp"
+#include "VoiceManager.hpp"
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+
+#include <windows.h>
+#endif
 #include <SFML/Window/Keyboard.hpp>
 #include <mutex>
 #include <unordered_map>
@@ -43,7 +55,7 @@ class RTypeGame
     GameLogicSystem gameLogicSystem;
     BackgroundSystem backgroundSystem;
 
-    NetworkECSMediator _med;
+    NetworkECSMediator &_med;
 
     Entity *player = nullptr;
     bool gameOver = false;
@@ -66,13 +78,38 @@ class RTypeGame
 
     const float ENEMY_SPEED = -200.0f;
 
+    std::vector<AudioDevice> _availableMicrophones;
+    int _selectedMicrophoneIndex = -1;
+    bool _showMicrophoneMenu = false;
+    std::vector<sf::FloatRect> _microphoneMenuButtons;
+
   public:
     void reset();
 
-    RTypeGame(NetworkECSMediator med) : _med(med){};
+    void toggleMicrophoneMenu()
+    {
+        _showMicrophoneMenu = !_showMicrophoneMenu;
+    }
+    void selectMicrophone(int index);
+    bool handleMicrophoneMenuClick(int mouseX, int mouseY);
+    void drawMicrophoneMenu();
+    std::vector<AudioDevice> &getAvailableMicrophones()
+    {
+        return _availableMicrophones;
+    }
+    void loadAvailableMicrophones();
+
+    int getSelectedMic()
+    {
+        return _selectedMicrophoneIndex;
+    };
+
+    RTypeGame(NetworkECSMediator &med) : _med(med){};
 
     void markPlayerAsDead(int playerId);
 
+    void handleJoystickInput();
+    void checkJoystickConnection();
     void setWinnerId(int id);
 
     void setGameOver(bool value)

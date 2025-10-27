@@ -7,6 +7,8 @@
 #include <cstring>
 #include <memory>
 #include <vector>
+#include <string>
+#include <sstream>
 
 enum ENTITY_TYPE
 {

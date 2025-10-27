@@ -1,39 +1,43 @@
-/* ------------------------------------------------------------------------------------
- * *
- *                                                                                      *
- * EPITECH PROJECT - Sat, Apr, 2025 * Title           - RTYPE-MIRROR *
- * Description     - * transferData *
- *                                                                                      *
- * ------------------------------------------------------------------------------------
- * *
- *                                                                                      *
- *       ▄▀▀█▄▄▄▄  ▄▀▀▄▀▀▀▄  ▄▀▀█▀▄    ▄▀▀▀█▀▀▄  ▄▀▀█▄▄▄▄  ▄▀▄▄▄▄   ▄▀▀▄ ▄▄ * ▐
- * ▄▀   ▐ █   █   █ █   █  █  █    █  ▐ ▐  ▄▀   ▐ █ █    ▌ █  █   ▄▀ * █▄▄▄▄▄  ▐
- * █▀▀▀▀  ▐   █  ▐  ▐   █       █▄▄▄▄▄  ▐ █      ▐  █▄▄▄█             * █    ▌
- * █          █        █        █    ▌    █         █   █             * ▄▀▄▄▄▄
- * ▄▀        ▄▀▀▀▀▀▄   ▄▀        ▄▀▄▄▄▄    ▄▀▄▄▄▄▀   ▄▀  ▄▀             * █    ▐
- * █         █       █ █          █    ▐   █     ▐   █   █               * ▐ ▐
- * ▐       ▐ ▐          ▐        ▐         ▐   ▐               *
- *                                                                                      *
- * ------------------------------------------------------------------------------------
- */
-
 #pragma once
 
 #include "opcode.hpp"
-#include <arpa/inet.h>
+#include <cstdint>
+#include <string>
+#include <tuple>
+
+#ifdef _WIN32
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #pragma comment(lib, "ws2_32.lib")
+    #include <windows.h>
+    // On Windows, SOCKET is already defined by winsock2.h
+#else
+    #include <arpa/inet.h>
+    #include <netinet/in.h>
+    #include <sys/socket.h>
+    #include <unistd.h>
+    // On Unix, define SOCKET as int
+    typedef int SOCKET;
+#endif
+
 #include <iostream>
-#include <sys/socket.h>
-#include <unistd.h>
+
 
 bool handleOPCode(uint8_t opcode, bool debug = false);
 
-bool sendFrameTCP(int socket, uint8_t opcode, const std::string &payload);
-std::tuple<uint8_t, std::string> receiveFrameTCP(int socket, std::string &buffer);
+bool sendFrameTCP(SOCKET socket, uint8_t opcode, const std::string &payload);
+std::tuple<uint8_t, std::string> receiveFrameTCP(SOCKET socket, std::string &buffer);
 
-void sendFrameUDP(int sockfd, uint8_t opcode, const std::string &payload, const struct sockaddr_in &addr,
+void sendFrameUDP(SOCKET sockfd, uint8_t opcode, const std::string &payload, const struct sockaddr_in &addr,
                   socklen_t addrlen);
-std::tuple<uint8_t, std::string> receiveFrameUDP(int sockfd, struct sockaddr_in &addr, socklen_t &addrlen);
+std::tuple<uint8_t, std::string> receiveFrameUDP(SOCKET sockfd, struct sockaddr_in &addr, socklen_t &addrlen);
 
 std::string serializeInt(int num);
 int deserializeInt(std::string data);

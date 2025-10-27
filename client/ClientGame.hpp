@@ -5,6 +5,7 @@
 #include "Network/Receiver.hpp"
 #include "Network/Sender.hpp"
 #include "NetworkECSMediator.hpp"
+#include "VoiceManager.hpp"
 #include <atomic>
 #include <thread>
 
@@ -14,6 +15,8 @@ class ClientGame
     NetworkECSMediator _med;
     Sender _sender;
     Receiver _receiver;
+    VoiceManager _voiceManager;
+
     RTypeGame _game;
     NetworkManager _networkManager;
     std::thread _networkThread;
