@@ -16,10 +16,8 @@ endif()
 
 include(FetchContent)
 
-# ---- OpenSSL ---- (MOVED TO TOP, BEFORE TARGETS)
+# ---- OpenSSL ----
 find_package(OpenSSL REQUIRED)
-
-# Make sure to include OpenSSL headers
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 # ---- SFML ----
@@ -37,21 +35,18 @@ if (NOT SFML_FOUND)
 endif()
 
 # ---- SQLite3 local ----
-# Assumer que sqlite3.h et sqlite3.c sont dans le dossier sqlite/
 set(SQLITE3_DIR ${CMAKE_SOURCE_DIR}/sqlite)
 
 if(EXISTS ${SQLITE3_DIR}/sqlite3.c AND EXISTS ${SQLITE3_DIR}/sqlite3.h)
     message(STATUS "Using local SQLite3 from ${SQLITE3_DIR}")
-    
+
     add_library(sqlite3_lib STATIC ${SQLITE3_DIR}/sqlite3.c)
     target_include_directories(sqlite3_lib PUBLIC ${SQLITE3_DIR})
-    
-    # Désactiver les warnings SQLite sur MSVC
+
     if(MSVC)
         target_compile_options(sqlite3_lib PRIVATE /W0)
     endif()
-    
-    # Alias pour correspondre à la convention
+
     add_library(unofficial::sqlite3::sqlite3 ALIAS sqlite3_lib)
 else()
     message(FATAL_ERROR "SQLite3 files not found in ${SQLITE3_DIR}. Please add sqlite3.c and sqlite3.h to the sqlite/ directory.")
@@ -65,8 +60,8 @@ list(FILTER TRANSFER_SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
 message(STATUS "transferData sources: ${TRANSFER_SOURCES}")
 
 add_library(transferData STATIC ${TRANSFER_SOURCES})
-target_include_directories(transferData PUBLIC 
-    ${CMAKE_SOURCE_DIR}/transferData 
+target_include_directories(transferData PUBLIC
+    ${CMAKE_SOURCE_DIR}/transferData
     ${CMAKE_SOURCE_DIR}/ecs
 )
 
@@ -75,9 +70,7 @@ if (WIN32)
     target_link_libraries(transferData PUBLIC ws2_32)
 endif()
 
-# Link libcrypt for password hashing
 find_library(CRYPT_LIB crypt REQUIRED)
-
 if (CRYPT_LIB)
     message(STATUS "Found libcrypt library: ${CRYPT_LIB}")
     target_link_libraries(transferData PRIVATE ${CRYPT_LIB})
@@ -88,16 +81,16 @@ endif()
 # ---- ECS + Components library ----
 file(GLOB_RECURSE ECS_SOURCES ecs/*.cpp)
 add_library(ecs STATIC ${ECS_SOURCES})
-target_include_directories(ecs PUBLIC 
-    ${CMAKE_SOURCE_DIR}/ecs 
+target_include_directories(ecs PUBLIC
+    ${CMAKE_SOURCE_DIR}/ecs
     ${CMAKE_SOURCE_DIR}/transferData
     ${CMAKE_SOURCE_DIR}/server/Game
 )
-target_link_libraries(ecs PUBLIC 
+target_link_libraries(ecs PUBLIC
     transferData
-    sfml-graphics 
-    sfml-window 
-    sfml-system 
+    sfml-graphics
+    sfml-window
+    sfml-system
     sfml-audio
     sqlite3_lib
 )
@@ -107,15 +100,16 @@ file(GLOB_RECURSE CLIENT_SOURCES client/*.cpp)
 list(FILTER CLIENT_SOURCES EXCLUDE REGEX ".*build.*")
 list(FILTER CLIENT_SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
 
-add_executable(RTypeClient ${CLIENT_SOURCES})
-target_include_directories(RTypeClient PRIVATE
+# ! Changed executable name
+add_executable(r-type_client ${CLIENT_SOURCES})
+target_include_directories(r-type_client PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/client
     ${CMAKE_SOURCE_DIR}/client/Network
     ${CMAKE_SOURCE_DIR}/transferData
     ${CMAKE_SOURCE_DIR}/ecs
 )
-target_link_libraries(RTypeClient PRIVATE
+target_link_libraries(r-type_client PRIVATE
     transferData
     ecs
     sfml-graphics
@@ -131,9 +125,10 @@ list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*build.*")
 list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
 list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*exempleTranfersData.*")
 
-add_executable(GameServer ${SERVER_SOURCES})
+# ! Changed executable name
+add_executable(r-type_server ${SERVER_SOURCES})
 
-target_include_directories(GameServer PRIVATE
+target_include_directories(r-type_server PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/server
     ${CMAKE_SOURCE_DIR}/server/Game
@@ -144,75 +139,76 @@ target_include_directories(GameServer PRIVATE
     ${CMAKE_SOURCE_DIR}/server/Include
     ${CMAKE_SOURCE_DIR}/transferData
     ${CMAKE_SOURCE_DIR}/ecs
-    ${SQLITE3_DIR}  # ✅ Ajouter le dossier SQLite pour le serveur
+    ${SQLITE3_DIR}
 )
 
-target_link_libraries(GameServer PRIVATE
+target_link_libraries(r-type_server PRIVATE
     transferData
     ecs
     sfml-graphics
     sfml-window
     sfml-system
     sfml-audio
-    sqlite3_lib  # ✅ Lier SQLite au serveur
+    sqlite3_lib
     OpenSSL::Crypto
 )
 
 # ---- Windows ----
 if (WIN32)
-    target_link_libraries(RTypeClient PRIVATE winmm opengl32 ws2_32)
-    target_link_libraries(GameServer PRIVATE winmm opengl32 ws2_32)
+    # ! Updated linkage for new binary names
+    target_link_libraries(r-type_client PRIVATE winmm opengl32 ws2_32)
+    target_link_libraries(r-type_server PRIVATE winmm opengl32 ws2_32)
 
-    # Copy SFML DLLs for RTypeClient
-    add_custom_command(TARGET RTypeClient POST_BUILD
+    # ! Updated post-build copy commands
+    add_custom_command(TARGET r-type_client POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:sfml-graphics>
-        $<TARGET_FILE_DIR:RTypeClient>
+        $<TARGET_FILE_DIR:r-type_client>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:sfml-window>
-        $<TARGET_FILE_DIR:RTypeClient>
+        $<TARGET_FILE_DIR:r-type_client>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:sfml-system>
-        $<TARGET_FILE_DIR:RTypeClient>
+        $<TARGET_FILE_DIR:r-type_client>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:sfml-audio>
-        $<TARGET_FILE_DIR:RTypeClient>
-    )
-    
-    # Copy SFML DLLs for GameServer
-    add_custom_command(TARGET GameServer POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:sfml-graphics>
-        $<TARGET_FILE_DIR:GameServer>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:sfml-window>
-        $<TARGET_FILE_DIR:GameServer>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:sfml-system>
-        $<TARGET_FILE_DIR:GameServer>
+        $<TARGET_FILE_DIR:r-type_client>
     )
 
-    # Copy OpenAL DLL for RTypeClient
-    add_custom_command(TARGET RTypeClient POST_BUILD
+    add_custom_command(TARGET r-type_server POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:sfml-graphics>
+        $<TARGET_FILE_DIR:r-type_server>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:sfml-window>
+        $<TARGET_FILE_DIR:r-type_server>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:sfml-system>
+        $<TARGET_FILE_DIR:r-type_server>
+    )
+
+    add_custom_command(TARGET r-type_client POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_BINARY_DIR}/_deps/sfml-src/extlibs/bin/x64/openal32.dll"
-        $<TARGET_FILE_DIR:RTypeClient>
-        COMMENT "Copying OpenAL DLL for RTypeClient"
+        $<TARGET_FILE_DIR:r-type_client>
+        COMMENT "Copying OpenAL DLL for r-type_client"
     )
 endif()
 
 # ---- Linux ----
 if (UNIX AND NOT WIN32)
-    target_link_libraries(RTypeClient PRIVATE pthread)
-    target_link_libraries(GameServer PRIVATE pthread)
+    target_link_libraries(r-type_client PRIVATE pthread)
+    target_link_libraries(r-type_server PRIVATE pthread)
 endif()
 
-# ---- Custom targets for convenience ----
-add_custom_target(client DEPENDS RTypeClient)
-add_custom_target(server DEPENDS GameServer)
-add_custom_target(all_binaries DEPENDS RTypeClient GameServer)
+# ---- Custom targets ----
+# ! Updated to match renamed binaries
+add_custom_target(client DEPENDS r-type_client)
+add_custom_target(server DEPENDS r-type_server)
+add_custom_target(all_binaries DEPENDS r-type_client r-type_server)
 
 set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
-    "${CMAKE_SOURCE_DIR}/RTypeClient"
-    "${CMAKE_SOURCE_DIR}/GameServer"
+    "${CMAKE_SOURCE_DIR}/r-type_client"
+    "${CMAKE_SOURCE_DIR}/r-type_server"
 )
+
