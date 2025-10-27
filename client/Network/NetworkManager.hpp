@@ -1,12 +1,33 @@
 #pragma once
 
+#include <atomic>
+#include <netinet/in.h>
+#include <poll.h>
 #include "../NetworkECSMediator.hpp"
 #include "../RType.hpp"
 #include "Receiver.hpp"
 #include "Sender.hpp"
+#include "transferData/hashUtils.hpp"
 #include <atomic>
-#include <netinet/in.h>
-#include <poll.h>
+#ifdef _WIN32
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #pragma comment(lib, "ws2_32.lib")
+    using SocketType = SOCKET;
+    #include <windows.h>
+
+#else
+    using SocketType = int;
+    #include <netinet/in.h>
+    #include <poll.h>
+#endif
 #include <vector>
 
 class NetworkManager
@@ -16,12 +37,21 @@ class NetworkManager
     Sender &_sender;
     Receiver &_receiver;
 
-    int _tcpSocket;
-    int _udpSocket;
-    std::vector<struct pollfd> _pollFds;
+    SocketType _tcpSocket;
+    SocketType _udpSocket;
+
+    #ifdef _WIN32
+      std::vector<WSAPOLLFD> _pollFds;
+    #else
+      std::vector<struct pollfd> _pollFds;
+    #endif
 
     sockaddr_in _serverAddr;
     std::atomic<bool> _shouldStop;
+
+    EVP_PKEY *_serverPubKey;
+    std::vector<uint8_t> _aesKey;
+    std::vector<uint8_t> _aesIV;
 
   public:
     NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver);
@@ -35,4 +65,25 @@ class NetworkManager
     void handleSend();
     Sender &getSender();
     Receiver &getReceiver();
+
+    void setServerPubKey(EVP_PKEY *key)
+    {
+      if (key) {
+        _serverPubKey = key;
+      }
+    }
+
+    void setAesKey(std::vector<uint8_t> &key)
+    {
+      _aesKey = key;
+    }
+
+    void setAesIV(std::vector<uint8_t> &iv)
+    {
+      _aesIV = iv;
+    }
+
+    EVP_PKEY *getServerPubKey() { return _serverPubKey; };
+    const std::vector<uint8_t> &getAesKey() { return _aesKey; };
+    const std::vector<uint8_t> &getAesIV() { return _aesIV; };
 };

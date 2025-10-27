@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../transferData/opcode.hpp"
+#include "../../transferData/hashUtils.hpp"
 #include "../Game/GameMediator.hpp"
 #include "Client.hpp"
 #include "ClientManager.hpp"
@@ -8,8 +9,25 @@
 #include "UDP/UDPManager.hpp"
 #include <cstdint>
 #include <functional>
-#include <poll.h>
-#include <unistd.h>
+#ifdef _WIN32
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #pragma comment(lib, "ws2_32.lib")
+    #include <windows.h>
+#else
+    #include <arpa/inet.h>
+    #include <netinet/in.h>
+    #include <sys/socket.h>
+    #include <unistd.h>
+    #include <poll.h>
+#endif
 #include <unordered_map>
 #include <vector>
 
@@ -24,6 +42,10 @@ class NetworkManager
     ClientManager _clientManager;
     UDPManager _UDPManager;
     TCPManager _TCPManager;
+
+    EVP_PKEY *_serverPubKey;
+    std::vector<uint8_t> _aesKey;
+    std::vector<uint8_t> _aesIV;
 
   public:
     NetworkManager(GameMediator &ref);
@@ -58,4 +80,25 @@ class NetworkManager
     {
         return _TCPManager;
     };
+
+    void setServerPubKey(EVP_PKEY *key)
+    {
+      if (key) {
+        _serverPubKey = key;
+      }
+    }
+
+    void setAesKey(std::vector<uint8_t> &key)
+    {
+      _aesKey = key;
+    }
+
+    void setAesIV(std::vector<uint8_t> &iv)
+    {
+      _aesIV = iv;
+    }
+
+    EVP_PKEY *getServerPubKey() { return _serverPubKey; };
+    const std::vector<uint8_t> &getAesKey() { return _aesKey; };
+    const std::vector<uint8_t> &getAesIV() { return _aesIV; };
 };

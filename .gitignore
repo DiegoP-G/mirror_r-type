@@ -26,4 +26,9 @@ libtransferData.a
 *TMP*
 _deps/
 build/
+*dll
+*pdb
+CMakeSettings*
+*exe
+.vs
 *.sqlite

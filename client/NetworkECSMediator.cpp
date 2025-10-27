@@ -1,6 +1,8 @@
 #include "NetworkECSMediator.hpp"
+#include "../transferData/hashUtils.hpp"
 #include "../transferData/opcode.hpp"
 #include "../transferData/transferData.hpp"
+#include "Network/NetworkManager.hpp"
 #include "Network/Receiver.hpp"
 #include "RType.hpp"
 #include <cstdint>
@@ -9,7 +11,7 @@
 #include <stdexcept>
 #include <string>
 
-NetworkECSMediator::NetworkECSMediator()
+NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networkManager(networkManager)
 {
     _mediatorMap = {
         // === ENVOI VERS LE SERVEUR ===
@@ -17,6 +19,117 @@ NetworkECSMediator::NetworkECSMediator()
          [this](const std::string &data, uint8_t opcode) {
              std::cout << "[Client] Sending TCP opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
              _sender->sendTcp(opcode, data);
+             if (opcode == OPCODE_LOGIN_RESPONSE)
+             {
+                 std::cout << "Receive LOGIN response from server\n";
+                 _game->getMutex().lock();
+                 std::string response = deserializeString(data);
+
+                 // First byte indicates success (1) or failure (0)
+                 bool success = response[0] == 1;
+
+                 // Rest of the response is the message
+                 std::string message = response.substr(1);
+
+                 if (success)
+                 {
+                     std::cout << "[Client] Login successful: " << message << std::endl;
+                     if (_game)
+                     {
+                         _game->setCurrentState(GameState::MENULOBBY);
+                     }
+                 }
+                 else
+                 {
+                     std::cout << "[Client] Login failed: " << message << std::endl;
+                     // Show error message to user
+                     if (_game && g_graphics)
+                     {
+                         g_graphics->showErrorMessage(message);
+                     }
+                 }
+
+                 _game->getMutex().unlock();
+             }
+             else if (opcode == OPCODE_SIGNIN_RESPONSE)
+             {
+                 std::cout << "Receive LOGIN response from server\n";
+                 _game->getMutex().lock();
+                 std::string response = deserializeString(data);
+
+                 // First byte indicates success (1) or failure (0)
+                 bool success = response[0] == 1;
+
+                 // Rest of the response is the message
+                 std::string message = response.substr(1);
+
+                 if (success)
+                 {
+                     std::cout << "[Client] Signin successful: " << message << std::endl;
+                     if (_game)
+                     {
+                         _game->setCurrentState(GameState::MENULOBBY);
+                     }
+                 }
+                 else
+                 {
+                     std::cout << "[Client] Signin failed: " << message << std::endl;
+                     // Show error message to user
+                     if (_game && g_graphics)
+                     {
+                         g_graphics->showErrorMessage(message);
+                     }
+                 }
+
+                 _game->getMutex().unlock();
+             }
+             else if (opcode == OPCODE_SERVER_PUB_KEY)
+             {
+                 _game->getMutex().lock();
+
+                 std::vector<unsigned char> pemBytes(data.begin(), data.end());
+                 auto publicKey = extractPublicKeyFromPEMBytes(pemBytes);
+                 if (!publicKey.has_value())
+                 {
+                     std::cerr << "Client can't extract server public key from PEM bytes.";
+                     _game->getMutex().unlock();
+                     return;
+                 }
+                 _networkManager.setServerPubKey(*publicKey);
+
+                 // Generate IV/Key
+                 unsigned char aes_key[AES_KEY_BYTES];
+                 unsigned char iv[AES_IV_BYTES];
+                 if (!generateAESKeyAndIV(aes_key, iv))
+                 {
+                     std::cerr << "Client failed to generate AES iv/key" << std::endl;
+                 }
+
+                 std::vector<uint8_t> keyStr(aes_key, aes_key + AES_KEY_BYTES);
+                 std::vector<uint8_t> ivStr(iv, iv + AES_IV_BYTES);
+
+                 _networkManager.setAesIV(ivStr);
+                 _networkManager.setAesKey(keyStr);
+
+                 // Then encrypt it and send it to server
+                 std::vector<unsigned char> payload;
+                 payload.insert(payload.end(), aes_key, aes_key + sizeof(aes_key));
+                 payload.insert(payload.end(), iv, iv + sizeof(iv));
+
+                 std::optional<std::vector<unsigned char>> encryptedPayload =
+                     encryptBytesWithPublicKey(*publicKey, payload);
+
+                 if (!encryptedPayload.has_value())
+                 {
+                     std::cerr << "Client failed to encrypt its AES key/IV";
+                     return;
+                 }
+
+                 std::string payloadStr((*encryptedPayload).begin(), (*encryptedPayload).end());
+
+                 notify(SEND_DATA_TCP, payloadStr, OPCODE_CLIENT_IV_KEY);
+                 _game->getMutex().unlock();
+             }
          }},
 
         {static_cast<int>(NetworkECSMediatorEvent::SEND_DATA_UDP),

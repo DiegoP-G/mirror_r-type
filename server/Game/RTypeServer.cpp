@@ -141,7 +141,8 @@ void RTypeServer::update(float deltaTime)
 
     // 4. Envoyer les updates de mouvement (toutes les entités actives)
     // 2. AVANT applyPendingChanges, envoyer ce qui a été créé/détruit
-    sendNewEntities();       // Envoie les entités dans entitiesToCreate
+    sendNewEntities(); // Envoie les entités dans entitiesToCreate
+
     sendDestroyedEntities(); // Envoie les IDs dans entitiesToDestroy
 
     {
@@ -152,6 +153,7 @@ void RTypeServer::update(float deltaTime)
     // // 4. Envoyer les updates de mouvement (toutes les entités actives)
     sendEntitiesUpdates();
     sendGameStateUpdates();
+    std::cout << "Finishing update states" << std::endl;
 
     _tick++;
 }

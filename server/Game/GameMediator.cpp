@@ -1,5 +1,6 @@
 #include "GameMediator.hpp"
 #include "../Network/NetworkManager.hpp"
+#include "transferData/hashUtils.hpp"
 #include <iostream>
 #include <memory>
 
@@ -93,6 +94,7 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
              auto lobby = _lobbyManager.getLobby(lobbyUid);
              if (lobby)
                  _networkManager.sendDataToLobbyTCP(lobby, data, OPCODE_GAME_STATE_UPDATE);
+             std::cout << "Finished updating states" << std::endl;
          }},
 
         {GameMediatorEvent::CreateLobby,
@@ -109,7 +111,8 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
              std::cout << "Sending all entities to client " << clientFd << std::endl;
              _networkManager.sendAllEntitiesToClient(clientFd);
          }},
-        {GameMediatorEvent::PlayerDisconnected, [this](const std::string &, const std::string &, int clientFd) -> void {
+        {GameMediatorEvent::PlayerDisconnected,
+         [this](const std::string &, const std::string &, int clientFd) -> void {
              std::shared_ptr<Lobby> lobby = _lobbyManager.getLobbyOfPlayer(clientFd);
              if (!lobby)
              {
@@ -126,7 +129,114 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
                            << std::endl;
                  _lobbyManager.removeLobby(lobby->getUid());
              }
-         }}};
+         }},
+        {GameMediatorEvent::LoginReqest,
+         [this](const std::string &data, const std::string &, int clientFd) -> void {
+             std::vector<uint8_t> encryptedData(data.begin(), data.end());
+             std::optional<std::string> decryptedData =
+                 decryptAESAppendedTag(_networkManager.getAesKey(), _networkManager.getAesIV(), encryptedData);
+
+             if (!decryptedData.has_value())
+             {
+                 std::cerr << "Server failed to decrypt client data\n";
+                 return;
+             }
+
+             size_t offset = 0;
+             std::string username = deserializeString((*decryptedData).substr(offset));
+             offset += sizeof(int) + username.size();
+             std::string password = deserializeString((*decryptedData).substr(offset));
+
+             bool success = _networkManager.getClientManager().checkLoginCreds(username, password);
+             std::string message;
+
+             if (success)
+             {
+                 message = "Welcome, " + username + "!";
+                 std::cout << "[Server] Login successful for " << username << std::endl;
+             }
+             else
+             {
+                 message = "Invalid username or password";
+                 std::cout << "[Server] Login failed for " << username << std::endl;
+             }
+
+             // Send response : first byte: success flag, rest: message
+             std::string response;
+             response.push_back(success ? 1 : 0);
+             response.append(message);
+             std::string serializedResponse = serializeString(response);
+
+             std::cout << "Sending login response to : " << clientFd << "\n";
+             _networkManager.getTCPManager().sendMessage(clientFd, OPCODE_LOGIN_RESPONSE, serializedResponse);
+         }},
+        {GameMediatorEvent::SigninRequest,
+         [this](const std::string &data, const std::string &, int clientFd) -> void {
+             std::cout << "[GameMediator] SigninRequest event triggered for clientFd: " << clientFd << std::endl;
+
+             std::vector<uint8_t> encryptedData(data.begin(), data.end());
+             std::optional<std::string> decryptedData =
+                 decryptAESAppendedTag(_networkManager.getAesKey(), _networkManager.getAesIV(), encryptedData);
+
+             if (!decryptedData.has_value())
+             {
+                 std::cerr << "Server failed to decrypt client data\n";
+                 return;
+             }
+
+             size_t offset = 0;
+             std::string username = deserializeString((*decryptedData).substr(offset));
+             offset += sizeof(int) + username.size();
+             std::string password = deserializeString((*decryptedData).substr(offset));
+             std::string message;
+             bool success = false;
+             try
+             {
+                 _networkManager.getClientManager().addNewPlayerEntry(username, password);
+                 message = "Welcome, " + username + "!";
+                 success = true;
+             }
+             catch (std::exception &e)
+             {
+                 message = e.what();
+                 success = false;
+             }
+
+             // Send response : first byte: success flag, rest: message
+             std::string response;
+             response.push_back(success ? 1 : 0);
+             response.append(message);
+             std::string serializedResponse = serializeString(response);
+
+             std::cout << "Sending signin response to : " << clientFd << "\n";
+             _networkManager.getTCPManager().sendMessage(clientFd, OPCODE_SIGNIN_RESPONSE, serializedResponse);
+         }},
+        {GameMediatorEvent::LoginResponse,
+         [this](const std::string &data, const std::string &, int clientFd) -> void {}},
+        {GameMediatorEvent::SigninResponse,
+         [this](const std::string &data, const std::string &, int clientFd) -> void {}},
+        {GameMediatorEvent::ServerPubKey,
+         [this](const std::string &data, const std::string &, int clientFd) -> void {}},
+        {GameMediatorEvent::ClientIVKey,
+         [this](const std::string &data, const std::string &, int clientFd) -> void {
+             const char *raw_data = data.data();
+             const unsigned char *unsigned_char_ptr = reinterpret_cast<const unsigned char *>(raw_data);
+             auto optDecryptedAes =
+                 decryptClientAesWithPublicKey(_networkManager.getServerPubKey(), unsigned_char_ptr, data.size());
+
+             if (!optDecryptedAes.has_value())
+             {
+                 return;
+             }
+             auto decryptedAes = *optDecryptedAes;
+
+             std::vector<uint8_t> client_aes_key(decryptedAes.begin(), decryptedAes.begin() + AES_KEY_BYTES);
+             std::vector<uint8_t> client_aes_iv(decryptedAes.begin() + AES_KEY_BYTES, decryptedAes.end());
+
+             _networkManager.setAesIV(client_aes_iv);
+             _networkManager.setAesKey(client_aes_key);
+         }},
+    };
 }
 
 void GameMediator::notify(const int &event, const std::string &data, const std::string &lobbyUid, int clientFd)

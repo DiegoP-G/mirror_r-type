@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include <sqlite3.h>
+#include <../sqlite/sqlite3.h>
 #include <vector>
 
 class sqlAPI
@@ -22,10 +22,11 @@ class sqlAPI
     };
 
     std::vector<std::pair<int, std::string>> getAllScores();
-    bool addPlayerEntry(const std::string &name, const std::string &password);
+    void addPlayerEntry(const std::string &name, const std::string &password);
     bool updatePlayerScore(const std::string &name, int newScore);
 
     bool addBannedIp(const std::string &ip);
     std::vector<std::string> getAllBannedIps();
     bool deleteBannedIpById(int id);
+    bool validateCredentials(const std::string &name, const std::string &password);
 };

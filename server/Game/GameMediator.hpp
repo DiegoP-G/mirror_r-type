@@ -27,7 +27,13 @@ enum GameMediatorEvent
     UpdateWave = OPCODE_UPDATE_WAVE,
     UpdateScore = OPCODE_UPDATE_SCORE,
     CreateLobby = OPCODE_CREATE_LOBBY,
-    JoinLobby = OPCODE_JOIN_LOBBY
+    JoinLobby = OPCODE_JOIN_LOBBY,
+    LoginReqest = 0x80,
+    LoginResponse = 0x81,
+    SigninRequest = 0x82,
+    SigninResponse = 0x83,
+    ServerPubKey = 0x90,
+    ClientIVKey = 0x92,
 };
 
 class NetworkManager;
@@ -73,5 +79,10 @@ class GameMediator : public IMediator
     NetworkManager &getNetworkManager()
     {
         return _networkManager;
+    };
+
+    LobbyManager &getLobbyManager()
+    {
+        return _lobbyManager;
     };
 };
