@@ -57,32 +57,27 @@ The game server exposes Prometheus metrics on **port 8082** for monitoring serve
 
 #### Setup with Docker Compose
 
-1. **Build and launch the Prometheus instance:**
+1. **Build and launch the Prometheus & Grafana instances:**
    ```bash
-   # Build the custom Prometheus image
+   # Build the custom Prometheus & Grafana images
    docker-compose build
    
-   # Start Prometheus
+   # Start them
    docker-compose up -d
    ```
-   This will start Prometheus on **port 9090**.
+   This will start Prometheus on **port 9090** && Grafana on **port 3000**.
 
 2. **Access Prometheus:**
    - Open your browser and navigate to `http://localhost:9090`
    - Verify that the game server target is being scraped successfully
 
-3. **Set up Grafana for visualization:**
-   - Download Grafana from [https://grafana.com/grafana/download](https://grafana.com/grafana/download)
-   - Or run it via Docker:
-     ```bash
-     docker run -d -p 3000:3000 --name=grafana grafana/grafana
-     ```
-   - Access Grafana at `http://localhost:3000` (default credentials: admin/admin)
+   **Access Grafana**
+   - Open your browser and navigate to `http://localhost:3000` (default credentials: admin/admin)
 
 4. **Configure Grafana to scrape Prometheus data:**
    - In Grafana, go to **Configuration** → **Data Sources**
    - Click **Add data source** and select **Prometheus**
-   - Set the URL to `http://localhost:9090` (or your Prometheus instance location)
+   - Set the URL to `http://prometheus:9090` (prometheus being the container name.)
    - Click **Save & Test**
 
 5. **Create dashboards:**
