@@ -81,7 +81,7 @@ NetworkECSMediator::NetworkECSMediator()
                  if (voiceChatEnabled)
                  {
                      std::vector<u_int8_t> audioData(data.begin(), data.end());
-                     _voiceManager->playAudio(audioData);
+                     _voiceManager->feedAudioToRingBuffer(audioData);
                  }
                  break;
              }

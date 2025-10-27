@@ -222,36 +222,3 @@ set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
     "${CMAKE_SOURCE_DIR}/RTypeClient"
     "${CMAKE_SOURCE_DIR}/GameServer"
 )
-
-
-# ---- Voice Test Server ----
-add_executable(testVoiceServer
-    testVoiceServer.cpp
-)
-
-target_include_directories(testVoiceServer PRIVATE
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/transferData
-)
-
-target_link_libraries(testVoiceServer
-    transferData
-)
-
-# ---- Voice Test Client ----
-add_executable(testVoiceClient
-    testVoiceClient.cpp
-    client/VoiceManager.cpp
-)
-
-target_include_directories(testVoiceClient PRIVATE
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/client
-    ${CMAKE_SOURCE_DIR}/transferData
-    ${PORTAUDIO_INCLUDE_DIR}
-)
-
-target_link_libraries(testVoiceClient
-    transferData
-    portaudio
-)

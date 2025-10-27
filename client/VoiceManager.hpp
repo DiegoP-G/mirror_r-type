@@ -1,4 +1,5 @@
 #pragma once
+#include <atomic>
 #include <functional>
 #include <portaudio.h>
 #include <string>
@@ -11,7 +12,7 @@ struct AudioDevice
     std::string deviceName;
     int maxInputChannels;
     bool isDefaultInput;
-    double defaultSampleRate; // ✅ Ajouter le sample rate natif
+    double defaultSampleRate;
 };
 
 class VoiceManager
@@ -25,6 +26,16 @@ class VoiceManager
 
     std::function<void(const std::vector<u_int8_t> &)> onAudioCapture;
 
+    static constexpr size_t RING_BUFFER_SIZE = 48000 * 4; // 4 secondes @ 48kHz
+    static constexpr double NETWORK_SAMPLE_RATE = 48000.0;
+    int16_t ringBuffer[RING_BUFFER_SIZE];
+    std::atomic<size_t> writePos{0};
+    std::atomic<size_t> readPos{0};
+    std::atomic<bool> bufferInitialized{false};
+    std::atomic<int> underrunCount{0};
+
+    double outputSampleRate = 48000.0; // fréquence de sortie du périphérique
+
     std::vector<int16_t> resample(const std::vector<int16_t> &input, double fromRate, double toRate);
 
     static int recordCallback(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer,
@@ -35,14 +46,18 @@ class VoiceManager
                             const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags,
                             void *userData);
 
+    size_t getAvailableSamples() const;
+
   public:
     VoiceManager();
     ~VoiceManager();
 
     std::vector<AudioDevice> getInputDevices();
+
     void startRecording(std::function<void(const std::vector<u_int8_t> &)> callback, int deviceIndex = -1);
     void stopRecording();
-    void playAudio(const std::vector<u_int8_t> &audioData);
+
+    void feedAudioToRingBuffer(const std::vector<u_int8_t> &audioData);
 
     int getCurrentInputDevice() const
     {

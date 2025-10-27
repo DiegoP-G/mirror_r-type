@@ -4,9 +4,7 @@
 #include <csignal>
 #include <cstring>
 #include <iostream>
-#include <mutex>
 #include <portaudio.h>
-#include <queue>
 #include <thread>
 #include <vector>
 
@@ -33,14 +31,68 @@ sockaddr_in serverAddr;
 std::atomic<int> audioSentCount(0);
 std::atomic<int> audioRecvCount(0);
 
-// Buffer circulaire pour l'audio reçu
-std::queue<std::vector<int16_t>> audioBuffer;
-std::mutex bufferMutex;
-const size_t MAX_BUFFER_SIZE = 50; // Limite pour éviter la latence excessive
+const double NETWORK_SAMPLE_RATE = 48000.0;
+const unsigned long NETWORK_FRAMES = 480;
+
+double inputSampleRate = 48000.0;
+double outputSampleRate = 48000.0;
+
+const size_t RING_BUFFER_SIZE = 48000 * 4;
+int16_t ringBuffer[RING_BUFFER_SIZE];
+std::atomic<size_t> writePos(0);
+std::atomic<size_t> readPos(0);
+std::atomic<bool> bufferInitialized(false);
+std::atomic<int> underrunCount(0);
 
 void signalHandler(int signum)
 {
     running = false;
+}
+
+std::vector<int16_t> resample(const int16_t *input, size_t inputLen, double srcRate, double dstRate)
+{
+    if (srcRate == dstRate)
+    {
+        return std::vector<int16_t>(input, input + inputLen);
+    }
+
+    double ratio = dstRate / srcRate;
+    size_t outputLen = (size_t)(inputLen * ratio);
+    std::vector<int16_t> output(outputLen);
+
+    for (size_t i = 0; i < outputLen; i++)
+    {
+        double srcPos = i / ratio;
+        size_t srcIndex = (size_t)srcPos;
+
+        if (srcIndex >= inputLen - 1)
+        {
+            output[i] = input[inputLen - 1];
+        }
+        else
+        {
+            // Interpolation linéaire
+            double frac = srcPos - srcIndex;
+            double sample = input[srcIndex] * (1.0 - frac) + input[srcIndex + 1] * frac;
+            output[i] = (int16_t)sample;
+        }
+    }
+
+    return output;
+}
+
+size_t getAvailableSamples()
+{
+    size_t w = writePos.load();
+    size_t r = readPos.load();
+    if (w >= r)
+    {
+        return w - r;
+    }
+    else
+    {
+        return RING_BUFFER_SIZE - r + w;
+    }
 }
 
 // Callback pour l'envoi (microphone -> réseau)
@@ -54,31 +106,36 @@ int sendCallback(const void *inputBuffer, void *outputBuffer, unsigned long fram
 
     const int16_t *in = static_cast<const int16_t *>(inputBuffer);
 
-    // Calcul RMS pour détecter si on capte vraiment du son
+    // Resampler vers 48 kHz si nécessaire
+    std::vector<int16_t> resampled = resample(in, framesPerBuffer, inputSampleRate, NETWORK_SAMPLE_RATE);
+
+    // Calcul RMS
     float sum = 0.0f;
-    for (unsigned long i = 0; i < framesPerBuffer; i++)
+    for (size_t i = 0; i < resampled.size(); i++)
     {
-        float sample = in[i] / 32768.0f;
+        float sample = resampled[i] / 32768.0f;
         sum += sample * sample;
     }
-    float rms = std::sqrt(sum / framesPerBuffer);
+    float rms = std::sqrt(sum / resampled.size());
 
-    size_t dataSize = framesPerBuffer * sizeof(int16_t);
-    sendto(clientSocket, reinterpret_cast<const char *>(in), dataSize, 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
+    // Envoyer les données resampleés
+    size_t dataSize = resampled.size() * sizeof(int16_t);
+    sendto(clientSocket, reinterpret_cast<const char *>(resampled.data()), dataSize, 0, (sockaddr *)&serverAddr,
+           sizeof(serverAddr));
 
     audioSentCount++;
 
-    // Afficher uniquement si on détecte du son (seuil à -40dB)
-    if (rms > 0.01f)
+    if (rms > 0.01f && audioSentCount % 50 == 0)
     {
         float db = 20 * std::log10(rms + 0.0001f);
-        std::cout << "🎤 Micro: " << static_cast<int>(db) << " dB | Envoyé: " << dataSize << " bytes" << std::endl;
+        std::cout << "🎤 Envoi: " << static_cast<int>(db) << " dB (" << framesPerBuffer << "→" << resampled.size()
+                  << " samples)" << std::endl;
     }
 
     return paContinue;
 }
 
-// Callback pour la réception (buffer -> haut-parleur)
+// Callback pour la réception (buffer circulaire -> haut-parleur)
 int receiveCallback(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer,
                     const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData)
 {
@@ -89,30 +146,64 @@ int receiveCallback(const void *inputBuffer, void *outputBuffer, unsigned long f
         return paContinue;
     }
 
-    std::lock_guard<std::mutex> lock(bufferMutex);
+    size_t available = getAvailableSamples();
 
-    if (!audioBuffer.empty())
+    // Calculer combien de samples à 48kHz on a besoin pour produire framesPerBuffer à outputSampleRate
+    size_t samplesNeeded48k = (size_t)(framesPerBuffer * (NETWORK_SAMPLE_RATE / outputSampleRate));
+
+    // Buffer minimum: 0.2 secondes à 48 kHz
+    const size_t MIN_BUFFER = 9600;
+    if (!bufferInitialized && available < MIN_BUFFER)
     {
-        std::vector<int16_t> data = audioBuffer.front();
-        audioBuffer.pop();
-
-        size_t samplesToCopy = std::min(data.size(), (size_t)framesPerBuffer);
-        std::memcpy(out, data.data(), samplesToCopy * sizeof(int16_t));
-
-        // Remplir le reste avec du silence si nécessaire
-        if (samplesToCopy < framesPerBuffer)
-        {
-            std::memset(out + samplesToCopy, 0, (framesPerBuffer - samplesToCopy) * sizeof(int16_t));
-        }
-    }
-    else
-    {
-        // Pas de données : silence
         std::memset(out, 0, framesPerBuffer * sizeof(int16_t));
+        return paContinue;
+    }
+
+    if (!bufferInitialized)
+    {
+        bufferInitialized = true;
+        std::cout << "✓ Buffer initialisé avec " << (available * 1000 / 48000) << " ms de données" << std::endl;
+    }
+
+    if (available < samplesNeeded48k)
+    {
+        std::memset(out, 0, framesPerBuffer * sizeof(int16_t));
+        underrunCount++;
+        if (underrunCount % 10 == 1)
+        {
+            std::cout << "⚠️  Buffer underrun! (besoin: " << samplesNeeded48k << ", dispo: " << available << ")"
+                      << std::endl;
+        }
+        bufferInitialized = false;
+        return paContinue;
+    }
+
+    // Lire depuis le buffer circulaire (à 48 kHz)
+    std::vector<int16_t> samples48k(samplesNeeded48k);
+    size_t r = readPos.load();
+    for (size_t i = 0; i < samplesNeeded48k; i++)
+    {
+        samples48k[i] = ringBuffer[r];
+        r = (r + 1) % RING_BUFFER_SIZE;
+    }
+    readPos.store(r);
+
+    // Resampler vers la fréquence de sortie si nécessaire
+    std::vector<int16_t> resampled =
+        resample(samples48k.data(), samples48k.size(), NETWORK_SAMPLE_RATE, outputSampleRate);
+
+    // Copier vers la sortie
+    size_t copySize = std::min((size_t)framesPerBuffer, resampled.size());
+    std::memcpy(out, resampled.data(), copySize * sizeof(int16_t));
+    if (copySize < framesPerBuffer)
+    {
+        std::memset(out + copySize, 0, (framesPerBuffer - copySize) * sizeof(int16_t));
     }
 
     return paContinue;
 }
+
+// Thread de réception UDP
 void receiveThread()
 {
     char buffer[4096];
@@ -128,7 +219,7 @@ void receiveThread()
 #else
         struct timeval tv;
         tv.tv_sec = 0;
-        tv.tv_usec = 100000; // 100ms
+        tv.tv_usec = 100000;
         setsockopt(clientSocket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 #endif
 
@@ -139,20 +230,22 @@ void receiveThread()
             audioRecvCount++;
 
             size_t numSamples = recvLen / sizeof(int16_t);
-            std::vector<int16_t> audioData(numSamples);
-            std::memcpy(audioData.data(), buffer, recvLen);
+            const int16_t *audioData = reinterpret_cast<const int16_t *>(buffer);
+
+            // Écrire directement dans le buffer circulaire (déjà à 48 kHz)
+            size_t w = writePos.load();
+            for (size_t i = 0; i < numSamples; i++)
             {
-                std::lock_guard<std::mutex> lock(bufferMutex);
-                if (audioBuffer.size() < MAX_BUFFER_SIZE)
-                {
-                    audioBuffer.push(audioData);
-                    std::cout << " Audio reçu: " << recvLen << " bytes | Buffer: " << audioBuffer.size() << " paquets"
-                              << std::endl;
-                }
-                else
-                {
-                    std::cout << " Buffer plein, paquet ignoré" << std::endl;
-                }
+                ringBuffer[w] = audioData[i];
+                w = (w + 1) % RING_BUFFER_SIZE;
+            }
+            writePos.store(w);
+
+            if (audioRecvCount % 100 == 0)
+            {
+                size_t available = getAvailableSamples();
+                std::cout << "🔊 Buffer: " << available << " samples (" << (available * 1000 / 48000)
+                          << " ms) | Underruns: " << underrunCount.load() << std::endl;
             }
         }
     }
@@ -163,7 +256,7 @@ std::vector<int> listInputDevices()
     std::vector<int> inputDevices;
     int numDevices = Pa_GetDeviceCount();
 
-    std::cout << "\n Microphones disponibles:" << std::endl;
+    std::cout << "\n🎤 Microphones disponibles:" << std::endl;
     std::cout << "════════════════════════════════════════════════════════" << std::endl;
 
     int displayIndex = 0;
@@ -196,7 +289,7 @@ std::vector<int> listInputDevices()
 
     if (inputDevices.empty())
     {
-        std::cout << "Aucun microphone détecté!" << std::endl;
+        std::cout << "❌ Aucun microphone détecté!" << std::endl;
     }
 
     return inputDevices;
@@ -207,7 +300,7 @@ std::vector<int> listOutputDevices()
     std::vector<int> outputDevices;
     int numDevices = Pa_GetDeviceCount();
 
-    std::cout << "\nPériphériques de sortie disponibles:" << std::endl;
+    std::cout << "\n🔊 Périphériques de sortie disponibles:" << std::endl;
     std::cout << "════════════════════════════════════════════════════════" << std::endl;
 
     int displayIndex = 0;
@@ -260,6 +353,8 @@ int main(int argc, char *argv[])
     int port = std::atoi(argv[2]);
     std::string clientName = (argc > 3) ? argv[3] : "Client";
 
+    std::memset(ringBuffer, 0, sizeof(ringBuffer));
+
 #ifdef _WIN32
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
@@ -284,7 +379,6 @@ int main(int argc, char *argv[])
     serverAddr.sin_port = htons(port);
     inet_pton(AF_INET, serverIP.c_str(), &serverAddr.sin_addr);
 
-    // Envoyer message de connexion
     std::string hello = "HELLO:" + clientName;
     sendto(clientSocket, hello.c_str(), hello.size(), 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
 
@@ -311,7 +405,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // ===== SÉLECTION DU MICROPHONE =====
     std::vector<int> inputDevices = listInputDevices();
 
     if (inputDevices.empty())
@@ -362,8 +455,8 @@ int main(int argc, char *argv[])
     }
 
     const PaDeviceInfo *inputInfo = Pa_GetDeviceInfo(inputDevice);
+    inputSampleRate = inputInfo->defaultSampleRate;
 
-    // ===== SÉLECTION DU PÉRIPHÉRIQUE DE SORTIE =====
     std::vector<int> outputDevices = listOutputDevices();
 
     if (outputDevices.empty())
@@ -415,12 +508,21 @@ int main(int argc, char *argv[])
     }
 
     const PaDeviceInfo *outputInfo = Pa_GetDeviceInfo(outputDevice);
+    outputSampleRate = outputInfo->defaultSampleRate;
 
-    std::cout << "\n✓ Configuration:" << std::endl;
+    std::cout << "\n✓ Configuration avec resampling automatique:" << std::endl;
     std::cout << "  🎤 Microphone: " << inputInfo->name << std::endl;
+    std::cout << "     Sample Rate natif: " << inputSampleRate << " Hz" << std::endl;
+    std::cout << "     → Converti vers: " << NETWORK_SAMPLE_RATE << " Hz pour le réseau" << std::endl;
     std::cout << "  🔊 Sortie: " << outputInfo->name << std::endl;
+    std::cout << "     Sample Rate natif: " << outputSampleRate << " Hz" << std::endl;
+    std::cout << "     ← Converti depuis: " << NETWORK_SAMPLE_RATE << " Hz" << std::endl;
+    std::cout << "  ✓ Resampling linéaire activé" << std::endl;
 
-    // Configuration du stream d'entrée
+    // Calculer les frames per buffer natifs
+    unsigned long inputFrames = (unsigned long)(NETWORK_FRAMES * inputSampleRate / NETWORK_SAMPLE_RATE);
+    unsigned long outputFrames = (unsigned long)(NETWORK_FRAMES * outputSampleRate / NETWORK_SAMPLE_RATE);
+
     PaStreamParameters inputParams;
     inputParams.device = inputDevice;
     inputParams.channelCount = 1;
@@ -429,7 +531,7 @@ int main(int argc, char *argv[])
     inputParams.hostApiSpecificStreamInfo = nullptr;
 
     PaStream *inputStream;
-    err = Pa_OpenStream(&inputStream, &inputParams, nullptr, inputInfo->defaultSampleRate, 256, paClipOff, sendCallback,
+    err = Pa_OpenStream(&inputStream, &inputParams, nullptr, inputSampleRate, inputFrames, paClipOff, sendCallback,
                         nullptr);
 
     if (err != paNoError)
@@ -443,7 +545,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Configuration du stream de sortie
     PaStreamParameters outputParams;
     outputParams.device = outputDevice;
     outputParams.channelCount = 1;
@@ -452,7 +553,7 @@ int main(int argc, char *argv[])
     outputParams.hostApiSpecificStreamInfo = nullptr;
 
     PaStream *outputStream;
-    err = Pa_OpenStream(&outputStream, nullptr, &outputParams, outputInfo->defaultSampleRate, 256, paClipOff,
+    err = Pa_OpenStream(&outputStream, nullptr, &outputParams, outputSampleRate, outputFrames, paClipOff,
                         receiveCallback, nullptr);
 
     if (err != paNoError)
@@ -467,42 +568,49 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Démarrer les streams
     Pa_StartStream(inputStream);
     Pa_StartStream(outputStream);
 
     std::cout << "\n✓ Communication vocale active (Ctrl+C pour quitter)" << std::endl;
-    std::cout << "📊 Statistiques en temps réel activées..." << std::endl;
+    std::cout << "📊 Monitoring du buffer circulaire..." << std::endl;
 
-    // Lancer le thread de réception
     std::thread recvThread(receiveThread);
 
-    // Thread de monitoring
     std::thread monitorThread([&]() {
-        int lastSent = 0, lastRecv = 0;
+        int lastSent = 0, lastRecv = 0, lastUnderrun = 0;
         while (running)
         {
-            Pa_Sleep(3000);
+            Pa_Sleep(5000);
             if (!running)
                 break;
 
             int sent = audioSentCount.load();
             int recv = audioRecvCount.load();
+            int underruns = underrunCount.load();
+            size_t available = getAvailableSamples();
 
-            std::cout << "\n📊 Stats (3s): Envoyés=" << (sent - lastSent) << " | Reçus=" << (recv - lastRecv)
-                      << std::endl;
+            std::cout << "\n📊 Stats (5s):" << std::endl;
+            std::cout << "   Envoyés: " << (sent - lastSent) << " paquets" << std::endl;
+            std::cout << "   Reçus: " << (recv - lastRecv) << " paquets" << std::endl;
+            std::cout << "   Buffer: " << (available * 1000 / 48000) << " ms" << std::endl;
+            std::cout << "   Underruns: " << (underruns - lastUnderrun) << std::endl;
 
             if (sent == lastSent)
             {
-                std::cout << "⚠️  Aucune capture audio - vérifiez votre microphone!" << std::endl;
+                std::cout << "⚠️  Aucune capture audio - parlez plus fort!" << std::endl;
             }
-            if (recv == lastRecv && sent > lastSent)
+            if (recv == lastRecv)
             {
-                std::cout << "⚠️  Aucune réception - vérifiez la connexion serveur!" << std::endl;
+                std::cout << "⚠️  Aucune réception réseau!" << std::endl;
+            }
+            if ((underruns - lastUnderrun) > 20)
+            {
+                std::cout << "❌ Trop d'underruns! Problème de réseau ou CPU?" << std::endl;
             }
 
             lastSent = sent;
             lastRecv = recv;
+            lastUnderrun = underruns;
         }
     });
 
@@ -511,7 +619,6 @@ int main(int argc, char *argv[])
         Pa_Sleep(100);
     }
 
-    // Envoyer message de déconnexion
     const char *bye = "BYE";
     sendto(clientSocket, bye, 3, 0, (sockaddr *)&serverAddr, sizeof(serverAddr));
 

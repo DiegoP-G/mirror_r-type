@@ -17,9 +17,9 @@
 #else
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <poll.h>
 #endif
 #include <iostream>
 
@@ -77,6 +77,9 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
     _handlers[OPCODE_BAN_NOTIFICATION] = [this](const std::string &payload, int opcode) {
         _med.notify(UPDATE_DATA, payload, opcode);
     };
+    _handlers[OPCODE_VOICE_DATA] = [this](const std::string &payload, int opcode) {
+        _med.notify(UPDATE_DATA, payload, opcode);
+    };
 }
 
 void Receiver::onCodeUdp(const std::string &payload)
@@ -98,11 +101,11 @@ void Receiver::onCloseConnection(const std::string &)
     std::cout << "[RECEIVER] Server closed connection" << std::endl;
     if (_tcpSocket != -1)
     {
-        #ifdef _WIN32
+#ifdef _WIN32
         closesocket(_tcpSocket);
-        #else
+#else
         close(_tcpSocket);
-        #endif
+#endif
         _tcpSocket = -1;
     }
 }
