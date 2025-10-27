@@ -3,6 +3,7 @@
 #include "../../../transferData/transferData.hpp"
 #include "../Client.hpp"
 #include "../NetworkManager.hpp"
+#include "transferData/hashUtils.hpp"
 #include <cerrno>
 #include <cstring>
 #include <iostream>
@@ -86,6 +87,22 @@ TCPManager::~TCPManager()
 #endif
 }
 
+void TCPManager::sendAESKey(int clientFd)
+{
+    std::optional<std::vector<uint8_t>> optionalKeyBytes =
+        extractPEMBytesFromRSAKeyPair(_networkManagerRef.getServerPubKey());
+
+    if (!optionalKeyBytes.has_value())
+    {
+        std::cerr << "Server failed to extract public key from RSA keypair";
+        return;
+    }
+    std::vector<uint8_t> keyBytes = *optionalKeyBytes;
+    std::string serverPubKeyStr(keyBytes.begin(), keyBytes.end());
+    _networkManagerRef.getGameMediator().getNetworkManager().getTCPManager().sendMessage(
+        clientFd, OPCODE_SERVER_PUB_KEY, serverPubKeyStr);
+}
+
 void TCPManager::handleNewConnection()
 {
     sockaddr_in client_addr;
@@ -139,6 +156,7 @@ void TCPManager::handleNewConnection()
 
     sendMessage(cfd, OPCODE_PLAYER_ID, serializeInt(cfd));
     sendMessage(cfd, OPCODE_CODE_UDP, serializeInt(code_udp));
+    sendAESKey(cfd);
 
     _networkManagerRef.addNewPlayer(cfd);
 }

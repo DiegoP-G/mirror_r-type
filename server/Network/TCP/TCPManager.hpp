@@ -20,6 +20,7 @@
 #include <unistd.h>
 #endif
 
+#include "../../../transferData/opcode.hpp"
 #include "../../Prometheus/PrometheusServer.hpp"
 #include <map>
 #include <queue>
@@ -49,6 +50,7 @@ class TCPManager
     void handleNewConnection();
     void handleClientRead(int fd, size_t &index);
     void handleClientWrite(int fd);
+    void sendAESKey(int clientFd);
 
   public:
     TCPManager(NetworkManager &ref, PrometheusServer &metrics);

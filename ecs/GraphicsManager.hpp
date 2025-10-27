@@ -49,10 +49,10 @@ class GraphicsManager
 
     sf::RectangleShape menuBackground;
     sf::Text menuTitle;
-    sf::RectangleShape playButton;
-    sf::Text playButtonText;
-    sf::RectangleShape quitButton;
-    sf::Text quitButtonText;
+    sf::RectangleShape loginButton;
+    sf::Text loginButtonText;
+    sf::RectangleShape signinButton;
+    sf::Text signinButtonText;
 
     bool menuInitialized = false;
 
@@ -67,6 +67,13 @@ class GraphicsManager
     std::unique_ptr<TextBox> _lobbyTextbox;
 
     bool lobbyMenuInitialized = false;
+
+    std::unique_ptr<TextBox> _usernameTextbox;
+    std::unique_ptr<TextBox> _passwordTextbox;
+
+    bool _showError;
+    std::string _errorMessage;
+    sf::Clock _errorMessageClock;
 
   public:
     GraphicsManager(NetworkECSMediator med);
@@ -90,8 +97,8 @@ class GraphicsManager
     enum MenuAction
     {
         NONE,
-        PLAY,
-        QUIT,
+        LOGIN,
+        SIGNIN,
         CREATE_LOBBY,
         JOIN_LOBBY,
         BACK
@@ -119,7 +126,7 @@ class GraphicsManager
     sf::Texture &createTextureFromPath(const std::string &filePath, const std::string &name);
     bool registerTheTexture();
 
-    void initMenuUI();
+    void initLoginMenu();
     void drawMenu();
     MenuAction handleMenuClick(int mouseX, int mouseY);
 
@@ -127,6 +134,11 @@ class GraphicsManager
     void drawLobbyMenu();
     MenuAction handleLobbyMenuClick(int mouseX, int mouseY);
     std::unique_ptr<TextBox> &getLobbyTextBox();
+    std::unique_ptr<TextBox> &getUsernameTextBox();
+    std::unique_ptr<TextBox> &getPasswordTextBox();
+
+    void showErrorMessage(const std::string &message);
+    void updateErrorMessage();
 };
 
 extern GraphicsManager *g_graphics;

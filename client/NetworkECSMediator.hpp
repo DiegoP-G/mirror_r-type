@@ -19,6 +19,7 @@ enum NetworkECSMediatorEvent
 class Sender;
 class Receiver;
 class RTypeGame;
+class NetworkManager;
 
 class NetworkECSMediator
 {
@@ -28,9 +29,10 @@ class NetworkECSMediator
     RTypeGame *_game{nullptr};
 
     std::unordered_map<int, std::function<void(const std::string &, uint8_t)>> _mediatorMap;
+    NetworkManager &_networkManager;
 
   public:
-    NetworkECSMediator();
+    NetworkECSMediator(NetworkManager &_networkManager);
 
     void setSender(Sender *s)
     {
@@ -54,4 +56,9 @@ class NetworkECSMediator
     }
 
     void notify(NetworkECSMediatorEvent event, const std::string &data, uint8_t opcode = -1);
+
+    NetworkManager &getNetworkManager()
+    {
+        return _networkManager;
+    };
 };

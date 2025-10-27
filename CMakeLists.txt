@@ -16,6 +16,12 @@ endif()
 
 include(FetchContent)
 
+# ---- OpenSSL ---- (MOVED TO TOP, BEFORE TARGETS)
+find_package(OpenSSL REQUIRED)
+
+# Make sure to include OpenSSL headers
+include_directories(${OPENSSL_INCLUDE_DIR})
+
 # ---- SFML ----
 find_package(SFML 2.5 COMPONENTS graphics window system audio QUIET)
 if (NOT SFML_FOUND)
@@ -72,12 +78,23 @@ if (WIN32)
 endif()
 target_link_libraries(transferData PUBLIC ZLIB::ZLIB)
 
-# ---- ecs (STATIC) ----
+# Link libcrypt for password hashing
+find_library(CRYPT_LIB crypt REQUIRED)
+
+if (CRYPT_LIB)
+    message(STATUS "Found libcrypt library: ${CRYPT_LIB}")
+    target_link_libraries(transferData PRIVATE ${CRYPT_LIB})
+else()
+    message(FATAL_ERROR "libcrypt library not found")
+endif()
+
+# ---- ECS + Components library ----
 file(GLOB_RECURSE ECS_SOURCES ecs/*.cpp)
 add_library(ecs STATIC ${ECS_SOURCES})
 target_include_directories(ecs PUBLIC
     ${CMAKE_SOURCE_DIR}/ecs
     ${CMAKE_SOURCE_DIR}/transferData
+    ${CMAKE_SOURCE_DIR}/server/Game
 )
 target_link_libraries(ecs PUBLIC
     transferData
@@ -139,6 +156,7 @@ target_link_libraries(RTypeClient PRIVATE
     sfml-window
     sfml-system
     sfml-audio
+    OpenSSL::Crypto
 )
 
 # ---- Server ----
@@ -168,10 +186,12 @@ target_link_libraries(GameServer PRIVATE
     sfml-graphics
     sfml-window
     sfml-system
+    sfml-audio
     sqlite3_lib
     pthread
     prometheus-cpp::core
     prometheus-cpp::pull
+    OpenSSL::Crypto
 )
 
 # ---- Windows ----
@@ -213,6 +233,7 @@ if (UNIX AND NOT WIN32)
     target_link_libraries(GameServer PRIVATE pthread)
 endif()
 
+# ---- Custom targets for convenience ----
 add_custom_target(client DEPENDS RTypeClient)
 add_custom_target(server DEPENDS GameServer)
 add_custom_target(all_binaries DEPENDS RTypeClient GameServer)
@@ -221,4 +242,3 @@ set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
     "${CMAKE_SOURCE_DIR}/RTypeClient"
     "${CMAKE_SOURCE_DIR}/GameServer"
 )
-
