@@ -31,7 +31,8 @@
 #include <iostream>
 
 NetworkManager::NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver)
-    : _med(med), _sender(sender), _receiver(receiver), _tcpSocket(-1), _udpSocket(-1), _shouldStop(false)
+    : _med(med), _sender(sender), _receiver(receiver), _tcpSocket(-1), _udpSocket(-1), _shouldStop(false),
+    _serverPubKey(nullptr)
 {
     #ifdef _WIN32
         WSADATA wsaData;

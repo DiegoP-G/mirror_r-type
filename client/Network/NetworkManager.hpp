@@ -1,9 +1,13 @@
 #pragma once
 
+#include <atomic>
+#include <netinet/in.h>
+#include <poll.h>
 #include "../NetworkECSMediator.hpp"
 #include "../RType.hpp"
 #include "Receiver.hpp"
 #include "Sender.hpp"
+#include "transferData/hashUtils.hpp"
 #include <atomic>
 #ifdef _WIN32
     #ifndef NOMINMAX
@@ -45,6 +49,10 @@ class NetworkManager
     sockaddr_in _serverAddr;
     std::atomic<bool> _shouldStop;
 
+    EVP_PKEY *_serverPubKey;
+    std::vector<uint8_t> _aesKey;
+    std::vector<uint8_t> _aesIV;
+
   public:
     NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver);
     ~NetworkManager();
@@ -57,4 +65,25 @@ class NetworkManager
     void handleSend();
     Sender &getSender();
     Receiver &getReceiver();
+
+    void setServerPubKey(EVP_PKEY *key)
+    {
+      if (key) {
+        _serverPubKey = key;
+      }
+    }
+
+    void setAesKey(std::vector<uint8_t> &key)
+    {
+      _aesKey = key;
+    }
+
+    void setAesIV(std::vector<uint8_t> &iv)
+    {
+      _aesIV = iv;
+    }
+
+    EVP_PKEY *getServerPubKey() { return _serverPubKey; };
+    const std::vector<uint8_t> &getAesKey() { return _aesKey; };
+    const std::vector<uint8_t> &getAesIV() { return _aesIV; };
 };

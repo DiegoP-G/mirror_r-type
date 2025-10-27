@@ -25,6 +25,7 @@ void Orchestrator::GameLoop::loop()
 
     AdministratorPanel adminPanel(_gameMediator.getNetworkManager());
     adminPanel.setClientManager(_gameMediator.getNetworkManager().getClientManager());
+    adminPanel.setLobbyManager(_gameMediator.getLobbyManager());
     _gameMediator.getNetworkManager().getClientManager().setAdministratorPanel(adminPanel);
 
     // Start the admin panel in a separate thread

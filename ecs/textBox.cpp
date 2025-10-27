@@ -16,7 +16,7 @@
 #include <stdexcept>
 
 TextBox::TextBox(sf::Font &font, std::function<void(const char *)> startNetwork, float width, float height)
-    : isFocused(false), input(""), value(""), font(font), _startNetwork(startNetwork)
+    : isFocused(false), input(""), value(""), font(font), _startNetwork(startNetwork), isPasswordMode(false)
 {
     box.setSize({width, height});
     box.setFillColor(sf::Color::White);
@@ -72,18 +72,38 @@ void TextBox::typeInBox(sf::Event event)
         }
 
         text.setString(input);
+        // Update value in real-time so getText() returns current input
+        value = input;
     }
+}
+
+void TextBox::setPasswordMode(bool enable)
+{
+    isPasswordMode = enable;
 }
 
 void TextBox::draw(sf::RenderWindow &window)
 {
     window.draw(box);
-    window.draw(text);
+
+    // If in password mode, display asterisks instead of actual text
+    if (isPasswordMode && !input.empty())
+    {
+        sf::Text maskedText = text;
+        std::string maskedString(input.length(), '*');
+        maskedText.setString(maskedString);
+        window.draw(maskedText);
+    }
+    else
+    {
+        window.draw(text);
+    }
 }
 
 std::string TextBox::getText() const
 {
-    return value;
+    // Return input for real-time access to what user is typing
+    return input;
 }
 
 bool TextBox::getDisplayValue() const
