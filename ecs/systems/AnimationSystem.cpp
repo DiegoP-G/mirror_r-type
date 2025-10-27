@@ -2,16 +2,45 @@
 #include "../components/AnimatedSpriteComponent.hpp"
 #include "../components/InputComponent.hpp"
 #include "../components/PlayerComponent.hpp"
+#include "../components/TransformComponent.hpp"
 
 #include "../entity.hpp"
 void AnimationSystem::update(EntityManager &entityManager, float deltaTime)
 {
+    std::cout << "AnimationSystem update\n";
     auto entities = entityManager.getEntitiesWithComponents<InputComponent, PlayerComponent>();
 
     for (auto &entity : entities)
     {
         auto &input = entity->getComponent<InputComponent>();
         handleAnimation(entity, input, deltaTime);
+    }
+
+    auto sprites = entityManager.getEntitiesWithComponents<AnimatedSpriteComponent, TransformComponent>();
+
+    for (auto &entity : sprites) {
+        if (entity->hasComponent<PlayerComponent>()) {
+            continue;
+        }
+
+        auto &animatedSprite = entity->getComponent<AnimatedSpriteComponent>();
+
+        if (animatedSprite.totalFrames == 1) {
+            continue;
+        }
+
+        animatedSprite.elapsedTime += deltaTime;
+        if (animatedSprite.elapsedTime >= animatedSprite.animationInterval)
+        {
+            if (animatedSprite.hideAfterOneCycle && animatedSprite.currentFrame == animatedSprite.totalFrames - 1) {
+                entityManager.destroyEntityByID(entity->getID());
+                continue;
+            } else {
+                animatedSprite.currentFrame = (animatedSprite.currentFrame + 1) % animatedSprite.totalFrames;
+                animatedSprite.setFrame(animatedSprite.currentFrame);
+                animatedSprite.elapsedTime = 0.0f;
+            }
+        }
     }
 }
 

@@ -8,13 +8,14 @@
 //       currentFrame(2), currentDirection(Default), elapsedTime(0.0f)
 // {
 // }
+#include <iostream>
 
-AnimatedSpriteComponent::AnimatedSpriteComponent(int textID, int left, int top, int frameWidth, int frameHeight,
-                                                 int totalFrames, float interval, float rotation, Vector2D scale,
-                                                 int currentFrame)
+AnimatedSpriteComponent::AnimatedSpriteComponent(int textID, int left, int top, int frameWidth,
+    int frameHeight, int totalFrames, float interval, float rotation, Vector2D scale,
+    int currentFrame, bool hideAfter)
     : textureID(textID), left(left), top(top), frameWidth(frameWidth), frameHeight(frameHeight),
       totalFrames(totalFrames), animationInterval(interval), rotationAngle(rotation), scale(scale),
-      currentFrame(currentFrame), currentDirection(Default), elapsedTime(0.0f)
+      currentFrame(currentFrame), currentDirection(Default), elapsedTime(0.0f), hideAfterOneCycle(hideAfter)
 {
 }
 
@@ -61,6 +62,9 @@ std::vector<uint8_t> AnimatedSpriteComponent::serialize() const
                 reinterpret_cast<const uint8_t *>(&elapsedTime) + sizeof(float));
     data.push_back(static_cast<uint8_t>(currentDirection));
 
+    // Serialize hideAfterOneCycle as a single byte (1 for true, 0 for false)
+    data.push_back(hideAfterOneCycle ? 1 : 0);
+
     return data;
 }
 
@@ -98,9 +102,13 @@ AnimatedSpriteComponent AnimatedSpriteComponent::deserialize(const uint8_t *data
     std::memcpy(&elapsedTime, data + offset, sizeof(float));
     offset += sizeof(float);
     dir = static_cast<Direction>(data[offset]);
+    offset += sizeof(uint8_t);
+
+    // Deserialize hideAfterOneCycle (1 for true, 0 for false)
+    bool hideAfter = data[offset] != 0;
 
     AnimatedSpriteComponent comp(textureID, left, top, frameWidth, frameHeight, totalFrames, animationInterval,
-                                 rotationAngle, scale, currentFrame);
+                                 rotationAngle, scale, currentFrame, hideAfter);
     comp.currentDirection = dir;
     comp.elapsedTime = elapsedTime;
 

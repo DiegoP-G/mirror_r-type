@@ -5,8 +5,10 @@
 #include "../components/EnemyComponent.hpp"
 #include "../components/ProjectileComponent.hpp"
 #include "../components/TransformComponent.hpp"
+#include "../components/AnimatedSpriteComponent.hpp"
 
 #include "../entityManager.hpp"
+#include "../GraphicsManager.hpp"
 
 #include "../components/CenteredComponent.hpp"
 #include "../components/HealthComponent.hpp"
@@ -44,7 +46,7 @@ class CollisionSystem
     // MAIN COLLISION HANDLER
     // ============================================================
 
-    void handleCollision(Entity *a, Entity *b, std::vector<std::pair<int, int>> &playersScores, bool &updateScore);
+    void handleCollision(Entity *a, Entity *b, std::vector<std::pair<int, int>> &playersScores, bool &updateScore, EntityManager &entityManager);
 
     // ============================================================
     // PLAYER COLLISION HANDLERS
@@ -62,10 +64,10 @@ class CollisionSystem
     // ============================================================
 
     void handleEnemyCollision(Entity *enemy, Entity *other, EntityType otherType,
-                              std::vector<std::pair<int, int>> &playersScores, bool &updateScore);
+                              std::vector<std::pair<int, int>> &playersScores, bool &updateScore, EntityManager &entityManager);
 
     void onEnemyHitProjectile(Entity *enemy, Entity *projectile, std::vector<std::pair<int, int>> &playersScores,
-                              bool &updateScore);
+                              bool &updateScore, EntityManager &entityManager);
 
     // ============================================================
     // PROJECTILE COLLISION HANDLERS

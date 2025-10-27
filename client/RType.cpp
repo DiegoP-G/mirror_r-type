@@ -82,6 +82,8 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(basicEnemySpritePath), "basic_enemy");
     sf::Texture &bonusLifeTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusLifeSpritePath), "bonus_life");
+    sf::Texture &explosionTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(explosionSpritePath), "explosion");
 
     g_graphics->storeTexture("background", backgroundTexture);
     g_graphics->storeTexture("boss", bossTexture);
@@ -89,6 +91,7 @@ void RTypeGame::createTextures()
     g_graphics->storeTexture("basic_enemy", basicEnemyTexture);
     g_graphics->storeTexture("bullet", bulletTexture);
     g_graphics->storeTexture("bonus_life", bonusLifeTexture);
+    g_graphics->storeTexture("explosion", explosionTexture);
 }
 
 void RTypeGame::handleJoystickInput()
@@ -485,6 +488,7 @@ void RTypeGame::run()
 
     g_graphics->playSound("music", true);
 
+    std::cout << "rtype run outside\n";
     while (running)
     {
         float deltaTime = clock.restart().asSeconds();
@@ -502,9 +506,11 @@ void RTypeGame::run()
 
         sendInputPlayer();
 
+        std::cout << "rtype run\n";
         while (accumulator >= FRAME_TIME)
         {
             _mutex.lock();
+            std::cout << "rtype while run\n";
             update(FRAME_TIME);
             _mutex.unlock();
             accumulator -= FRAME_TIME;
