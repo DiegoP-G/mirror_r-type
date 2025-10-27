@@ -1,3 +1,4 @@
+// ! UDPManager.cpp (modified)
 #include "UDPManager.hpp"
 #include "../../../transferData/opcode.hpp"
 #include "../../../transferData/transferData.hpp"
@@ -100,7 +101,7 @@ void UDPManager::update()
             if (opcode == OPCODE_UDP_AUTH)
             {
                 _metrics.IncrementUDPReceived();
-                _metrics.AddUDPBytes(payload.size() + 2); // opcode + length
+                _metrics.AddUDPBytes(payload.size() + 2);
                 int code = deserializeInt(payload);
                 std::cout << "[UDP] Received OPCODE_UDP_AUTH: " << code << " from: " << client.sin_addr.s_addr << "\n";
                 Client *c = _NetworkManagerRef.getClientManager().getClientByCodeUDP(code);
@@ -122,7 +123,7 @@ void UDPManager::update()
                 {
                     _NetworkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload);
                     _metrics.IncrementUDPReceived();
-                    _metrics.AddUDPBytes(payload.size() + 2); // opcode + length
+                    _metrics.AddUDPBytes(payload.size() + 2);
                 }
                 else
                     std::cout << "[UDP] Received from unknown client: " << payload
@@ -130,6 +131,8 @@ void UDPManager::update()
             }
         }
     }
+
+    _metrics.UpdateThroughput();
 }
 
 void UDPManager::sendTo(const std::vector<sockaddr_in> &addrs, int opcode, const std::string &data)
@@ -138,6 +141,6 @@ void UDPManager::sendTo(const std::vector<sockaddr_in> &addrs, int opcode, const
     {
         sendFrameUDP(_udpFd, opcode, data, addr, sizeof(addr));
         _metrics.IncrementUDPSent();
-        _metrics.AddUDPBytes(data.size() + 2); // opcode + length
+        _metrics.AddUDPBytes(data.size() + 2);
     }
 }

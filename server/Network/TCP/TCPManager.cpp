@@ -1,3 +1,4 @@
+// ! TCPManager.cpp (modified)
 #include "TCPManager.hpp"
 #include "../../../transferData/opcode.hpp"
 #include "../../../transferData/transferData.hpp"
@@ -260,7 +261,7 @@ void TCPManager::handleClientRead(int fd, size_t &index)
         if (opcode != OPCODE_INCOMPLETE_DATA && opcode != OPCODE_CLOSE_CONNECTION)
         {
             _metrics.IncrementTCPReceived();
-            _metrics.AddTCPBytes(payload.size() + 2); // opcode + length
+            _metrics.AddTCPBytes(payload.size() + 2);
         }
 
         if (opcode == OPCODE_CLOSE_CONNECTION)
@@ -327,4 +328,6 @@ void TCPManager::update()
             --i;
         }
     }
+
+    _metrics.UpdateThroughput();
 }
