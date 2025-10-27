@@ -49,7 +49,6 @@ PrometheusServer::PrometheusServer(const std::string &address)
                                 .Register(*registry_)
                                 .Add({})),
 
-      // ! Added throughput gauges
       tcp_kbps_(&prometheus::BuildGauge()
                      .Name("tcp_kbps")
                      .Help("Current TCP throughput in kilobytes per second")
