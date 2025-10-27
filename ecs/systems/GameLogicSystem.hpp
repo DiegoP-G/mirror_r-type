@@ -20,6 +20,8 @@
 class GameMediator;
 using PatternFunc = std::function<std::vector<Vector2D>(int, float, float)>;
 
+constexpr float chance = 1;
+
 // System for game rules and logic
 class GameLogicSystem
 {

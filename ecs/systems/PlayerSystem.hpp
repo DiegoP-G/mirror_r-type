@@ -9,6 +9,8 @@
 #include "../components/VelocityComponent.hpp"
 #include "../entityManager.hpp"
 
+#include <cmath>
+
 class PlayerSystem
 {
   public:

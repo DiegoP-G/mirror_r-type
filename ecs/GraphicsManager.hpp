@@ -85,6 +85,7 @@ class GraphicsManager
         BULLET,
         EXPLOSION,
         BONUS_LIFE,
+        BONUS_FIREMODE,
         BOSS,
     };
 

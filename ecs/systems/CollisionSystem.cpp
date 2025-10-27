@@ -156,8 +156,12 @@ void CollisionSystem::onPlayerHitBonus(Entity *player, Entity *bonus)
             if (healthComp.health > healthComp.maxHealth)
                 healthComp.health = healthComp.maxHealth;
         }
+        if (std::get<0>(b) == BonusComponent::TypeBonus::FIREMODE) {
+            auto &playerComp = player->getComponent<PlayerComponent>();
+            playerComp.bonusFiremode += 7.0f;
+        }
     }
-    std::cout << "BONUS DESTOYED HIHI\n";
+    std::cout << "BONUS DESTROYED HIHI\n";
     bonus->destroy();
 }
 

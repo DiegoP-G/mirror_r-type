@@ -128,6 +128,8 @@ sf::Texture *GraphicsManager::getTexture(int tex)
         return getTexture("explosion");
     case BONUS_LIFE:
         return getTexture("bonus_life");
+    case BONUS_FIREMODE:
+        return getTexture("bonus_firemode");
     case BOSS:
         return getTexture("boss");
     default:

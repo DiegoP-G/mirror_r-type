@@ -10,8 +10,8 @@
 // }
 
 AnimatedSpriteComponent::AnimatedSpriteComponent(int textID, int left, int top, int frameWidth, int frameHeight,
-                                                 int totalFrames, float interval, float rotation, Vector2D scale,
-                                                 int currentFrame)
+                                                 int totalFrames, float interval, float rotation, SpritesheetLayout spritesheetLayout,
+                                                 Vector2D scale, int currentFrame)
     : textureID(textID), left(left), top(top), frameWidth(frameWidth), frameHeight(frameHeight),
       totalFrames(totalFrames), animationInterval(interval), rotationAngle(rotation), scale(scale),
       currentFrame(currentFrame), currentDirection(Default), elapsedTime(0.0f)
@@ -20,7 +20,10 @@ AnimatedSpriteComponent::AnimatedSpriteComponent(int textID, int left, int top, 
 
 void AnimatedSpriteComponent::setFrame(int frame)
 {
-    left = frameWidth * frame;
+    if (spritesheetLayout == Horizontal)
+        left = frameWidth * frame;
+    else if (spritesheetLayout == Vertical)
+        top = frameHeight * frame;
 }
 
 void AnimatedSpriteComponent::update(float deltaTime)
@@ -60,6 +63,7 @@ std::vector<uint8_t> AnimatedSpriteComponent::serialize() const
     data.insert(data.end(), reinterpret_cast<const uint8_t *>(&elapsedTime),
                 reinterpret_cast<const uint8_t *>(&elapsedTime) + sizeof(float));
     data.push_back(static_cast<uint8_t>(currentDirection));
+    data.push_back(static_cast<uint8_t>(spritesheetLayout));
 
     return data;
 }
@@ -72,6 +76,7 @@ AnimatedSpriteComponent AnimatedSpriteComponent::deserialize(const uint8_t *data
     float animationInterval, rotationAngle, elapsedTime;
     Vector2D scale;
     Direction dir;
+    SpritesheetLayout spritesheetLayout;
 
     std::memcpy(&textureID, data + offset, sizeof(int));
     offset += sizeof(int);
@@ -98,9 +103,11 @@ AnimatedSpriteComponent AnimatedSpriteComponent::deserialize(const uint8_t *data
     std::memcpy(&elapsedTime, data + offset, sizeof(float));
     offset += sizeof(float);
     dir = static_cast<Direction>(data[offset]);
+    offset += sizeof(Direction);
+    spritesheetLayout = static_cast<SpritesheetLayout>(data[offset]);
 
     AnimatedSpriteComponent comp(textureID, left, top, frameWidth, frameHeight, totalFrames, animationInterval,
-                                 rotationAngle, scale, currentFrame);
+                                 rotationAngle, spritesheetLayout, scale, currentFrame);
     comp.currentDirection = dir;
     comp.elapsedTime = elapsedTime;
 

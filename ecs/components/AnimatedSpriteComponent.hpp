@@ -18,6 +18,11 @@ class AnimatedSpriteComponent : public IComponent
     Vector2D scale;
     float elapsedTime;
 
+    enum SpritesheetLayout {
+      Horizontal,
+      Vertical
+    } spritesheetLayout;
+
     enum Direction
     {
         Default,
@@ -26,7 +31,7 @@ class AnimatedSpriteComponent : public IComponent
     } currentDirection;
 
     AnimatedSpriteComponent(int textureID, int left, int top, int frameWidth, int frameHeight, int totalFrames,
-                            float interval, float rotation = 0.0f, Vector2D scale = {1.0f, 1.0f}, int currentFrame = 0);
+                            float interval, float rotation = 0.0f, SpritesheetLayout spritesheetLayout = Horizontal, Vector2D scale = {1.0f, 1.0f}, int currentFrame = 0);
 
     void setFrame(int frame);
     void update(float deltaTime) override;

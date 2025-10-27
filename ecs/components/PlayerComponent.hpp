@@ -11,6 +11,7 @@ class PlayerComponent : public IComponent
     int playerID;
     bool isLocal;
     bool isReady;
+    float bonusFiremode = 0;
 
     PlayerComponent(int playerID = 0, bool isLocal = true);
 
