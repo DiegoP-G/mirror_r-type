@@ -45,8 +45,6 @@ bool GraphicsManager::registerTheTexture()
 {
     createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/background.jpg"), "background");
     createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/playerSpritesheet.png"), "player");
-    createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "enemy");
-    createTextureFromPath(PathFormater::formatAssetPath("assets/sprites/ennemy.png"), "bullet");
 
     return true;
 }
