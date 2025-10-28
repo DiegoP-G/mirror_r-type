@@ -1,22 +1,21 @@
 #pragma once
 
 #ifdef _WIN32
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <windows.h>
-    #include <wincrypt.h>
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <wincrypt.h>
+#include <windows.h>
 #endif
 
-
-#include <openssl/evp.h>
-#include <openssl/rsa.h>
-#include <openssl/pem.h>
 #include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/pem.h>
 #include <openssl/rand.h>
+#include <openssl/rsa.h>
 
 #include <cstring>
 #include <iomanip>
@@ -34,6 +33,10 @@
 static constexpr int AES_KEY_BYTES = 32;
 static constexpr int AES_IV_BYTES = 16;
 static constexpr int TAG_BYTES = 16;
+
+static constexpr int SALT_SIZE = 16;
+static constexpr int HASH_SIZE = 32;
+static constexpr int ITERATIONS = 100000;
 
 std::string hashPassword(const std::string &password);
 bool verifyPassword(const std::string &stored, const std::string &candidate);
