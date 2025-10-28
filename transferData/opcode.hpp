@@ -130,7 +130,7 @@ constexpr uint8_t OPCODE_CREATE_LOBBY = 0x70;
 constexpr uint8_t OPCODE_JOIN_LOBBY = 0x71;
 // [CLIENT → SERVER, TCP]
 // Request to join an existing lobby
-// Payload: lobby_name (string string)
+// Payload: lobby_name player_name (string string)
 
 constexpr uint8_t OPCODE_LOBBY_CREATED = 0x72;
 // [SERVER → CLIENT, TCP]
@@ -146,6 +146,11 @@ constexpr uint8_t OPCODE_LOBBY_ERROR = 0x74;
 // [SERVER → CLIENT, TCP]
 // Error joining/creating lobby
 // Payload: error_message (string)
+
+constexpr uint8_t OPCODE_GAME_LOBBY = 0x76;
+// [CLIENT → SERVER, TCP]
+// Request to join an existing lobby
+// Payload: player_name (string)
 
 constexpr uint8_t OPCODE_LOGIN_REQUEST = 0x80;
 // [CLIENT → SERVER, TCP]

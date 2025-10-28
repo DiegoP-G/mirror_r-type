@@ -410,6 +410,12 @@ void RTypeGame::handleEvents()
                     std::cout << "[Client] Lobby name cannot be empty!" << std::endl;
                 }
             }
+            else if (action == GraphicsManager::MenuAction::MATCHMAKING)
+            {
+                std::cout << "[Client] Joining Game: " << std::endl;
+                std::string data = _playerName;
+                _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, data, OPCODE_GAME_LOBBY);
+            }
         }
 
         if (_state == GameState::MENULOBBY)

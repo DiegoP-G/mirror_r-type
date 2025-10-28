@@ -24,6 +24,11 @@ class LobbyManager
     void removeLobby(const std::string &uid);
 
     void listLobbies() const;
+    std::unordered_map<std::string, std::shared_ptr<Lobby>> getLobbies() const
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        return _lobbies;
+    };
 
   private:
     GameMediator &_med;
