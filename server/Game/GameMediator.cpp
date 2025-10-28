@@ -74,7 +74,7 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
              std::shared_ptr<Lobby> lobby = _lobbyManager.getLobbyOfPlayer(clientFd);
              if (!lobby)
              {
-                 std::cerr << "[VoiceComming] Player " << clientFd << " not in a lobby.\n";
+                 //   std::cerr << "[VoiceComming] Player " << clientFd << " not in a lobby.\n";
                  return;
              }
 
@@ -130,14 +130,50 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
         {GameMediatorEvent::CreateLobby,
          [this](const std::string &data, const std::string &, int) -> void { _lobbyManager.createLobby(data); }},
 
+        {GameMediatorEvent::JoinGameLobby,
+         [this](const std::string &data, const std::string &, int clientFd) -> void {
+             std::cout << "[JoinGameLobby]" << std::endl;
+
+             //     _lobbyManager.createLobby(data);
+             auto lobies = _lobbyManager.getLobbies();
+
+             if (lobies.size() == 0)
+             {
+                 std::cout << "[JoinGameLobby] No lobbies available. Creating a new lobby." << std::endl;
+                 std::string newLobbyUid = data;
+                 auto newLobby = _lobbyManager.createLobby(newLobbyUid);
+                 std::unique_ptr<RTypeServer> &rtype = newLobby->getRTypeServer();
+                 newLobby->addPlayer(clientFd);
+                 rtype->createPlayer(clientFd, data);
+                 std::cout << "Sending all entities to client " << clientFd << std::endl;
+                 _networkManager.sendAllEntitiesToClient(clientFd);
+                 return;
+             }
+             // Join the first available lobby
+             auto it = lobies.begin();
+             std::string lobbyUid = it->first;
+             auto lobby = it->second;
+             lobby->addPlayer(clientFd);
+             std::unique_ptr<RTypeServer> &rtype = lobby->getRTypeServer();
+             rtype->createPlayer(clientFd, data);
+             std::cout << "Sending all entities to client " << clientFd << std::endl;
+             _networkManager.sendAllEntitiesToClient(clientFd);
+         }},
+
         {GameMediatorEvent::JoinLobby,
          [this](const std::string &data, const std::string &, int clientFd) -> void {
              std::vector<std::string> splitted = splitStringBySpace(data);
              if (splitted.size() > 0)
              {
+
                  std::string playerName;
                  std::string lobbyName = splitted[0];
                  auto lobby = _lobbyManager.getLobby(lobbyName);
+                 if (!lobby)
+                 {
+                     std::cerr << "[JoinLobby] Lobby " << lobbyName << " does not exist." << std::endl;
+                     return;
+                 }
 
                  if (splitted.size() >= 2)
                  {

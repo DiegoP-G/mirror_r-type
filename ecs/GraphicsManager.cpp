@@ -34,9 +34,7 @@
 
 GraphicsManager *g_graphics = nullptr;
 
-GraphicsManager::GraphicsManager(NetworkECSMediator &med) : _med(med), 
-    _showError(false),
-    _errorMessage("")
+GraphicsManager::GraphicsManager(NetworkECSMediator &med) : _med(med), _showError(false), _errorMessage("")
 {
 }
 
@@ -404,6 +402,17 @@ void GraphicsManager::initLobbyMenuUI()
     joinLobbyButtonText.setFillColor(sf::Color::White);
     joinLobbyButtonText.setPosition(window.getSize().x / 2.0f - 90, 412);
 
+    // Join game Button
+    joinGameButton.setSize(sf::Vector2f(250, 60));
+    joinGameButton.setFillColor(sf::Color(70, 130, 180));
+    joinGameButton.setPosition(window.getSize().x / 2.0f - 125, 500);
+
+    joinGameButtonText.setFont(font);
+    joinGameButtonText.setString("JOIN GAME");
+    joinGameButtonText.setCharacterSize(28);
+    joinGameButtonText.setFillColor(sf::Color::White);
+    joinGameButtonText.setPosition(window.getSize().x / 2.0f - 80, 512);
+
     // Back Button
     backButton.setSize(sf::Vector2f(200, 50));
     backButton.setFillColor(sf::Color(180, 70, 70));
@@ -447,6 +456,8 @@ void GraphicsManager::drawLobbyMenu()
     window.draw(createLobbyButtonText);
     window.draw(joinLobbyButton);
     window.draw(joinLobbyButtonText);
+    window.draw(joinGameButton);
+    window.draw(joinGameButtonText);
     window.draw(backButton);
     window.draw(backButtonText);
 }
@@ -468,6 +479,11 @@ GraphicsManager::MenuAction GraphicsManager::handleLobbyMenuClick(int mouseX, in
     if (backButton.getGlobalBounds().contains(mousePos))
     {
         return MenuAction::BACK;
+    }
+
+    if (joinGameButton.getGlobalBounds().contains(mousePos))
+    {
+        return MenuAction::MATCHMAKING;
     }
 
     return MenuAction::NONE;
