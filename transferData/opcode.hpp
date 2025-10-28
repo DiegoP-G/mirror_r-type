@@ -130,7 +130,7 @@ constexpr uint8_t OPCODE_CREATE_LOBBY = 0x70;
 constexpr uint8_t OPCODE_JOIN_LOBBY = 0x71;
 // [CLIENT → SERVER, TCP]
 // Request to join an existing lobby
-// Payload: lobby_name (string)
+// Payload: lobby_name (string string)
 
 constexpr uint8_t OPCODE_LOBBY_CREATED = 0x72;
 // [SERVER → CLIENT, TCP]

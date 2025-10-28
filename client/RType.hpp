@@ -38,6 +38,7 @@ class RTypeGame
 {
   private:
     int _playerId;
+    std::string _playerName;
     std::mutex _mutex;
     EntityManager entityManager;
     TickSystem tickSystem;

@@ -80,7 +80,7 @@ class RTypeServer
 
     bool init();
 
-    void createPlayer(int clientFd);
+    void createPlayer(int clientFd, std::string playerName);
 
     void update(float deltaTime);
 

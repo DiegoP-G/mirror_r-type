@@ -1,13 +1,5 @@
 #include "AnimatedSpriteComponent.hpp"
 #include <cstring>
-
-// AnimatedSpriteComponent::AnimatedSpriteComponent(int texture, int frameWidth, int frameHeight, float interval,
-//                                                  Vector2D scale)
-//     : textureID(texture), frameWidth(frameWidth), frameHeight(frameHeight), animationInterval(interval),
-//     scale(scale),
-//       currentFrame(2), currentDirection(Default), elapsedTime(0.0f)
-// {
-// }
 #include <iostream>
 
 AnimatedSpriteComponent::AnimatedSpriteComponent(int textID, int left, int top, int frameWidth,

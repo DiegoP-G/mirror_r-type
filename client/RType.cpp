@@ -226,6 +226,7 @@ void RTypeGame::handleEvents()
                         EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
                         return;
                     }
+                    _playerName = username;
                     std::string encryptedDataStr(encryptedData.begin(), encryptedData.end());
                     _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, encryptedDataStr, OPCODE_LOGIN_REQUEST);
                 }
@@ -244,6 +245,7 @@ void RTypeGame::handleEvents()
                         EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
                         return;
                     }
+                    _playerName = username;
                     std::string encryptedDataStr(encryptedData.begin(), encryptedData.end());
                     EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
 
@@ -286,8 +288,9 @@ void RTypeGame::handleEvents()
                 std::string lobbyName = g_graphics->getLobbyTextBox()->getText();
                 if (!lobbyName.empty())
                 {
+                    std::string data = lobbyName + " " + _playerName;
                     std::cout << "[Client] Joining lobby: " << lobbyName << std::endl;
-                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, lobbyName, OPCODE_JOIN_LOBBY);
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, data, OPCODE_JOIN_LOBBY);
                 }
                 else
                 {
