@@ -38,19 +38,23 @@ jobs:
           docker build -f Dockerfile.client -t rtype-client .
 
   try_compile_Windows:
-    name: Try compile on Windows
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      name: Try compile on Windows
+      runs-on: windows-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
 
-      - name: Configure with CMake
-        run: |
-          cmake --preset windows-default
-      - name: Build project
-        run: |
-          cmake --build build --config Release
+        - name: Set up vcpkg
+          run: |
+            git clone https://github.com/microsoft/vcpkg.git
+            .\vcpkg\bootstrap-vcpkg.bat
 
+        - name: Configure with CMake
+          run: |
+            cmake --preset windows-default
+        - name: Build project
+          run: |
+            cmake --build build --config Release
 
   push-to-mirror:
     if: ${{ github.repository != '${{ env.MIRROR_REPO }}' && github.event_name == 'push' }}
