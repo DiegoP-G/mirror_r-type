@@ -290,6 +290,14 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networ
                  break;
              }
 
+             case OPCODE_BONUS: {
+                _game->getMutex().lock();
+                if (g_graphics)
+                    g_graphics->playSound("powerup");
+                _game->getMutex().unlock();
+                break;
+             }
+
              default:
                  std::cerr << "[Client] Unhandled opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
                  break;

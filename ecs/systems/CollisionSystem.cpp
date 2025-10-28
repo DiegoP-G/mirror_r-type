@@ -161,6 +161,10 @@ void CollisionSystem::onPlayerHitBonus(Entity *player, Entity *bonus)
             playerComp.bonusFiremode += 7.0f;
         }
     }
+
+    auto &playerComp = player->getComponent<PlayerComponent>();
+    playerComp.bonusPicked = true;
+
     std::cout << "BONUS DESTROYED HIHI\n";
     bonus->destroy();
 }

@@ -210,3 +210,8 @@ constexpr uint8_t OPCODE_CLIENT_IV_KEY = 0x92;
 // [SERVER → CLIENT, TCP]
 // Client sends generated AES key and key to server
 // Payload: [ AES_KEY (256 bytes) || IV (16 bytes) ]
+
+constexpr uint8_t OPCODE_BONUS = 0x93;
+// [SERVER → CLIENT, TCP]
+// Client got bonus
+// Payload: none

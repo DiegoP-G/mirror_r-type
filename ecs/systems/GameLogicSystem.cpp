@@ -43,6 +43,15 @@ void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, Game
         gameMediator.notify(GameMediatorEvent::UpdateWave, waveData);
     }
 
+    auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
+    for (auto *player : players) {
+        auto &playerComp = player->getComponent<PlayerComponent>();
+        if (playerComp.bonusPicked) {
+            gameMediator.notify(GameMediatorEvent::PlayerBonus, "", "", playerComp.playerID);
+            playerComp.bonusPicked = false;
+        }
+    }
+
     updateScore(entityManager);
     checkGameOverConditions(entityManager);
 }
@@ -169,8 +178,8 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
     bonusLife.addComponent<TransformComponent>(randX, randY);
     bonusLife.addComponent<VelocityComponent>(-230.0f, 0.0f);
 
-    bonusLife.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_LIFE, 0.0, 0.0, 32.8, 32.3, 1,
-                                                    0.05f, -90.0f, AnimatedSpriteComponent::SpritesheetLayout::Vertical);
+    bonusLife.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_LIFE, 0.0, 0.0, 32, 32, 5,
+                                                    0.1f, 0.0f, AnimatedSpriteComponent::SpritesheetLayout::Vertical);
     bonusLife.addComponent<ColliderComponent>(20.0f, 20.0f, true);
 
     std::vector<std::tuple<BonusComponent::TypeBonus, int>> v;
@@ -187,7 +196,7 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
         bonusFiremode.addComponent<VelocityComponent>(-230.0f, 0.0f);
 
         bonusFiremode.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_FIREMODE,
-            93, 0, 32, 32, 5, 0.05f, 0.0f, AnimatedSpriteComponent::SpritesheetLayout::Vertical);
+            93, 0, 32, 32, 5, 0.1f, 0.0f, AnimatedSpriteComponent::SpritesheetLayout::Vertical);
         bonusFiremode.addComponent<ColliderComponent>(20.0f, 20.0f, true);
 
         std::vector<std::tuple<BonusComponent::TypeBonus, int>> v;
