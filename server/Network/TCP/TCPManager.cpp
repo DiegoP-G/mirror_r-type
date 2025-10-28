@@ -52,7 +52,7 @@ TCPManager::TCPManager(NetworkManager &ref, PrometheusServer &metrics) : _networ
 #endif
         throw std::runtime_error("TCP socket failed");
 
-        // Non-bloquant
+    // Non-bloquant
 #ifdef _WIN32
     u_long mode = 1;
     ioctlsocket(_listenFd, FIONBIO, &mode);

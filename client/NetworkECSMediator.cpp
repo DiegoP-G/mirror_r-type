@@ -306,27 +306,27 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager *networkManager) : _networ
              }
 
              case OPCODE_BONUS: {
-                _game->getMutex().lock();
-                if (g_graphics)
-                    g_graphics->playSound("powerup");
-                _game->getMutex().unlock();
-                break;
+                 _game->getMutex().lock();
+                 if (g_graphics)
+                     g_graphics->playSound("powerup");
+                 _game->getMutex().unlock();
+                 break;
              }
 
              case OPCODE_NEW_WAVE: {
-                _game->getMutex().lock();
-                if (g_graphics)
-                    g_graphics->playSound("newwave");
-                _game->getMutex().unlock();
-                break;
+                 _game->getMutex().lock();
+                 if (g_graphics)
+                     g_graphics->playSound("newwave");
+                 _game->getMutex().unlock();
+                 break;
              }
 
              case OPCODE_EXPLOSION: {
-                _game->getMutex().lock();
-                if (g_graphics)
-                    g_graphics->playSound("explosion");
-                _game->getMutex().unlock();
-                break;
+                 _game->getMutex().lock();
+                 if (g_graphics)
+                     g_graphics->playSound("explosion");
+                 _game->getMutex().unlock();
+                 break;
              }
 
              default:

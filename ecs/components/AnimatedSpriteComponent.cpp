@@ -3,11 +3,13 @@
 #include <iostream>
 
 AnimatedSpriteComponent::AnimatedSpriteComponent(int textID, int left, int top, int frameWidth, int frameHeight,
-                                                 int totalFrames, float interval, float rotation, SpritesheetLayout spritesheetLayout, Vector2D scale,
-                                                 int currentFrame, bool hideAfter)
+                                                 int totalFrames, float interval, float rotation,
+                                                 SpritesheetLayout spritesheetLayout, Vector2D scale, int currentFrame,
+                                                 bool hideAfter)
     : textureID(textID), left(left), top(top), frameWidth(frameWidth), frameHeight(frameHeight),
-      totalFrames(totalFrames), animationInterval(interval), rotationAngle(rotation), spritesheetLayout(spritesheetLayout), scale(scale),
-      currentFrame(currentFrame), currentDirection(Default), elapsedTime(0.0f), hideAfterOneCycle(hideAfter)
+      totalFrames(totalFrames), animationInterval(interval), rotationAngle(rotation),
+      spritesheetLayout(spritesheetLayout), scale(scale), currentFrame(currentFrame), currentDirection(Default),
+      elapsedTime(0.0f), hideAfterOneCycle(hideAfter)
 {
 }
 

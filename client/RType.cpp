@@ -181,7 +181,7 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusBubblesSpritePath), "bonus_firemode");
     sf::Texture &explosionTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(explosionSpritePath), "explosion");
-    
+
     g_graphics->storeTexture("background", backgroundTexture);
     g_graphics->storeTexture("boss", bossTexture);
     g_graphics->storeTexture("player", playerTexture);

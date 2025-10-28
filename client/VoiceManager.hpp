@@ -1,11 +1,11 @@
 #pragma once
 #include <atomic>
+#include <cstdint>
 #include <functional>
 #include <portaudio.h>
 #include <string>
 #include <sys/types.h>
 #include <vector>
-#include <cstdint>
 
 struct AudioDevice
 {

@@ -58,7 +58,8 @@ void PlayerSystem::update(EntityManager &entityManager, float deltaTime, bool cl
             handlePositionPlayer(entity);
         }
 
-        printf("PLAYER %d | Stamina: %.2f | Speed: %.2f\n", playerComp.playerID, playerComp.stamina, playerComp.moveSpeed);
+        printf("PLAYER %d | Stamina: %.2f | Speed: %.2f\n", playerComp.playerID, playerComp.stamina,
+               playerComp.moveSpeed);
     }
 }
 
@@ -83,23 +84,27 @@ void PlayerSystem::fire(EntityManager &entityManager, Entity *entity)
     auto &transform = entity->getComponent<TransformComponent>();
     auto &player = entity->getComponent<PlayerComponent>();
 
-    if (player.bonusFiremode > 0) {
-        for (int i = 0; i < 3; i++) {
+    if (player.bonusFiremode > 0)
+    {
+        for (int i = 0; i < 3; i++)
+        {
             auto &bullet = entityManager.createEntity();
-            
+
             bullet.addComponent<TransformComponent>(transform.position.x + 32.0f, transform.position.y + 16.0f);
-            
+
             Vector2D velocity(300.0f, (i - 1) * 50.0f);
             bullet.addComponent<VelocityComponent>(velocity.x, velocity.y);
 
-            //float angle = std::atan2(velocity.y, velocity.x) * (180.0f / M_PI) + 90.0f;
-            //bullet.addComponent<AnimatedSpriteComponent
+            // float angle = std::atan2(velocity.y, velocity.x) * (180.0f / M_PI) + 90.0f;
+            // bullet.addComponent<AnimatedSpriteComponent
 
             bullet.addComponent<SpriteComponent>(8, 8, 255, 0, 0);
             bullet.addComponent<ColliderComponent>(8.0f, 8.0f);
             bullet.addComponent<ProjectileComponent>(30.0f, 2.0f, player.playerID, ENTITY_TYPE::PLAYER);
         }
-    } else {
+    }
+    else
+    {
         auto &bullet = entityManager.createEntity();
 
         bullet.addComponent<TransformComponent>(transform.position.x + 32.0f, transform.position.y + 16.0f);

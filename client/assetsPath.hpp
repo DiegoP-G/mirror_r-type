@@ -12,7 +12,6 @@ const char bonusBubblesSpritePath[] = "assets/sprites/bonus_bubbles.png";
 const char bossSpritePath[] = "assets/sprites/spaceship_boss.png";
 const char explosionSpritePath[] = "assets/sprites/explosion.png";
 
-
 class PathFormater
 {
   public:

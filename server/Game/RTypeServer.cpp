@@ -24,7 +24,8 @@ void RTypeServer::createPlayer(int playerId, std::string playerName)
     playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0, GraphicsManager::Texture::PLAYER);
     playerEntity.addComponent<ColliderComponent>(32.0f, 32.0f);
     playerEntity.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::PLAYER, 0, 0, 33, 17.5, 5, 0.05f, 0.0f,
-                                                       AnimatedSpriteComponent::SpritesheetLayout::Horizontal, Vector2D(2.0f, 2.0f));
+                                                       AnimatedSpriteComponent::SpritesheetLayout::Horizontal,
+                                                       Vector2D(2.0f, 2.0f));
     playerEntity.addComponent<InputComponent>();
     playerEntity.addComponent<HealthComponent>(100, 150);
     playerEntity.addComponent<HealthBarComponent>(50.0f, 4.0f, 20.0f, -24.0f);

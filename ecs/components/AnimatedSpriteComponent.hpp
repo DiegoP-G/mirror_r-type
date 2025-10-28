@@ -19,9 +19,10 @@ class AnimatedSpriteComponent : public IComponent
     Vector2D scale;
     float elapsedTime;
 
-    enum SpritesheetLayout {
-      Horizontal,
-      Vertical
+    enum SpritesheetLayout
+    {
+        Horizontal,
+        Vertical
     } spritesheetLayout;
 
     enum Direction
