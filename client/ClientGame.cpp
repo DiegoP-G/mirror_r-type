@@ -8,12 +8,13 @@
 #include <iostream>
 
 ClientGame::ClientGame()
-    : _sender(Sender(_med)), _receiver(Receiver(_med)), _game(RTypeGame(_med)),
-      _networkManager(NetworkManager(_med, _sender, _receiver)), _med(_networkManager), _running(false)
+    : _med(), _sender(Sender(_med)), _receiver(Receiver(_med)), _voiceManager(VoiceManager()), _game(RTypeGame(_med)),
+      _networkManager(NetworkManager(_med, _sender, _receiver)), _running(false)
 {
     _med.setSender(&_sender);
     _med.setReceiver(&_receiver);
     _med.setRTypeGame(&_game);
+    _med.setVoiceManager(&_voiceManager);
 }
 
 ClientGame::~ClientGame()
@@ -33,6 +34,7 @@ void ClientGame::startServer(const char *serverIp)
     _game.setCurrentState(GameState::MENULOGIN);
 
     std::cout << "[Client] Connected successfully, showing lobby menu" << std::endl;
+    _med.setupVoiceChat(_game.getSelectedMic());
 }
 
 bool ClientGame::init(const char *serverIp, int port)

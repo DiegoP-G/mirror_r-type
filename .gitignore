@@ -32,3 +32,4 @@ CMakeSettings*
 *exe
 .vs
 *.sqlite
+vcpkg

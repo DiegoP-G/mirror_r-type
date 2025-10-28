@@ -10,23 +10,23 @@
 #include <cstdint>
 #include <functional>
 #ifdef _WIN32
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #pragma comment(lib, "ws2_32.lib")
-    #include <windows.h>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#include <windows.h>
 #else
-    #include <arpa/inet.h>
-    #include <netinet/in.h>
-    #include <sys/socket.h>
-    #include <unistd.h>
-    #include <poll.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #endif
 #include <unordered_map>
 #include <vector>
@@ -75,6 +75,8 @@ class NetworkManager
     void sendDataAllClientTCP(std::string data, int opcode);
     void sendDataToLobbyTCP(std::shared_ptr<Lobby>, const std::string &data, int opcode);
     void sendDataToLobbyUDP(std::shared_ptr<Lobby>, const std::string &data, int opcode);
+    void sendDataToLobbyUDPExcept(std::shared_ptr<Lobby> lobby, const std::string &data, int opcode,
+                                  int excludeClientFd);
 
     TCPManager &getTCPManager()
     {

@@ -1,11 +1,23 @@
 #pragma once
 
+#ifdef _WIN32
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <windows.h>
+    #include <wincrypt.h>
+#endif
+
+
 #include <openssl/evp.h>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
-#include <crypt.h>
+
 #include <cstring>
 #include <iomanip>
 #include <vector>
