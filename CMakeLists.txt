@@ -124,6 +124,8 @@ endif()
 # ============================================================
 #                               ECS
 # ============================================================
+
+
 file(GLOB_RECURSE ECS_SOURCES ecs/*.cpp)
 add_library(ecs STATIC ${ECS_SOURCES})
 target_include_directories(ecs PUBLIC
@@ -142,6 +144,7 @@ target_link_libraries(ecs PUBLIC
     OpenSSL::Crypto
 )
 
+
 # ---- Prometheus-cpp ----
 find_package(prometheus-cpp CONFIG QUIET)
 if (NOT prometheus-cpp_FOUND)
@@ -150,15 +153,16 @@ if (NOT prometheus-cpp_FOUND)
         prometheus_cpp
         GIT_REPOSITORY https://github.com/jupp0r/prometheus-cpp.git
         GIT_TAG v1.2.4
-    )
+        )
     set(ENABLE_PUSH OFF CACHE BOOL "Disable prometheus push support" FORCE)
     set(ENABLE_PULL ON CACHE BOOL "Enable prometheus pull support" FORCE)
     set(ENABLE_COMPRESSION ON CACHE BOOL "Enable compression support" FORCE)
     set(ENABLE_TESTING OFF CACHE BOOL "Disable tests" FORCE)
     set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static prometheus-cpp libs" FORCE)
+    set(ENABLE_COMPRESSION OFF CACHE BOOL "Disable compression support" FORCE)
     FetchContent_MakeAvailable(prometheus_cpp)
-endif()
-if (prometheus_cpp_SOURCE_DIR)
+    endif()
+    if (prometheus_cpp_SOURCE_DIR)
     include_directories(
         ${prometheus_cpp_SOURCE_DIR}/core/include
         ${prometheus_cpp_SOURCE_DIR}/pull/include
@@ -166,7 +170,7 @@ if (prometheus_cpp_SOURCE_DIR)
         ${prometheus_cpp_BINARY_DIR}/pull/include
     )
 endif()
-
+        
 # ============================================================
 #                              CLIENT
 # ============================================================
