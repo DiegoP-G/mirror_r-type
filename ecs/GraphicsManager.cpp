@@ -406,6 +406,17 @@ void GraphicsManager::initLobbyMenuUI()
     joinLobbyButtonText.setFillColor(sf::Color::White);
     joinLobbyButtonText.setPosition(window.getSize().x / 2.0f - 90, 412);
 
+    // Join game Button
+    joinGameButton.setSize(sf::Vector2f(250, 60));
+    joinGameButton.setFillColor(sf::Color(70, 130, 180));
+    joinGameButton.setPosition(window.getSize().x / 2.0f - 125, 500);
+
+    joinGameButtonText.setFont(font);
+    joinGameButtonText.setString("JOIN GAME");
+    joinGameButtonText.setCharacterSize(28);
+    joinGameButtonText.setFillColor(sf::Color::White);
+    joinGameButtonText.setPosition(window.getSize().x / 2.0f - 80, 512);
+
     // Lobby name textbox
     _lobbyTextbox = std::make_unique<TextBox>(font, [](const char *) {}, 400, 50);
     _lobbyTextbox->setPosition(window.getSize().x / 2.0f - 200, 200);
@@ -438,6 +449,8 @@ void GraphicsManager::drawLobbyMenu()
     window.draw(createLobbyButtonText);
     window.draw(joinLobbyButton);
     window.draw(joinLobbyButtonText);
+    window.draw(joinGameButton);
+    window.draw(joinGameButtonText);
 }
 
 GraphicsManager::MenuAction GraphicsManager::handleLobbyMenuClick(int mouseX, int mouseY)
@@ -452,6 +465,11 @@ GraphicsManager::MenuAction GraphicsManager::handleLobbyMenuClick(int mouseX, in
     if (joinLobbyButton.getGlobalBounds().contains(mousePos))
     {
         return MenuAction::JOIN_LOBBY;
+    }
+
+    if (joinGameButton.getGlobalBounds().contains(mousePos))
+    {
+        return MenuAction::MATCHMAKING;
     }
 
     return MenuAction::NONE;

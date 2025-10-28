@@ -28,6 +28,7 @@ enum GameMediatorEvent
     UpdateScore = OPCODE_UPDATE_SCORE,
     CreateLobby = OPCODE_CREATE_LOBBY,
     JoinLobby = OPCODE_JOIN_LOBBY,
+    JoinGameLobby = OPCODE_GAME_LOBBY,
     LoginReqest = 0x80,
     LoginResponse = 0x81,
     SigninRequest = 0x82,

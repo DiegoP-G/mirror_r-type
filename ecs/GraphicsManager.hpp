@@ -62,6 +62,9 @@ class GraphicsManager
     sf::Text createLobbyButtonText;
     sf::RectangleShape joinLobbyButton;
     sf::Text joinLobbyButtonText;
+    sf::RectangleShape joinGameButton;
+    sf::Text joinGameButtonText;
+
     sf::RectangleShape backButton;
     sf::Text backButtonText;
     std::unique_ptr<TextBox> _lobbyTextbox;
@@ -102,7 +105,8 @@ class GraphicsManager
         SIGNIN,
         CREATE_LOBBY,
         JOIN_LOBBY,
-        BACK
+        BACK,
+        MATCHMAKING
     };
 
     sf::Texture &createColorTexture(int width, int height, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a = 255);

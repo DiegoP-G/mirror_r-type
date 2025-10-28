@@ -7,7 +7,6 @@
 #include "../entity.hpp"
 void AnimationSystem::update(EntityManager &entityManager, float deltaTime)
 {
-    std::cout << "AnimationSystem update\n";
     auto entities = entityManager.getEntitiesWithComponents<InputComponent, PlayerComponent>();
 
     for (auto &entity : entities)
