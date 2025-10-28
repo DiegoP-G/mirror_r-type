@@ -151,8 +151,6 @@ class RTypeGame
     void setCurrentState(GameState newState);
 
     void drawHitbox();
-    void drawPlayerID();
-
     void setKickState()
     {
         _state = GameState::KICKED;

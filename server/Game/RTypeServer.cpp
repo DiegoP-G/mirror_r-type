@@ -21,13 +21,13 @@ void RTypeServer::createPlayer(int playerId)
     playerEntity.addComponent<PlayerComponent>(playerId, false, 0.25f);
     playerEntity.addComponent<TransformComponent>(100.0f, 300.0f);
     playerEntity.addComponent<VelocityComponent>(0.0f, 0.0f);
-    playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0, GraphicsManager::Texture::PLAYER); // Yellow
+    playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0, GraphicsManager::Texture::PLAYER);
     playerEntity.addComponent<ColliderComponent>(32.0f, 32.0f);
     playerEntity.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::PLAYER, 0, 0, 33, 17.5, 5, 0.05f, 0.0f,
                                                        Vector2D(2.0f, 2.0f));
     playerEntity.addComponent<InputComponent>();
     playerEntity.addComponent<HealthComponent>(100, 150);
-    playerEntity.addComponent<HealthBarComponent>(50.0f, 4.0f, -10.0f);
+    playerEntity.addComponent<HealthBarComponent>(50.0f, 4.0f, 20.0f, -24.0f);
 
     player = &playerEntity;
     _playersScores.push_back({playerId, 0});

@@ -423,14 +423,12 @@ void RTypeGame::render()
     }
     else if (_state == GameState::INGAME)
     {
+        renderSystem.update(entityManager);
         std::string scoreText = "Score: " + std::to_string(score);
         g_graphics->drawText(scoreText, 10, 10);
 
         std::string waveText = "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
         g_graphics->drawText(waveText, windowWidth - 100, 10);
-
-        drawPlayerID();
-        renderSystem.update(entityManager);
     }
     else if (_state == GameState::GAMEOVER)
     {
@@ -629,26 +627,6 @@ void RTypeGame::drawHitbox()
         hitboxRect.setOutlineColor(sf::Color::Red);
 
         g_graphics->getWindow().draw(hitboxRect);
-    }
-}
-
-void RTypeGame::drawPlayerID()
-{
-    auto entities = entityManager.getEntitiesWithComponent<PlayerComponent>();
-    for (auto e : entities)
-    {
-        auto &player = e->getComponent<PlayerComponent>();
-
-        std::string username = "PLAYER " + std::to_string(player.playerID);
-
-        if (_playerId == player.playerID)
-            username = "ME";
-
-        if (e->hasComponent<TransformComponent>())
-        {
-            auto &transform = e->getComponent<TransformComponent>();
-            g_graphics->drawText(username, transform.position.x, transform.position.y, 255, 255, 255);
-        }
     }
 }
 
