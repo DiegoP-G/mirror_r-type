@@ -176,3 +176,8 @@ constexpr uint8_t OPCODE_CLIENT_IV_KEY = 0x92;
 // [SERVER → CLIENT, TCP]
 // Client sends generated AES key and key to server
 // Payload: [ AES_KEY (256 bytes) || IV (16 bytes) ]
+
+constexpr uint8_t OPCODE_VOICE_DATA = 0x75;
+// [CLIENT → SERVER, UDP]
+// Sends the client's voice data.
+// Payload: [ user_id (4 bytes) | audio_data (byte array) ]

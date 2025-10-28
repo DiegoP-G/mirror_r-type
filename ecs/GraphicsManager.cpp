@@ -34,7 +34,7 @@
 
 GraphicsManager *g_graphics = nullptr;
 
-GraphicsManager::GraphicsManager(NetworkECSMediator med) : _med(med), _showError(false), _errorMessage("")
+GraphicsManager::GraphicsManager(NetworkECSMediator &med) : _med(med), _showError(false), _errorMessage("")
 {
 }
 
@@ -201,8 +201,8 @@ sf::Font &GraphicsManager::getFont()
 
 bool GraphicsManager::registerTheSound()
 {
-    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/pew.mp3"), "pew");
-    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/music.mp3"), "music");
+    // createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/pew.mp3"), "pew");
+    // createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/music.mp3"), "music");
 
     return true;
 }

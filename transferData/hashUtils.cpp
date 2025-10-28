@@ -1,5 +1,29 @@
 #include "hashUtils.hpp"
 
+#ifdef _WIN32
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
+
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <windows.h>
+    #include <wincrypt.h>
+#else
+    #include <netinet/in.h>
+    #include <crypt.h>
+#endif
+#include <cstdint>
+#include <cstring>
+#include <iomanip>
+#include <vector>
+#include <iostream>
+#include <random>
+#include <sstream>
+#include <optional>
+
+
 std::string generateRandomSalt()
 {
     const char charset[] = "abcdefghijklmnopqrstuvwxyz"
@@ -258,7 +282,7 @@ std::optional<std::vector<unsigned char>> encryptBytesWithPublicKey(EVP_PKEY *pu
 bool aesEncryptWithTag(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv, const std::string &plaintextStr,
                        std::vector<unsigned char> &ciphertOutWithTag)
 {
-    std::vector<u_int8_t> plaintext(plaintextStr.begin(), plaintextStr.end());
+    std::vector<uint8_t> plaintext(plaintextStr.begin(), plaintextStr.end());
     unsigned char tag[TAG_BYTES];
 
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
