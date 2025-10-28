@@ -17,7 +17,6 @@ on:
 jobs:
   build-server-docker:
     name: Build Docker image for server
-    needs: [format-check]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -41,7 +40,6 @@ jobs:
   try_compile_Windows:
     name: Try compile on Windows
     runs-on: windows-latest
-    needs: [format-check]  # Assuming format-check is defined elsewhere; adjust if not
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
