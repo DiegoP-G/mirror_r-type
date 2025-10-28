@@ -15,11 +15,10 @@ class PlayerComponent : public IComponent
     bool isReady;
     std::string name;
 
-    // ! stamina + warp cooldown
     float stamina;
     float maxStamina;
     float staminaRegenRate;
-    float warpCooldown; // ! integrated warp cooldown per entity
+    float moveSpeed;
 
     PlayerComponent(int playerID = 0, bool isLocal = true, std::string username = "");
     PlayerComponent(int playerID = 0, bool isLocal = true, float shootCooldown = 0.0f, std::string username = "");

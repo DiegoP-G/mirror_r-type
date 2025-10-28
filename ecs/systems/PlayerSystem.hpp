@@ -14,7 +14,10 @@ constexpr static float WARP_DISTANCE = 150.0f;
 constexpr static float WARP_COOLDOWN = 2.0f;
 
 constexpr static float FIRE_STAMINA_COST = 10.0f;
-constexpr static float WARP_STAMINA_COST = 25.0f;
+constexpr static float WARP_STAMINA_COST = 100.0f;
+
+constexpr static float NORMAL_SPEED = 10.0f;
+constexpr static float WARP_SPEED_MULTIPLIER = 20.0f;
 class PlayerSystem
 {
   public:

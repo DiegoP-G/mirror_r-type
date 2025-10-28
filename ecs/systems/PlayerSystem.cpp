@@ -7,57 +7,57 @@ void PlayerSystem::update(EntityManager &entityManager, float deltaTime, bool cl
     for (auto &entity : entities)
     {
         auto &input = entity->getComponent<InputComponent>();
-        auto &playerComp = entity->getComponent<PlayerComponent>();
-        playerComp.currentCooldown -= deltaTime;
+        auto &player = entity->getComponent<PlayerComponent>();
+        player.currentCooldown -= deltaTime;
 
-        // ! initialize stamina if missing (safety net)
-        if (playerComp.stamina > playerComp.maxStamina)
-            playerComp.stamina = playerComp.maxStamina;
+        if (player.stamina > player.maxStamina)
+            player.stamina = player.maxStamina;
 
-        // ! stamina regeneration
-        playerComp.stamina += playerComp.staminaRegenRate * deltaTime;
-        if (playerComp.stamina > playerComp.maxStamina)
-            playerComp.stamina = playerComp.maxStamina;
-
-        // ! warp cooldown update
-        if (playerComp.warpCooldown > 0.0f)
+        if (input.warp && player.stamina >= WARP_STAMINA_COST * deltaTime)
         {
-            playerComp.warpCooldown -= deltaTime;
-            if (playerComp.warpCooldown < 0.0f)
-                playerComp.warpCooldown = 0.0f;
+            player.stamina -= WARP_STAMINA_COST * deltaTime;
+            if (player.stamina < 0.0f)
+                player.stamina = 0.0f;
+
+            player.moveSpeed = NORMAL_SPEED * WARP_SPEED_MULTIPLIER;
+        }
+        else
+        {
+            player.moveSpeed = NORMAL_SPEED;
+            player.stamina += player.staminaRegenRate * deltaTime;
+            if (player.stamina > player.maxStamina)
+                player.stamina = player.maxStamina;
         }
 
-        std::cout << "STAMINA" << playerComp.stamina << std::endl;
-        if (input.fire && playerComp.currentCooldown <= 0 && !client)
+        if (input.fire && player.currentCooldown <= 0)
         {
-            if (playerComp.stamina >= FIRE_STAMINA_COST)
+            if (player.stamina >= FIRE_STAMINA_COST)
             {
-                fire(entityManager, entity);
-            }
-        }
-        // ! Had to add this to bypass !client causing issues
-        if (input.fire && playerComp.currentCooldown <= 0)
-        {
-            if (playerComp.stamina >= FIRE_STAMINA_COST)
-            {
-                playerComp.stamina -= FIRE_STAMINA_COST;
+                if (!client)
+                    fire(entityManager, entity);
+
+                player.stamina -= FIRE_STAMINA_COST;
                 input.fire = false;
-                playerComp.currentCooldown = playerComp.attackCooldown;
+                player.currentCooldown = player.attackCooldown;
             }
         }
 
-        // ! warp handling
-        if (input.warp)
+        if (entity->hasComponent<TransformComponent>())
         {
-            handleWarp(entity, deltaTime);
-            input.warp = false;
+            auto &transform = entity->getComponent<TransformComponent>();
+            if (input.up)
+                transform.position.y -= player.moveSpeed * deltaTime;
+            if (input.down)
+                transform.position.y += player.moveSpeed * deltaTime;
+            if (input.left)
+                transform.position.x -= player.moveSpeed * deltaTime;
+            if (input.right)
+                transform.position.x += player.moveSpeed * deltaTime;
+
+            handlePositionPlayer(entity);
         }
 
-        handlePositionPlayer(entity);
-
-        // ! debug
-        printf("PLAYER %d | Stamina: %.2f | WarpCD: %.2f\n", playerComp.playerID, playerComp.stamina,
-               playerComp.warpCooldown);
+        printf("PLAYER %d | Stamina: %.2f | Speed: %.2f\n", player.playerID, player.stamina, player.moveSpeed);
     }
 }
 
@@ -77,43 +77,9 @@ void PlayerSystem::handlePositionPlayer(Entity *&entity)
         transform.position.y = 600 - 32;
 }
 
-void PlayerSystem::handleWarp(Entity *&entity, float deltaTime)
-{
-    if (!entity->hasComponent<TransformComponent>() || !entity->hasComponent<InputComponent>() ||
-        !entity->hasComponent<PlayerComponent>())
-        return;
-
-    auto &transform = entity->getComponent<TransformComponent>();
-    auto &input = entity->getComponent<InputComponent>();
-    auto &playerComp = entity->getComponent<PlayerComponent>();
-
-    // ! check cooldown and stamina
-    if (playerComp.warpCooldown > 0.0f)
-        return;
-    if (playerComp.stamina < WARP_STAMINA_COST)
-        return;
-
-    // ! execute warp
-    if (input.up)
-        transform.position.y -= WARP_DISTANCE;
-    else if (input.down)
-        transform.position.y += WARP_DISTANCE;
-    else if (input.left)
-        transform.position.x -= WARP_DISTANCE;
-    else if (input.right)
-        transform.position.x += WARP_DISTANCE;
-
-    // ! apply stamina + cooldown
-    playerComp.stamina -= WARP_STAMINA_COST;
-    playerComp.warpCooldown = WARP_COOLDOWN;
-
-    handlePositionPlayer(entity);
-}
-
 void PlayerSystem::fire(EntityManager &entityManager, Entity *entity)
 {
     auto &transform = entity->getComponent<TransformComponent>();
-
     auto &bullet = entityManager.createEntity();
 
     bullet.addComponent<TransformComponent>(transform.position.x + 32.0f, transform.position.y + 16.0f);
@@ -121,8 +87,7 @@ void PlayerSystem::fire(EntityManager &entityManager, Entity *entity)
     bullet.addComponent<SpriteComponent>(8, 8, 255, 0, 0);
     bullet.addComponent<ColliderComponent>(8.0f, 8.0f);
 
-    auto &player = entity->getComponent<PlayerComponent>(); // ! was copy, now reference
-
+    auto &player = entity->getComponent<PlayerComponent>();
     printf("BULLET OWNER ID: %d\n", player.playerID);
 
     bullet.addComponent<ProjectileComponent>(30.0f, 2.0f, player.playerID, ENTITY_TYPE::PLAYER);

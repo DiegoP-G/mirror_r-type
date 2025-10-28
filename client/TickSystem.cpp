@@ -72,24 +72,20 @@ void TickSystem::applyPlayerInputs(EntityManager &entityManager, const PlayerInp
 
         transform.position += velocity.velocity * TICK_DURATION;
 
-        if (inputComp.warp)
-        {
-            if (playerComp.stamina >= WARP_STAMINA_COST && playerComp.warpCooldown <= 0.0f)
-            {
-                if (inputComp.up)
-                    transform.position.y -= WARP_DISTANCE;
-                else if (inputComp.down)
-                    transform.position.y += WARP_DISTANCE;
-                else if (inputComp.left)
-                    transform.position.x -= WARP_DISTANCE;
-                else if (inputComp.right)
-                    transform.position.x += WARP_DISTANCE;
-
-                playerComp.stamina -= WARP_STAMINA_COST;
-                playerComp.warpCooldown = WARP_COOLDOWN;
-                inputComp.warp = false;
-            }
-        }
+        // if (inputComp.warp)
+        // {
+        //     if (playerComp.stamina >= WARP_STAMINA_COST && playerComp.warpCooldown <= 0.0f)
+        //     {
+        //         if (inputComp.up)
+        //             transform.position.y -= WARP_DISTANCE;
+        //         else if (inputComp.down)
+        //             transform.position.y += WARP_DISTANCE;
+        //         else if (inputComp.left)
+        //             transform.position.x -= WARP_DISTANCE;
+        //         else if (inputComp.right)
+        //             transform.position.x += WARP_DISTANCE;
+        //     }
+        // }
     }
 }
 
