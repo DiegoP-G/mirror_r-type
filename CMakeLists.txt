@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(RTypeProject)
 
+
+
 # FIX: The CMAKE_TOOLCHAIN_FILE must be set on the command line, not in the script.
 # This entire block has been removed to prevent conflicts.
 
@@ -55,7 +57,21 @@ endif()
 include(FetchContent)
 
 # ---- OpenSSL (found via vcpkg) ----
+
+if (WIN32)
+    set(OPENSSL_ROOT_DIR "${CMAKE_SOURCE_DIR}/vcpkg/installed/x64-windows")
+    set(OPENSSL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/vcpkg/installed/x64-windows/include")
+endif()
+
 find_package(OpenSSL REQUIRED)
+if(OPENSSL_FOUND)
+    message(STATUS "✓ OpenSSL trouvé!")
+    message(STATUS "  - Version: ${OPENSSL_VERSION}")
+    message(STATUS "  - Include: ${OPENSSL_INCLUDE_DIR}")
+    message(STATUS "  - Libraries: ${OPENSSL_LIBRARIES}")
+else()
+    message(FATAL_ERROR "✗ OpenSSL non trouvé!")
+endif()
 # FIX: Removed `include_directories(${OPENSSL_INCLUDE_DIR})`.
 # Linking with OpenSSL::SSL and OpenSSL::Crypto handles this automatically.
 
@@ -122,7 +138,7 @@ if (WIN32)
     target_compile_definitions(transferData PUBLIC TRANSFERDATA_STATIC)
     target_link_libraries(transferData PUBLIC ws2_32)
     target_link_libraries(transferData PRIVATE 
-    OpenSSL::SSL 
+    OpenSSL::SSL
     OpenSSL::Crypto
 )
 endif()
@@ -157,6 +173,8 @@ target_link_libraries(ecs PUBLIC
     sfml-system
     sfml-audio
     sqlite3_lib
+    OpenSSL::SSL
+    OpenSSL::Crypto
 )
 
 # ============================================================
@@ -218,7 +236,6 @@ target_link_libraries(r-type_server PRIVATE
     sfml-system
     sfml-audio
     sqlite3_lib
-    # FIX: Link to both OpenSSL targets provided by vcpkg for full functionality.
     OpenSSL::SSL
     OpenSSL::Crypto
 )
@@ -284,4 +301,5 @@ set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
     "${CMAKE_SOURCE_DIR}/r-type_client"
     "${CMAKE_SOURCE_DIR}/r-type_server"
 )
+
 

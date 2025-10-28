@@ -6,26 +6,24 @@
 #include "Sender.hpp"
 #include "transferData/hashUtils.hpp"
 #include <atomic>
-#include <netinet/in.h>
-#include <poll.h>
 #ifdef _WIN32
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#pragma comment(lib, "ws2_32.lib")
-using SocketType = SOCKET;
-#include <windows.h>
-
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #pragma comment(lib, "ws2_32.lib")
+    using SocketType = SOCKET;
+    #include <cstdint>
+    #include <windows.h>
 #else
-using SocketType = int;
-#include <netinet/in.h>
-#include <poll.h>
+    using SocketType = int;
+    #include <netinet/in.h>
+    #include <poll.h>
 #endif
 #include <vector>
 
