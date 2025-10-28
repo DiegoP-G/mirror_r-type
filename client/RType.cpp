@@ -225,7 +225,6 @@ void RTypeGame::handleEvents()
                                            loginData, encryptedData))
                     {
                         std::cerr << "Client failed to encrypt data\n";
-                        EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
                         return;
                     }
                     _playerName = username;
@@ -244,12 +243,10 @@ void RTypeGame::handleEvents()
                                            loginData, encryptedData))
                     {
                         std::cerr << "Client failed to encrypt data\n";
-                        EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
                         return;
                     }
                     _playerName = username;
                     std::string encryptedDataStr(encryptedData.begin(), encryptedData.end());
-                    EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
 
                     _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, encryptedDataStr, OPCODE_SIGNIN_REQUEST);
                 }
@@ -298,11 +295,6 @@ void RTypeGame::handleEvents()
                 {
                     std::cout << "[Client] Lobby name cannot be empty!" << std::endl;
                 }
-            }
-            else if (action == GraphicsManager::MenuAction::BACK)
-            {
-                _state = GameState::MENULOGIN;
-                std::cout << "[Client] Going back to IP menu" << std::endl;
             }
         }
 
