@@ -56,8 +56,8 @@ void TextBox::typeInBox(sf::Event event)
         if (event.text.unicode == 8 && !input.empty())
         {
             input.pop_back();
-            // enter
         }
+        // enter
         else if (event.text.unicode == 13)
         {
             value = input;
@@ -66,7 +66,7 @@ void TextBox::typeInBox(sf::Event event)
             _startNetwork(input.c_str());
             display = false;
         }
-        else if (event.text.unicode >= 32 && event.text.unicode < 128)
+        else if (event.text.unicode > 32 && event.text.unicode < 128)
         {
             input += static_cast<char>(event.text.unicode);
         }
