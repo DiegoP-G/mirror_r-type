@@ -1,23 +1,23 @@
 #pragma once
 
 #ifdef _WIN32
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #pragma comment(lib, "ws2_32.lib")
-    #include <windows.h>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#include <windows.h>
 #else
-    #include <arpa/inet.h>
-    #include <netinet/in.h>
-    #include <sys/socket.h>
-    #include <unistd.h>
-    #include <poll.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #endif
 
 #include <string>
@@ -29,14 +29,13 @@ class NetworkManager;
 class UDPManager
 {
   private:
-
-    #ifdef _WIN32
-      SOCKET _udpFd;
-        std::vector<WSAPOLLFD> _pollFds;
-    #else
-            int _udpFd;
-            std::vector<struct pollfd> _pollFds;
-    #endif
+#ifdef _WIN32
+    SOCKET _udpFd;
+    std::vector<WSAPOLLFD> _pollFds;
+#else
+    int _udpFd;
+    std::vector<struct pollfd> _pollFds;
+#endif
     NetworkManager &_NetworkManagerRef;
     sockaddr_in _addr;
 

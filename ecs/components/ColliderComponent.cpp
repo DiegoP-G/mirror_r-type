@@ -28,7 +28,7 @@ std::vector<uint8_t> ColliderComponent::serialize() const
     return data;
 }
 
-ColliderComponent ColliderComponent::deserialize(const uint8_t* data, size_t size)
+ColliderComponent ColliderComponent::deserialize(const uint8_t *data, size_t size)
 {
     size_t expectedSize = sizeof(Rect) + 2 * sizeof(bool); // hitbox + isActive + isTrigger
     if (size < expectedSize)

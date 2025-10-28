@@ -51,41 +51,25 @@ void TickSystem::applyPlayerInputs(EntityManager &entityManager, const PlayerInp
         if (entity->getComponent<PlayerComponent>().playerID != _playerId)
             continue;
 
-        auto &input = entity->getComponent<InputComponent>();
         auto &velocity = entity->getComponent<VelocityComponent>();
 
         velocity.velocity.x = 0.0f;
         velocity.velocity.y = 0.0f;
 
         const float PLAYER_SPEED = 200.0f;
-        if (input.up)
+        if (input.moveUp)
             velocity.velocity.y = -PLAYER_SPEED;
-        if (input.down)
+        if (input.moveDown)
             velocity.velocity.y = PLAYER_SPEED;
-        if (input.left)
+        if (input.moveLeft)
             velocity.velocity.x = -PLAYER_SPEED;
-        if (input.right)
+        if (input.moveRight)
         {
             velocity.velocity.x = PLAYER_SPEED;
         }
 
         auto &transform = entity->getComponent<TransformComponent>();
-        if (velocity.sineMovement)
-        {
-            velocity.time += TICK_DURATION;
-            transform.position.x += velocity.velocity.x * TICK_DURATION;
-            transform.position.y += velocity.velocity.y * TICK_DURATION + sinf(velocity.time * 4);
-        }
-        else if (velocity.reverseSineMovement)
-        {
-            velocity.time += TICK_DURATION;
-            transform.position.x += velocity.velocity.x * TICK_DURATION;
-            transform.position.y += velocity.velocity.y * TICK_DURATION - sinf(velocity.time * 4);
-        }
-        else
-        {
-            transform.position += velocity.velocity * TICK_DURATION;
-        }
+        transform.position += velocity.velocity * TICK_DURATION;
     }
 }
 

@@ -9,25 +9,24 @@
  *
  */
 
-
 #define NOMINMAX
 
 #include "GraphicsManager.hpp"
 #include "../client/NetworkECSMediator.hpp"
-#include "../client/windowSize.hpp"
 #include "../client/assetsPath.hpp"
+#include "../client/windowSize.hpp"
 #include "textBox.hpp"
 #ifdef _WIN32
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <winsock2.h>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
 
-    #include <windows.h>
+#include <windows.h>
 #endif
 #include <SFML/Graphics/Font.hpp>
 #include <iostream>
@@ -35,9 +34,7 @@
 
 GraphicsManager *g_graphics = nullptr;
 
-GraphicsManager::GraphicsManager(NetworkECSMediator med) : _med(med), 
-    _showError(false),
-    _errorMessage("")
+GraphicsManager::GraphicsManager(NetworkECSMediator med) : _med(med), _showError(false), _errorMessage("")
 {
 }
 
@@ -154,13 +151,21 @@ void GraphicsManager::drawRect(float x, float y, float w, float h, sf::Uint8 r, 
     window.draw(rect);
 }
 
-void GraphicsManager::drawText(const std::string &content, float x, float y, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b)
+void GraphicsManager::drawText(const std::string &content, float x, float y, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b,
+                               bool centered, int textSize)
 {
     sf::Text text;
     text.setFont(font);
     text.setString(content);
-    text.setCharacterSize(TEXT_SIZE);
+    text.setCharacterSize(textSize);
     text.setFillColor(sf::Color(r, g, b));
+
+    if (centered)
+    {
+        sf::FloatRect textBounds = text.getLocalBounds();
+        x -= textBounds.width / 2.0f;
+        y -= textBounds.height / 2.0f;
+    }
     text.setPosition((float)x, (float)y);
 
     window.draw(text);
@@ -285,10 +290,9 @@ void GraphicsManager::initLoginMenu()
     loginButtonText.setFillColor(sf::Color::White);
     // loginButtonText.setPosition(window.getSize().x / 2.0f - 60, 355);
     sf::FloatRect loginTextBounds = loginButtonText.getLocalBounds();
-    loginButtonText.setPosition(
-        loginButton.getPosition().x + (loginButton.getSize().x - loginTextBounds.width) / 2,
-        loginButton.getPosition().y + (loginButton.getSize().y - loginTextBounds.height) / 2 - loginTextBounds.top
-    );
+    loginButtonText.setPosition(loginButton.getPosition().x + (loginButton.getSize().x - loginTextBounds.width) / 2,
+                                loginButton.getPosition().y + (loginButton.getSize().y - loginTextBounds.height) / 2 -
+                                    loginTextBounds.top);
 
     // Login Button (formerly Quit)
     signinButton.setSize(sf::Vector2f(200, 60));
@@ -301,10 +305,9 @@ void GraphicsManager::initLoginMenu()
     signinButtonText.setFillColor(sf::Color::White);
     // signinButtonText.setPosition(window.getSize().x / 2.0f - 50, 435);
     sf::FloatRect signinTextBounds = signinButtonText.getLocalBounds();
-    signinButtonText.setPosition(
-        signinButton.getPosition().x + (signinButton.getSize().x - signinTextBounds.width) / 2,
-        signinButton.getPosition().y + (signinButton.getSize().y - signinTextBounds.height) / 2 - signinTextBounds.top
-    );
+    signinButtonText.setPosition(signinButton.getPosition().x + (signinButton.getSize().x - signinTextBounds.width) / 2,
+                                 signinButton.getPosition().y +
+                                     (signinButton.getSize().y - signinTextBounds.height) / 2 - signinTextBounds.top);
 
     menuInitialized = true;
 }
@@ -489,12 +492,12 @@ std::unique_ptr<TextBox> &GraphicsManager::getPasswordTextBox()
     return _passwordTextbox;
 }
 
-void GraphicsManager::showErrorMessage(const std::string& message)
+void GraphicsManager::showErrorMessage(const std::string &message)
 {
     _errorMessage = message;
     _showError = true;
     _errorMessageClock.restart();
-    
+
     std::cout << "Showing error message: " << message << std::endl;
 }
 
@@ -502,58 +505,62 @@ void GraphicsManager::updateErrorMessage()
 {
     // Check if we need to show an error message
     printf("show error: %d\n", _showError);
-    if (_showError) {
+    if (_showError)
+    {
         // Create a background rectangle
         sf::RectangleShape errorBackground;
         errorBackground.setSize(sf::Vector2f(600, 100));
         errorBackground.setFillColor(sf::Color(200, 0, 0, 220)); // Semi-transparent red
         errorBackground.setOutlineColor(sf::Color::White);
         errorBackground.setOutlineThickness(2);
-        
+
         // Center the background on screen
         float bgX = (windowWidth - errorBackground.getSize().x) / 2;
         float bgY = (windowHeight - errorBackground.getSize().y) / 2;
         errorBackground.setPosition(bgX, bgY);
-        
+
         // Draw the background
         window.draw(errorBackground);
-        
+
         // Draw the error text
         sf::Text errorText;
         errorText.setFont(font);
         errorText.setString(_errorMessage);
         errorText.setCharacterSize(20);
         errorText.setFillColor(sf::Color::White);
-        
+
         // Center the text on the background
         sf::FloatRect textBounds = errorText.getLocalBounds();
         float textX = bgX + (errorBackground.getSize().x - textBounds.width) / 2;
         float textY = bgY + (errorBackground.getSize().y - textBounds.height) / 2 - 10;
         errorText.setPosition(textX, textY);
-        
+
         window.draw(errorText);
-        
+
         // Add a dismissal instruction
         sf::Text dismissText;
         dismissText.setFont(font);
         dismissText.setString("Press any key to dismiss");
         dismissText.setCharacterSize(15);
         dismissText.setFillColor(sf::Color(220, 220, 220));
-        
+
         // Position below the error message
         sf::FloatRect dismissBounds = dismissText.getLocalBounds();
         float dismissX = bgX + (errorBackground.getSize().x - dismissBounds.width) / 2;
         float dismissY = textY + textBounds.height + 15;
         dismissText.setPosition(dismissX, dismissY);
-        
+
         window.draw(dismissText);
-        
+
         sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+            {
                 window.close();
             }
-            if (_showError && (event.type == sf::Event::KeyPressed || event.type == sf::Event::MouseButtonPressed)) {
+            if (_showError && (event.type == sf::Event::KeyPressed || event.type == sf::Event::MouseButtonPressed))
+            {
                 printf("SHOW ERROR: FALSE\n");
                 _showError = false;
                 break;

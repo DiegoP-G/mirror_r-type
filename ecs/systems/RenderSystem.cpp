@@ -1,10 +1,18 @@
 #include "RenderSystem.hpp"
 #include "../components/PlayerComponent.hpp"
+#include "../components/TextComponent.hpp"
 
 void RenderSystem::draw(Entity *entity)
 {
     auto &transform = entity->getComponent<TransformComponent>();
     Vector2D position = getActualPosition(entity);
+
+    if (entity->hasComponent<TextComponent>())
+    {
+        auto &textComp = entity->getComponent<TextComponent>();
+
+        g_graphics->drawText(textComp.text, position.x, position.y - 30, 255, 255, 255, true, 15);
+    }
 
     if (entity->hasComponent<AnimatedSpriteComponent>())
     {

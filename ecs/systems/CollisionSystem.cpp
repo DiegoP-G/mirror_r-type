@@ -170,7 +170,8 @@ void CollisionSystem::onPlayerHitLaser(Entity *player, Entity *laser)
 }
 
 void CollisionSystem::handleEnemyCollision(Entity *enemy, Entity *other, EntityType otherType,
-                                           std::vector<std::pair<int, int>> &playersScores, bool &updateScore, EntityManager &entityManager)
+                                           std::vector<std::pair<int, int>> &playersScores, bool &updateScore,
+                                           EntityManager &entityManager)
 {
     switch (otherType)
     {
@@ -184,7 +185,8 @@ void CollisionSystem::handleEnemyCollision(Entity *enemy, Entity *other, EntityT
 }
 
 void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile,
-                                           std::vector<std::pair<int, int>> &playersScores, bool &updateScore, EntityManager &entityManager)
+                                           std::vector<std::pair<int, int>> &playersScores, bool &updateScore,
+                                           EntityManager &entityManager)
 {
     auto &projComp = projectile->getComponent<ProjectileComponent>();
 
@@ -208,8 +210,8 @@ void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile,
             auto &explosion = entityManager.createEntity();
             auto &transform = enemy->getComponent<TransformComponent>();
             explosion.addComponent<TransformComponent>(transform.position.x, transform.position.y);
-            explosion.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::EXPLOSION,
-                282, 296, 36, 36, 5, 0.05f, 0.0f, Vector2D(1.0f, 1.0f), 0, true);
+            explosion.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::EXPLOSION, 282, 296, 36, 36, 5,
+                                                            0.05f, 0.0f, Vector2D(1.0f, 1.0f), 0, true);
 
             for (auto &pair : playersScores)
             {

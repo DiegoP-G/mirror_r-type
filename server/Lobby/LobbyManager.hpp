@@ -12,7 +12,7 @@ class GameMediator;
 class LobbyManager
 {
   public:
-    LobbyManager(GameMediator &med) : _med(med){};
+    LobbyManager(GameMediator &med) : _med(med) {};
     ~LobbyManager();
 
     LobbyManager(const LobbyManager &) = delete;

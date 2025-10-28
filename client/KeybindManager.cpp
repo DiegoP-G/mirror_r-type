@@ -1,25 +1,23 @@
 #include "KeybindManager.hpp"
 #ifdef _WIN32
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <winsock2.h>
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
 
-    #include <windows.h>
+#include <windows.h>
 #endif
 #include <SFML/Window/Keyboard.hpp>
 #include <iostream>
 
 KeybindManager::KeybindManager()
 {
-    keybindMap = {{sf::Keyboard::Up, sf::Keyboard::Up},
-                  {sf::Keyboard::Down, sf::Keyboard::Down},
-                  {sf::Keyboard::Left, sf::Keyboard::Left},
-                  {sf::Keyboard::Right, sf::Keyboard::Right},
-                  {sf::Keyboard::Space, sf::Keyboard::Space}};
+    keybindMap = {{sf::Keyboard::Up, sf::Keyboard::Up},       {sf::Keyboard::Down, sf::Keyboard::Down},
+                  {sf::Keyboard::Left, sf::Keyboard::Left},   {sf::Keyboard::Right, sf::Keyboard::Right},
+                  {sf::Keyboard::Space, sf::Keyboard::Space}, {sf::Keyboard::W, sf::Keyboard::W}};
 }
 
 void KeybindManager::setKeybind(sf::Keyboard::Key input, sf::Keyboard::Key mapped)

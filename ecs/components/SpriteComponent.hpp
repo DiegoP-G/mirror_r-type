@@ -5,7 +5,7 @@
 
 class SpriteComponent : public IComponent
 {
-public:
+  public:
     int spriteTexture;
     Rect srcRect;
     int width, height;
@@ -18,5 +18,5 @@ public:
     void update(float deltaTime) override;
     void render() override;
     std::vector<uint8_t> serialize() const override;
-    static SpriteComponent deserialize(const uint8_t* data, size_t size);
+    static SpriteComponent deserialize(const uint8_t *data, size_t size);
 };

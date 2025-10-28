@@ -12,7 +12,7 @@ bool RTypeServer::init()
     return true;
 }
 
-void RTypeServer::createPlayer(int playerId)
+void RTypeServer::createPlayer(int playerId, std::string playerName)
 {
     std::lock_guard<std::mutex> lock(entityManager.entityMutex);
 
@@ -28,6 +28,7 @@ void RTypeServer::createPlayer(int playerId)
     playerEntity.addComponent<InputComponent>();
     playerEntity.addComponent<HealthComponent>(100, 150);
     playerEntity.addComponent<HealthBarComponent>(50.0f, 4.0f, 20.0f, -24.0f);
+    playerEntity.addComponent<TextComponent>(playerName);
 
     player = &playerEntity;
     _playersScores.push_back({playerId, 0});
@@ -326,6 +327,7 @@ void RTypeServer::handlePlayerInput(const std::string &input)
                 existingInput.left = inputComp.left;
                 existingInput.right = inputComp.right;
                 existingInput.enter = inputComp.enter;
+                existingInput.warp = inputComp.warp;
                 // copy any other relevant fields
             }
 
