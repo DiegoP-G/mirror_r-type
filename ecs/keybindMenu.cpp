@@ -21,11 +21,8 @@ KeybindMenu::KeybindMenu(KeybindManager &manager) : keybindManager(manager)
     menuBackground.setFillColor(sf::Color(50, 50, 50, 230));
     menuBackground.setPosition(200, 100);
 
-    defaultActions = {{"Up", sf::Keyboard::Up},
-                      {"Down", sf::Keyboard::Down},
-                      {"Left", sf::Keyboard::Left},
-                      {"Right", sf::Keyboard::Right},
-                      {"Fire", sf::Keyboard::Space}};
+    defaultActions = {{"Up", sf::Keyboard::Up},       {"Down", sf::Keyboard::Down},  {"Left", sf::Keyboard::Left},
+                      {"Right", sf::Keyboard::Right}, {"Fire", sf::Keyboard::Space}, {"Warp", sf::Keyboard::W}};
 
     float yOffset = 120;
     for (auto &[action, key] : defaultActions)

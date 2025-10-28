@@ -15,11 +15,9 @@
 
 KeybindManager::KeybindManager()
 {
-    keybindMap = {{sf::Keyboard::Up, sf::Keyboard::Up},
-                  {sf::Keyboard::Down, sf::Keyboard::Down},
-                  {sf::Keyboard::Left, sf::Keyboard::Left},
-                  {sf::Keyboard::Right, sf::Keyboard::Right},
-                  {sf::Keyboard::Space, sf::Keyboard::Space}};
+    keybindMap = {{sf::Keyboard::Up, sf::Keyboard::Up},       {sf::Keyboard::Down, sf::Keyboard::Down},
+                  {sf::Keyboard::Left, sf::Keyboard::Left},   {sf::Keyboard::Right, sf::Keyboard::Right},
+                  {sf::Keyboard::Space, sf::Keyboard::Space}, {sf::Keyboard::W, sf::Keyboard::W}};
 }
 
 void KeybindManager::setKeybind(sf::Keyboard::Key input, sf::Keyboard::Key mapped)
