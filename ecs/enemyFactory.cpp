@@ -1,7 +1,8 @@
 #include "enemyFactory.hpp"
 #include "systems/EnemySystem.hpp"
 
-void EnemyFactory::createEnemy(EntityManager &entityManager, std::string enemyType, const Vector2D &position, SHOOTINGTYPE shootingType)
+void EnemyFactory::createEnemy(EntityManager &entityManager, std::string enemyType, const Vector2D &position,
+                               SHOOTINGTYPE shootingType)
 {
     auto &enemy = entityManager.createEntity();
     // 0 for movement type : left

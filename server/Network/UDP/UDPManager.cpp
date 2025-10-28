@@ -30,7 +30,7 @@ typedef WSAPOLLFD pollfd;
 #include <unistd.h>
 #endif
 
-UDPManager::UDPManager(NetworkManager &ref) : _NetworkManagerRef(ref)
+UDPManager::UDPManager(NetworkManager &ref, PrometheusServer &metrics) : _NetworkManagerRef(ref), _metrics(metrics)
 {
     _udpFd = socket(AF_INET, SOCK_DGRAM, 0);
     if (_udpFd == -1)
@@ -99,6 +99,8 @@ void UDPManager::update()
             int ca = opcode;
             if (opcode == OPCODE_UDP_AUTH)
             {
+                _metrics.IncrementUDPReceived();
+                _metrics.AddUDPBytes(payload.size() + 2);
                 std::cout << "[UDP] Received OPCODE_UDP_AUTH² : " << deserializeInt(payload)
                           << " from: " << client.sin_addr.s_addr << "\n";
                 Client *c = _NetworkManagerRef.getClientManager().getClientByCodeUDP(deserializeInt(payload));
@@ -121,6 +123,8 @@ void UDPManager::update()
                 {
                     _NetworkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload, "",
                                                                 c->getSocket());
+                    _metrics.IncrementUDPReceived();
+                    _metrics.AddUDPBytes(payload.size() + 2);
                 }
                 else
                     std::cout << "[UDP] Received from Client Not found: " << (payload)
@@ -128,12 +132,15 @@ void UDPManager::update()
             }
         }
     }
+    _metrics.UpdateThroughput();
 }
 
-void UDPManager::sendTo(std::vector<sockaddr_in> addrs, int opcode, const std::string &data)
+void UDPManager::sendTo(const std::vector<sockaddr_in> &addrs, int opcode, const std::string &data)
 {
     for (sockaddr_in addr : addrs)
     {
         sendFrameUDP(_udpFd, opcode, data, addr, sizeof(addr));
+        _metrics.IncrementUDPSent();
+        _metrics.AddUDPBytes(data.size() + 2);
     }
 }
