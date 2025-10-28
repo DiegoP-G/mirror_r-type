@@ -1,5 +1,5 @@
-#include <cstring>
 #include "TextComponent.hpp"
+#include <cstring>
 
 TextComponent::TextComponent(std::string t) : text(t)
 {

@@ -5,23 +5,23 @@
 #include <iostream>
 
 #ifdef _WIN32
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #pragma comment(lib, "ws2_32.lib")
-    #include <windows.h>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#include <windows.h>
 #else
-    #include <arpa/inet.h>
-    #include <netinet/in.h>
-    #include <sys/socket.h>
-    #include <unistd.h>
-    #include <poll.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #endif
 
 void ClientManager::addClient(const Client &c)
@@ -76,13 +76,12 @@ bool ClientManager::removeClient(int socket)
     {
         std::cout << "Removing client: " << it->second.getName() << " (socket " << socket << ")\n";
         _clients.erase(it);
-        #ifdef _WIN32
+#ifdef _WIN32
         closesocket(socket);
-            #else
-             close(socket);
-        #endif // WIN_32
+#else
+        close(socket);
+#endif // WIN_32
         return true;
-
     }
     else
     {
@@ -153,7 +152,8 @@ void ClientManager::addAdminPanelLog(std::string log)
 bool ClientManager::checkLoginCreds(const std::string &username, const std::string &password)
 {
     printf("Check login creds\n");
-    if (_adminPanel) {
+    if (_adminPanel)
+    {
         printf("In _admin panel\n");
         return _adminPanel->getSqlApi().validateCredentials(username, password);
     }
@@ -161,13 +161,16 @@ bool ClientManager::checkLoginCreds(const std::string &username, const std::stri
     return false;
 }
 
-
 bool ClientManager::addNewPlayerEntry(const std::string &username, const std::string &password)
 {
-    if (_adminPanel) {
-        try {
+    if (_adminPanel)
+    {
+        try
+        {
             _adminPanel->getSqlApi().addPlayerEntry(username, password);
-        } catch (std::exception &e) {
+        }
+        catch (std::exception &e)
+        {
             throw;
         }
         return true;

@@ -11,6 +11,7 @@
 #include "assetsPath.hpp"
 #include "transferData/hashUtils.hpp"
 #include "windowSize.hpp"
+#include <SFML/Window/Keyboard.hpp>
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -342,6 +343,9 @@ void RTypeGame::handleEvents()
                     break;
                 case sf::Keyboard::Enter:
                     input.enter = isPressed;
+                    break;
+                case sf::Keyboard::W:
+                    input.warp = isPressed;
                     break;
                 default:
                     break;

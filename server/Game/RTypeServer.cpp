@@ -327,6 +327,7 @@ void RTypeServer::handlePlayerInput(const std::string &input)
                 existingInput.left = inputComp.left;
                 existingInput.right = inputComp.right;
                 existingInput.enter = inputComp.enter;
+                existingInput.warp = inputComp.warp;
                 // copy any other relevant fields
             }
 

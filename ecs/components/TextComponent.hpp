@@ -1,7 +1,7 @@
 #pragma once
-#include <iostream>
 #include "../IComponent.hpp"
 #include "Vector2D.hpp"
+#include <iostream>
 
 class TextComponent : public IComponent
 {

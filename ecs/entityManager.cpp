@@ -21,9 +21,9 @@
 #include "components/PlayerComponent.hpp"
 #include "components/ProjectileComponent.hpp"
 #include "components/SpriteComponent.hpp"
+#include "components/TextComponent.hpp"
 #include "components/TransformComponent.hpp"
 #include "components/VelocityComponent.hpp"
-#include "components/TextComponent.hpp"
 
 EntityManager::EntityManager()
 {

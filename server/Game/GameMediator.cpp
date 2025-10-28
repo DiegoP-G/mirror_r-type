@@ -10,12 +10,14 @@ std::string generateLobbyUid()
     return "lobby_" + std::to_string(++counter);
 }
 
-std::vector<std::string> splitStringBySpace(const std::string& str) {
+std::vector<std::string> splitStringBySpace(const std::string &str)
+{
     std::vector<std::string> tokens;
     std::stringstream ss(str);
     std::string token;
 
-    while (ss >> token) {
+    while (ss >> token)
+    {
         tokens.push_back(token);
     }
 
@@ -62,6 +64,7 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
                  std::cerr << "[PlayerInput] Player not in a lobby.\n";
                  return;
              }
+             std::cout << "HERE" << data << std::endl;
              std::unique_ptr<RTypeServer> &rtype = lobby->getRTypeServer();
              rtype->handlePlayerInput(data);
          }},
@@ -114,25 +117,27 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
 
         {GameMediatorEvent::JoinLobby,
          [this](const std::string &data, const std::string &, int clientFd) -> void {
-            std::vector<std::string> splitted = splitStringBySpace(data);
-            if (splitted.size() > 0) {
-                std::string playerName;
-                std::string lobbyName = splitted[0];
-                auto lobby = _lobbyManager.getLobby(lobbyName);
+             std::vector<std::string> splitted = splitStringBySpace(data);
+             if (splitted.size() > 0)
+             {
+                 std::string playerName;
+                 std::string lobbyName = splitted[0];
+                 auto lobby = _lobbyManager.getLobby(lobbyName);
 
-                if (splitted.size() >= 2) {
-                    playerName = splitted[1];
-                }
+                 if (splitted.size() >= 2)
+                 {
+                     playerName = splitted[1];
+                 }
 
-                std::cout << "[JoinLobby] Client " << clientFd << " joining " << data << std::endl;
-                std::unique_ptr<RTypeServer> &rtype = lobby->getRTypeServer();
-                lobby->addPlayer(clientFd);
+                 std::cout << "[JoinLobby] Client " << clientFd << " joining " << data << std::endl;
+                 std::unique_ptr<RTypeServer> &rtype = lobby->getRTypeServer();
+                 lobby->addPlayer(clientFd);
 
-                // Give player name here
-                rtype->createPlayer(clientFd, playerName);
-                std::cout << "Sending all entities to client " << clientFd << std::endl;
-                _networkManager.sendAllEntitiesToClient(clientFd);
-            }
+                 // Give player name here
+                 rtype->createPlayer(clientFd, playerName);
+                 std::cout << "Sending all entities to client " << clientFd << std::endl;
+                 _networkManager.sendAllEntitiesToClient(clientFd);
+             }
          }},
         {GameMediatorEvent::PlayerDisconnected,
          [this](const std::string &, const std::string &, int clientFd) -> void {

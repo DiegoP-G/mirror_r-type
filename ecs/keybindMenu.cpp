@@ -1,6 +1,6 @@
 #include "keybindMenu.hpp"
-#include "GraphicsManager.hpp"
 #include "../client/KeybindManager.hpp"
+#include "GraphicsManager.hpp"
 #include <iostream>
 
 KeybindMenu::KeybindMenu(KeybindManager &manager) : keybindManager(manager)
