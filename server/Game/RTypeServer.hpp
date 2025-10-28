@@ -49,7 +49,7 @@ class RTypeServer
     int playerNb = 0;
 
     int score = 0;
-    int tick = 0;
+    int _tick = 0;
 
     std::string _lobbyUID;
     const float ENEMY_SPEED = -200.0f;
@@ -66,29 +66,9 @@ class RTypeServer
 
     void removePlayer(int id);
 
-    std::vector<std::string> serializeAllActiveEntities()
-    {
-        std::vector<std::string> result;
+    std::string serializeAllActiveEntities();
 
-        // Parcourir toutes les entités actives
-        for (auto &entity : entityManager.getEntities())
-        {
-            if (entity)
-            {
-                auto data = entityManager.serializeEntityFull(entity->getID());
-                if (!data.empty())
-                {
-                    std::string serializedData(data.begin(), data.end());
-                    result.push_back(serializedData);
-                }
-            }
-        }
-
-        std::cout << "[RTypeServer] Serialized " << result.size() << " active entities\n";
-        return result;
-    }
-    void sendMovementUpdates();
-    void sendHealthUpdates();
+    void sendEntitiesUpdates();
     void sendNewEntities();
     void sendDestroyedEntities();
     void createBackground();
@@ -100,7 +80,7 @@ class RTypeServer
 
     bool init();
 
-    void createPlayer(int clientFd);
+    void createPlayer(int clientFd, std::string playerName);
 
     void update(float deltaTime);
 

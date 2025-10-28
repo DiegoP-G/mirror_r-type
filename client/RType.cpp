@@ -7,10 +7,11 @@
 #include "../ecs/textBox.hpp"
 #include "../transferData/opcode.hpp"
 #include "../transferData/transferData.hpp"
-#include "transferData/hashUtils.hpp"
 #include "Network/NetworkManager.hpp"
 #include "assetsPath.hpp"
+#include "transferData/hashUtils.hpp"
 #include "windowSize.hpp"
+#include <SFML/Window/Keyboard.hpp>
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -265,6 +266,7 @@ void RTypeGame::handleJoystickInput()
     {
         input.enter = false;
     }
+    // must include warp
 }
 
 void RTypeGame::handleEvents()
@@ -334,11 +336,13 @@ void RTypeGame::handleEvents()
                     unsigned char tag[16];
 
                     if (!aesEncryptWithTag(_med.getNetworkManager().getAesKey(), _med.getNetworkManager().getAesIV(),
-                            loginData, encryptedData)) {
+                                           loginData, encryptedData))
+                    {
                         std::cerr << "Client failed to encrypt data\n";
                         EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
                         return;
                     }
+                    _playerName = username;
                     std::string encryptedDataStr(encryptedData.begin(), encryptedData.end());
                     _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, encryptedDataStr, OPCODE_LOGIN_REQUEST);
                 }
@@ -351,11 +355,13 @@ void RTypeGame::handleEvents()
 
                     unsigned char tag[16];
                     if (!aesEncryptWithTag(_med.getNetworkManager().getAesKey(), _med.getNetworkManager().getAesIV(),
-                            loginData, encryptedData)) {
+                                           loginData, encryptedData))
+                    {
                         std::cerr << "Client failed to encrypt data\n";
                         EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
                         return;
                     }
+                    _playerName = username;
                     std::string encryptedDataStr(encryptedData.begin(), encryptedData.end());
                     EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
 
@@ -398,8 +404,9 @@ void RTypeGame::handleEvents()
                 std::string lobbyName = g_graphics->getLobbyTextBox()->getText();
                 if (!lobbyName.empty())
                 {
+                    std::string data = lobbyName + " " + _playerName;
                     std::cout << "[Client] Joining lobby: " << lobbyName << std::endl;
-                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, lobbyName, OPCODE_JOIN_LOBBY);
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, data, OPCODE_JOIN_LOBBY);
                 }
                 else
                 {
@@ -452,6 +459,9 @@ void RTypeGame::handleEvents()
                 case sf::Keyboard::Enter:
                     input.enter = isPressed;
                     break;
+                case sf::Keyboard::W:
+                    input.warp = isPressed;
+                    break;
                 default:
                     break;
                 }
@@ -481,10 +491,11 @@ void RTypeGame::update(float deltaTime)
     if (gameOver)
         return;
 
+    tickSystem.update(entityManager);
+    backgroundSystem.update(entityManager, deltaTime);
     animationSystem.update(entityManager, deltaTime);
 
     entityManager.applyPendingChanges();
-
     if (player == nullptr)
     {
         findMyPlayer();
@@ -534,14 +545,12 @@ void RTypeGame::render()
     }
     else if (_state == GameState::INGAME)
     {
+        renderSystem.update(entityManager);
         std::string scoreText = "Score: " + std::to_string(score);
         g_graphics->drawText(scoreText, 10, 10);
 
         std::string waveText = "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
         g_graphics->drawText(waveText, windowWidth - 100, 10);
-
-        drawPlayerID();
-        renderSystem.update(entityManager);
     }
     else if (_state == GameState::GAMEOVER)
     {
@@ -550,6 +559,8 @@ void RTypeGame::render()
         g_graphics->drawText("Press ESC to exit", 200, 350);
     }
     drawMicrophoneMenu();
+    drawHitbox();
+
     g_graphics->present();
 }
 
@@ -606,13 +617,11 @@ void RTypeGame::run()
     while (running)
     {
         float deltaTime = clock.restart().asSeconds();
-
         if (deltaTime > 0.05f)
         {
             deltaTime = 0.05f;
         }
 
-        accumulator += deltaTime;
         handleEvents();
 
         if (running == false)
@@ -620,40 +629,14 @@ void RTypeGame::run()
 
         sendInputPlayer();
 
-        std::cout << "rtype run\n";
-        while (accumulator >= FRAME_TIME)
-        {
-            _mutex.lock();
-            std::cout << "rtype while run\n";
-            update(FRAME_TIME);
-            _mutex.unlock();
-            accumulator -= FRAME_TIME;
-        }
+        _mutex.lock();
+        update(deltaTime);
+        _mutex.unlock();
 
         render();
     }
 
     cleanup();
-}
-
-void RTypeGame::createBackground()
-{
-    int tileWidth = 800;
-    int tileHeight = 600;
-
-    auto createBackgroundEntity = [&](float x) -> Entity & {
-        auto &backgroundEntity = entityManager.createEntity();
-
-        backgroundEntity.addComponent<TransformComponent>(x, 0.0f, 1.0f, 1.0f, 0.0f);
-        backgroundEntity.addComponent<SpriteComponent>(tileWidth, tileHeight, 255, 255, 255,
-                                                       GraphicsManager::Texture::BACKGROUND);
-        backgroundEntity.addComponent<BackgroundScrollComponent>(-300.0f, true);
-
-        return backgroundEntity;
-    };
-
-    createBackgroundEntity(0.0f);
-    createBackgroundEntity((float)tileWidth);
 }
 
 void RTypeGame::drawWaitingForPlayers()
@@ -767,26 +750,6 @@ void RTypeGame::drawHitbox()
         hitboxRect.setOutlineColor(sf::Color::Red);
 
         g_graphics->getWindow().draw(hitboxRect);
-    }
-}
-
-void RTypeGame::drawPlayerID()
-{
-    auto entities = entityManager.getEntitiesWithComponent<PlayerComponent>();
-    for (auto e : entities)
-    {
-        auto &player = e->getComponent<PlayerComponent>();
-
-        std::string username = "PLAYER " + std::to_string(player.playerID);
-
-        if (_playerId == player.playerID)
-            username = "ME";
-
-        if (e->hasComponent<TransformComponent>())
-        {
-            auto &transform = e->getComponent<TransformComponent>();
-            g_graphics->drawText(username, transform.position.x, transform.position.y, 255, 255, 255);
-        }
     }
 }
 

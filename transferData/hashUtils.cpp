@@ -26,10 +26,9 @@
 
 std::string generateRandomSalt()
 {
-    const char charset[] =
-        "abcdefghijklmnopqrstuvwxyz"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "0123456789./";
+    const char charset[] = "abcdefghijklmnopqrstuvwxyz"
+                           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                           "0123456789./";
     const size_t saltLength = 22;
 
     std::random_device rd;
@@ -204,7 +203,8 @@ std::optional<EVP_PKEY *> extractPublicKeyFromPEMBytes(const std::vector<unsigne
 
 std::optional<std::vector<unsigned char>> encryptBytesWithPublicKey(EVP_PKEY *pub, const std::vector<unsigned char> &in)
 {
-    if (!pub) {
+    if (!pub)
+    {
         std::cerr << "encryptBytesWithPublicKey_checked: pub == nullptr\n";
         return std::nullopt;
     }
@@ -213,54 +213,63 @@ std::optional<std::vector<unsigned char>> encryptBytesWithPublicKey(EVP_PKEY *pu
     size_t k = (size_t)EVP_PKEY_get_size(pub); // modulus size in bytes
     const EVP_MD *md = EVP_sha256();
     int hlen = EVP_MD_size(md); // 32 for SHA-256
-    if (hlen <= 0) {
+    if (hlen <= 0)
+    {
         std::cerr << "encryptBytesWithPublicKey_checked: failed to get hash len\n";
         return std::nullopt;
     }
 
     // max plaintext for OAEP with this hash
-    if (k < (size_t)(2 * hlen + 2)) {
+    if (k < (size_t)(2 * hlen + 2))
+    {
         std::cerr << "encryptBytesWithPublicKey_checked: unexpected small RSA key k=" << k << "\n";
         return std::nullopt;
     }
     size_t max_plaintext = k - 2 * (size_t)hlen - 2;
 
-    if (in.size() > max_plaintext) {
+    if (in.size() > max_plaintext)
+    {
         std::cerr << "encryptBytesWithPublicKey_checked: input (" << in.size()
-                  << " bytes) is too large for RSA-OAEP with this key/hash (max "
-                  << max_plaintext << " bytes). Aborting.\n";
+                  << " bytes) is too large for RSA-OAEP with this key/hash (max " << max_plaintext
+                  << " bytes). Aborting.\n";
         return std::nullopt;
     }
 
     EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(pub, NULL);
-    if (!ctx) {
+    if (!ctx)
+    {
         handleOpensslError("EVP_PKEY_CTX_new");
         return std::nullopt;
     }
-    if (EVP_PKEY_encrypt_init(ctx) <= 0) {
+    if (EVP_PKEY_encrypt_init(ctx) <= 0)
+    {
         handleOpensslError("EVP_PKEY_encrypt_init");
         EVP_PKEY_CTX_free(ctx);
         return std::nullopt;
     }
-    if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_OAEP_PADDING) <= 0) {
+    if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_OAEP_PADDING) <= 0)
+    {
         handleOpensslError("set_rsa_padding");
         EVP_PKEY_CTX_free(ctx);
         return std::nullopt;
     }
-    if (EVP_PKEY_CTX_set_rsa_oaep_md(ctx, md) <= 0) {
+    if (EVP_PKEY_CTX_set_rsa_oaep_md(ctx, md) <= 0)
+    {
         handleOpensslError("set_oaep_md");
         EVP_PKEY_CTX_free(ctx);
         return std::nullopt;
     }
 
     size_t outlen = 0;
-    if (EVP_PKEY_encrypt(ctx, NULL, &outlen, in.data(), in.size()) <= 0) {
+    if (EVP_PKEY_encrypt(ctx, NULL, &outlen, in.data(), in.size()) <= 0)
+    {
         handleOpensslError("EVP_PKEY_encrypt (size)");
         EVP_PKEY_CTX_free(ctx);
         return std::nullopt;
     }
     std::vector<unsigned char> out(outlen);
-    if (EVP_PKEY_encrypt(ctx, out.data(), &outlen, in.data(), in.size()) <= 0) {
+    if (EVP_PKEY_encrypt(ctx, out.data(), &outlen, in.data(), in.size()) <= 0)
+    {
         handleOpensslError("EVP_PKEY_encrypt");
         EVP_PKEY_CTX_free(ctx);
         return std::nullopt;
@@ -270,8 +279,8 @@ std::optional<std::vector<unsigned char>> encryptBytesWithPublicKey(EVP_PKEY *pu
     return out;
 }
 
-bool aesEncryptWithTag(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv,
-    const std::string &plaintextStr, std::vector<unsigned char> &ciphertOutWithTag)
+bool aesEncryptWithTag(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv, const std::string &plaintextStr,
+                       std::vector<unsigned char> &ciphertOutWithTag)
 {
     std::vector<uint8_t> plaintext(plaintextStr.begin(), plaintextStr.end());
     unsigned char tag[TAG_BYTES];
@@ -329,8 +338,9 @@ bool aesEncryptWithTag(const std::vector<uint8_t> &key, const std::vector<uint8_
     return true;
 }
 
-static std::optional<std::string> decryptAES(const std::vector<uint8_t> &key,
-    const std::vector<uint8_t> &iv, const std::vector<unsigned char> &ciphertextWithTag, const unsigned char tag[TAG_BYTES])
+static std::optional<std::string> decryptAES(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv,
+                                             const std::vector<unsigned char> &ciphertextWithTag,
+                                             const unsigned char tag[TAG_BYTES])
 {
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (!ctx)
@@ -386,10 +396,11 @@ static std::optional<std::string> decryptAES(const std::vector<uint8_t> &key,
     return decryptedText;
 }
 
-std::optional<std::string> decryptAESAppendedTag(const std::vector<uint8_t> &key,
-    const std::vector<uint8_t> &iv, const std::vector<unsigned char> &ciphertext_with_tag)
+std::optional<std::string> decryptAESAppendedTag(const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv,
+                                                 const std::vector<unsigned char> &ciphertext_with_tag)
 {
-    if (ciphertext_with_tag.size() < TAG_BYTES) {
+    if (ciphertext_with_tag.size() < TAG_BYTES)
+    {
         std::cerr << "decryptAESAppendedTag: buffer too small to contain tag: " << ciphertext_with_tag.size() << "\n";
         return std::nullopt;
     }
@@ -406,36 +417,43 @@ std::optional<std::string> decryptAESAppendedTag(const std::vector<uint8_t> &key
     return decryptAES(key, iv, ciphertext, tag);
 }
 
-std::optional<std::vector<uint8_t>> decryptClientAesWithPublicKey(EVP_PKEY *pubKey, const unsigned char *encrypted, size_t encryptedLen)
+std::optional<std::vector<uint8_t>> decryptClientAesWithPublicKey(EVP_PKEY *pubKey, const unsigned char *encrypted,
+                                                                  size_t encryptedLen)
 {
     EVP_PKEY_CTX *rsa_ctx = EVP_PKEY_CTX_new(pubKey, NULL);
-    if (!rsa_ctx) {
+    if (!rsa_ctx)
+    {
         printOpensslError("EVP_PKEY_CTX_new");
         return std::nullopt;
     }
-    if (EVP_PKEY_decrypt_init(rsa_ctx) <= 0) {
+    if (EVP_PKEY_decrypt_init(rsa_ctx) <= 0)
+    {
         printOpensslError("EVP_PKEY_decrypt_init");
         return std::nullopt;
     }
-    if (EVP_PKEY_CTX_set_rsa_padding(rsa_ctx, RSA_PKCS1_OAEP_PADDING) <= 0) {
+    if (EVP_PKEY_CTX_set_rsa_padding(rsa_ctx, RSA_PKCS1_OAEP_PADDING) <= 0)
+    {
         printOpensslError("RSA padding");
         return std::nullopt;
     }
-    if (EVP_PKEY_CTX_set_rsa_oaep_md(rsa_ctx, EVP_sha256()) <= 0) {
+    if (EVP_PKEY_CTX_set_rsa_oaep_md(rsa_ctx, EVP_sha256()) <= 0)
+    {
         printOpensslError("OAEP md");
         return std::nullopt;
     }
 
     // Get required output length
     size_t outlen = 0;
-    if (EVP_PKEY_decrypt(rsa_ctx, nullptr, &outlen, encrypted, encryptedLen) <= 0) {
+    if (EVP_PKEY_decrypt(rsa_ctx, nullptr, &outlen, encrypted, encryptedLen) <= 0)
+    {
         printOpensslError("EVP_PKEY_decrypt (size)");
         return std::nullopt;
     }
 
     // Allocate buffer and decrypt
     std::vector<uint8_t> decrypted_aes(outlen);
-    if (EVP_PKEY_decrypt(rsa_ctx, decrypted_aes.data(), &outlen, encrypted, encryptedLen) <= 0) {
+    if (EVP_PKEY_decrypt(rsa_ctx, decrypted_aes.data(), &outlen, encrypted, encryptedLen) <= 0)
+    {
         printOpensslError("EVP_PKEY_decrypt");
         return std::nullopt;
     }
@@ -443,7 +461,8 @@ std::optional<std::vector<uint8_t>> decryptClientAesWithPublicKey(EVP_PKEY *pubK
     EVP_PKEY_CTX_free(rsa_ctx);
 
     // Sanity check
-    if (decrypted_aes.size() != AES_KEY_BYTES + AES_IV_BYTES) {
+    if (decrypted_aes.size() != AES_KEY_BYTES + AES_IV_BYTES)
+    {
         std::cerr << "Decrypted AES key+IV size mismatch: " << decrypted_aes.size() << "\n";
         return std::nullopt;
     }

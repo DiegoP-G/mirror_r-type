@@ -113,8 +113,8 @@ endif()
 
 file(GLOB_RECURSE TRANSFER_SOURCES transferData/*.cpp)
 add_library(transferData STATIC ${TRANSFER_SOURCES})
-target_include_directories(transferData PUBLIC 
-    ${CMAKE_SOURCE_DIR}/transferData 
+target_include_directories(transferData PUBLIC
+    ${CMAKE_SOURCE_DIR}/transferData
     ${CMAKE_SOURCE_DIR}/ecs
 )
 
@@ -163,9 +163,9 @@ target_link_libraries(ecs PUBLIC
 #                              CLIENT
 # ============================================================
 
-file(GLOB_RECURSE CLIENT_SOURCES client/*.cpp)
-add_executable(RTypeClient ${CLIENT_SOURCES})
-target_include_directories(RTypeClient PRIVATE
+# ! Changed executable name
+add_executable(r-type_client ${CLIENT_SOURCES})
+target_include_directories(r-type_client PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/client
     ${CMAKE_SOURCE_DIR}/client/Network
@@ -173,7 +173,7 @@ target_include_directories(RTypeClient PRIVATE
     ${CMAKE_SOURCE_DIR}/ecs
     ${portaudio_SOURCE_DIR}/include # Use this for FetchContent
 )
-target_link_libraries(RTypeClient PRIVATE
+target_link_libraries(r-type_client PRIVATE
     transferData
     ecs
     sfml-graphics
@@ -191,8 +191,14 @@ target_link_libraries(RTypeClient PRIVATE
 # ============================================================
 
 file(GLOB_RECURSE SERVER_SOURCES server/*.cpp)
-add_executable(GameServer ${SERVER_SOURCES})
-target_include_directories(GameServer PRIVATE
+list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*build.*")
+list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
+list(FILTER SERVER_SOURCES EXCLUDE REGEX ".*exempleTranfersData.*")
+
+# ! Changed executable name
+add_executable(r-type_server ${SERVER_SOURCES})
+
+target_include_directories(r-type_server PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/server
     ${CMAKE_SOURCE_DIR}/server/Game
@@ -201,7 +207,8 @@ target_include_directories(GameServer PRIVATE
     ${CMAKE_SOURCE_DIR}/ecs
     ${SQLITE3_DIR}
 )
-target_link_libraries(GameServer PRIVATE
+
+target_link_libraries(r-type_server PRIVATE
     transferData
     ecs
     sfml-graphics
@@ -219,41 +226,60 @@ target_link_libraries(GameServer PRIVATE
 # ============================================================
 
 if (WIN32)
-    target_link_libraries(RTypeClient PRIVATE winmm opengl32 ws2_32)
-    target_link_libraries(GameServer PRIVATE winmm opengl32 ws2_32)
+    # ! Updated linkage for new binary names
+    target_link_libraries(r-type_client PRIVATE winmm opengl32 ws2_32)
+    target_link_libraries(r-type_server PRIVATE winmm opengl32 ws2_32)
 
-    # Command to copy SFML DLLs to the executable directory after a build
-    add_custom_command(TARGET RTypeClient POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:sfml-graphics> $<TARGET_FILE_DIR:RTypeClient>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:sfml-window> $<TARGET_FILE_DIR:RTypeClient>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:sfml-system> $<TARGET_FILE_DIR:RTypeClient>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:sfml-audio> $<TARGET_FILE_DIR:RTypeClient>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/_deps/sfml-src/extlibs/bin/x64/openal32.dll" $<TARGET_FILE_DIR:RTypeClient>
-        COMMENT "Copying SFML and OpenAL DLLs for RTypeClient..."
+    # ! Updated post-build copy commands
+    add_custom_command(TARGET r-type_client POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:sfml-graphics>
+        $<TARGET_FILE_DIR:r-type_client>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:sfml-window>
+        $<TARGET_FILE_DIR:r-type_client>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:sfml-system>
+        $<TARGET_FILE_DIR:r-type_client>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:sfml-audio>
+        $<TARGET_FILE_DIR:r-type_client>
     )
 
-    add_custom_command(TARGET GameServer POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:sfml-graphics> $<TARGET_FILE_DIR:GameServer>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:sfml-window> $<TARGET_FILE_DIR:GameServer>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:sfml-system> $<TARGET_FILE_DIR:GameServer>
-        COMMENT "Copying SFML DLLs for GameServer..."
+    add_custom_command(TARGET r-type_server POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:sfml-graphics>
+        $<TARGET_FILE_DIR:r-type_server>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:sfml-window>
+        $<TARGET_FILE_DIR:r-type_server>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:sfml-system>
+        $<TARGET_FILE_DIR:r-type_server>
+    )
+
+    add_custom_command(TARGET r-type_client POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_BINARY_DIR}/_deps/sfml-src/extlibs/bin/x64/openal32.dll"
+        $<TARGET_FILE_DIR:r-type_client>
+        COMMENT "Copying OpenAL DLL for r-type_client"
     )
 endif()
 
-if (UNIX)
-    target_link_libraries(RTypeClient PRIVATE pthread)
-    target_link_libraries(GameServer PRIVATE pthread)
+# ---- Linux ----
+if (UNIX AND NOT WIN32)
+    target_link_libraries(r-type_client PRIVATE pthread)
+    target_link_libraries(r-type_server PRIVATE pthread)
 endif()
 
-# ============================================================
-#                        TARGET SHORTCUTS
-# ============================================================
-
-add_custom_target(client DEPENDS RTypeClient)
-add_custom_target(server DEPENDS GameServer)
-add_custom_target(all_binaries DEPENDS RTypeClient GameServer)
+# ---- Custom targets ----
+# ! Updated to match renamed binaries
+add_custom_target(client DEPENDS r-type_client)
+add_custom_target(server DEPENDS r-type_server)
+add_custom_target(all_binaries DEPENDS r-type_client r-type_server)
 
 set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
-    "${CMAKE_SOURCE_DIR}/RTypeClient.exe"
-    "${CMAKE_SOURCE_DIR}/GameServer.exe"
+    "${CMAKE_SOURCE_DIR}/r-type_client"
+    "${CMAKE_SOURCE_DIR}/r-type_server"
 )
+

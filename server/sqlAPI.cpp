@@ -1,7 +1,7 @@
 #include "sqlAPI.hpp"
 #include "sqlSchema.hpp"
-#include <iostream>
 #include "transferData/hashUtils.hpp"
+#include <iostream>
 
 sqlAPI::sqlAPI(std::string name) : _dbName(name)
 {
@@ -247,7 +247,7 @@ bool sqlAPI::validateCredentials(const std::string &name, const std::string &pas
     }
 
     sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
-    
+
     if (sqlite3_step(stmt) != SQLITE_ROW)
     {
         // User not found
@@ -255,18 +255,21 @@ bool sqlAPI::validateCredentials(const std::string &name, const std::string &pas
         std::cout << "User " << name << " not found.\n";
         return false;
     }
-    
+
     // Get the stored hashed password
-    std::string storedHash = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+    std::string storedHash = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0));
     sqlite3_finalize(stmt);
-    
-    try {
-    // Verify the password against the stored hash
+
+    try
+    {
+        // Verify the password against the stored hash
         bool res = verifyPassword(storedHash, password);
         return res;
-    } catch (const std::runtime_error &e) {
-        std::cerr << "[Auth] Exception verifying password for user '" << name << "': " << e.what()
-              << " storedHash=\"" << storedHash << "\"" << std::endl;
+    }
+    catch (const std::runtime_error &e)
+    {
+        std::cerr << "[Auth] Exception verifying password for user '" << name << "': " << e.what() << " storedHash=\""
+                  << storedHash << "\"" << std::endl;
         return false;
     }
 }

@@ -1,7 +1,7 @@
 #include "GameLogicSystem.hpp"
+#include "../enemyFactory.hpp"
 #include "../server/Game/GameMediator.hpp"
 #include "../transferData/transferData.hpp"
-#include "../enemyFactory.hpp"
 #include <cstdlib>
 #include <ctime>
 #include <vector>
@@ -15,20 +15,13 @@ GameLogicSystem::GameLogicSystem() : rng(std::random_device{}())
 void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, GameMediator &gameMediator)
 {
     enemySpawnTimer += deltaTime;
-
-    if (currentWave >= waves.size())
-    {
-        allWavesCompleted = true;
-        return; // <-- Stop here to prevent invalid read
-    }
-
     waveTimer += deltaTime;
 
     // Wait for spawnDelay before starting next wave
-    if (!waveActive && waveTimer >= waves[currentWave].spawnDelay)
+    if (!waveActive && waveTimer >= 1)
     {
         std::cout << "Spawning wave " << currentWave + 1 << "hihi" << std::endl;
-        spawnWave(entityManager, waves[currentWave]);
+        spawnWave(entityManager, generateRandomWave(currentWave));
         waveActive = true;
     }
     else if (waveActive && entityManager.getEntitiesWithComponents<EnemyComponent>().empty())
@@ -45,6 +38,28 @@ void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, Game
 
     updateScore(entityManager);
     checkGameOverConditions(entityManager);
+}
+
+Wave GameLogicSystem::generateRandomWave(int currentWave)
+{
+    Wave wave;
+    // Boss wave
+    if (currentWave != 0 && currentWave % 5 == 0) {
+        wave.enemyCount = 1;
+        wave.enemyType = "boss";
+        wave.pattern = linePattern;
+    } else {
+        wave.enemyCount = rand() % 4 + 3;
+        wave.enemyType = "basic_enemy";
+        wave.pattern = generateRandomPattern();
+    }
+    return wave;
+}
+
+PatternFunc GameLogicSystem::generateRandomPattern()
+{
+    std::vector<PatternFunc> patterns = {linePattern, diamondPattern, vPattern, backslashPattern, randomPattern};
+    return patterns[rand() % patterns.size()];
 }
 
 int GameLogicSystem::getScore() const
@@ -86,37 +101,6 @@ void GameLogicSystem::spawnLaser1(EntityManager &entityManager)
     }
 }
 
-void GameLogicSystem::spawnEnemies(EntityManager &entityManager)
-{
-    float y;
-    for (size_t i = 0; i < 10; i++)
-    {
-        y = 100 + i * 50;
-
-        auto &enemy = entityManager.createEntity();
-        enemy.addComponent<TransformComponent>(700, y);
-        enemy.addComponent<VelocityComponent>(0.0f, 0.0f);
-        enemy.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0, GraphicsManager::Texture::ENEMY);
-        enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
-        enemy.addComponent<EnemyComponent>(0, 0.2f, 1, 50);
-        enemy.addComponent<HealthComponent>(50, 100);
-        enemy.addComponent<HealthBarComponent>(20.0f, 4.0f, -10.0f);
-    }
-    for (size_t i = 0; i < 1; i++)
-    {
-        y = 100 + i * 50;
-
-        auto &bonusLife = entityManager.createEntity();
-        bonusLife.addComponent<TransformComponent>(700, y);
-        bonusLife.addComponent<VelocityComponent>(-230.0f, 0.0f);
-        bonusLife.addComponent<SpriteComponent>(20.0f, 20.0f, 0, 255, 0, GraphicsManager::Texture::PLAYER);
-        bonusLife.addComponent<ColliderComponent>(20.0f, 20.0f, true);
-        std::vector<std::tuple<BonusComponent::TypeBonus, int>> v;
-        v.push_back(std::tuple<BonusComponent::TypeBonus, int>(BonusComponent::TypeBonus::HEALTH, 50));
-        bonusLife.addComponent<BonusComponent>(v);
-    }
-}
-
 void GameLogicSystem::updateScore(EntityManager &entityManager)
 {
     auto enemies = entityManager.getEntitiesWithComponents<EnemyComponent, TransformComponent>();
@@ -136,23 +120,21 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
 {
     float cx = windowWidth + 50.0f;
     float cy = windowHeight / 2.0f;
-    // std::vector<Vector2D> positions = wave.pattern(wave.enemyCount, cx, cy);
-    std::vector<Vector2D> positions;
+    std::vector<Vector2D> positions = wave.pattern(wave.enemyCount, cx, cy);
+    SHOOTINGTYPE shootingType;
 
-    std::srand(std::time(nullptr));
-    // Generate random enemy position
-    for (int i = 0; i < wave.enemyCount; i++)
-    {
-
-        int x = rand() % 50 + windowWidth;
-        int y = (rand() % (windowHeight - 100)) + 50;
-        positions.push_back(Vector2D(x, y));
-        printf("Random pos: %d %d\n", x, y);
+    if (positions.size() <= 3) {
+        shootingType = (rand() % 2 == 0) ? SHOOTINGTYPE::SINUS: SHOOTINGTYPE::THREE_DISPERSED; 
+    } else if (positions.size() <= 5) {
+        // Not so many enemy, shootingType = sinus/3 bullets
+        shootingType = (rand() % 2 == 0) ? SHOOTINGTYPE::STRAIGHT: SHOOTINGTYPE::SINUS; 
+    } else {
+        shootingType = SHOOTINGTYPE::STRAIGHT;
     }
 
     for (const auto &pos : positions)
     {
-        EnemyFactory::createEnemy(entityManager, wave.enemyType, pos);
+        EnemyFactory::createEnemy(entityManager, wave.enemyType, pos, shootingType);
     }
 
     // === Spawn a bonus life entity ===

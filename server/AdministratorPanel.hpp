@@ -1,8 +1,8 @@
 #pragma once
 #include "../client/assetsPath.hpp"
-#include "Network/ClientManager.hpp"
 #include "Lobby/LobbyManager.hpp"
-#include "Network/NetworkManager.hpp"
+#include "Network/ClientManager.hpp"
+#include "NetworkManager.hpp"
 #include "sqlAPI.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>

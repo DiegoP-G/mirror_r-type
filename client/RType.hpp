@@ -16,6 +16,14 @@
 
 #include <windows.h>
 #endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+
+#include <windows.h>
+#endif
+#include "TickSystem.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include <mutex>
 #include <unordered_map>
@@ -38,8 +46,10 @@ class RTypeGame
 {
   private:
     int _playerId;
+    std::string _playerName;
     std::mutex _mutex;
     EntityManager entityManager;
+    TickSystem tickSystem;
 
     // Systems
     MovementSystem movementSystem;
@@ -131,6 +141,11 @@ class RTypeGame
     void setPlayerId(int id)
     {
         _playerId = id;
+        tickSystem.setPlayerId(id);
+    };
+    int getPlayerId()
+    {
+        return _playerId;
     };
     void setPlayerReady(int value)
     {
@@ -144,8 +159,6 @@ class RTypeGame
     bool init(NetworkECSMediator med, std::function<void(const char *)> networkCb);
 
     void createTextures();
-
-    void createBackground();
 
     void createPlayer();
 
@@ -170,8 +183,6 @@ class RTypeGame
     void setCurrentState(GameState newState);
 
     void drawHitbox();
-    void drawPlayerID();
-
     void setKickState()
     {
         _state = GameState::KICKED;
@@ -181,4 +192,8 @@ class RTypeGame
     {
         _state = GameState::BAN;
     };
+    TickSystem &getTickSystem()
+    {
+        return tickSystem;
+    }
 };

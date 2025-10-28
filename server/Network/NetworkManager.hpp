@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../transferData/opcode.hpp"
 #include "../../transferData/hashUtils.hpp"
+#include "../../transferData/opcode.hpp"
 #include "../Game/GameMediator.hpp"
 #include "Client.hpp"
 #include "ClientManager.hpp"
@@ -85,22 +85,32 @@ class NetworkManager
 
     void setServerPubKey(EVP_PKEY *key)
     {
-      if (key) {
-        _serverPubKey = key;
-      }
+        if (key)
+        {
+            _serverPubKey = key;
+        }
     }
 
     void setAesKey(std::vector<uint8_t> &key)
     {
-      _aesKey = key;
+        _aesKey = key;
     }
 
     void setAesIV(std::vector<uint8_t> &iv)
     {
-      _aesIV = iv;
+        _aesIV = iv;
     }
 
-    EVP_PKEY *getServerPubKey() { return _serverPubKey; };
-    const std::vector<uint8_t> &getAesKey() { return _aesKey; };
-    const std::vector<uint8_t> &getAesIV() { return _aesIV; };
+    EVP_PKEY *getServerPubKey()
+    {
+        return _serverPubKey;
+    };
+    const std::vector<uint8_t> &getAesKey()
+    {
+        return _aesKey;
+    };
+    const std::vector<uint8_t> &getAesIV()
+    {
+        return _aesIV;
+    };
 };

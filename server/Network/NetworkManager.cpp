@@ -27,8 +27,23 @@
 #include <unistd.h>
 #endif
 
-NetworkManager::NetworkManager(GameMediator &ref) : _gameMediator(ref), _UDPManager(*this),
-    _TCPManager(*this), _serverPubKey(nullptr)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#include <windows.h>
+#else
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
+
+NetworkManager::NetworkManager(GameMediator &ref)
+    : _gameMediator(ref), _UDPManager(*this), _TCPManager(*this), _serverPubKey(nullptr)
 {
     EVP_PKEY *serverKey = generateRSAKeyPair(2048);
     if (!serverKey)
@@ -108,24 +123,12 @@ void NetworkManager::sendDataToLobbyTCP(std::shared_ptr<Lobby> lobby, const std:
 
 void NetworkManager::sendAllEntitiesToClient(int clientFd)
 {
-    //   std::cout << "[NetworkManager] Sending all existing entities to new client " << clientFd << std::endl;
+    std::string allEntities = _gameMediator.getAllActiveEntitiesFromLobby(clientFd);
 
-    // Récupérer toutes les entités actives depuis le serveur de jeu
-    std::vector<std::string> allEntities = _gameMediator.getAllActiveEntitiesFromLobby(clientFd);
-
-    //   std::cout << "[NetworkManager] Sending " << allEntities.size() << " entities to client " << clientFd <<
-    //   std::endl;
-
-    // Envoyer chaque entité au nouveau client via TCP
-    for (const auto &entityData : allEntities)
+    if (!allEntities.empty())
     {
-        if (!entityData.empty())
-        {
-            _TCPManager.sendMessage(clientFd, OPCODE_ENTITY_CREATE, entityData);
-        }
+        _TCPManager.sendMessage(clientFd, OPCODE_ENTITY_CREATE, allEntities);
     }
-
-    //   std::cout << "[NetworkManager] Finished sending entities to client " << clientFd << std::endl;
 }
 
 void NetworkManager::sendDataToLobbyUDP(std::shared_ptr<Lobby> lobby, const std::string &data, int opcode)

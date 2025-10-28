@@ -1,10 +1,18 @@
 #include "RenderSystem.hpp"
 #include "../components/PlayerComponent.hpp"
+#include "../components/TextComponent.hpp"
 
 void RenderSystem::draw(Entity *entity)
 {
     auto &transform = entity->getComponent<TransformComponent>();
     Vector2D position = getActualPosition(entity);
+
+    if (entity->hasComponent<TextComponent>())
+    {
+        auto &textComp = entity->getComponent<TextComponent>();
+
+        g_graphics->drawText(textComp.text, position.x, position.y - 30, 255, 255, 255, true, 15);
+    }
 
     if (entity->hasComponent<AnimatedSpriteComponent>())
     {
@@ -43,18 +51,15 @@ void RenderSystem::drawHealthBar(Entity *entity)
 
     float healthPercentage = healthComp.health / healthComp.maxHealth;
 
-    // if (entity->hasComponent<PlayerComponent>())
-    //     std::cout << "HEATK"<< healthComp.health << std::endl;
-
-    //  std::cout << "Health Percentage: " << healthPercentage << std::endl;
-
     float barWidth = healthBarComp.width * healthPercentage;
     float barHeight = healthBarComp.height;
     float offsetY = healthBarComp.offsetY;
+    float offsetX = healthBarComp.offsetX;
 
-    g_graphics->drawRect(position.x, position.y + offsetY, healthBarComp.width, barHeight, 255, 0, 0,
-                         255);                                                                   // Red background
-    g_graphics->drawRect(position.x, position.y + offsetY, barWidth, barHeight, 0, 255, 0, 255); // Green health bar
+    g_graphics->drawRect(position.x + offsetX, position.y + offsetY, healthBarComp.width, barHeight, 255, 0, 0,
+                         255); // Red background
+    g_graphics->drawRect(position.x + offsetX, position.y + offsetY, barWidth, barHeight, 0, 255, 0,
+                         255); // Green health bar
     draw(entity);
 }
 

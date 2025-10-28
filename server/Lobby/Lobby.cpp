@@ -31,26 +31,44 @@ void Lobby::run()
     }
 
     _rtypeGame->init();
+
     auto previousTime = std::chrono::high_resolution_clock::now();
-    constexpr float targetFrameTime = 1.0f / 60.0f; // 60 ticks per second
 
     while (_running)
     {
         auto currentTime = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<float> elapsed = currentTime - previousTime;
+        std::chrono::duration<double> frameTime = currentTime - previousTime;
         previousTime = currentTime;
 
+        tickAccumulator += frameTime.count();
+        //   tickAccumulator = std::min(tickAccumulator, 0.25); // anti-lag burst
+
+        while (tickAccumulator >= TICK_DURATION)
         {
-            std::lock_guard<std::mutex> lock(_mutex);
-            _deltaTime = elapsed.count();
+            update(); // logique de simulation d’un tick
+            tickAccumulator -= TICK_DURATION;
         }
-
-        update();
-
-        float sleepTime = targetFrameTime - _deltaTime;
-        if (sleepTime > 0.0f)
-            std::this_thread::sleep_for(std::chrono::duration<float>(sleepTime));
     }
+
+    // auto previousTime = std::chrono::high_resolution_clock::now();
+    // constexpr float targetFrameTime = 1.0f / 60.0f; // 60 ticks per second
+
+    // while (_running)
+    // {
+    //     auto currentTime = std::chrono::high_resolution_clock::now();
+    //     std::chrono::duration<float> elapsed = currentTime - previousTime;
+    //     previousTime = currentTime;
+
+    //     {
+    //         std::lock_guard<std::mutex> lock(_mutex);
+    //         _deltaTime = elapsed.count();
+    //     }
+
+    //     update();
+    //     float sleepTime = targetFrameTime - _deltaTime;
+    //     if (sleepTime > 0.0f)
+    //         std::this_thread::sleep_for(std::chrono::duration<float>(sleepTime));
+    // }
 
     std::cout << "[Lobby] Exiting game loop for lobby " << _uid << std::endl;
 }
@@ -60,7 +78,7 @@ void Lobby::update()
     if (!_running)
         return;
 
-    _rtypeGame->update(_deltaTime);
+    _rtypeGame->update(TICK_DURATION);
 }
 
 void Lobby::stop()

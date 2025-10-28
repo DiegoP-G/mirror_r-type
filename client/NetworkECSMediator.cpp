@@ -1,11 +1,11 @@
 #include "NetworkECSMediator.hpp"
+#include "../transferData/hashUtils.hpp"
 #include "../transferData/opcode.hpp"
 #include "../transferData/transferData.hpp"
-#include "../transferData/hashUtils.hpp"
-#include "Network/Receiver.hpp"
 #include "Network/NetworkManager.hpp"
 #include "VoiceManager.hpp"
 
+#include "Network/Receiver.hpp"
 #include "RType.hpp"
 #include <cstdint>
 #include <exception>
@@ -17,111 +17,121 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networ
 {
     _mediatorMap = {
         // === ENVOI VERS LE SERVEUR ===
-        {static_cast<int>(NetworkECSMediatorEvent::SEND_DATA_TCP), [this](const std::string &data, uint8_t opcode) {
+        {static_cast<int>(NetworkECSMediatorEvent::SEND_DATA_TCP),
+         [this](const std::string &data, uint8_t opcode) {
              std::cout << "[Client] Sending TCP opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
              _sender->sendTcp(opcode, data);
-             if (opcode == OPCODE_LOGIN_RESPONSE) {
-                std::cout << "Receive LOGIN response from server\n";
-                _game->getMutex().lock();
-                std::string response = deserializeString(data);
-                
-                // First byte indicates success (1) or failure (0)
-                bool success = response[0] == 1;
+             if (opcode == OPCODE_LOGIN_RESPONSE)
+             {
+                 std::cout << "Receive LOGIN response from server\n";
+                 _game->getMutex().lock();
+                 std::string response = deserializeString(data);
 
-                // Rest of the response is the message
-                std::string message = response.substr(1);
+                 // First byte indicates success (1) or failure (0)
+                 bool success = response[0] == 1;
 
-                if (success)
-                {
-                    std::cout << "[Client] Login successful: " << message << std::endl;
-                    if (_game)
-                    {
-                    _game->setCurrentState(GameState::MENULOBBY);
-                    }
-                }
-                else
-                {
-                    std::cout << "[Client] Login failed: " << message << std::endl;
-                    // Show error message to user
-                    if (_game && g_graphics)
-                    {
-                    g_graphics->showErrorMessage(message);
-                    }
-                }
+                 // Rest of the response is the message
+                 std::string message = response.substr(1);
 
-                _game->getMutex().unlock();
-            } else if (opcode == OPCODE_SIGNIN_RESPONSE) {
-                std::cout << "Receive LOGIN response from server\n";
-                _game->getMutex().lock();
-                std::string response = deserializeString(data);
-                
-                // First byte indicates success (1) or failure (0)
-                bool success = response[0] == 1;
+                 if (success)
+                 {
+                     std::cout << "[Client] Login successful: " << message << std::endl;
+                     if (_game)
+                     {
+                         _game->setCurrentState(GameState::MENULOBBY);
+                     }
+                 }
+                 else
+                 {
+                     std::cout << "[Client] Login failed: " << message << std::endl;
+                     // Show error message to user
+                     if (_game && g_graphics)
+                     {
+                         g_graphics->showErrorMessage(message);
+                     }
+                 }
 
-                // Rest of the response is the message
-                std::string message = response.substr(1);
+                 _game->getMutex().unlock();
+             }
+             else if (opcode == OPCODE_SIGNIN_RESPONSE)
+             {
+                 std::cout << "Receive LOGIN response from server\n";
+                 _game->getMutex().lock();
+                 std::string response = deserializeString(data);
 
-                if (success)
-                {
-                    std::cout << "[Client] Signin successful: " << message << std::endl;
-                    if (_game)
-                    {
-                    _game->setCurrentState(GameState::MENULOBBY);
-                    }
-                }
-                else
-                {
-                    std::cout << "[Client] Signin failed: " << message << std::endl;
-                    // Show error message to user
-                    if (_game && g_graphics)
-                    {
-                    g_graphics->showErrorMessage(message);
-                    }
-                }
+                 // First byte indicates success (1) or failure (0)
+                 bool success = response[0] == 1;
 
-                _game->getMutex().unlock();
-            } else if (opcode == OPCODE_SERVER_PUB_KEY) {
-                _game->getMutex().lock();
-                
-                std::vector<unsigned char> pemBytes(data.begin(), data.end());
-                auto publicKey = extractPublicKeyFromPEMBytes(pemBytes);
-                if (!publicKey.has_value()) {
-                    std::cerr << "Client can't extract server public key from PEM bytes.";
-                    _game->getMutex().unlock();
-                    return;
-                }
-                _networkManager.setServerPubKey(*publicKey);
+                 // Rest of the response is the message
+                 std::string message = response.substr(1);
 
-                // Generate IV/Key
-                unsigned char aes_key[AES_KEY_BYTES];
-                unsigned char iv[AES_IV_BYTES];
-                if (!generateAESKeyAndIV(aes_key, iv)) {
-                    std::cerr << "Client failed to generate AES iv/key" << std::endl;
-                }
+                 if (success)
+                 {
+                     std::cout << "[Client] Signin successful: " << message << std::endl;
+                     if (_game)
+                     {
+                         _game->setCurrentState(GameState::MENULOBBY);
+                     }
+                 }
+                 else
+                 {
+                     std::cout << "[Client] Signin failed: " << message << std::endl;
+                     // Show error message to user
+                     if (_game && g_graphics)
+                     {
+                         g_graphics->showErrorMessage(message);
+                     }
+                 }
 
-                std::vector<uint8_t> keyStr(aes_key, aes_key + AES_KEY_BYTES);
-                std::vector<uint8_t> ivStr(iv, iv + AES_IV_BYTES);
+                 _game->getMutex().unlock();
+             }
+             else if (opcode == OPCODE_SERVER_PUB_KEY)
+             {
+                 _game->getMutex().lock();
 
-                _networkManager.setAesIV(ivStr);
-                _networkManager.setAesKey(keyStr);
+                 std::vector<unsigned char> pemBytes(data.begin(), data.end());
+                 auto publicKey = extractPublicKeyFromPEMBytes(pemBytes);
+                 if (!publicKey.has_value())
+                 {
+                     std::cerr << "Client can't extract server public key from PEM bytes.";
+                     _game->getMutex().unlock();
+                     return;
+                 }
+                 _networkManager.setServerPubKey(*publicKey);
 
-                // Then encrypt it and send it to server
-                std::vector<unsigned char> payload;
-                payload.insert(payload.end(), aes_key, aes_key + sizeof(aes_key));
-                payload.insert(payload.end(), iv, iv + sizeof(iv));
+                 // Generate IV/Key
+                 unsigned char aes_key[AES_KEY_BYTES];
+                 unsigned char iv[AES_IV_BYTES];
+                 if (!generateAESKeyAndIV(aes_key, iv))
+                 {
+                     std::cerr << "Client failed to generate AES iv/key" << std::endl;
+                 }
 
-                std::optional<std::vector<unsigned char>> encryptedPayload = encryptBytesWithPublicKey(*publicKey, payload);
+                 std::vector<uint8_t> keyStr(aes_key, aes_key + AES_KEY_BYTES);
+                 std::vector<uint8_t> ivStr(iv, iv + AES_IV_BYTES);
 
-                if (!encryptedPayload.has_value()) {
-                    std::cerr << "Client failed to encrypt its AES key/IV";
-                    return;
-                }
+                 _networkManager.setAesIV(ivStr);
+                 _networkManager.setAesKey(keyStr);
 
-                std::string payloadStr((*encryptedPayload).begin(), (*encryptedPayload).end());
+                 // Then encrypt it and send it to server
+                 std::vector<unsigned char> payload;
+                 payload.insert(payload.end(), aes_key, aes_key + sizeof(aes_key));
+                 payload.insert(payload.end(), iv, iv + sizeof(iv));
 
-                notify(SEND_DATA_TCP, payloadStr, OPCODE_CLIENT_IV_KEY);
-                _game->getMutex().unlock();
-            }
+                 std::optional<std::vector<unsigned char>> encryptedPayload =
+                     encryptBytesWithPublicKey(*publicKey, payload);
+
+                 if (!encryptedPayload.has_value())
+                 {
+                     std::cerr << "Client failed to encrypt its AES key/IV";
+                     return;
+                 }
+
+                 std::string payloadStr((*encryptedPayload).begin(), (*encryptedPayload).end());
+
+                 notify(SEND_DATA_TCP, payloadStr, OPCODE_CLIENT_IV_KEY);
+                 _game->getMutex().unlock();
+             }
          }},
 
         {static_cast<int>(NetworkECSMediatorEvent::SEND_DATA_UDP),
@@ -132,9 +142,10 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networ
              std::cout << "[Client] Received PLAYER_ID" << std::endl;
              int playerId = deserializeInt(data);
              if (_game)
+             {
                  _game->setPlayerId(playerId);
+             }
          }},
-         
 
         // === RÉCEPTION DEPUIS LE SERVEUR ===
         {static_cast<int>(NetworkECSMediatorEvent::UPDATE_DATA), [this](const std::string &data, uint8_t opcode) {
@@ -143,7 +154,7 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networ
 
              switch (opcode)
              {
-                 // Création complète d'une entité (TCP)
+
              case OPCODE_ENTITY_CREATE: {
                  std::cout << "[Client] ========== ENTITY_CREATE received ==========" << std::endl;
                  std::cout << "[Client] Data size: " << data.size() << " bytes" << std::endl;
@@ -153,8 +164,7 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networ
 
                  // Log avant désérialisation
                  std::cout << "[Client] Entities before: " << _game->getEntityManager().getEntityCount() << std::endl;
-
-                 _game->getEntityManager().deserializeEntityFull(bytes);
+                 receiveNewEntities(bytes);
 
                  // Log après désérialisation
                  std::cout << "[Client] Entities after: " << _game->getEntityManager().getEntityCount() << std::endl;
@@ -189,11 +199,14 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networ
                  }
                  break;
              }
-             // Updates de mouvement (UDP)
-             case OPCODE_MOVEMENT_UPDATE: {
+
+             case OPCODE_UPDATE_ENTITIES: {
+
                  _game->getMutex().lock();
                  std::vector<uint8_t> bytes(data.begin(), data.end());
-                 _game->getEntityManager().deserializeAllMovements(bytes);
+
+                 receiveEntitiesUpdates(bytes);
+
                  _game->getMutex().unlock();
                  break;
              }
@@ -218,14 +231,6 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networ
                  _game->getMutex().unlock();
                  //  _game->drawWaitingForPlayers((int)playersReady,
                  //  (int)totalPlayers);
-                 break;
-             }
-
-             case OPCODE_HEALTH_UPDATE: {
-                 _game->getMutex().lock();
-                 std::vector<uint8_t> bytes(data.begin(), data.end());
-                 _game->getEntityManager().deserializeAllHealth(bytes);
-                 _game->getMutex().unlock();
                  break;
              }
 
@@ -320,6 +325,7 @@ void NetworkECSMediator::notify(NetworkECSMediatorEvent event, const std::string
     }
 }
 
+<<<<<<< HEAD
 void NetworkECSMediator::setupVoiceChat(int deviceIndex)
 {
     if (!_voiceManager)
@@ -353,3 +359,187 @@ void NetworkECSMediator::stopVoiceChat()
         std::cerr << "[Voice] ⚠ VoiceManager not available for stopping" << std::endl;
     }
 }
+=======
+void NetworkECSMediator::receiveEntitiesUpdates(const std::vector<uint8_t> &data)
+{
+    size_t offset = 0;
+
+    // 1. Lire le tick serveur
+    uint32_t serverTick = *reinterpret_cast<const uint32_t *>(&data[offset]);
+    offset += sizeof(uint32_t);
+
+    // if (_game->getTickSystem().lastServerTick < serverTick)
+    //     _game->getTickSystem().lastServerTick = serverTick;
+
+    std::cout << " tick received: " << serverTick << std::endl;
+
+    EntityManager serverEM; // état serveur temporaire
+
+    uint16_t moveSize = *reinterpret_cast<const uint16_t *>(&data[offset]);
+    offset += sizeof(uint16_t);
+
+    std::vector<uint8_t> moveData(data.begin() + offset, data.begin() + offset + moveSize);
+    offset += moveSize;
+
+    deserializeMovements(moveData, serverEM);
+
+    uint16_t healthSize = *reinterpret_cast<const uint16_t *>(&data[offset]);
+    offset += sizeof(uint16_t);
+
+    std::vector<uint8_t> healthData(data.begin() + offset, data.begin() + offset + healthSize);
+    deserializeHealth(healthData, serverEM);
+
+    std::cout << "bvedoe THE IS nb " << serverEM.getEntities().size() << std::endl;
+    serverEM.applyPendingChanges();
+    std::cout << "THE IS nb " << serverEM.getEntities().size() << std::endl;
+    _game->getTickSystem().onServerUpdate(serverTick, serverEM, _game->getEntityManager());
+}
+
+void NetworkECSMediator::deserializeMovements(const std::vector<uint8_t> &data, EntityManager &serverEM)
+{
+    if (data.size() < sizeof(uint32_t))
+        return;
+
+    size_t offset = 0;
+
+    // Lire le nombre d'entités
+    uint32_t entityCount;
+    std::memcpy(&entityCount, data.data() + offset, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+
+    // Pour chaque entité
+    for (uint32_t i = 0; i < entityCount && offset < data.size(); ++i)
+    {
+        // Lire EntityID
+        EntityID id;
+        std::memcpy(&id, data.data() + offset, sizeof(EntityID));
+        offset += sizeof(EntityID);
+
+        // Trouver l'entité correspondante
+        Entity *entity = _game->getEntityManager().getEntityByID(id);
+        if (!entity)
+        {
+            // Ignorer les données de cette entité
+            offset += 2 * sizeof(Vector2D); // position + velocity
+            continue;
+        }
+        // Lire position
+        Vector2D position = Vector2D::deserialize(data.data() + offset, sizeof(Vector2D));
+        offset += sizeof(Vector2D);
+
+        // Lire velocity
+        Vector2D velocity = Vector2D::deserialize(data.data() + offset, sizeof(Vector2D));
+        offset += sizeof(Vector2D);
+
+        if (entity->hasComponent<PlayerComponent>() &&
+            entity->getComponent<PlayerComponent>().playerID == _game->getPlayerId())
+        {
+            Entity &entityServ = serverEM.createEntity(id);
+
+            entityServ.addComponent<PlayerComponent>(_game->getPlayerId(), true, 0.0);
+            entityServ.addComponent<TransformComponent>();
+            auto &servTransform = entityServ.getComponent<TransformComponent>();
+            auto &clientTransform = entity->getComponent<TransformComponent>();
+            servTransform = clientTransform;
+            servTransform.position = position;
+
+            entityServ.addComponent<VelocityComponent>();
+
+            auto &servVel = entityServ.getComponent<VelocityComponent>();
+            auto &clientVel = entity->getComponent<VelocityComponent>();
+            servVel = clientVel;
+            servVel.velocity = velocity;
+
+            std::cout << "HERE I GET MY PLAYER" << std::endl;
+            continue;
+        }
+
+        // Mettre à jour les composants
+        if (entity->hasComponent<TransformComponent>())
+        {
+            auto &transform = entity->getComponent<TransformComponent>();
+            transform.position = position;
+        }
+
+        if (entity->hasComponent<VelocityComponent>())
+        {
+            auto &vel = entity->getComponent<VelocityComponent>();
+            vel.velocity = velocity;
+        }
+    }
+}
+
+void NetworkECSMediator::deserializeHealth(const std::vector<uint8_t> &data, EntityManager &serverEM)
+{
+    if (data.size() < sizeof(uint32_t))
+        return;
+
+    size_t offset = 0;
+    uint32_t entityCount = 0;
+
+    std::memcpy(&entityCount, data.data() + offset, sizeof(entityCount));
+    offset += sizeof(entityCount);
+
+    for (uint32_t i = 0; i < entityCount && offset < data.size(); ++i)
+    {
+        if (offset + sizeof(EntityID) > data.size())
+            break;
+
+        EntityID id;
+        std::memcpy(&id, data.data() + offset, sizeof(EntityID));
+        offset += sizeof(EntityID);
+
+        Entity *entity = _game->getEntityManager().getEntityByID(id);
+        if (!entity || !entity->hasComponent<HealthComponent>())
+        {
+            std::cout << "NO ENTITITY ID" << id << std::endl;
+            continue;
+        }
+
+        // Vérifier qu’il reste assez d’octets pour un HealthComponent
+        size_t remaining = data.size() - offset;
+        if (remaining < sizeof(int) * 2)
+        {
+            std::cout << "WTF" << std::endl;
+            break;
+        }
+
+        auto comp = HealthComponent::deserialize(data.data() + offset, sizeof(int) * 2);
+        offset += sizeof(int) * 2;
+
+        auto &health = entity->getComponent<HealthComponent>();
+        health.health = comp.health;
+        health.maxHealth = comp.maxHealth;
+    }
+}
+
+void NetworkECSMediator::receiveNewEntities(const std::vector<uint8_t> &data)
+{
+    size_t offset = 0;
+
+    uint32_t serverTick = *reinterpret_cast<const uint32_t *>(&data[offset]);
+    offset += sizeof(uint32_t);
+
+    if (_game->getTickSystem().getCurrentTick() == 0)
+    {
+        _game->getTickSystem().setCurrentTick(serverTick);
+        _game->getTickSystem().predictionEnabled = true;
+        std::cout << "Initializing client tick to " << serverTick << " and enabling prediction." << std::endl;
+    }
+
+    uint32_t entityCount = *reinterpret_cast<const uint32_t *>(&data[offset]);
+    offset += sizeof(uint32_t);
+
+    std::cout << "Received " << entityCount << " entities for tick " << serverTick << std::endl;
+
+    for (uint32_t i = 0; i < entityCount; ++i)
+    {
+        uint32_t entitySize = *reinterpret_cast<const uint32_t *>(&data[offset]);
+        offset += sizeof(uint32_t);
+
+        std::vector<uint8_t> entityData(data.begin() + offset, data.begin() + offset + entitySize);
+        offset += entitySize;
+        _game->getEntityManager().deserializeEntityFull(entityData);
+    }
+}
+>>>>>>> 6e13fa03ba1e1e4fd0e6b58123bbc9443865fb22

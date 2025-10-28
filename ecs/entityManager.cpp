@@ -21,6 +21,7 @@
 #include "components/PlayerComponent.hpp"
 #include "components/ProjectileComponent.hpp"
 #include "components/SpriteComponent.hpp"
+#include "components/TextComponent.hpp"
 #include "components/TransformComponent.hpp"
 #include "components/VelocityComponent.hpp"
 
@@ -45,6 +46,7 @@ EntityManager::EntityManager()
     ComponentFactory::registerComponent<BackgroundScrollComponent>();
     ComponentFactory::registerComponent<HealthBarComponent>();
     ComponentFactory::registerComponent<BonusComponent>();
+    ComponentFactory::registerComponent<TextComponent>();
 }
 
 std::vector<uint8_t> EntityManager::serializeEntityFull(EntityID id) const
@@ -81,7 +83,7 @@ std::vector<uint8_t> EntityManager::serializeAllMovements() const
 
     for (const auto &entity : entities)
     {
-        if (!entity || !entity->isActive())
+        if (!entity || !entity->isActive() || entity->hasComponent<BackgroundScrollComponent>())
             continue;
 
         EntityID id = entity->getID();

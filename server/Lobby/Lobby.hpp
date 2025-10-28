@@ -18,6 +18,8 @@ class Lobby
 
     Lobby(const Lobby &) = delete;
     Lobby &operator=(const Lobby &) = delete;
+    double TICK_DURATION = 1.0 / 60.0;
+    double tickAccumulator = 0.0;
 
     void run();  // Starts and runs the main game loop
     void stop(); // Stops the loop

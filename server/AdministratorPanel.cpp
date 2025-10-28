@@ -1,29 +1,28 @@
 #include "AdministratorPanel.hpp"
 #include "Network/ClientManager.hpp"
 #ifdef _WIN32
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #pragma comment(lib, "ws2_32.lib")
-    #include <windows.h>
-#else
-    #include <arpa/inet.h>
-    #include <netinet/in.h>
-    #include <sys/socket.h>
-    #include <unistd.h>
-    #include <poll.h>
+#ifndef NOMINMAX
+#define NOMINMAX
 #endif
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#include <windows.h>
+#else
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
 
 AdministratorPanel::AdministratorPanel(NetworkManager &networkManager)
-    : _clientManager(nullptr), _lobbyManager(nullptr), _playerListScrollOffset(0), _logsScrollOffset(0), _networkManager(networkManager),
-      _sqlApi("db.sqlite")
+    : _clientManager(nullptr), _lobbyManager(nullptr), _playerListScrollOffset(0), _logsScrollOffset(0),
+      _networkManager(networkManager), _sqlApi("db.sqlite")
 {
     sf::Font font;
     if (!font.loadFromFile(PathFormater::formatAssetPath(fontPath)))
@@ -99,7 +98,8 @@ void AdministratorPanel::kickPlayer(sf::RenderWindow &window, sf::Event &event)
                 _networkManager.getTCPManager().sendMessage(id, OPCODE_KICK_NOTIFICATION, "");
 
                 auto lobby = _lobbyManager->getLobbyOfPlayer(id);
-                if (lobby) {
+                if (lobby)
+                {
                     lobby->removePlayer(id);
                 }
 
@@ -141,7 +141,8 @@ void AdministratorPanel::banPlayer(sf::RenderWindow &window, sf::Event &event)
                     _sqlApi.addBannedIp(ip);
 
                     auto lobby = _lobbyManager->getLobbyOfPlayer(id);
-                    if (lobby) {
+                    if (lobby)
+                    {
                         lobby->removePlayer(id);
                     }
 
@@ -260,7 +261,8 @@ void AdministratorPanel::drawPlayerList(sf::RenderWindow &window, sf::FloatRect 
 
     // Draw players
     float playerY = playerListArea.top + TITLE_HEIGHT - _playerListScrollOffset; // Start below the title
-    std::vector<std::tuple<sf::Text, sf::RectangleShape, sf::RectangleShape>> playerList = buildPlayerList(window, playerListArea);
+    std::vector<std::tuple<sf::Text, sf::RectangleShape, sf::RectangleShape>> playerList =
+        buildPlayerList(window, playerListArea);
 
     for (auto &[player, button, banButton] : playerList)
     {

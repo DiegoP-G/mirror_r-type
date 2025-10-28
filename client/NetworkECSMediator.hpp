@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../ecs/entityManager.hpp"
 #include "../transferData/opcode.hpp"
 #include "Network/Receiver.hpp"
 #include "Network/Sender.hpp"
@@ -71,6 +72,13 @@ class NetworkECSMediator
     }
 
     void notify(NetworkECSMediatorEvent event, const std::string &data, uint8_t opcode = -1);
+    void receiveEntitiesUpdates(const std::vector<uint8_t> &data);
+    void receiveNewEntities(const std::vector<uint8_t> &data);
+    void deserializeHealth(const std::vector<uint8_t> &data, EntityManager &serverEM);
+    void deserializeMovements(const std::vector<uint8_t> &data, EntityManager &serverEM);
 
-    NetworkManager &getNetworkManager() { return _networkManager; };
+    NetworkManager &getNetworkManager()
+    {
+        return _networkManager;
+    };
 };
