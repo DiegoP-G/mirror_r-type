@@ -215,3 +215,8 @@ constexpr uint8_t OPCODE_BONUS = 0x93;
 // [SERVER → CLIENT, TCP]
 // Client got bonus
 // Payload: none
+
+constexpr uint8_t OPCODE_NEW_WAVE = 0x94;
+// [SERVER → CLIENT, TCP]
+// New wave alert
+// Payload: none

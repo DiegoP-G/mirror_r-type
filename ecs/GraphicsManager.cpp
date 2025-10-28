@@ -201,6 +201,7 @@ bool GraphicsManager::registerTheSound()
     createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/pew.mp3"), "pew");
     createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/music.mp3"), "music");
     createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/powerup.mp3"), "powerup");
+    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/newwave.mp3"), "newwave");
 
     return true;
 }

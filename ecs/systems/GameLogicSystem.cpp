@@ -30,6 +30,12 @@ void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, Game
         std::cout << "Spawning wave " << currentWave + 1 << "hihi" << std::endl;
         spawnWave(entityManager, waves[currentWave]);
         waveActive = true;
+
+        auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
+        for (auto *player : players) {
+            auto &playerComp = player->getComponent<PlayerComponent>();
+            gameMediator.notify(GameMediatorEvent::NewWave, "", "", playerComp.playerID);
+        }
     }
     else if (waveActive && entityManager.getEntitiesWithComponents<EnemyComponent>().empty())
     {

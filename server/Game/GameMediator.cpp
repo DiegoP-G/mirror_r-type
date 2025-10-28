@@ -237,6 +237,10 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
          [this](const std::string &data, const std::string &, int clientFd) -> void {
             _networkManager.getTCPManager().sendMessage(clientFd, OPCODE_BONUS, "");
          }},
+        {GameMediatorEvent::NewWave,
+         [this](const std::string &data, const std::string &, int clientFd) -> void {
+            _networkManager.getTCPManager().sendMessage(clientFd, OPCODE_NEW_WAVE, "");
+         }},
     };
 }
 
