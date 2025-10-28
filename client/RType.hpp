@@ -132,6 +132,7 @@ class RTypeGame
     void createPlayer();
 
     void drawWaitingForPlayers();
+    void drawStaminaBar();
     void handleEvents();
     // void handleEvents();
 

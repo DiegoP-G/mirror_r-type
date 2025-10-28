@@ -43,6 +43,51 @@ void RenderSystem::draw(Entity *entity)
     }
 }
 
+void RenderSystem::drawStaminaBar(Entity *entity)
+{
+    if (!entity->hasComponent<PlayerComponent>() || !entity->hasComponent<TransformComponent>())
+        return;
+
+    auto &playerComp = entity->getComponent<PlayerComponent>();
+    auto &transform = entity->getComponent<TransformComponent>();
+
+    float ratio = std::clamp(playerComp.stamina / playerComp.maxStamina, 0.0f, 1.0f);
+    float barWidth = 50.0f;
+    float barHeight = 5.0f;
+    float offsetY = -20.0f;
+
+    g_graphics->drawRect(transform.position.x, transform.position.y + offsetY, barWidth, barHeight, 0, 100, 100, 200);
+    g_graphics->drawRect(transform.position.x, transform.position.y + offsetY, barWidth * ratio, barHeight, 0, 255, 255,
+                         255);
+}
+
+void RenderSystem::update(EntityManager &entityManager)
+{
+    if (!g_graphics)
+        return;
+
+    // Draw non-health entities
+    auto entities = entityManager.getEntitiesWithComponents<TransformComponent, SpriteComponent>();
+    for (auto &entity : entities)
+    {
+        if (!entity->hasComponent<HealthBarComponent>())
+            draw(entity);
+
+        if (entity->hasComponent<PlayerComponent>())
+            drawStaminaBar(entity); // ! draw stamina above player
+    }
+
+    // Draw animated entities
+    auto animatedEntities = entityManager.getEntitiesWithComponents<TransformComponent, AnimatedSpriteComponent>();
+    for (auto &entity : animatedEntities)
+        draw(entity);
+
+    // Draw health bars
+    auto healthBarEntities = entityManager.getEntitiesWithComponents<TransformComponent, HealthBarComponent>();
+    for (auto &entity : healthBarEntities)
+        drawHealthBar(entity);
+}
+
 void RenderSystem::drawHealthBar(Entity *entity)
 {
     auto &healthComp = entity->getComponent<HealthComponent>();
@@ -64,34 +109,6 @@ void RenderSystem::drawHealthBar(Entity *entity)
                          255);                                                                   // Red background
     g_graphics->drawRect(position.x, position.y + offsetY, barWidth, barHeight, 0, 255, 0, 255); // Green health bar
     draw(entity);
-}
-
-void RenderSystem::update(EntityManager &entityManager)
-{
-    if (!g_graphics)
-        return;
-
-    auto entities = entityManager.getEntitiesWithComponents<TransformComponent, SpriteComponent>();
-
-    for (auto &entity : entities)
-    {
-        if (!entity->hasComponent<HealthBarComponent>())
-            draw(entity);
-    }
-
-    auto animatedEntities = entityManager.getEntitiesWithComponents<TransformComponent, AnimatedSpriteComponent>();
-
-    for (auto &entity : animatedEntities)
-    {
-        draw(entity);
-    }
-
-    std::vector<Entity *> healthBarEntities =
-        entityManager.getEntitiesWithComponents<TransformComponent, HealthBarComponent>();
-    for (auto &entity : healthBarEntities)
-    {
-        drawHealthBar(entity);
-    }
 }
 
 void RenderSystem::renderAnimatedSprite(AnimatedSpriteComponent &animComp, float x, float y)

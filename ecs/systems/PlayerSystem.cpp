@@ -1,7 +1,4 @@
 #include "PlayerSystem.hpp"
-#include <unordered_map>
-
-static std::unordered_map<size_t, float> warpCooldownTimers;
 
 void PlayerSystem::update(EntityManager &entityManager, float deltaTime, bool client)
 {
@@ -13,21 +10,43 @@ void PlayerSystem::update(EntityManager &entityManager, float deltaTime, bool cl
         auto &playerComp = entity->getComponent<PlayerComponent>();
         playerComp.currentCooldown -= deltaTime;
 
-        size_t id = entity->getID();
-        if (warpCooldownTimers.find(id) != warpCooldownTimers.end())
+        // ! initialize stamina if missing (safety net)
+        if (playerComp.stamina > playerComp.maxStamina)
+            playerComp.stamina = playerComp.maxStamina;
+
+        // ! stamina regeneration
+        playerComp.stamina += playerComp.staminaRegenRate * deltaTime;
+        if (playerComp.stamina > playerComp.maxStamina)
+            playerComp.stamina = playerComp.maxStamina;
+
+        // ! warp cooldown update
+        if (playerComp.warpCooldown > 0.0f)
         {
-            warpCooldownTimers[id] -= deltaTime;
-            if (warpCooldownTimers[id] < 0.0f)
-                warpCooldownTimers[id] = 0.0f;
+            playerComp.warpCooldown -= deltaTime;
+            if (playerComp.warpCooldown < 0.0f)
+                playerComp.warpCooldown = 0.0f;
         }
 
+        std::cout << "STAMINA" << playerComp.stamina << std::endl;
         if (input.fire && playerComp.currentCooldown <= 0 && !client)
         {
-            fire(entityManager, entity);
-            input.fire = false;
-            playerComp.currentCooldown = playerComp.attackCooldown;
+            if (playerComp.stamina >= FIRE_STAMINA_COST)
+            {
+                fire(entityManager, entity);
+            }
+        }
+        // ! Had to add this to bypass !client causing issues
+        if (input.fire && playerComp.currentCooldown <= 0)
+        {
+            if (playerComp.stamina >= FIRE_STAMINA_COST)
+            {
+                playerComp.stamina -= FIRE_STAMINA_COST;
+                input.fire = false;
+                playerComp.currentCooldown = playerComp.attackCooldown;
+            }
         }
 
+        // ! warp handling
         if (input.warp)
         {
             handleWarp(entity, deltaTime);
@@ -35,6 +54,10 @@ void PlayerSystem::update(EntityManager &entityManager, float deltaTime, bool cl
         }
 
         handlePositionPlayer(entity);
+
+        // ! debug
+        printf("PLAYER %d | Stamina: %.2f | WarpCD: %.2f\n", playerComp.playerID, playerComp.stamina,
+               playerComp.warpCooldown);
     }
 }
 
@@ -56,16 +79,21 @@ void PlayerSystem::handlePositionPlayer(Entity *&entity)
 
 void PlayerSystem::handleWarp(Entity *&entity, float deltaTime)
 {
-    if (!entity->hasComponent<TransformComponent>() || !entity->hasComponent<InputComponent>())
+    if (!entity->hasComponent<TransformComponent>() || !entity->hasComponent<InputComponent>() ||
+        !entity->hasComponent<PlayerComponent>())
         return;
 
     auto &transform = entity->getComponent<TransformComponent>();
     auto &input = entity->getComponent<InputComponent>();
-    size_t id = entity->getID();
+    auto &playerComp = entity->getComponent<PlayerComponent>();
 
-    if (warpCooldownTimers.find(id) != warpCooldownTimers.end() && warpCooldownTimers[id] > 0.0f)
+    // ! check cooldown and stamina
+    if (playerComp.warpCooldown > 0.0f)
+        return;
+    if (playerComp.stamina < WARP_STAMINA_COST)
         return;
 
+    // ! execute warp
     if (input.up)
         transform.position.y -= WARP_DISTANCE;
     else if (input.down)
@@ -75,7 +103,9 @@ void PlayerSystem::handleWarp(Entity *&entity, float deltaTime)
     else if (input.right)
         transform.position.x += WARP_DISTANCE;
 
-    warpCooldownTimers[id] = WARP_COOLDOWN;
+    // ! apply stamina + cooldown
+    playerComp.stamina -= WARP_STAMINA_COST;
+    playerComp.warpCooldown = WARP_COOLDOWN;
 
     handlePositionPlayer(entity);
 }
@@ -91,8 +121,9 @@ void PlayerSystem::fire(EntityManager &entityManager, Entity *entity)
     bullet.addComponent<SpriteComponent>(8, 8, 255, 0, 0);
     bullet.addComponent<ColliderComponent>(8.0f, 8.0f);
 
-    PlayerComponent player = entity->getComponent<PlayerComponent>();
+    auto &player = entity->getComponent<PlayerComponent>(); // ! was copy, now reference
 
     printf("BULLET OWNER ID: %d\n", player.playerID);
+
     bullet.addComponent<ProjectileComponent>(30.0f, 2.0f, player.playerID, ENTITY_TYPE::PLAYER);
 }

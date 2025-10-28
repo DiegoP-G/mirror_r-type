@@ -1,4 +1,5 @@
 #include "TickSystem.hpp"
+#include "../ecs/components/PlayerComponent.hpp"
 #include "../ecs/ecs.hpp"
 #include "../ecs/systems.hpp"
 #include <algorithm>
@@ -43,8 +44,7 @@ void TickSystem::processTick(EntityManager &entityManager)
 
 void TickSystem::applyPlayerInputs(EntityManager &entityManager, const PlayerInput &input)
 {
-
-    auto entities = entityManager.getEntitiesWithComponents<PlayerComponent>();
+    auto entities = entityManager.getEntitiesWithComponents<PlayerComponent, InputComponent>();
 
     for (auto &entity : entities)
     {
@@ -52,7 +52,11 @@ void TickSystem::applyPlayerInputs(EntityManager &entityManager, const PlayerInp
             continue;
 
         auto &velocity = entity->getComponent<VelocityComponent>();
+        auto &transform = entity->getComponent<TransformComponent>();
+        auto &playerComp = entity->getComponent<PlayerComponent>();
+        auto &inputComp = entity->getComponent<InputComponent>();
 
+        // ! apply movement input
         velocity.velocity.x = 0.0f;
         velocity.velocity.y = 0.0f;
 
@@ -64,12 +68,28 @@ void TickSystem::applyPlayerInputs(EntityManager &entityManager, const PlayerInp
         if (input.moveLeft)
             velocity.velocity.x = -PLAYER_SPEED;
         if (input.moveRight)
-        {
             velocity.velocity.x = PLAYER_SPEED;
-        }
 
-        auto &transform = entity->getComponent<TransformComponent>();
         transform.position += velocity.velocity * TICK_DURATION;
+
+        if (inputComp.warp)
+        {
+            if (playerComp.stamina >= WARP_STAMINA_COST && playerComp.warpCooldown <= 0.0f)
+            {
+                if (inputComp.up)
+                    transform.position.y -= WARP_DISTANCE;
+                else if (inputComp.down)
+                    transform.position.y += WARP_DISTANCE;
+                else if (inputComp.left)
+                    transform.position.x -= WARP_DISTANCE;
+                else if (inputComp.right)
+                    transform.position.x += WARP_DISTANCE;
+
+                playerComp.stamina -= WARP_STAMINA_COST;
+                playerComp.warpCooldown = WARP_COOLDOWN;
+                inputComp.warp = false;
+            }
+        }
     }
 }
 

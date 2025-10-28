@@ -21,4 +21,5 @@ class RenderSystem
     void drawHealthBar(Entity *entity);
     void draw(Entity *entity);
     void renderAnimatedSprite(AnimatedSpriteComponent &animComp, float x, float y);
+    void drawStaminaBar(Entity *entity);
 };

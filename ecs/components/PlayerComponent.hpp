@@ -1,3 +1,4 @@
+// ! PlayerComponent.hpp addition
 #pragma once
 #include "../IComponent.hpp"
 #include <iostream>
@@ -14,8 +15,13 @@ class PlayerComponent : public IComponent
     bool isReady;
     std::string name;
 
-    PlayerComponent(int playerID = 0, bool isLocal = true, std::string username = "");
+    // ! stamina + warp cooldown
+    float stamina;
+    float maxStamina;
+    float staminaRegenRate;
+    float warpCooldown; // ! integrated warp cooldown per entity
 
+    PlayerComponent(int playerID = 0, bool isLocal = true, std::string username = "");
     PlayerComponent(int playerID = 0, bool isLocal = true, float shootCooldown = 0.0f, std::string username = "");
 
     void update(float deltaTime) override;
