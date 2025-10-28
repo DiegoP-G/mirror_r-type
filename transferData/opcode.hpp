@@ -196,3 +196,8 @@ constexpr uint8_t OPCODE_NEW_WAVE = 0x94;
 // [SERVER → CLIENT, TCP]
 // New wave alert
 // Payload: none
+
+constexpr uint8_t OPCODE_EXPLOSION = 0x95;
+// [SERVER → CLIENT, TCP]
+// Explosion
+// Payload: none

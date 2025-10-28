@@ -236,6 +236,8 @@ void RTypeServer::sendDestroyedEntities()
         {
             std::cout << "destroy bk " << id << std::endl;
         }
+        if (entityManager.getEntityByID(id)->hasComponent<EnemyComponent>())
+            mediator.notify(GameMediatorEvent::Explosion, "", _lobbyUID);
         mediator.notify(GameMediatorEvent::EntityDestroyed, data, _lobbyUID);
     }
 }
