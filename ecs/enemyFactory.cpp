@@ -1,11 +1,11 @@
 #include "enemyFactory.hpp"
 #include "systems/EnemySystem.hpp"
 
-void EnemyFactory::createEnemy(EntityManager &entityManager, std::string enemyType, const Vector2D &position)
+void EnemyFactory::createEnemy(EntityManager &entityManager, std::string enemyType, const Vector2D &position, SHOOTINGTYPE shootingType)
 {
     auto &enemy = entityManager.createEntity();
     // 0 for movement type : left
-    enemy.addComponent<EnemyComponent>(0, 1.0f, SHOOTINGTYPE::THREE_DISPERSED, 50);
+    enemy.addComponent<EnemyComponent>(0, 1.0f, shootingType, 50);
 
     if (enemyType == "basic_enemy")
     {
