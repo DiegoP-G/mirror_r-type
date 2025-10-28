@@ -17,6 +17,7 @@
 #include "components/ProjectileComponent.hpp"
 #include "components/Rect.hpp"
 #include "components/SpriteComponent.hpp"
+#include "components/TextComponent.hpp"
 #include "components/TransformComponent.hpp"
 #include "components/Vector2D.hpp"
 #include "components/VelocityComponent.hpp"

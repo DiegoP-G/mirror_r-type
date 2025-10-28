@@ -18,27 +18,23 @@ enum GameMediatorEvent
     LobbyInfoUpdate,
     GameStateUpdate,
     PlayerDisconnected,
-    UpdateEntities = 0x21,
-    UpdatePlayers = 0x23,
-    UpdateEnemies = 0x24,
-    UpdateProjectiles = 0x25,
-    PlayerInput = 0x26,
-    EntityCreated = 0x27,
-    EntityDestroyed = 0x28,
-    MovementUpdate = 0x29,
-    GameOver = 0x32,
-    PlayerDead = 0x33,
-    HealthUpdate = 0x40,
-    UpdateWave = 0x50,
-    UpdateScore = 0x51,
-    CreateLobby = 0x70,
-    JoinLobby = 0x71,
+    UpdateEntities = OPCODE_UPDATE_ENTITIES,
+    PlayerInput = OPCODE_PLAYER_INPUT,
+    EntitiesCreated = OPCODE_ENTITY_CREATE,
+    EntityDestroyed = OPCODE_ENTITY_DESTROY,
+    GameOver = OPCODE_GAME_OVER,
+    PlayerDead = OPCODE_PLAYER_DEAD,
+    UpdateWave = OPCODE_UPDATE_WAVE,
+    UpdateScore = OPCODE_UPDATE_SCORE,
+    CreateLobby = OPCODE_CREATE_LOBBY,
+    JoinLobby = OPCODE_JOIN_LOBBY,
     LoginReqest = 0x80,
     LoginResponse = 0x81,
     SigninRequest = 0x82,
     SigninResponse = 0x83,
     ServerPubKey = 0x90,
     ClientIVKey = 0x92,
+    VoiceComming = 0x75,
     PlayerBonus = 0x93,
     NewWave = 0x94
 };
@@ -66,7 +62,7 @@ class GameMediator : public IMediator
         return;
     };
 
-    std::vector<std::string> getAllActiveEntitiesFromLobby(int fd);
+    std::string getAllActiveEntitiesFromLobby(int fd);
 
     std::string toString(GameMediatorEvent event)
     {

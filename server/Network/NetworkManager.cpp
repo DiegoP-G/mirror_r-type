@@ -8,28 +8,31 @@
 #include <sys/types.h>
 
 #ifdef _WIN32
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #pragma comment(lib, "ws2_32.lib")
-    #include <windows.h>
-#else
-    #include <arpa/inet.h>
-    #include <netinet/in.h>
-    #include <sys/socket.h>
-    #include <unistd.h>
-    #include <poll.h>
-    #include <netinet/in.h>
+#ifndef NOMINMAX
+#define NOMINMAX
 #endif
 
-NetworkManager::NetworkManager(GameMediator &ref) : _gameMediator(ref), _UDPManager(*this),
-    _TCPManager(*this), _serverPubKey(nullptr)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#include <windows.h>
+#else
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+NetworkManager::NetworkManager(GameMediator &ref)
+    : _gameMediator(ref), _UDPManager(*this, _metrics), _TCPManager(*this, _metrics), _serverPubKey(nullptr)
 {
     EVP_PKEY *serverKey = generateRSAKeyPair(2048);
     if (!serverKey)
@@ -46,6 +49,7 @@ NetworkManager::~NetworkManager()
 
 void NetworkManager::updateAllPoll()
 {
+    _metrics.IncrementTick();
     _UDPManager.update();
     _TCPManager.update();
 }
@@ -109,24 +113,12 @@ void NetworkManager::sendDataToLobbyTCP(std::shared_ptr<Lobby> lobby, const std:
 
 void NetworkManager::sendAllEntitiesToClient(int clientFd)
 {
-    //   std::cout << "[NetworkManager] Sending all existing entities to new client " << clientFd << std::endl;
+    std::string allEntities = _gameMediator.getAllActiveEntitiesFromLobby(clientFd);
 
-    // Récupérer toutes les entités actives depuis le serveur de jeu
-    std::vector<std::string> allEntities = _gameMediator.getAllActiveEntitiesFromLobby(clientFd);
-
-    //   std::cout << "[NetworkManager] Sending " << allEntities.size() << " entities to client " << clientFd <<
-    //   std::endl;
-
-    // Envoyer chaque entité au nouveau client via TCP
-    for (const auto &entityData : allEntities)
+    if (!allEntities.empty())
     {
-        if (!entityData.empty())
-        {
-            _TCPManager.sendMessage(clientFd, OPCODE_ENTITY_CREATE, entityData);
-        }
+        _TCPManager.sendMessage(clientFd, OPCODE_ENTITY_CREATE, allEntities);
     }
-
-    //   std::cout << "[NetworkManager] Finished sending entities to client " << clientFd << std::endl;
 }
 
 void NetworkManager::sendDataToLobbyUDP(std::shared_ptr<Lobby> lobby, const std::string &data, int opcode)
@@ -149,4 +141,38 @@ void NetworkManager::sendDataToLobbyUDP(std::shared_ptr<Lobby> lobby, const std:
 
     if (!validAddrs.empty())
         _UDPManager.sendTo(validAddrs, opcode, data);
+}
+
+void NetworkManager::sendDataToLobbyUDPExcept(std::shared_ptr<Lobby> lobby, const std::string &data, int opcode,
+                                              int excludeClientFd)
+{
+    auto players = lobby->getPlayers();
+    std::vector<sockaddr_in> validAddrs;
+
+    for (int fd : players)
+    {
+        // ✅ Sauter l'émetteur
+        if (fd == excludeClientFd)
+        {
+            std::cout << "[UDP] Skipping sender client fd: " << fd << std::endl;
+            continue;
+        }
+
+        auto clientOpt = _clientManager.getClient(fd);
+        if (!clientOpt)
+            continue;
+
+        sockaddr_in addr = clientOpt->getTrueAddr();
+        if (addr.sin_family == AF_INET && addr.sin_port != 0)
+            validAddrs.push_back(addr);
+        else
+            std::cout << "[UDP] Skipping client " << fd << " (UDP not authenticated yet)\n";
+    }
+
+    if (!validAddrs.empty())
+    {
+        std::cout << "[UDP] Broadcasting to " << validAddrs.size() << " clients (excluding " << excludeClientFd << ")"
+                  << std::endl;
+        _UDPManager.sendTo(validAddrs, opcode, data);
+    }
 }

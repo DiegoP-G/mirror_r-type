@@ -178,7 +178,8 @@ void CollisionSystem::onPlayerHitLaser(Entity *player, Entity *laser)
 }
 
 void CollisionSystem::handleEnemyCollision(Entity *enemy, Entity *other, EntityType otherType,
-                                           std::vector<std::pair<int, int>> &playersScores, bool &updateScore, EntityManager &entityManager)
+                                           std::vector<std::pair<int, int>> &playersScores, bool &updateScore,
+                                           EntityManager &entityManager)
 {
     switch (otherType)
     {
@@ -192,7 +193,8 @@ void CollisionSystem::handleEnemyCollision(Entity *enemy, Entity *other, EntityT
 }
 
 void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile,
-                                           std::vector<std::pair<int, int>> &playersScores, bool &updateScore, EntityManager &entityManager)
+                                           std::vector<std::pair<int, int>> &playersScores, bool &updateScore,
+                                           EntityManager &entityManager)
 {
     auto &projComp = projectile->getComponent<ProjectileComponent>();
 

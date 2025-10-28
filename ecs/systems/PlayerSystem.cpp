@@ -1,6 +1,6 @@
 #include "PlayerSystem.hpp"
 
-void PlayerSystem::update(EntityManager &entityManager, float deltaTime)
+void PlayerSystem::update(EntityManager &entityManager, float deltaTime, bool client)
 {
     auto entities = entityManager.getEntitiesWithComponents<InputComponent, PlayerComponent>();
 
@@ -10,14 +10,55 @@ void PlayerSystem::update(EntityManager &entityManager, float deltaTime)
         auto &playerComp = entity->getComponent<PlayerComponent>();
         playerComp.currentCooldown -= deltaTime;
         playerComp.bonusFiremode -= deltaTime;
-        if (input.fire && playerComp.currentCooldown <= 0)
+
+        if (playerComp.stamina > playerComp.maxStamina)
+            playerComp.stamina = playerComp.maxStamina;
+
+        if (input.warp && playerComp.stamina >= WARP_STAMINA_COST * deltaTime)
         {
-            fire(entityManager, entity);
-            input.fire = false;
-            playerComp.currentCooldown = playerComp.attackCooldown;
+            playerComp.stamina -= WARP_STAMINA_COST * deltaTime;
+            if (playerComp.stamina < 0.0f)
+                playerComp.stamina = 0.0f;
+
+            playerComp.moveSpeed = NORMAL_SPEED * WARP_SPEED_MULTIPLIER;
+        }
+        else
+        {
+            playerComp.moveSpeed = NORMAL_SPEED;
+            playerComp.stamina += playerComp.staminaRegenRate * deltaTime;
+            if (playerComp.stamina > playerComp.maxStamina)
+                playerComp.stamina = playerComp.maxStamina;
         }
 
-        handlePositionPlayer(entity);
+        if (input.fire && playerComp.currentCooldown <= 0)
+        {
+            if (playerComp.stamina >= FIRE_STAMINA_COST)
+            {
+                if (!client)
+                    fire(entityManager, entity);
+
+                playerComp.stamina -= FIRE_STAMINA_COST;
+                input.fire = false;
+                playerComp.currentCooldown = playerComp.attackCooldown;
+            }
+        }
+
+        if (entity->hasComponent<TransformComponent>())
+        {
+            auto &transform = entity->getComponent<TransformComponent>();
+            if (input.up)
+                transform.position.y -= playerComp.moveSpeed * deltaTime;
+            if (input.down)
+                transform.position.y += playerComp.moveSpeed * deltaTime;
+            if (input.left)
+                transform.position.x -= playerComp.moveSpeed * deltaTime;
+            if (input.right)
+                transform.position.x += playerComp.moveSpeed * deltaTime;
+
+            handlePositionPlayer(entity);
+        }
+
+        printf("PLAYER %d | Stamina: %.2f | Speed: %.2f\n", playerComp.playerID, playerComp.stamina, playerComp.moveSpeed);
     }
 }
 
@@ -25,18 +66,16 @@ void PlayerSystem::handlePositionPlayer(Entity *&entity)
 {
     if (!entity->hasComponent<TransformComponent>())
         return;
-    auto &tranform = entity->getComponent<TransformComponent>();
-    if (tranform.position.x > 800 - 32)
-        tranform.position.x = 800 - 32;
 
-    if (tranform.position.x < 0)
-        tranform.position.x = 0;
-
-    if (tranform.position.y < 0)
-        tranform.position.y = 0;
-
-    if (tranform.position.y > 600 - 32)
-        tranform.position.y = 600 - 32;
+    auto &transform = entity->getComponent<TransformComponent>();
+    if (transform.position.x > 800 - 32)
+        transform.position.x = 800 - 32;
+    if (transform.position.x < 0)
+        transform.position.x = 0;
+    if (transform.position.y < 0)
+        transform.position.y = 0;
+    if (transform.position.y > 600 - 32)
+        transform.position.y = 600 - 32;
 }
 
 void PlayerSystem::fire(EntityManager &entityManager, Entity *entity)

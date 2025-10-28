@@ -5,11 +5,10 @@
 #include "components/Vector2D.hpp"
 #include "enemyFactory.hpp"
 #include "entityManager.hpp"
+#include <ctime>
 #include <functional>
 #include <math.h>
 #include <vector>
-
-// using PatternFunc = std::function<std::vector<Vector2D>(int, float, float)>;
 
 inline std::vector<Vector2D> backslashPattern(int count, float cx, float cy)
 {
@@ -108,66 +107,17 @@ inline std::vector<Vector2D> vPattern(int count, float cx, float cy)
     return positions;
 }
 
-// class WaveSystem
-// {
-//   private:
-//     struct Wave
-//     {
-//         float spawnDelay; // Time after previous wave
-//         int enemyCount;
-//         std::string enemyType;
-//         PatternFunc pattern;
-//     };
+inline std::vector<Vector2D> randomPattern(int count, float cx, float cy)
+{
+    std::srand(std::time(nullptr));
 
-//     // Default waves
-//     std::vector<Wave> waves {
-//         {0.0f, 4, "basic_enemy", linePattern},
-//         {2.5f, 8, "basic_enemy", diamondPattern},
-//         {2.5f, 7, "basic_enemy", vPattern},
-//         {2.5f, 10, "basic_enemy", backslashPattern},
-//     };
-
-//     float waveTimer = 0.0f;
-//     bool waveActive = false;
-//     size_t currentWave = 0;
-
-//   public:
-
-//     void update(EntityManager &entityManager, float deltaTime)
-//     {
-//         if (currentWave >= waves.size())
-//             return; // All waves done
-
-//         waveTimer += deltaTime;
-
-//         // Wait for spawnDelay before starting next wave
-//         if (!waveActive && waveTimer >= waves[currentWave].spawnDelay)
-//         {
-//             std::cout << "Spawning wave " << currentWave + 1 << std::endl;
-//             spawnWave(entityManager, waves[currentWave]);
-//             waveActive = true;
-//         }
-
-//         // Check if all enemies from this wave are destroyed
-//         if (waveActive && entityManager.getEntitiesWithComponents<EnemyComponent>().empty())
-//         {
-//             // Prepare for next wave
-//             waveActive = false;
-//             waveTimer = 0.0f;
-//             currentWave++;
-//         }
-//     }
-
-//   private:
-//     void spawnWave(EntityManager &entityManager, const Wave &wave)
-//     {
-//         float cx = windowWidth + 50.0f;
-//         float cy = windowHeight / 2.0f;
-//         std::vector<Vector2D> positions = wave.pattern(wave.enemyCount, cx, cy);
-
-//         for (const auto &pos : positions)
-//         {
-//             EnemyFactory::createEnemy(entityManager, wave.enemyType, pos);
-//         }
-//     }
-// };
+    std::vector<Vector2D> positions;
+    float spacing = 40.0f;
+    for (int i = 0; i < count; i++)
+    {
+        int x = rand() % 50 + windowWidth;
+        int y = (rand() % (windowHeight - 100)) + 50;
+        positions.push_back(Vector2D(x, y));
+    }
+    return positions;
+}

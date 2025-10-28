@@ -20,6 +20,8 @@ CPackSourceConfig.cmake
 submodules
 GameServer
 RTypeClient
+r-type_client
+r-type_server
 libecs.*
 libtransferData.a
 *tmp*
@@ -32,3 +34,4 @@ CMakeSettings*
 *exe
 .vs
 *.sqlite
+vcpkg

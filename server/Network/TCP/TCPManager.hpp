@@ -1,44 +1,46 @@
 #pragma once
 
 #ifdef _WIN32
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #pragma comment(lib, "ws2_32.lib")
-    #include <windows.h>
-#else
-    #include <arpa/inet.h>
-    #include <netinet/in.h>
-    #include <sys/socket.h>
-    #include <unistd.h>
-    #include <poll.h>
+#ifndef NOMINMAX
+#define NOMINMAX
 #endif
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#include <windows.h>
+#else
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
+
+#include "../../../transferData/opcode.hpp"
+#include "../../Prometheus/PrometheusServer.hpp"
 #include <map>
 #include <queue>
 #include <string>
 #include <vector>
-#include "../../../transferData/opcode.hpp"
 
 class NetworkManager;
 
 class TCPManager
 {
   private:
-    #ifdef _WIN32
-      SOCKET _listenFd;
-        std::vector<WSAPOLLFD> _pollFds;
-    #else
-        int _listenFd;
-        std::vector<struct pollfd> _pollFds;
-    #endif
+#ifdef _WIN32
+    SOCKET _listenFd;
+    std::vector<WSAPOLLFD> _pollFds;
+#else
+    int _listenFd;
+    std::vector<struct pollfd> _pollFds;
+#endif
     NetworkManager &_networkManagerRef;
+    PrometheusServer &_metrics;
 
     // Buffer d'écriture par client (données brutes à envoyer)
     std::map<int, std::string> _writeBuffers;
@@ -51,7 +53,7 @@ class TCPManager
     void sendAESKey(int clientFd);
 
   public:
-    TCPManager(NetworkManager &ref);
+    TCPManager(NetworkManager &ref, PrometheusServer &metrics);
     ~TCPManager();
 
     void update();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../ecs/entityManager.hpp"
 #include "../transferData/opcode.hpp"
 #include "Network/Receiver.hpp"
 #include "Network/Sender.hpp"
@@ -20,6 +21,7 @@ class Sender;
 class Receiver;
 class RTypeGame;
 class NetworkManager;
+class VoiceManager;
 
 class NetworkECSMediator
 {
@@ -29,10 +31,12 @@ class NetworkECSMediator
     RTypeGame *_game{nullptr};
 
     std::unordered_map<int, std::function<void(const std::string &, uint8_t)>> _mediatorMap;
-    NetworkManager &_networkManager;
+    NetworkManager *_networkManager;
+    VoiceManager *_voiceManager{nullptr};
+    bool voiceChatEnabled = false;
 
   public:
-    NetworkECSMediator(NetworkManager &_networkManager);
+    NetworkECSMediator(NetworkManager *_networkManager);
 
     void setSender(Sender *s)
     {
@@ -47,6 +51,18 @@ class NetworkECSMediator
         _game = g;
     }
 
+    void setVoiceManager(VoiceManager *v)
+    {
+        _voiceManager = v;
+    }
+
+    void setupVoiceChat(int deviceIndex = -1);
+    void stopVoiceChat();
+    VoiceManager &getVoiceManager()
+    {
+        return *_voiceManager;
+    }
+
     void reset()
     {
         _sender = nullptr;
@@ -56,6 +72,13 @@ class NetworkECSMediator
     }
 
     void notify(NetworkECSMediatorEvent event, const std::string &data, uint8_t opcode = -1);
+    void receiveEntitiesUpdates(const std::vector<uint8_t> &data);
+    void receiveNewEntities(const std::vector<uint8_t> &data);
+    void deserializeHealth(const std::vector<uint8_t> &data, EntityManager &serverEM);
+    void deserializeMovements(const std::vector<uint8_t> &data, EntityManager &serverEM);
 
-    NetworkManager &getNetworkManager() { return _networkManager; };
+    NetworkManager *getNetworkManager()
+    {
+        return _networkManager;
+    };
 };

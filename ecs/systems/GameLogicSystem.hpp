@@ -15,14 +15,22 @@
 #include "../components/HealthComponent.hpp"
 #include "../entityManager.hpp"
 #include "../wavePatterns.hpp"
+#include "systems/EnemySystem.hpp"
 #include <random>
 
 class GameMediator;
 using PatternFunc = std::function<std::vector<Vector2D>(int, float, float)>;
 
+
 constexpr float chance = 1;
 
-// System for game rules and logic
+struct Wave
+{
+    int enemyCount;
+    std::string enemyType;
+    PatternFunc pattern;
+};
+
 class GameLogicSystem
 {
   private:
@@ -33,35 +41,21 @@ class GameLogicSystem
     int stageCount = 0;  // 0 = normal, 1 = stage 1, 2 = stage 2, 3 = 1vs 1;
     int stageStatus = 0; // 0 = not started, 1 = in progress, 2 = ended;
 
-    struct Wave
-    {
-        float spawnDelay; // Time after previous wave
-        int enemyCount;
-        std::string enemyType;
-        PatternFunc pattern;
-    };
-
-    // Default waves
-    std::vector<Wave> waves{
-        {0.0f, 4, "basic_enemy", linePattern},
-        {2.5f, 4, "basic_enemy", diamondPattern},
-        {0.0f, 1, "boss", linePattern},
-    };
-
     float waveTimer;
     bool waveActive;
 
   public:
     bool allWavesCompleted = false;
     GameLogicSystem();
-    void update(EntityManager &entityManager, float deltaTime, GameMediator &gameMediator);
+    void update(EntityManager &entityManager, float deltaTime, GameMediator &gameMediator, std::string lobbyUid);
     int getScore() const;
     size_t currentWave = 0;
 
   private:
     void spawnLaser1(EntityManager &entityManager);
-    void spawnEnemies(EntityManager &entityManager);
     void updateScore(EntityManager &entityManager);
     void checkGameOverConditions(EntityManager &entityManager);
     void spawnWave(EntityManager &entityManager, const Wave &wave);
+    Wave generateRandomWave(int currentWave);
+    PatternFunc generateRandomPattern();
 };

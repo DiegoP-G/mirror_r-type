@@ -49,33 +49,10 @@ constexpr uint8_t OPCODE_PLAYER_ID = 0x11;
 
 // ---- Game data ----
 
-constexpr uint8_t OPCODE_PLAYER_STATE = 0x20;
-// [CLIENT → SERVER, UDP]
-// Sends the current player state.
-// Payload: [ x (float) | y (float) | angle (float) | speed (float) ]
-
-constexpr uint8_t OPCODE_WORLD_UPDATE = 0x21;
+constexpr uint8_t OPCODE_UPDATE_ENTITIES = 0x21;
 // [SERVER → CLIENT, UDP]
 // Sends the updated world state (positions of other players, entities, etc).
 // Payload: compressed list of visible entities.
-
-constexpr uint8_t OPCODE_PLAYER_UPDATE = 0x23;
-//  [SERVER → CLIENT, UDP]
-//  Updates the state of a specific player (e.g., position, health, etc).
-//  Payload: [ player_id (4 bytes) | x (float) | y (float) | angle (float) | speed (float) | health (int) ]
-//  Purpose: notifies clients about changes to a particular player.
-
-constexpr uint8_t OPCODE_ENEMIES_UPDATE = 0x24;
-// [SERVER → CLIENT, UDP]
-// Sends updates about enemy entities in the game.
-// Payload: compressed list of enemy entities (positions, types, health, etc).
-// Purpose: notifies clients about the current state of all visible enemies.
-
-constexpr uint8_t OPCODE_PROJECTILES_UPDATE = 0x25;
-// [SERVER → CLIENT, UDP]
-// Sends updates about projectiles in the game.
-// Payload: compressed list of projectile entities (positions, velocities, types, etc).
-// Purpose: notifies clients about the current state of all visible projectiles.
 
 constexpr uint8_t OPCODE_PLAYER_INPUT = 0x26;
 // [CLIENT → SERVER, UDP]
@@ -90,17 +67,6 @@ constexpr uint8_t OPCODE_ENTITY_DESTROY = 0x28;
 // [SERVER → CLIENT, TCP]
 // Destruction d'une entité
 // Payload: EntityID (4 bytes)
-
-// === Updates de mouvement (UDP) ===
-constexpr uint8_t OPCODE_MOVEMENT_UPDATE = 0x29;
-// [SERVER → CLIENT, UDP]
-// Updates des positions et velocities de toutes les entités
-// Payload: liste compressée (EntityID, position, velocity)
-
-constexpr uint8_t OPCODE_HEALTH_UPDATE = 0x40;
-// [SERVER → CLIENT, UDP]
-// Updates la vie de toutes les entités
-// Payload: liste compressée (EntityID, healtcomponent)
 
 constexpr uint8_t OPCODE_CHAT_MESSAGE = 0x30;
 // [CLIENT → SERVER, TCP]
@@ -164,7 +130,7 @@ constexpr uint8_t OPCODE_CREATE_LOBBY = 0x70;
 constexpr uint8_t OPCODE_JOIN_LOBBY = 0x71;
 // [CLIENT → SERVER, TCP]
 // Request to join an existing lobby
-// Payload: lobby_name (string)
+// Payload: lobby_name (string string)
 
 constexpr uint8_t OPCODE_LOBBY_CREATED = 0x72;
 // [SERVER → CLIENT, TCP]
@@ -203,13 +169,18 @@ constexpr uint8_t OPCODE_SIGNIN_RESPONSE = 0x83;
 
 constexpr uint8_t OPCODE_SERVER_PUB_KEY = 0x90;
 // [SERVER → CLIENT, TCP]
-// AES server key 
+// AES server key
 // Payload: [ success (1 byte: 0 = failure, 1 = success) | message (string) ]
 
 constexpr uint8_t OPCODE_CLIENT_IV_KEY = 0x92;
 // [SERVER → CLIENT, TCP]
 // Client sends generated AES key and key to server
 // Payload: [ AES_KEY (256 bytes) || IV (16 bytes) ]
+
+constexpr uint8_t OPCODE_VOICE_DATA = 0x75;
+// [CLIENT → SERVER, UDP]
+// Sends the client's voice data.
+// Payload: [ user_id (4 bytes) | audio_data (byte array) ]
 
 constexpr uint8_t OPCODE_BONUS = 0x93;
 // [SERVER → CLIENT, TCP]

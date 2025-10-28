@@ -19,17 +19,17 @@ LobbyManager::~LobbyManager()
 std::shared_ptr<Lobby> LobbyManager::createLobby(const std::string &uid)
 {
     std::lock_guard<std::mutex> lock(_mutex);
+
     if (_lobbies.find(uid) != _lobbies.end())
     {
-        std::cerr << "[LobbyManager] Lobby " << uid << " already exists.\n";
-        return _lobbies[uid];
+        std::cerr << "[LobbyManager] Cannot create lobby: " << uid << " already exists.\n";
+        return nullptr;
     }
 
-    std::cout << "UID IN MANAGER" << uid << std::endl;
+    std::cout << "UID IN MANAGER: " << uid << std::endl;
     auto lobby = std::make_shared<Lobby>(uid, _med);
     _lobbies[uid] = lobby;
 
-    // Run the lobby in its own thread
     _threads[uid] = std::thread([lobby]() { lobby->run(); });
 
     std::cout << "[LobbyManager] Created and launched lobby " << uid << std::endl;

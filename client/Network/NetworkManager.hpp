@@ -1,8 +1,5 @@
 #pragma once
 
-#include <atomic>
-#include <netinet/in.h>
-#include <poll.h>
 #include "../NetworkECSMediator.hpp"
 #include "../RType.hpp"
 #include "Receiver.hpp"
@@ -21,8 +18,8 @@
     #include <ws2tcpip.h>
     #pragma comment(lib, "ws2_32.lib")
     using SocketType = SOCKET;
+    #include <cstdint>
     #include <windows.h>
-
 #else
     using SocketType = int;
     #include <netinet/in.h>
@@ -40,11 +37,11 @@ class NetworkManager
     SocketType _tcpSocket;
     SocketType _udpSocket;
 
-    #ifdef _WIN32
-      std::vector<WSAPOLLFD> _pollFds;
-    #else
-      std::vector<struct pollfd> _pollFds;
-    #endif
+#ifdef _WIN32
+    std::vector<WSAPOLLFD> _pollFds;
+#else
+    std::vector<struct pollfd> _pollFds;
+#endif
 
     sockaddr_in _serverAddr;
     std::atomic<bool> _shouldStop;
@@ -68,22 +65,32 @@ class NetworkManager
 
     void setServerPubKey(EVP_PKEY *key)
     {
-      if (key) {
-        _serverPubKey = key;
-      }
+        if (key)
+        {
+            _serverPubKey = key;
+        }
     }
 
     void setAesKey(std::vector<uint8_t> &key)
     {
-      _aesKey = key;
+        _aesKey = key;
     }
 
     void setAesIV(std::vector<uint8_t> &iv)
     {
-      _aesIV = iv;
+        _aesIV = iv;
     }
 
-    EVP_PKEY *getServerPubKey() { return _serverPubKey; };
-    const std::vector<uint8_t> &getAesKey() { return _aesKey; };
-    const std::vector<uint8_t> &getAesIV() { return _aesIV; };
+    EVP_PKEY *getServerPubKey()
+    {
+        return _serverPubKey;
+    };
+    const std::vector<uint8_t> &getAesKey()
+    {
+        return _aesKey;
+    };
+    const std::vector<uint8_t> &getAesIV()
+    {
+        return _aesIV;
+    };
 };

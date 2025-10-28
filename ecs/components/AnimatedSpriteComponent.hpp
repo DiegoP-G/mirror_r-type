@@ -41,5 +41,8 @@ class AnimatedSpriteComponent : public IComponent
     std::vector<uint8_t> serialize() const override;
     static AnimatedSpriteComponent deserialize(const uint8_t *data, size_t size);
 
-    void setElapsedTime(float t) { elapsedTime = t; };
+    void setElapsedTime(float t)
+    {
+        elapsedTime = t;
+    };
 };

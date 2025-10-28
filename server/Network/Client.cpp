@@ -14,9 +14,9 @@
 #else
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <poll.h>
 #endif
 
 #include <cstring>

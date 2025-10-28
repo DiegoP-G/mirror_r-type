@@ -5,17 +5,20 @@
 #include "Network/Receiver.hpp"
 #include "Network/Sender.hpp"
 #include "NetworkECSMediator.hpp"
+#include "VoiceManager.hpp"
 #include <atomic>
 #include <thread>
 
 class ClientGame
 {
   private:
-    NetworkECSMediator _med;
     Sender _sender;
     Receiver _receiver;
+    VoiceManager _voiceManager;
+
     RTypeGame _game;
     NetworkManager _networkManager;
+    NetworkECSMediator _med;
     std::thread _networkThread;
     std::atomic<bool> _running;
 

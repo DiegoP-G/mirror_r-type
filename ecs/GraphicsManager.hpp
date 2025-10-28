@@ -11,22 +11,21 @@
 
 #pragma once
 
-
 #include "../client/NetworkECSMediator.hpp"
 #include "../ecs/components/AnimatedSpriteComponent.hpp"
 #include "components/AnimatedSpriteComponent.hpp"
 #include "textBox.hpp"
 #ifdef _WIN32
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <winsock2.h>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
 
-    #include <windows.h>
+#include <windows.h>
 #endif
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
@@ -44,7 +43,7 @@ class GraphicsManager
     std::unordered_map<std::string, sf::Texture> textures;
     sf::Font font;
     std::unique_ptr<TextBox> _textbox;
-    NetworkECSMediator _med;
+    NetworkECSMediator &_med;
     std::unordered_map<std::string, sf::SoundBuffer> soundBuffers;
     std::unordered_map<std::string, sf::Sound> sounds;
 
@@ -77,7 +76,7 @@ class GraphicsManager
     sf::Clock _errorMessageClock;
 
   public:
-    GraphicsManager(NetworkECSMediator med);
+    GraphicsManager(NetworkECSMediator &med);
     ~GraphicsManager();
 
     bool init(const std::string &title, int width, int height, std::function<void(const char *)> startNetwork);
@@ -115,8 +114,8 @@ class GraphicsManager
 
     void drawTexture(const sf::Texture &texture, float x, float y, float w, float h);
     void drawRect(float x, float y, float w, float h, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a = 255);
-    void drawText(const std::string &content, float x, float y, sf::Uint8 r = 255, sf::Uint8 g = 255,
-                  sf::Uint8 b = 255);
+    void drawText(const std::string &content, float x, float y, sf::Uint8 r = 255, sf::Uint8 g = 255, sf::Uint8 b = 255,
+                  bool centered = false, int textSize = TEXT_SIZE);
 
     bool registerTheSound();
     sf::Sound &createSoundFromPath(const std::string &filePath, const std::string &name);
@@ -139,7 +138,7 @@ class GraphicsManager
     std::unique_ptr<TextBox> &getUsernameTextBox();
     std::unique_ptr<TextBox> &getPasswordTextBox();
 
-    void showErrorMessage(const std::string& message);
+    void showErrorMessage(const std::string &message);
     void updateErrorMessage();
 };
 

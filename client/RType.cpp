@@ -7,20 +7,21 @@
 #include "../ecs/textBox.hpp"
 #include "../transferData/opcode.hpp"
 #include "../transferData/transferData.hpp"
-#include "transferData/hashUtils.hpp"
 #include "Network/NetworkManager.hpp"
 #include "assetsPath.hpp"
+#include "transferData/hashUtils.hpp"
 #include "windowSize.hpp"
+#include <SFML/Window/Keyboard.hpp>
 #ifdef _WIN32
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <winsock2.h>
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
 
-    #include <windows.h>
+#include <windows.h>
 #endif
 #include <SFML/Graphics/Font.hpp>
 #include <exception>
@@ -36,7 +37,6 @@ bool RTypeGame::init(NetworkECSMediator med, std::function<void(const char *)> n
     sf::Font dummy;
 
     g_graphics = new GraphicsManager(med);
-    // Initialize graphics
     if (!g_graphics->init("R-Type", windowWidth, windowHeight, networkCb))
     {
         std::cerr << "Failed to initialize graphics!" << std::endl;
@@ -46,13 +46,108 @@ bool RTypeGame::init(NetworkECSMediator med, std::function<void(const char *)> n
     createTextures();
     keybindMenu = new KeybindMenu(keybindManager);
 
+    loadAvailableMicrophones();
+
     running = true;
 
-    // Check for connected joysticks
     checkJoystickConnection();
 
     std::cout << "R-Type initialized!" << std::endl;
     return true;
+}
+
+void RTypeGame::drawMicrophoneMenu()
+{
+    if (!_showMicrophoneMenu)
+        return;
+
+    float menuX = 50;
+    float menuY = 100;
+    float lineHeight = 30;
+    float menuWidth = 500;
+    float menuHeight = _availableMicrophones.size() * lineHeight + 80;
+    g_graphics->drawRect(menuX - 10, menuY - 10, menuWidth, menuHeight, 50, 50, 50, 230);
+    g_graphics->drawText("Select Microphone:", menuX, menuY, 255, 255, 255);
+    menuY += lineHeight + 10;
+
+    _microphoneMenuButtons.clear();
+    for (size_t i = 0; i < _availableMicrophones.size(); i++)
+    {
+        const auto &device = _availableMicrophones[i];
+        std::string text = std::to_string(i + 1) + ". " + device.deviceName;
+
+        if (device.isDefaultInput)
+            text += " (DEFAULT)";
+        sf::FloatRect buttonRect(menuX, menuY, menuWidth - 20, lineHeight);
+        _microphoneMenuButtons.push_back(buttonRect);
+
+        if (device.deviceIndex == _selectedMicrophoneIndex)
+        {
+            g_graphics->drawRect(menuX, menuY, menuWidth - 20, lineHeight - 5, 0, 100, 0, 150);
+            g_graphics->drawText(text, menuX + 5, menuY, 0, 255, 0);
+        }
+        else
+        {
+            g_graphics->drawRect(menuX, menuY, menuWidth - 20, lineHeight - 5, 100, 100, 100, 100);
+            g_graphics->drawText(text, menuX + 5, menuY, 255, 255, 255);
+        }
+
+        menuY += lineHeight;
+    }
+    g_graphics->drawText("Click on a device to select it, or press M to close", menuX, menuY + 10, 200, 200, 200);
+}
+
+void RTypeGame::loadAvailableMicrophones()
+{
+    VoiceManager &voiceManager = _med.getVoiceManager();
+
+    _availableMicrophones = voiceManager.getInputDevices();
+    std::cout << "[Client] Loaded " << _availableMicrophones.size() << " microphones" << std::endl;
+    for (size_t i = 0; i < _availableMicrophones.size(); i++)
+    {
+        std::cout << "  [" << i << "] " << _availableMicrophones[i].deviceName
+                  << ((_availableMicrophones[i].isDefaultInput) ? " (DEFAULT)" : "") << std::endl;
+    }
+}
+
+bool RTypeGame::handleMicrophoneMenuClick(int mouseX, int mouseY)
+{
+    if (!_showMicrophoneMenu)
+        return false;
+    float menuX = 50;
+    float menuY = 100;
+    float menuWidth = 500;
+    float menuHeight = _availableMicrophones.size() * 30 + 80;
+
+    sf::FloatRect menuBounds(menuX - 10, menuY - 10, menuWidth, menuHeight);
+
+    if (!menuBounds.contains(mouseX, mouseY))
+    {
+        _showMicrophoneMenu = false;
+        return true;
+    }
+    for (size_t i = 0; i < _microphoneMenuButtons.size(); i++)
+    {
+        if (_microphoneMenuButtons[i].contains(mouseX, mouseY))
+        {
+            selectMicrophone(i);
+            _showMicrophoneMenu = false;
+            return true;
+        }
+    }
+
+    return true;
+}
+
+void RTypeGame::selectMicrophone(int index)
+{
+    if (index >= 0 && index < static_cast<int>(_availableMicrophones.size()))
+    {
+        _selectedMicrophoneIndex = _availableMicrophones[index].deviceIndex;
+        std::cout << "[Client] Selected microphone: " << _availableMicrophones[index].deviceName << std::endl;
+        _med.stopVoiceChat();
+        _med.setupVoiceChat(_selectedMicrophoneIndex);
+    }
 }
 
 void RTypeGame::checkJoystickConnection()
@@ -174,6 +269,7 @@ void RTypeGame::handleJoystickInput()
     {
         input.enter = false;
     }
+    // must include warp
 }
 
 void RTypeGame::handleEvents()
@@ -187,6 +283,26 @@ void RTypeGame::handleEvents()
             std::cout << "Running is set to false" << std::endl;
         }
 
+        if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::M)
+        {
+            toggleMicrophoneMenu();
+            continue;
+        }
+
+        if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
+        {
+            auto mousePos = sf::Mouse::getPosition(g_graphics->getWindow());
+
+            if (_showMicrophoneMenu && handleMicrophoneMenuClick(mousePos.x, mousePos.y))
+            {
+                continue;
+            }
+        }
+
+        if (_showMicrophoneMenu)
+        {
+            continue;
+        }
         if (gameOver && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
         {
             running = false;
@@ -222,12 +338,13 @@ void RTypeGame::handleEvents()
                     std::vector<uint8_t> encryptedData;
                     unsigned char tag[16];
 
-                    if (!aesEncryptWithTag(_med.getNetworkManager().getAesKey(), _med.getNetworkManager().getAesIV(),
-                            loginData, encryptedData)) {
+                    if (!aesEncryptWithTag(_med.getNetworkManager()->getAesKey(), _med.getNetworkManager()->getAesIV(),
+                                           loginData, encryptedData))
+                    {
                         std::cerr << "Client failed to encrypt data\n";
-                        EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
                         return;
                     }
+                    _playerName = username;
                     std::string encryptedDataStr(encryptedData.begin(), encryptedData.end());
                     _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, encryptedDataStr, OPCODE_LOGIN_REQUEST);
                 }
@@ -239,14 +356,14 @@ void RTypeGame::handleEvents()
                     std::vector<uint8_t> encryptedData;
 
                     unsigned char tag[16];
-                    if (!aesEncryptWithTag(_med.getNetworkManager().getAesKey(), _med.getNetworkManager().getAesIV(),
-                            loginData, encryptedData)) {
+                    if (!aesEncryptWithTag(_med.getNetworkManager()->getAesKey(), _med.getNetworkManager()->getAesIV(),
+                                           loginData, encryptedData))
+                    {
                         std::cerr << "Client failed to encrypt data\n";
-                        EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
                         return;
                     }
+                    _playerName = username;
                     std::string encryptedDataStr(encryptedData.begin(), encryptedData.end());
-                    EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
 
                     _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, encryptedDataStr, OPCODE_SIGNIN_REQUEST);
                 }
@@ -287,18 +404,14 @@ void RTypeGame::handleEvents()
                 std::string lobbyName = g_graphics->getLobbyTextBox()->getText();
                 if (!lobbyName.empty())
                 {
+                    std::string data = lobbyName + " " + _playerName;
                     std::cout << "[Client] Joining lobby: " << lobbyName << std::endl;
-                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, lobbyName, OPCODE_JOIN_LOBBY);
+                    _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, data, OPCODE_JOIN_LOBBY);
                 }
                 else
                 {
                     std::cout << "[Client] Lobby name cannot be empty!" << std::endl;
                 }
-            }
-            else if (action == GraphicsManager::MenuAction::BACK)
-            {
-                _state = GameState::MENULOGIN;
-                std::cout << "[Client] Going back to IP menu" << std::endl;
             }
         }
 
@@ -341,6 +454,9 @@ void RTypeGame::handleEvents()
                 case sf::Keyboard::Enter:
                     input.enter = isPressed;
                     break;
+                case sf::Keyboard::W:
+                    input.warp = isPressed;
+                    break;
                 default:
                     break;
                 }
@@ -370,10 +486,11 @@ void RTypeGame::update(float deltaTime)
     if (gameOver)
         return;
 
+    tickSystem.update(entityManager);
+    backgroundSystem.update(entityManager, deltaTime);
     animationSystem.update(entityManager, deltaTime);
 
     entityManager.applyPendingChanges();
-
     if (player == nullptr)
     {
         findMyPlayer();
@@ -423,14 +540,12 @@ void RTypeGame::render()
     }
     else if (_state == GameState::INGAME)
     {
+        renderSystem.update(entityManager);
         std::string scoreText = "Score: " + std::to_string(score);
         g_graphics->drawText(scoreText, 10, 10);
 
         std::string waveText = "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
         g_graphics->drawText(waveText, windowWidth - 100, 10);
-
-        drawPlayerID();
-        renderSystem.update(entityManager);
     }
     else if (_state == GameState::GAMEOVER)
     {
@@ -438,6 +553,8 @@ void RTypeGame::render()
         g_graphics->drawText(gameOverText, 200, 300);
         g_graphics->drawText("Press ESC to exit", 200, 350);
     }
+    drawMicrophoneMenu();
+    drawHitbox();
 
     g_graphics->present();
 }
@@ -495,13 +612,11 @@ void RTypeGame::run()
     while (running)
     {
         float deltaTime = clock.restart().asSeconds();
-
         if (deltaTime > 0.05f)
         {
             deltaTime = 0.05f;
         }
 
-        accumulator += deltaTime;
         handleEvents();
 
         if (running == false)
@@ -509,40 +624,14 @@ void RTypeGame::run()
 
         sendInputPlayer();
 
-        std::cout << "rtype run\n";
-        while (accumulator >= FRAME_TIME)
-        {
-            _mutex.lock();
-            std::cout << "rtype while run\n";
-            update(FRAME_TIME);
-            _mutex.unlock();
-            accumulator -= FRAME_TIME;
-        }
+        _mutex.lock();
+        update(deltaTime);
+        _mutex.unlock();
 
         render();
     }
 
     cleanup();
-}
-
-void RTypeGame::createBackground()
-{
-    int tileWidth = 800;
-    int tileHeight = 600;
-
-    auto createBackgroundEntity = [&](float x) -> Entity & {
-        auto &backgroundEntity = entityManager.createEntity();
-
-        backgroundEntity.addComponent<TransformComponent>(x, 0.0f, 1.0f, 1.0f, 0.0f);
-        backgroundEntity.addComponent<SpriteComponent>(tileWidth, tileHeight, 255, 255, 255,
-                                                       GraphicsManager::Texture::BACKGROUND);
-        backgroundEntity.addComponent<BackgroundScrollComponent>(-300.0f, true);
-
-        return backgroundEntity;
-    };
-
-    createBackgroundEntity(0.0f);
-    createBackgroundEntity((float)tileWidth);
 }
 
 void RTypeGame::drawWaitingForPlayers()
@@ -656,26 +745,6 @@ void RTypeGame::drawHitbox()
         hitboxRect.setOutlineColor(sf::Color::Red);
 
         g_graphics->getWindow().draw(hitboxRect);
-    }
-}
-
-void RTypeGame::drawPlayerID()
-{
-    auto entities = entityManager.getEntitiesWithComponent<PlayerComponent>();
-    for (auto e : entities)
-    {
-        auto &player = e->getComponent<PlayerComponent>();
-
-        std::string username = "PLAYER " + std::to_string(player.playerID);
-
-        if (_playerId == player.playerID)
-            username = "ME";
-
-        if (e->hasComponent<TransformComponent>())
-        {
-            auto &transform = e->getComponent<TransformComponent>();
-            g_graphics->drawText(username, transform.position.x, transform.position.y, 255, 255, 255);
-        }
     }
 }
 

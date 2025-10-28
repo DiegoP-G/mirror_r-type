@@ -4,7 +4,7 @@
 class InputComponent : public IComponent
 {
   public:
-    bool up, down, left, right, fire, enter;
+    bool up, down, left, right, fire, enter, warp;
 
     InputComponent();
 
