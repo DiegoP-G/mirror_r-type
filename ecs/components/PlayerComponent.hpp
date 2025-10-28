@@ -1,5 +1,6 @@
 #pragma once
 #include "../IComponent.hpp"
+#include <iostream>
 
 class PlayerComponent : public IComponent
 {
@@ -11,10 +12,11 @@ class PlayerComponent : public IComponent
     int playerID;
     bool isLocal;
     bool isReady;
+    std::string name;
 
-    PlayerComponent(int playerID = 0, bool isLocal = true);
+    PlayerComponent(int playerID = 0, bool isLocal = true, std::string username = "");
 
-    PlayerComponent(int playerID = 0, bool isLocal = true, float shootCooldown = 0.0f);
+    PlayerComponent(int playerID = 0, bool isLocal = true, float shootCooldown = 0.0f, std::string username = "");
 
     void update(float deltaTime) override;
     std::vector<uint8_t> serialize() const override;

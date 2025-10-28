@@ -154,13 +154,20 @@ void GraphicsManager::drawRect(float x, float y, float w, float h, sf::Uint8 r, 
     window.draw(rect);
 }
 
-void GraphicsManager::drawText(const std::string &content, float x, float y, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b)
+void GraphicsManager::drawText(const std::string &content, float x, float y, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, bool centered, int textSize)
 {
     sf::Text text;
     text.setFont(font);
     text.setString(content);
-    text.setCharacterSize(TEXT_SIZE);
+    text.setCharacterSize(textSize);
     text.setFillColor(sf::Color(r, g, b));
+
+    if (centered)
+    {
+        sf::FloatRect textBounds = text.getLocalBounds();
+        x -= textBounds.width / 2.0f;
+        y -= textBounds.height / 2.0f;
+    }
     text.setPosition((float)x, (float)y);
 
     window.draw(text);

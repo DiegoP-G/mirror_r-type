@@ -23,6 +23,7 @@
 #include "components/SpriteComponent.hpp"
 #include "components/TransformComponent.hpp"
 #include "components/VelocityComponent.hpp"
+#include "components/TextComponent.hpp"
 
 EntityManager::EntityManager()
 {
@@ -45,6 +46,7 @@ EntityManager::EntityManager()
     ComponentFactory::registerComponent<BackgroundScrollComponent>();
     ComponentFactory::registerComponent<HealthBarComponent>();
     ComponentFactory::registerComponent<BonusComponent>();
+    ComponentFactory::registerComponent<TextComponent>();
 }
 
 std::vector<uint8_t> EntityManager::serializeEntityFull(EntityID id) const
