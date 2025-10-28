@@ -30,17 +30,6 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#pragma comment(lib, "ws2_32.lib")
-#include <windows.h>
-#else
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <poll.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#endif
 
 NetworkManager::NetworkManager(GameMediator &ref)
     : _gameMediator(ref), _UDPManager(*this), _TCPManager(*this), _serverPubKey(nullptr)

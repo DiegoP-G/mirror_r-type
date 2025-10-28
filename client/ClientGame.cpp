@@ -8,8 +8,8 @@
 #include <iostream>
 
 ClientGame::ClientGame()
-    : _med(), _sender(Sender(_med)), _receiver(Receiver(_med)), _voiceManager(VoiceManager()), _game(RTypeGame(_med)),
-      _networkManager(NetworkManager(_med, _sender, _receiver)), _running(false)
+    : _sender(Sender(_med)), _receiver(Receiver(_med)), _voiceManager(VoiceManager()), _game(RTypeGame(_med)),
+      _networkManager(NetworkManager(_med, _sender, _receiver)), _med(&_networkManager), _running(false)
 {
     _med.setSender(&_sender);
     _med.setReceiver(&_receiver);

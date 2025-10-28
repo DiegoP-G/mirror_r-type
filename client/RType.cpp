@@ -335,11 +335,11 @@ void RTypeGame::handleEvents()
                     std::vector<uint8_t> encryptedData;
                     unsigned char tag[16];
 
-                    if (!aesEncryptWithTag(_med.getNetworkManager().getAesKey(), _med.getNetworkManager().getAesIV(),
+                    if (!aesEncryptWithTag(_med.getNetworkManager()->getAesKey(), _med.getNetworkManager()->getAesIV(),
                                            loginData, encryptedData))
                     {
                         std::cerr << "Client failed to encrypt data\n";
-                        EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
+                        EVP_PKEY_free(_med.getNetworkManager()->getServerPubKey());
                         return;
                     }
                     _playerName = username;
@@ -354,16 +354,16 @@ void RTypeGame::handleEvents()
                     std::vector<uint8_t> encryptedData;
 
                     unsigned char tag[16];
-                    if (!aesEncryptWithTag(_med.getNetworkManager().getAesKey(), _med.getNetworkManager().getAesIV(),
+                    if (!aesEncryptWithTag(_med.getNetworkManager()->getAesKey(), _med.getNetworkManager()->getAesIV(),
                                            loginData, encryptedData))
                     {
                         std::cerr << "Client failed to encrypt data\n";
-                        EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
+                        EVP_PKEY_free(_med.getNetworkManager()->getServerPubKey());
                         return;
                     }
                     _playerName = username;
                     std::string encryptedDataStr(encryptedData.begin(), encryptedData.end());
-                    EVP_PKEY_free(_med.getNetworkManager().getServerPubKey());
+                    EVP_PKEY_free(_med.getNetworkManager()->getServerPubKey());
 
                     _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, encryptedDataStr, OPCODE_SIGNIN_REQUEST);
                 }

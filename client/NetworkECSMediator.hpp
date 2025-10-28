@@ -31,12 +31,12 @@ class NetworkECSMediator
     RTypeGame *_game{nullptr};
 
     std::unordered_map<int, std::function<void(const std::string &, uint8_t)>> _mediatorMap;
-    NetworkManager &_networkManager;
+    NetworkManager *_networkManager;
     VoiceManager *_voiceManager{nullptr};
     bool voiceChatEnabled = false;
 
   public:
-    NetworkECSMediator(NetworkManager &_networkManager);
+    NetworkECSMediator(NetworkManager *_networkManager);
 
     void setSender(Sender *s)
     {
@@ -77,7 +77,7 @@ class NetworkECSMediator
     void deserializeHealth(const std::vector<uint8_t> &data, EntityManager &serverEM);
     void deserializeMovements(const std::vector<uint8_t> &data, EntityManager &serverEM);
 
-    NetworkManager &getNetworkManager()
+    NetworkManager *getNetworkManager()
     {
         return _networkManager;
     };

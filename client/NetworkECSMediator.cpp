@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include <string>
 
-NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networkManager(networkManager)
+NetworkECSMediator::NetworkECSMediator(NetworkManager *networkManager) : _networkManager(networkManager)
 {
     _mediatorMap = {
         // === ENVOI VERS LE SERVEUR ===
@@ -97,7 +97,7 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networ
                      _game->getMutex().unlock();
                      return;
                  }
-                 _networkManager.setServerPubKey(*publicKey);
+                 _networkManager->setServerPubKey(*publicKey);
 
                  // Generate IV/Key
                  unsigned char aes_key[AES_KEY_BYTES];
@@ -110,8 +110,8 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networ
                  std::vector<uint8_t> keyStr(aes_key, aes_key + AES_KEY_BYTES);
                  std::vector<uint8_t> ivStr(iv, iv + AES_IV_BYTES);
 
-                 _networkManager.setAesIV(ivStr);
-                 _networkManager.setAesKey(keyStr);
+                 _networkManager->setAesIV(ivStr);
+                 _networkManager->setAesKey(keyStr);
 
                  // Then encrypt it and send it to server
                  std::vector<unsigned char> payload;
@@ -325,7 +325,6 @@ void NetworkECSMediator::notify(NetworkECSMediatorEvent event, const std::string
     }
 }
 
-<<<<<<< HEAD
 void NetworkECSMediator::setupVoiceChat(int deviceIndex)
 {
     if (!_voiceManager)
@@ -359,7 +358,6 @@ void NetworkECSMediator::stopVoiceChat()
         std::cerr << "[Voice] ⚠ VoiceManager not available for stopping" << std::endl;
     }
 }
-=======
 void NetworkECSMediator::receiveEntitiesUpdates(const std::vector<uint8_t> &data)
 {
     size_t offset = 0;
@@ -542,4 +540,3 @@ void NetworkECSMediator::receiveNewEntities(const std::vector<uint8_t> &data)
         _game->getEntityManager().deserializeEntityFull(entityData);
     }
 }
->>>>>>> 6e13fa03ba1e1e4fd0e6b58123bbc9443865fb22

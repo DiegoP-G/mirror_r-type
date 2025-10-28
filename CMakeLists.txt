@@ -163,7 +163,10 @@ target_link_libraries(ecs PUBLIC
 #                              CLIENT
 # ============================================================
 
-# ! Changed executable name
+file(GLOB_RECURSE CLIENT_SOURCES client/*.cpp)
+list(FILTER CLIENT_SOURCES EXCLUDE REGEX ".*build.*")
+list(FILTER CLIENT_SOURCES EXCLUDE REGEX ".*CMakeFiles.*")
+
 add_executable(r-type_client ${CLIENT_SOURCES})
 target_include_directories(r-type_client PRIVATE
     ${CMAKE_SOURCE_DIR}
@@ -171,7 +174,7 @@ target_include_directories(r-type_client PRIVATE
     ${CMAKE_SOURCE_DIR}/client/Network
     ${CMAKE_SOURCE_DIR}/transferData
     ${CMAKE_SOURCE_DIR}/ecs
-    ${portaudio_SOURCE_DIR}/include # Use this for FetchContent
+    ${portaudio_SOURCE_DIR}/include
 )
 target_link_libraries(r-type_client PRIVATE
     transferData
@@ -180,7 +183,6 @@ target_link_libraries(r-type_client PRIVATE
     sfml-window
     sfml-system
     sfml-audio
-    # FIX: Link to both OpenSSL targets provided by vcpkg for full functionality.
     OpenSSL::SSL
     OpenSSL::Crypto
     portaudio_static
