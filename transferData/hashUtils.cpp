@@ -1,18 +1,17 @@
 #include "hashUtils.hpp"
 
 #ifdef _WIN32
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
+    #ifndef NOMINMAX
+    #define NOMINMAX
+    #endif
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <wincrypt.h>
-#include <windows.h>
+    #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <windows.h>
 #else
-#include <crypt.h>
-#include <netinet/in.h>
+    #include <crypt.h>
+    #include <netinet/in.h>
 #endif
 #include <cstdint>
 #include <cstring>

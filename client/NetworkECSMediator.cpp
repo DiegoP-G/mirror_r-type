@@ -4,6 +4,7 @@
 #include "../transferData/transferData.hpp"
 #include "Network/NetworkManager.hpp"
 #include "VoiceManager.hpp"
+#include <cstdint>
 
 #include "Network/Receiver.hpp"
 #include "RType.hpp"
@@ -194,7 +195,7 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager *networkManager) : _networ
              case OPCODE_VOICE_DATA: {
                  if (voiceChatEnabled)
                  {
-                     std::vector<u_int8_t> audioData(data.begin(), data.end());
+                     std::vector<uint8_t> audioData(data.begin(), data.end());
                      _voiceManager->feedAudioToRingBuffer(audioData);
                  }
                  break;
@@ -339,7 +340,7 @@ void NetworkECSMediator::setupVoiceChat(int deviceIndex)
     }
     voiceChatEnabled = true;
     _voiceManager->startRecording(
-        [this](const std::vector<u_int8_t> &audioData) {
+        [this](const std::vector<uint8_t> &audioData) {
             _sender->sendUdp(OPCODE_VOICE_DATA, std::string(audioData.begin(), audioData.end()));
         },
         deviceIndex);
