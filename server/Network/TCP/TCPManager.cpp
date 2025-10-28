@@ -41,7 +41,7 @@ typedef WSAPOLLFD pollfd;
 #include <unistd.h>
 #endif
 
-TCPManager::TCPManager(NetworkManager &ref) : _networkManagerRef(ref)
+TCPManager::TCPManager(NetworkManager &ref, PrometheusServer &metrics) : _networkManagerRef(ref), _metrics(metrics)
 {
     // Créer le socket d'écoute
     _listenFd = socket(AF_INET, SOCK_STREAM, 0);
@@ -225,7 +225,8 @@ void TCPManager::sendMessage(int fd, uint8_t opcode, const std::string &payload)
             break;
         }
     }
-    std::cout << "finishing" << std::endl;
+    _metrics.IncrementTCPSent();
+    _metrics.AddTCPBytes(frame.size());
 }
 
 void TCPManager::handleClientWrite(int fd)
@@ -300,6 +301,12 @@ void TCPManager::handleClientRead(int fd, size_t &index)
         {
             // Données incomplètes, on attendra plus de données
             break;
+        }
+
+        if (opcode != OPCODE_INCOMPLETE_DATA && opcode != OPCODE_CLOSE_CONNECTION)
+        {
+            _metrics.IncrementTCPReceived();
+            _metrics.AddTCPBytes(payload.size() + 2);
         }
 
         if (opcode == OPCODE_CLOSE_CONNECTION)
@@ -382,4 +389,5 @@ void TCPManager::update()
             --i;
         }
     }
+    _metrics.UpdateThroughput();
 }

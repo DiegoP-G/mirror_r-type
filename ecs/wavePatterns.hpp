@@ -5,11 +5,10 @@
 #include "components/Vector2D.hpp"
 #include "enemyFactory.hpp"
 #include "entityManager.hpp"
+#include <ctime>
 #include <functional>
 #include <math.h>
 #include <vector>
-#include <ctime>
-
 
 inline std::vector<Vector2D> backslashPattern(int count, float cx, float cy)
 {
