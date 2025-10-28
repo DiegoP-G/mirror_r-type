@@ -43,7 +43,7 @@ class GraphicsManager
     std::unordered_map<std::string, sf::Texture> textures;
     sf::Font font;
     std::unique_ptr<TextBox> _textbox;
-    NetworkECSMediator _med;
+    NetworkECSMediator &_med;
     std::unordered_map<std::string, sf::SoundBuffer> soundBuffers;
     std::unordered_map<std::string, sf::Sound> sounds;
 
@@ -76,7 +76,7 @@ class GraphicsManager
     sf::Clock _errorMessageClock;
 
   public:
-    GraphicsManager(NetworkECSMediator med);
+    GraphicsManager(NetworkECSMediator &med);
     ~GraphicsManager();
 
     bool init(const std::string &title, int width, int height, std::function<void(const char *)> startNetwork);

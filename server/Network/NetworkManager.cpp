@@ -27,6 +27,10 @@
 #include <unistd.h>
 #endif
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 NetworkManager::NetworkManager(GameMediator &ref)
     : _gameMediator(ref), _UDPManager(*this), _TCPManager(*this), _serverPubKey(nullptr)
 {
@@ -136,4 +140,38 @@ void NetworkManager::sendDataToLobbyUDP(std::shared_ptr<Lobby> lobby, const std:
 
     if (!validAddrs.empty())
         _UDPManager.sendTo(validAddrs, opcode, data);
+}
+
+void NetworkManager::sendDataToLobbyUDPExcept(std::shared_ptr<Lobby> lobby, const std::string &data, int opcode,
+                                              int excludeClientFd)
+{
+    auto players = lobby->getPlayers();
+    std::vector<sockaddr_in> validAddrs;
+
+    for (int fd : players)
+    {
+        // ✅ Sauter l'émetteur
+        if (fd == excludeClientFd)
+        {
+            std::cout << "[UDP] Skipping sender client fd: " << fd << std::endl;
+            continue;
+        }
+
+        auto clientOpt = _clientManager.getClient(fd);
+        if (!clientOpt)
+            continue;
+
+        sockaddr_in addr = clientOpt->getTrueAddr();
+        if (addr.sin_family == AF_INET && addr.sin_port != 0)
+            validAddrs.push_back(addr);
+        else
+            std::cout << "[UDP] Skipping client " << fd << " (UDP not authenticated yet)\n";
+    }
+
+    if (!validAddrs.empty())
+    {
+        std::cout << "[UDP] Broadcasting to " << validAddrs.size() << " clients (excluding " << excludeClientFd << ")"
+                  << std::endl;
+        _UDPManager.sendTo(validAddrs, opcode, data);
+    }
 }

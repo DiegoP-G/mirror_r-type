@@ -119,7 +119,8 @@ void UDPManager::update()
                     _NetworkManagerRef.getClientManager().getClientByAdress((std::to_string(client.sin_addr.s_addr)));
                 if (c != nullptr)
                 {
-                    _NetworkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload);
+                    _NetworkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload, "",
+                                                                c->getSocket());
                 }
                 else
                     std::cout << "[UDP] Received from Client Not found: " << (payload)

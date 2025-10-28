@@ -3,6 +3,8 @@
 #include "../transferData/opcode.hpp"
 #include "../transferData/transferData.hpp"
 #include "Network/NetworkManager.hpp"
+#include "VoiceManager.hpp"
+
 #include "Network/Receiver.hpp"
 #include "RType.hpp"
 #include <cstdint>
@@ -11,7 +13,7 @@
 #include <stdexcept>
 #include <string>
 
-NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networkManager(networkManager)
+NetworkECSMediator::NetworkECSMediator(NetworkManager *networkManager) : _networkManager(networkManager)
 {
     _mediatorMap = {
         // === ENVOI VERS LE SERVEUR ===
@@ -95,7 +97,7 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networ
                      _game->getMutex().unlock();
                      return;
                  }
-                 _networkManager.setServerPubKey(*publicKey);
+                 _networkManager->setServerPubKey(*publicKey);
 
                  // Generate IV/Key
                  unsigned char aes_key[AES_KEY_BYTES];
@@ -108,8 +110,8 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networ
                  std::vector<uint8_t> keyStr(aes_key, aes_key + AES_KEY_BYTES);
                  std::vector<uint8_t> ivStr(iv, iv + AES_IV_BYTES);
 
-                 _networkManager.setAesIV(ivStr);
-                 _networkManager.setAesKey(keyStr);
+                 _networkManager->setAesIV(ivStr);
+                 _networkManager->setAesKey(keyStr);
 
                  // Then encrypt it and send it to server
                  std::vector<unsigned char> payload;
@@ -187,6 +189,14 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager &networkManager) : _networ
                  }
                  _game->getMutex().unlock();
 
+                 break;
+             }
+             case OPCODE_VOICE_DATA: {
+                 if (voiceChatEnabled)
+                 {
+                     std::vector<u_int8_t> audioData(data.begin(), data.end());
+                     _voiceManager->feedAudioToRingBuffer(audioData);
+                 }
                  break;
              }
 
@@ -315,6 +325,39 @@ void NetworkECSMediator::notify(NetworkECSMediatorEvent event, const std::string
     }
 }
 
+void NetworkECSMediator::setupVoiceChat(int deviceIndex)
+{
+    if (!_voiceManager)
+    {
+        std::cerr << "[Voice] ❌ VoiceManager not initialized!" << std::endl;
+        return;
+    }
+    if (voiceChatEnabled)
+    {
+        std::cout << "[Voice] Stopping previous recording..." << std::endl;
+        _voiceManager->stopRecording();
+    }
+    voiceChatEnabled = true;
+    _voiceManager->startRecording(
+        [this](const std::vector<u_int8_t> &audioData) {
+            _sender->sendUdp(OPCODE_VOICE_DATA, std::string(audioData.begin(), audioData.end()));
+        },
+        deviceIndex);
+}
+
+void NetworkECSMediator::stopVoiceChat()
+{
+    if (_voiceManager)
+    {
+        _voiceManager->stopRecording();
+        voiceChatEnabled = false;
+        std::cout << "[Voice] ✓ Voice chat disabled" << std::endl;
+    }
+    else
+    {
+        std::cerr << "[Voice] ⚠ VoiceManager not available for stopping" << std::endl;
+    }
+}
 void NetworkECSMediator::receiveEntitiesUpdates(const std::vector<uint8_t> &data)
 {
     size_t offset = 0;

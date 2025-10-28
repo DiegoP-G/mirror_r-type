@@ -96,18 +96,15 @@ void RenderSystem::drawHealthBar(Entity *entity)
 
     float healthPercentage = healthComp.health / healthComp.maxHealth;
 
-    // if (entity->hasComponent<PlayerComponent>())
-    //     std::cout << "HEATK"<< healthComp.health << std::endl;
-
-    //  std::cout << "Health Percentage: " << healthPercentage << std::endl;
-
     float barWidth = healthBarComp.width * healthPercentage;
     float barHeight = healthBarComp.height;
     float offsetY = healthBarComp.offsetY;
+    float offsetX = healthBarComp.offsetX;
 
-    g_graphics->drawRect(position.x, position.y + offsetY, healthBarComp.width, barHeight, 255, 0, 0,
-                         255);                                                                   // Red background
-    g_graphics->drawRect(position.x, position.y + offsetY, barWidth, barHeight, 0, 255, 0, 255); // Green health bar
+    g_graphics->drawRect(position.x + offsetX, position.y + offsetY, healthBarComp.width, barHeight, 255, 0, 0,
+                         255); // Red background
+    g_graphics->drawRect(position.x + offsetX, position.y + offsetY, barWidth, barHeight, 0, 255, 0,
+                         255); // Green health bar
     draw(entity);
 }
 

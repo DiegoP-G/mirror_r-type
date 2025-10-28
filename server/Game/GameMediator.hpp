@@ -34,6 +34,7 @@ enum GameMediatorEvent
     SigninResponse = 0x83,
     ServerPubKey = 0x90,
     ClientIVKey = 0x92,
+    VoiceComming = 0x75,
 };
 
 class NetworkManager;

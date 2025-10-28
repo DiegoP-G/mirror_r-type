@@ -75,6 +75,8 @@ class NetworkManager
     void sendDataAllClientTCP(std::string data, int opcode);
     void sendDataToLobbyTCP(std::shared_ptr<Lobby>, const std::string &data, int opcode);
     void sendDataToLobbyUDP(std::shared_ptr<Lobby>, const std::string &data, int opcode);
+    void sendDataToLobbyUDPExcept(std::shared_ptr<Lobby> lobby, const std::string &data, int opcode,
+                                  int excludeClientFd);
 
     TCPManager &getTCPManager()
     {
