@@ -44,7 +44,7 @@ class GameLogicSystem
   public:
     bool allWavesCompleted = false;
     GameLogicSystem();
-    void update(EntityManager &entityManager, float deltaTime, GameMediator &gameMediator);
+    void update(EntityManager &entityManager, float deltaTime, GameMediator &gameMediator, std::string lobbyUid);
     int getScore() const;
     size_t currentWave = 0;
 

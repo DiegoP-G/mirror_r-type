@@ -2,30 +2,28 @@
 
 #ifdef _WIN32
     #ifndef NOMINMAX
-        #define NOMINMAX
+    #define NOMINMAX
     #endif
+    // #include "../vcpkg/installed/x64-windows/include/openssl/evp.h"
+    // #include "../vcpkg/installed/x64-windows/include/openssl/pem.h"
+    // #include "../vcpkg/installed/x64-windows/include/openssl/rand.h"
+    // #include "../vcpkg/installed/x64-windows/include/openssl/rsa.h"
+    // #include "../vcpkg/installed/x64-windows/include/openssl/err.h"
     #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
     #endif
-    #include <windows.h>
-    #include <wincrypt.h>
+#else
+
 #endif
-
-
 #include <openssl/evp.h>
-#include <openssl/rsa.h>
 #include <openssl/pem.h>
-#include <openssl/err.h>
 #include <openssl/rand.h>
+#include <openssl/rsa.h>
+#include <openssl/err.h>
 
 #include <cstring>
 #include <iomanip>
 #include <iostream>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <openssl/pem.h>
-#include <openssl/rand.h>
-#include <openssl/rsa.h>
 #include <optional>
 #include <random>
 #include <sstream>
@@ -34,6 +32,10 @@
 static constexpr int AES_KEY_BYTES = 32;
 static constexpr int AES_IV_BYTES = 16;
 static constexpr int TAG_BYTES = 16;
+
+static constexpr int SALT_SIZE = 16;
+static constexpr int HASH_SIZE = 32;
+static constexpr int ITERATIONS = 100000;
 
 std::string hashPassword(const std::string &password);
 bool verifyPassword(const std::string &stored, const std::string &candidate);

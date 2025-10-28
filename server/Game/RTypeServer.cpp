@@ -80,7 +80,7 @@ void RTypeServer::update(float deltaTime)
     {
         {
             std::lock_guard<std::mutex> lock(entityManager.entityMutex);
-            gameLogicSystem.update(entityManager, deltaTime, mediator);
+            gameLogicSystem.update(entityManager, deltaTime, mediator, _lobbyUID);
 
             boundarySystem.update(entityManager, deltaTime);
             cleanupSystem.update(entityManager, deltaTime);

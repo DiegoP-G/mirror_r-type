@@ -3,13 +3,13 @@
 
 PlayerComponent::PlayerComponent(int playerID, bool isLocal, std::string username)
     : score(0), lives(3), attackCooldown(0.0f), currentCooldown(0.0f), playerID(playerID), isLocal(isLocal),
-      isReady(false), name(username)
+      isReady(false), name(username), stamina(100.0f), maxStamina(100.0f), staminaRegenRate(15.0f), moveSpeed(0.0f)
 {
 }
 
 PlayerComponent::PlayerComponent(int playerID, bool isLocal, float attackCooldown, std::string username)
     : score(0), lives(3), attackCooldown(attackCooldown), currentCooldown(0.0f), playerID(playerID), isLocal(isLocal),
-      isReady(false), name(username)
+      isReady(false), name(username), stamina(100.0f), maxStamina(100.0f), staminaRegenRate(15.0f), moveSpeed(0.0f)
 {
 }
 
@@ -20,7 +20,8 @@ void PlayerComponent::update(float deltaTime)
 std::vector<uint8_t> PlayerComponent::serialize() const
 {
     size_t nameLength = name.size();
-    std::vector<uint8_t> data(sizeof(int) * 3 + sizeof(float) + sizeof(bool) + sizeof(size_t) + nameLength);
+
+    std::vector<uint8_t> data(sizeof(int) * 3 + sizeof(float) * 5 + sizeof(bool) + sizeof(size_t) + nameLength);
     size_t offset = 0;
 
     std::memcpy(data.data() + offset, &score, sizeof(int));
@@ -34,6 +35,15 @@ std::vector<uint8_t> PlayerComponent::serialize() const
     std::memcpy(data.data() + offset, &isLocal, sizeof(bool));
     offset += sizeof(bool);
 
+    std::memcpy(data.data() + offset, &stamina, sizeof(float));
+    offset += sizeof(float);
+    std::memcpy(data.data() + offset, &maxStamina, sizeof(float));
+    offset += sizeof(float);
+    std::memcpy(data.data() + offset, &staminaRegenRate, sizeof(float));
+    offset += sizeof(float);
+    std::memcpy(data.data() + offset, &moveSpeed, sizeof(float));
+    offset += sizeof(float);
+
     std::memcpy(data.data() + offset, &nameLength, sizeof(size_t));
     offset += sizeof(size_t);
     std::memcpy(data.data() + offset, name.data(), nameLength);
@@ -45,37 +55,38 @@ PlayerComponent PlayerComponent::deserialize(const uint8_t *data, size_t size)
 {
     size_t offset = 0;
 
-    size_t expectedFixedSize = 3 * sizeof(int) + sizeof(float) + sizeof(bool) + sizeof(size_t);
+    size_t expectedFixedSize = 3 * sizeof(int) + sizeof(float) * 5 + sizeof(bool) + sizeof(size_t);
     if (size < expectedFixedSize)
-    {
-        throw "PlayerComponent::deserialize - données trop petites";
-    }
+        throw "PlayerComponent::deserialize - data too small";
 
     PlayerComponent comp(0, true, 0.0f);
 
     std::memcpy(&comp.score, data + offset, sizeof(int));
     offset += sizeof(int);
-
     std::memcpy(&comp.lives, data + offset, sizeof(int));
     offset += sizeof(int);
-
     std::memcpy(&comp.attackCooldown, data + offset, sizeof(float));
     offset += sizeof(float);
-
     std::memcpy(&comp.playerID, data + offset, sizeof(int));
     offset += sizeof(int);
-
     std::memcpy(&comp.isLocal, data + offset, sizeof(bool));
     offset += sizeof(bool);
+
+    std::memcpy(&comp.stamina, data + offset, sizeof(float));
+    offset += sizeof(float);
+    std::memcpy(&comp.maxStamina, data + offset, sizeof(float));
+    offset += sizeof(float);
+    std::memcpy(&comp.staminaRegenRate, data + offset, sizeof(float));
+    offset += sizeof(float);
+    std::memcpy(&comp.moveSpeed, data + offset, sizeof(float));
+    offset += sizeof(float);
 
     size_t nameLength;
     std::memcpy(&nameLength, data + offset, sizeof(size_t));
     offset += sizeof(size_t);
 
     if (size < offset + nameLength)
-    {
-        throw "PlayerComponent::deserialize - données trop petites pour le nom";
-    }
+        throw "PlayerComponent::deserialize - insufficient data for name";
 
     comp.name = std::string(reinterpret_cast<const char *>(data + offset), nameLength);
 

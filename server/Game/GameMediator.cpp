@@ -74,7 +74,7 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
              std::shared_ptr<Lobby> lobby = _lobbyManager.getLobbyOfPlayer(clientFd);
              if (!lobby)
              {
-                 //   std::cerr << "[VoiceComming] Player " << clientFd << " not in a lobby.\n";
+                 std::cout << "[VoiceComming] Player " << clientFd << " not in a lobby.\n";
                  return;
              }
 
@@ -95,7 +95,9 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
          [this](const std::string &data, const std::string &lobbyUid, int) -> void {
              auto lobby = _lobbyManager.getLobby(lobbyUid);
              if (lobby)
+             {
                  _networkManager.sendDataToLobbyTCP(lobby, data, OPCODE_UPDATE_WAVE);
+             }
          }},
 
         {GameMediatorEvent::UpdateScore,

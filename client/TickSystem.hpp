@@ -73,6 +73,7 @@ class TickSystem
     void applyPlayerInputs(EntityManager &entityManager, const PlayerInput &input);
     void simulatePlayerOnly(EntityManager &entityManager);
     void createPlayerProjectile(EntityManager &entityManager, Entity *player);
+    void simulateProjectiles(EntityManager &entityManager);
 
     // Méthodes privées pour le rollback
     void restorePlayerFromSnapshot(Entity *player, const PlayerSnapshot &snap);

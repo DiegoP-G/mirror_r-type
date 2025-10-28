@@ -413,17 +413,6 @@ void GraphicsManager::initLobbyMenuUI()
     joinGameButtonText.setFillColor(sf::Color::White);
     joinGameButtonText.setPosition(window.getSize().x / 2.0f - 80, 512);
 
-    // Back Button
-    backButton.setSize(sf::Vector2f(200, 50));
-    backButton.setFillColor(sf::Color(180, 70, 70));
-    backButton.setPosition(50, window.getSize().y - 100);
-
-    backButtonText.setFont(font);
-    backButtonText.setString("BACK");
-    backButtonText.setCharacterSize(24);
-    backButtonText.setFillColor(sf::Color::White);
-    backButtonText.setPosition(105, window.getSize().y - 90);
-
     // Lobby name textbox
     _lobbyTextbox = std::make_unique<TextBox>(font, [](const char *) {}, 400, 50);
     _lobbyTextbox->setPosition(window.getSize().x / 2.0f - 200, 200);
@@ -458,8 +447,6 @@ void GraphicsManager::drawLobbyMenu()
     window.draw(joinLobbyButtonText);
     window.draw(joinGameButton);
     window.draw(joinGameButtonText);
-    window.draw(backButton);
-    window.draw(backButtonText);
 }
 
 GraphicsManager::MenuAction GraphicsManager::handleLobbyMenuClick(int mouseX, int mouseY)
@@ -474,11 +461,6 @@ GraphicsManager::MenuAction GraphicsManager::handleLobbyMenuClick(int mouseX, in
     if (joinLobbyButton.getGlobalBounds().contains(mousePos))
     {
         return MenuAction::JOIN_LOBBY;
-    }
-
-    if (backButton.getGlobalBounds().contains(mousePos))
-    {
-        return MenuAction::BACK;
     }
 
     if (joinGameButton.getGlobalBounds().contains(mousePos))

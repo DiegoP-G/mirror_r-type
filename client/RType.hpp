@@ -110,7 +110,7 @@ class RTypeGame
         return _selectedMicrophoneIndex;
     };
 
-    RTypeGame(NetworkECSMediator &med) : _med(med){};
+    RTypeGame(NetworkECSMediator &med) : _med(med) {};
 
     void markPlayerAsDead(int playerId);
 
@@ -159,6 +159,7 @@ class RTypeGame
     void createPlayer();
 
     void drawWaitingForPlayers();
+    void drawStaminaBar();
     void handleEvents();
     // void handleEvents();
 

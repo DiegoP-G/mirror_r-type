@@ -2,82 +2,80 @@
 
 #ifdef _WIN32
     #ifndef NOMINMAX
-        #define NOMINMAX
+    #define NOMINMAX
     #endif
 
     #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
     #endif
     #include <windows.h>
-    #include <wincrypt.h>
 #else
-    #include <netinet/in.h>
     #include <crypt.h>
+    #include <netinet/in.h>
 #endif
 #include <cstdint>
 #include <cstring>
 #include <iomanip>
-#include <vector>
 #include <iostream>
+#include <optional>
 #include <random>
 #include <sstream>
-#include <optional>
+#include <vector>
 
-
-std::string generateRandomSalt()
+std::string toHex(const unsigned char *data, size_t len)
 {
-    const char charset[] = "abcdefghijklmnopqrstuvwxyz"
-                           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                           "0123456789./";
-    const size_t saltLength = 22;
+    std::ostringstream oss;
+    for (size_t i = 0; i < len; ++i)
+        oss << std::hex << std::setw(2) << std::setfill('0') << (int)data[i];
+    return oss.str();
+}
 
-    std::random_device rd;
-    std::mt19937 generator(rd());
-    std::uniform_int_distribution<> distribution(0, sizeof(charset) - 2);
-
-    std::ostringstream salt;
-    for (size_t i = 0; i < saltLength; ++i)
+std::vector<unsigned char> fromHex(const std::string &hex)
+{
+    std::vector<unsigned char> bytes;
+    for (size_t i = 0; i < hex.length(); i += 2)
     {
-        salt << charset[distribution(generator)];
+        std::string byteString = hex.substr(i, 2);
+        unsigned char byte = (unsigned char)strtol(byteString.c_str(), nullptr, 16);
+        bytes.push_back(byte);
     }
-
-    return salt.str();
+    return bytes;
 }
 
 std::string hashPassword(const std::string &password)
 {
-    std::string randomSalt = generateRandomSalt();
-    std::string salt = "$2b$12$" + randomSalt;
+    unsigned char salt[SALT_SIZE];
+    unsigned char hash[HASH_SIZE];
 
-    char *hashed = crypt(password.c_str(), salt.c_str());
-    if (!hashed)
-    {
-        std::cerr << "crypt() failed" << std::endl;
-        return "";
-    }
+    RAND_bytes(salt, sizeof(salt));
 
-    return std::string(hashed);
+    PKCS5_PBKDF2_HMAC(password.c_str(), password.size(), salt, sizeof(salt), ITERATIONS, EVP_sha256(), sizeof(hash),
+                      hash);
+
+    std::ostringstream oss;
+    oss << ITERATIONS << "$" << toHex(salt, sizeof(salt)) << "$" << toHex(hash, sizeof(hash));
+    return oss.str();
 }
 
 bool verifyPassword(const std::string &stored, const std::string &candidate)
 {
-    // Extract the salt from the stored hash (first 29 characters for bcrypt)
-    if (stored.size() < 29)
-    {
-        std::cerr << "verifyPassword: stored hash is too short to contain a valid salt\n";
+    size_t pos1 = stored.find('$');
+    size_t pos2 = stored.find('$', pos1 + 1);
+    if (pos1 == std::string::npos || pos2 == std::string::npos)
         return false;
-    }
 
-    std::string salt = stored.substr(0, 29);
+    int iterations = std::stoi(stored.substr(0, pos1));
+    std::string saltHex = stored.substr(pos1 + 1, pos2 - pos1 - 1);
+    std::string hashHex = stored.substr(pos2 + 1);
 
-    char *hashed = crypt(candidate.c_str(), salt.c_str());
-    if (!hashed)
-    {
-        std::cerr << "crypt() failed\n";
-        return false;
-    }
+    std::vector<unsigned char> salt = fromHex(saltHex);
+    std::vector<unsigned char> expectedHash = fromHex(hashHex);
+    unsigned char computedHash[HASH_SIZE];
 
-    return stored == hashed;
+    PKCS5_PBKDF2_HMAC(candidate.c_str(), candidate.size(), salt.data(), salt.size(), iterations, EVP_sha256(),
+                      sizeof(computedHash), computedHash);
+
+    return CRYPTO_memcmp(computedHash, expectedHash.data(), HASH_SIZE) == 0;
 }
 
 static void handleOpensslError(const char *ctxmsg)
