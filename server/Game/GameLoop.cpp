@@ -60,4 +60,6 @@ void Orchestrator::GameLoop::loop()
             accumulatedTime -= tickDuration;
         }
     }
+
+    // adminPanelThread.join();
 }

@@ -105,27 +105,42 @@ void RTypeServer::update(float deltaTime)
             mediator.notify(GameMediatorEvent::UpdateScore, serializedData, _lobbyUID);
         }
 
-        if (gameLogicSystem.allWavesCompleted && !gameOver)
+        if (!gameOver)
         {
-            std::cout << "[Server] 🏆 All waves completed! Determining winner..." << std::endl;
+            auto entitiesPlayers = entityManager.getEntitiesWithComponents<PlayerComponent>();
 
-            // Trouver le gagnant par score
-            int winnerID = -1;
-            int maxScore = -1;
-
-            for (auto &[playerId, score] : _playersScores)
+            size_t players_alive = 0;
+            for (auto player : entitiesPlayers)
             {
-                std::cout << "[Server] Player " << playerId << " score: " << score << std::endl;
-                if (score > maxScore)
+                if (player->getComponent<HealthComponent>().health > 0)
                 {
-                    maxScore = score;
-                    winnerID = playerId;
+                    players_alive++;
                 }
             }
 
-            gameOver = true;
-            std::cout << "[Server] Winner: Player " << winnerID << " with score " << maxScore << std::endl;
-            mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID), _lobbyUID);
+            if (players_alive == 0)
+            {
+                gameOver = true;
+                std::cout << "[Server] All players defeated! Game over." << std::endl;
+                // Trouver le gagnant par score
+                std::cout << "[Server] All waves completed! Determining winner..." << std::endl;
+                int winnerID = -1;
+                int maxScore = -1;
+
+                for (auto &[playerId, score] : _playersScores)
+                {
+                    std::cout << "[Server] Player " << playerId << " score: " << score << std::endl;
+                    if (score > maxScore)
+                    {
+                        maxScore = score;
+                        winnerID = playerId;
+                    }
+                }
+
+                gameOver = true;
+                std::cout << "[Server] Winner: Player " << winnerID << " with score " << maxScore << std::endl;
+                mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID), _lobbyUID);
+            }
         }
         // laserWarningSystem.update(entityManager, deltaTime);
 
@@ -360,7 +375,6 @@ void RTypeServer::createBackground()
                                                        GraphicsManager::Texture::BACKGROUND);
         backgroundEntity.addComponent<BackgroundScrollComponent>(-300.0f, true);
 
-        std::cout << "Background created" << std::endl;
         return backgroundEntity;
     };
 

@@ -514,7 +514,7 @@ void GraphicsManager::showErrorMessage(const std::string &message)
 void GraphicsManager::updateErrorMessage()
 {
     // Check if we need to show an error message
-    printf("show error: %d\n", _showError);
+    // printf("show error: %d\n", _showError);
     if (_showError)
     {
         // Create a background rectangle
