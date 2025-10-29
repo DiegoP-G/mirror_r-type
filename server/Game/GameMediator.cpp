@@ -216,8 +216,18 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
         {GameMediatorEvent::LoginReqest,
          [this](const std::string &data, const std::string &, int clientFd) -> void {
              std::vector<uint8_t> encryptedData(data.begin(), data.end());
+
+             auto clientAesKey = _networkManager.getAesKey(clientFd);
+             auto clientAesIV = _networkManager.getAesIV(clientFd);
+
+             if (!clientAesIV || !clientAesKey)
+             {
+                 std::cerr << "GameMediator: failed to get client AES key/iv\n";
+                 return;
+             }
+
              std::optional<std::string> decryptedData =
-                 decryptAESAppendedTag(_networkManager.getAesKey(), _networkManager.getAesIV(), encryptedData);
+                 decryptAESAppendedTag(*clientAesKey, *clientAesIV, encryptedData);
 
              if (!decryptedData.has_value())
              {
@@ -260,8 +270,17 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
              std::cout << "[GameMediator] SigninRequest event triggered for clientFd: " << clientFd << std::endl;
 
              std::vector<uint8_t> encryptedData(data.begin(), data.end());
+             auto clientAesKey = _networkManager.getAesKey(clientFd);
+             auto clientAesIV = _networkManager.getAesIV(clientFd);
+
+             if (!clientAesIV || !clientAesKey)
+             {
+                 std::cerr << "GameMediator: failed to get client AES key/iv\n";
+                 return;
+             }
+
              std::optional<std::string> decryptedData =
-                 decryptAESAppendedTag(_networkManager.getAesKey(), _networkManager.getAesIV(), encryptedData);
+                 decryptAESAppendedTag(*clientAesKey, *clientAesIV, encryptedData);
 
              if (!decryptedData.has_value())
              {
@@ -322,8 +341,7 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
              std::vector<uint8_t> client_aes_key(decryptedAes.begin(), decryptedAes.begin() + AES_KEY_BYTES);
              std::vector<uint8_t> client_aes_iv(decryptedAes.begin() + AES_KEY_BYTES, decryptedAes.end());
 
-             _networkManager.setAesIV(client_aes_iv);
-             _networkManager.setAesKey(client_aes_key);
+             _networkManager.setAesKeyIV(clientFd, client_aes_key, client_aes_iv);
          }},
         {GameMediatorEvent::PlayerBonus,
          [this](const std::string &data, const std::string &, int clientFd) -> void {
