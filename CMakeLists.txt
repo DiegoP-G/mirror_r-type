@@ -38,7 +38,7 @@ if(NOT EXISTS "${VCPKG_ROOT}/vcpkg.exe" AND NOT EXISTS "${VCPKG_ROOT}/vcpkg")
         )
     else()
         execute_process(
-            COMMAND ./bootstrap-vcpkg.sh 
+            COMMAND bash bootstrap-vcpkg.sh 
             WORKING_DIRECTORY "${VCPKG_ROOT}"
             RESULT_VARIABLE BOOTSTRAP_RESULT
         )
@@ -53,38 +53,39 @@ endif()
 if(WIN32)
     set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
     set(VCPKG_TARGET_TRIPLET "x64-windows" CACHE STRING "Vcpkg target triplet")
+    set(VCPKG_EXECUTABLE "${VCPKG_ROOT}/vcpkg.exe")
 else()
     set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
     set(VCPKG_TARGET_TRIPLET "x64-linux" CACHE STRING "Vcpkg target triplet")
+    set(VCPKG_EXECUTABLE "${VCPKG_ROOT}/vcpkg")
 endif()
 
 # Install OpenSSL via vcpkg if not already installed
-if(WIN32)
-    set(VCPKG_INSTALLED_DIR "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}")
-    if(NOT EXISTS "${VCPKG_INSTALLED_DIR}/include/openssl/ssl.h")
-        message(STATUS "Installing OpenSSL via vcpkg...")
-        execute_process(
-            COMMAND "${VCPKG_ROOT}/vcpkg.exe" install openssl:${VCPKG_TARGET_TRIPLET}
-            WORKING_DIRECTORY "${VCPKG_ROOT}"
-            RESULT_VARIABLE VCPKG_INSTALL_RESULT
+set(VCPKG_INSTALLED_DIR "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}")
+if(NOT EXISTS "${VCPKG_INSTALLED_DIR}/include/openssl/ssl.h")
+    message(STATUS "Installing OpenSSL via vcpkg for ${VCPKG_TARGET_TRIPLET}...")
+    message(STATUS "This may take several minutes on first run...")
+    
+    execute_process(
+        COMMAND ${VCPKG_EXECUTABLE} install openssl:${VCPKG_TARGET_TRIPLET}
+        WORKING_DIRECTORY "${VCPKG_ROOT}"
+        RESULT_VARIABLE VCPKG_INSTALL_RESULT
+        OUTPUT_VARIABLE VCPKG_OUTPUT
+        ERROR_VARIABLE VCPKG_ERROR
+    )
+    
+    if(NOT VCPKG_INSTALL_RESULT EQUAL 0)
+        message(FATAL_ERROR 
+            "Failed to install OpenSSL via vcpkg.\n"
+            "Output: ${VCPKG_OUTPUT}\n"
+            "Error: ${VCPKG_ERROR}\n"
+            "\nOn Linux, make sure you have installed:\n"
+            "  - Fedora/RHEL: kernel-headers perl perl-IPC-Cmd\n"
+            "  - Ubuntu/Debian: linux-libc-dev perl libmodule-install-perl\n"
+            "  - Alpine: linux-headers perl perl-ipc-cmd\n"
         )
-        if(NOT VCPKG_INSTALL_RESULT EQUAL 0)
-            message(FATAL_ERROR "Failed to install OpenSSL via vcpkg")
-        endif()
     endif()
-else()
-    set(VCPKG_INSTALLED_DIR "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}")
-    if(NOT EXISTS "${VCPKG_INSTALLED_DIR}/include/openssl/ssl.h")
-        message(STATUS "Installing OpenSSL via vcpkg...")
-        execute_process(
-            COMMAND "${VCPKG_ROOT}/vcpkg" install openssl:${VCPKG_TARGET_TRIPLET}
-            WORKING_DIRECTORY "${VCPKG_ROOT}"
-            RESULT_VARIABLE VCPKG_INSTALL_RESULT
-        )
-        if(NOT VCPKG_INSTALL_RESULT EQUAL 0)
-            message(FATAL_ERROR "Failed to install OpenSSL via vcpkg")
-        endif()
-    endif()
+    message(STATUS "✓ OpenSSL installed successfully via vcpkg")
 endif()
 
 include(FetchContent)
@@ -92,12 +93,12 @@ include(FetchContent)
 # ---- OpenSSL (found via vcpkg) ----
 find_package(OpenSSL REQUIRED)
 if(OPENSSL_FOUND)
-    message(STATUS "✓ OpenSSL trouvé!")
+    message(STATUS "✓ OpenSSL found!")
     message(STATUS "  - Version: ${OPENSSL_VERSION}")
     message(STATUS "  - Include: ${OPENSSL_INCLUDE_DIR}")
     message(STATUS "  - Libraries: ${OPENSSL_LIBRARIES}")
 else()
-    message(FATAL_ERROR "✗ OpenSSL non trouvé!")
+    message(FATAL_ERROR "✗ OpenSSL not found!")
 endif()
 
 # ---- PortAudio ----
