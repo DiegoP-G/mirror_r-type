@@ -97,6 +97,7 @@ class GraphicsManager
         BONUS_FIREMODE,
         BOSS,
         ROTATING_ENEMY,
+        PURPLE_ENEMY,
     };
 
     enum MenuAction
@@ -118,7 +119,8 @@ class GraphicsManager
     sf::Font &getFont();
 
     void drawTexture(const sf::Texture &texture, float x, float y, float w, float h);
-    void drawRect(float x, float y, float w, float h, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a = 255);
+    void drawRect(float x, float y, float w, float h, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a = 255,
+                  bool centered = false);
     void drawText(const std::string &content, float x, float y, sf::Uint8 r = 255, sf::Uint8 g = 255, sf::Uint8 b = 255,
                   bool centered = false, int textSize = TEXT_SIZE);
 

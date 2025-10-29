@@ -10,6 +10,7 @@
 
 GameLogicSystem::GameLogicSystem() : rng(std::random_device{}())
 {
+    std::srand(std::time(nullptr));
     waveActive = false;
     waveTimer = 0.0f;
 }
@@ -64,7 +65,7 @@ Wave GameLogicSystem::generateRandomWave(int currentWave)
 {
     Wave wave;
     // Boss wave
-    if (currentWave != 0 && currentWave % 5 == 0)
+    if (currentWave != 0 && (currentWave + 1) % 5 == 0)
     {
         wave.enemyCount = 1;
         wave.enemyType = "boss";
@@ -73,7 +74,10 @@ Wave GameLogicSystem::generateRandomWave(int currentWave)
     else
     {
         wave.enemyCount = rand() % 4 + 3;
-        wave.enemyType = (rand() % 2 == 0) ? "basic_enemy" : "rotating_enemy";
+        std::vector<std::string> enemyTypes = {"basic_enemy", "rotating_enemy", "purple_enemy"};
+        wave.enemyType = enemyTypes[rand() % enemyTypes.size()];
+
+        wave.pattern = generateRandomPattern();
         wave.pattern = generateRandomPattern();
     }
     return wave;
