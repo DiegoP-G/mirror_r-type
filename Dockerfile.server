@@ -21,9 +21,8 @@ RUN dnf -y update && \
         libXrender-devel \
         libXext-devel \
         libXfixes-devel \
-        linux-libc-dev \
-        libasio-dev \
-        libboost-all-dev
+        glibc-devel \
+        kernel-headers
 
 WORKDIR /app
 COPY . .
