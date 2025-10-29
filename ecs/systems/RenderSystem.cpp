@@ -49,16 +49,16 @@ void RenderSystem::drawStaminaBar(Entity *entity)
         return;
 
     auto &playerComp = entity->getComponent<PlayerComponent>();
-    auto &transform = entity->getComponent<TransformComponent>();
+    Vector2D position = getActualPosition(entity);
 
     float ratio = std::clamp(playerComp.stamina / playerComp.maxStamina, 0.0f, 1.0f);
     float barWidth = 50.0f;
-    float barHeight = 5.0f;
-    float offsetY = -20.0f;
+    float barHeight = 4.0f;
+    float offsetY = 27.0f;
+    float offsetX = -25.0f;
 
-    g_graphics->drawRect(transform.position.x, transform.position.y + offsetY, barWidth, barHeight, 0, 100, 100, 200);
-    g_graphics->drawRect(transform.position.x, transform.position.y + offsetY, barWidth * ratio, barHeight, 0, 255, 255,
-                         255);
+    g_graphics->drawRect(position.x + offsetX, position.y + offsetY, barWidth, barHeight, 0, 100, 100, 200);
+    g_graphics->drawRect(position.x + offsetX, position.y + offsetY, barWidth * ratio, barHeight, 0, 255, 255, 255);
 }
 
 void RenderSystem::update(EntityManager &entityManager)
