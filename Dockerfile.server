@@ -14,7 +14,15 @@ RUN apt -y update && \
         zip \
         unzip \
         tar \
-        linux-libc-dev
+        linux-libc-dev \
+        libx11-dev \
+        libxrandr-dev \
+        libxcursor-dev \
+        libxrender-dev \
+        libxext-dev \
+        libxfixes-dev \
+        libasound2-dev \
+        libjack-jackd2-dev
 
 WORKDIR /app
 COPY . .
