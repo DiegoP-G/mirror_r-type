@@ -18,6 +18,19 @@ enum SHOOTINGTYPE
     SINUS,
 };
 
+struct bulletSpriteType
+{
+    float left;
+    float top;
+    float width;
+    float height;
+};
+
+const bulletSpriteType redBullet{179, 82, 9, 17};
+const bulletSpriteType yellowBullet{179, 113, 9, 17};
+const bulletSpriteType pinkBullet{179, 144, 9, 17};
+const bulletSpriteType whiteBullet{179, 175, 9, 17};
+
 class EnemySystem
 {
   public:
