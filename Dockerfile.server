@@ -13,7 +13,7 @@ RUN dnf -y update && \
         curl \
         zip \
         unzip \
-        tar \
+        tar
 
 WORKDIR /app
 COPY . .
