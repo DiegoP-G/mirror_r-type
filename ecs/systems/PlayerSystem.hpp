@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../GraphicsManager.hpp"
 #include "../components/AnimatedSpriteComponent.hpp"
 #include "../components/ColliderComponent.hpp"
 #include "../components/InputComponent.hpp"
@@ -9,6 +10,7 @@
 #include "../components/TransformComponent.hpp"
 #include "../components/VelocityComponent.hpp"
 #include "../entityManager.hpp"
+#include "EnemySystem.hpp"
 
 #include <cmath>
 

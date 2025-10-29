@@ -13,7 +13,6 @@ Orchestrator::GameLoop::~GameLoop()
 {
 }
 
-// GameLoop.cpp (modified loop)
 void Orchestrator::GameLoop::loop()
 {
     _gameMediator.notify(GameMediatorEvent::SetupNetwork);
@@ -24,9 +23,17 @@ void Orchestrator::GameLoop::loop()
     _gameMediator.getNetworkManager().getClientManager().setAdministratorPanel(adminPanel);
 
     // Start the admin panel in a separate thread
-    std::thread adminPanelThread([&adminPanel]() { adminPanel.run(); });
+    std::thread adminPanelThread([&adminPanel]() {
+        try
+        {
+            adminPanel.run();
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Error occurred in admin panel: " << e.what() << std::endl;
+        }
+    });
 
-    // Start blocking network loops
     _gameMediator.getNetworkManager().startNetworkLoops();
 
     const double tickRate = 60.0; // 60 TPS
@@ -46,9 +53,6 @@ void Orchestrator::GameLoop::loop()
             // _gameMediator.notify(GameMediatorEvent::TickLogic, std::to_string(deltaTime));
             accumulatedTime -= tickDuration;
         }
-
-        // Optional: sleep a tiny amount to avoid 100% CPU if tick processing is very fast
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     // Stop network loops on exit

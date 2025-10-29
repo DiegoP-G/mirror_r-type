@@ -1,16 +1,36 @@
-FROM fedora:39
+FROM ubuntu:latest
 
 # Install dependencies
-RUN dnf -y update && \
-    dnf -y install \
+RUN apt -y update && \
+    apt -y install \
         make \
         gcc \
-        gcc-c++ \
+        g++ \
         cmake \
+        libssl-dev \
         git \
         pkg-config \
-        SFML-devel && \
-    dnf clean all
+        curl \
+        zip \
+        unzip \
+        tar \
+        linux-libc-dev \
+        libx11-dev \
+        libxrandr-dev \
+        libxcursor-dev \
+        libxrender-dev \
+        libxext-dev \
+        libxfixes-dev \
+        libasound2-dev \
+        libjack-jackd2-dev \
+        libgl1-mesa-dev \
+        libudev-dev \
+        libopenal-dev \
+        libflac-dev \
+        libvorbis-dev \
+        libogg-dev \
+        libsndfile1-dev \
+        libfreetype6-dev
 
 WORKDIR /app
 COPY . .
