@@ -13,7 +13,8 @@ RUN dnf -y update && \
         curl \
         zip \
         unzip \
-        tar
+        tar \
+        openssl-devel
 
 WORKDIR /app
 COPY . .
