@@ -5,7 +5,6 @@ A C++ multiplayer game engine built with Entity-Component-System (ECS) architect
 - **ECS Architecture**: Flexible component-based entity system
 - **Multiplayer Networking**: TCP/UDP hybrid networking with client-server architecture
 - **Graphics**: SFML-based rendering system
-- **Game Types**: Support for various game types (R-Type, Flappy Bird, etc.)
 - **Serialization**: Built-in component serialization for network synchronization
 - **Monitoring**: Prometheus metrics integration for server performance monitoring
 
@@ -45,11 +44,40 @@ make -j$(nproc)
 ### Running
 ```bash
 # Start the server
-./GameServer
+./r-type_server
 
 # Start a client (in another terminal)
-./RTypeClient
+./r-type_client
 ```
+
+### Gameplay
+
+#### Objectives
+**R-Type:**
+- Navigate through levels while avoiding or destroying enemies.
+- Defeat the boss at the end of each level to progress.
+- Work with teammates in multiplayer mode to achieve victory.
+
+#### Controls
+- **Movement**: Arrow keys (Up, Down, Left, Right)
+- **Shoot**: Spacebar
+- **Boost**: W to gain additional speed
+- **Voicechat microphone selection**: M
+
+## Project Structure
+```
+├── client/                    # Client-side code
+├── server/                    # Server-side code
+├── ecs/                       # Shared ECS implementation
+├── transferData/              # Shared network protocol
+├── assets/                    # Game assets
+├── doc/                       # Project documentation PDFs
+├── submodules/                # Git submodules (cmake, SFML)
+├── docker-compose.yml         # Monitoring stack configuration
+└── CMakeLists.txt            # Root build configuration
+```
+
+For more details see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ### Monitoring with Prometheus & Grafana
 
@@ -90,33 +118,6 @@ The game server exposes various metrics on `http://localhost:8082/metrics`:
 - Packet throughput TCP / UDP
 - Send & Received packets TCP / UDP
 
-### Gameplay
-
-#### Objectives
-**R-Type**:
-- Navigate through levels while avoiding or destroying enemies.
-- Defeat the boss at the end of each level to progress.
-- Work with teammates in multiplayer mode to achieve victory.
-
-#### Controls
-- **Movement**: Arrow keys (Up, Down, Left, Right)
-- **Shoot**: Spacebar
-
-## Project Structure
-```
-├── client/                    # Client-side code
-├── server/                    # Server-side code
-├── ecs/                       # Shared ECS implementation
-├── transferData/              # Shared network protocol
-├── assets/                    # Game assets
-├── doc/                       # Project documentation PDFs
-├── submodules/                # Git submodules (cmake, SFML)
-├── docker-compose.yml         # Monitoring stack configuration
-└── CMakeLists.txt            # Root build configuration
-```
-
-For more details see [ARCHITECTURE.md](ARCHITECTURE.md).
-
 ## Architecture Overview
 
 ### ECS (Entity-Component-System)
@@ -133,10 +134,6 @@ For more details see [ARCHITECTURE.md](ARCHITECTURE.md).
 - **Prometheus**: Metrics collection on port 8082
 - **Grafana**: Visualization and dashboards for real-time monitoring
 - **Docker Compose**: Easy deployment of the complete monitoring stack
-
-## Games Supported
-- **R-Type**: Side-scrolling shooter with enemies and projectiles
-- **Multiplayer**: Synchronized multiplayer gameplay
 
 ## Contributing
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
