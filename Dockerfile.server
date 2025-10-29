@@ -20,7 +20,10 @@ RUN dnf -y update && \
         libXcursor-devel \
         libXrender-devel \
         libXext-devel \
-        libXfixes-devel
+        libXfixes-devel \
+        linux-libc-dev \
+        libasio-dev \
+        libboost-all-dev
 
 WORKDIR /app
 COPY . .
