@@ -24,8 +24,13 @@ RUN apt -y update && \
         libasound2-dev \
         libjack-jackd2-dev \
         libgl1-mesa-dev \
-        libudev-dev
-
+        libudev-dev \
+        libopenal-dev \
+        libflac-dev \
+        libvorbis-dev \
+        libogg-dev \
+        libsndfile1-dev \
+        libfreetype6-dev
 # Copy source code
 
 WORKDIR /app
