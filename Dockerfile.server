@@ -14,7 +14,13 @@ RUN dnf -y update && \
         zip \
         unzip \
         tar \
-        openssl-devel
+        openssl-devel \
+        libX11-devel \
+        libXrandr-devel \
+        libXcursor-devel \
+        libXrender-devel \
+        libXext-devel \
+        libXfixes-devel
 
 WORKDIR /app
 COPY . .
