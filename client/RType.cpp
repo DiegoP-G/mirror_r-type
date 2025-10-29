@@ -560,7 +560,6 @@ void RTypeGame::render()
         g_graphics->drawText("Press ESC to exit", 200, 350);
     }
     drawMicrophoneMenu();
-    drawHitbox();
 
     g_graphics->present();
 }
