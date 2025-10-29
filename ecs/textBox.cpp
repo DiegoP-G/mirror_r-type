@@ -1,24 +1,26 @@
 #include "textBox.hpp"
 #ifdef _WIN32
-    #ifndef NOMINMAX
-    #define NOMINMAX
-    #endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 
-    #ifndef WIN32_LEAN_AND_MEAN
-    #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #pragma comment(lib, "ws2_32.lib")
-    #include <windows.h>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#include <windows.h>
+#else
+#include <arpa/inet.h>
+#include <netdb.h>
 #endif
 #include <SFML/Graphics/Font.hpp>
+#include <cstring>
 #include <iostream>
 #include <stdexcept>
-#include <cstring>
 
-
-std::string getIpFromString(const std::string& hostname)
+std::string getIpFromString(const std::string &hostname)
 {
     struct addrinfo hints, *res;
     memset(&hints, 0, sizeof hints);
@@ -26,19 +28,19 @@ std::string getIpFromString(const std::string& hostname)
     hints.ai_socktype = SOCK_STREAM;
 
     int status = getaddrinfo(hostname.c_str(), nullptr, &hints, &res);
-    if (status != 0) {
+    if (status != 0)
+    {
         std::cerr << "getaddrinfo error: " << gai_strerror(status) << std::endl;
         return "";
     }
 
-    struct sockaddr_in* ipv4 = (struct sockaddr_in*)res->ai_addr;
+    struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;
     char ipstr[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &(ipv4->sin_addr), ipstr, INET_ADDRSTRLEN);
 
     freeaddrinfo(res);
     return std::string(ipstr);
 }
-
 
 TextBox::TextBox(sf::Font &font, std::function<void(const char *)> startNetwork, float width, float height)
     : isFocused(false), input(""), value(""), font(font), _startNetwork(startNetwork), isPasswordMode(false)

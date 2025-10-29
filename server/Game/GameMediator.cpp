@@ -130,12 +130,13 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
          }},
 
         {GameMediatorEvent::CreateLobby,
-         [this](const std::string &data, const std::string &, int) -> void { _lobbyManager.createLobby(data); }},
+         [this](const std::string &data, const std::string &, int) -> void {
+             _lobbyManager.createLobby(data);
+             _networkManager.getClientManager().addAdminPanelLog("Creating lobby " + data + ".");
+         }},
 
         {GameMediatorEvent::JoinGameLobby,
          [this](const std::string &data, const std::string &, int clientFd) -> void {
-             std::cout << "[JoinGameLobby]" << std::endl;
-
              //     _lobbyManager.createLobby(data);
              auto lobies = _lobbyManager.getLobbies();
 
@@ -154,11 +155,12 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
              // Join the first available lobby
              auto it = lobies.begin();
              std::string lobbyUid = it->first;
+             _networkManager.getClientManager().addAdminPanelLog("Client " + std::to_string(clientFd) +
+                                                                 " found and joined lobby " + lobbyUid + ".");
              auto lobby = it->second;
              lobby->addPlayer(clientFd);
              std::unique_ptr<RTypeServer> &rtype = lobby->getRTypeServer();
              rtype->createPlayer(clientFd, data);
-             std::cout << "Sending all entities to client " << clientFd << std::endl;
              _networkManager.sendAllEntitiesToClient(clientFd);
          }},
 
@@ -182,13 +184,13 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
                      playerName = splitted[1];
                  }
 
-                 std::cout << "[JoinLobby] Client " << clientFd << " joining " << data << std::endl;
+                 _networkManager.getClientManager().addAdminPanelLog("Client " + std::to_string(clientFd) +
+                                                                     " joined lobby " + lobbyName + ".");
+
                  std::unique_ptr<RTypeServer> &rtype = lobby->getRTypeServer();
                  lobby->addPlayer(clientFd);
 
-                 // Give player name here
                  rtype->createPlayer(clientFd, playerName);
-                 std::cout << "Sending all entities to client " << clientFd << std::endl;
                  _networkManager.sendAllEntitiesToClient(clientFd);
              }
          }},
@@ -200,10 +202,10 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
                  std::cerr << "[PlayerDisconnected] Player not in a lobby.\n";
                  return;
              }
-             std::cout << "lobby player size before remove: " << lobby->getPlayers().size() << std::endl;
              lobby->removePlayer(clientFd);
+             _networkManager.getClientManager().addAdminPanelLog("Player " + std::to_string(clientFd) +
+                                                                 " disconnected.");
 
-             std::cout << "lobby player size after remove: " << lobby->getPlayers().size() << std::endl;
              if (lobby->getPlayers().size() == 0)
              {
                  std::cout << "[PlayerDisconnected] Lobby " << lobby->getUid() << " is empty. Removing it."
@@ -234,12 +236,14 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
              if (success)
              {
                  message = "Welcome, " + username + "!";
-                 std::cout << "[Server] Login successful for " << username << std::endl;
+                 _networkManager.getClientManager().addAdminPanelLog("Login request from user " + username +
+                                                                     " : SUCCESS.");
              }
              else
              {
                  message = "Invalid username or password";
-                 std::cout << "[Server] Login failed for " << username << std::endl;
+                 _networkManager.getClientManager().addAdminPanelLog("Login request from user " + username +
+                                                                     " : FAILED.");
              }
 
              // Send response : first byte: success flag, rest: message
@@ -274,6 +278,8 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
              try
              {
                  _networkManager.getClientManager().addNewPlayerEntry(username, password);
+                 _networkManager.getClientManager().addAdminPanelLog("Signin request from user " + username +
+                                                                     " : SUCESS.");
                  message = "Welcome, " + username + "!";
                  success = true;
              }
@@ -281,6 +287,8 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
              {
                  message = e.what();
                  success = false;
+                 _networkManager.getClientManager().addAdminPanelLog("Signin request from user " + username +
+                                                                     " : FAILED.");
              }
 
              // Send response : first byte: success flag, rest: message
