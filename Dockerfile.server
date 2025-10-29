@@ -1,8 +1,8 @@
-FROM fedora:latest
+FROM ubuntu:latest
 
 # Install dependencies
-RUN dnf -y update && \
-    dnf -y install \
+RUN apt -y update && \
+    apt -y install \
         make \
         gcc \
         gcc-c++ \
@@ -22,7 +22,7 @@ RUN dnf -y update && \
         libXext-devel \
         libXfixes-devel \
         glibc-devel \
-        kernel-headers
+        linux-libc-dev
 
 WORKDIR /app
 COPY . .
