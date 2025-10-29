@@ -170,13 +170,15 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(backgroundSpritePath), "background");
     sf::Texture &playerTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(playerSpritePath), "player");
-    sf::Texture &bossTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bossSpritePAth), "boss");
+    sf::Texture &bossTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bossSpritePath), "boss");
     sf::Texture &bulletTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bulletSpritePath), "bullet");
     sf::Texture &basicEnemyTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(basicEnemySpritePath), "basic_enemy");
     sf::Texture &bonusLifeTexture =
-        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusLifeSpritePath), "bonus_life");
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusBubblesSpritePath), "bonus_life");
+    sf::Texture &bonusFiremodeTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusBubblesSpritePath), "bonus_firemode");
     sf::Texture &explosionTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(explosionSpritePath), "explosion");
 
@@ -186,6 +188,7 @@ void RTypeGame::createTextures()
     g_graphics->storeTexture("basic_enemy", basicEnemyTexture);
     g_graphics->storeTexture("bullet", bulletTexture);
     g_graphics->storeTexture("bonus_life", bonusLifeTexture);
+    g_graphics->storeTexture("bonus_firemode", bonusFiremodeTexture);
     g_graphics->storeTexture("explosion", explosionTexture);
 }
 

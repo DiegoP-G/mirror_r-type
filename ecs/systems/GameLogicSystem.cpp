@@ -25,6 +25,13 @@ void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, Game
     {
         spawnWave(entityManager, generateRandomWave(currentWave));
         waveActive = true;
+
+        auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
+        for (auto *player : players)
+        {
+            auto &playerComp = player->getComponent<PlayerComponent>();
+            gameMediator.notify(GameMediatorEvent::NewWave, "", "", playerComp.playerID);
+        }
     }
     else if (waveActive && entityManager.getEntitiesWithComponents<EnemyComponent>().empty())
     {
@@ -36,6 +43,17 @@ void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, Game
         // Notify the server about the wave change
         std::string waveData = serializeInt(currentWave);
         gameMediator.notify(GameMediatorEvent::UpdateWave, waveData, lobbyUid);
+    }
+
+    auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
+    for (auto *player : players)
+    {
+        auto &playerComp = player->getComponent<PlayerComponent>();
+        if (playerComp.bonusPicked)
+        {
+            gameMediator.notify(GameMediatorEvent::PlayerBonus, "", "", playerComp.playerID);
+            playerComp.bonusPicked = false;
+        }
     }
 
     updateScore(entityManager);
@@ -161,11 +179,31 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
     bonusLife.addComponent<TransformComponent>(randX, randY);
     bonusLife.addComponent<VelocityComponent>(-230.0f, 0.0f);
 
-    bonusLife.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_LIFE, 0.0, 0.0, 32.8, 32.3, 1,
-                                                    0.05f, -90.0f);
+    bonusLife.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_LIFE, 0.0, 0.0, 32, 32, 5, 0.1f,
+                                                    0.0f, AnimatedSpriteComponent::SpritesheetLayout::Vertical);
     bonusLife.addComponent<ColliderComponent>(20.0f, 20.0f, true);
 
     std::vector<std::tuple<BonusComponent::TypeBonus, int>> v;
     v.emplace_back(BonusComponent::TypeBonus::HEALTH, 50);
     bonusLife.addComponent<BonusComponent>(v);
+
+    if (rand() % (int)(1 / chance) == 0)
+    {
+        float randY = rand() % ((windowHeight - 30) - 10 + 1) + 30;
+        float randX = cx + 50.0f;
+
+        auto &bonusFiremode = entityManager.createEntity();
+
+        bonusFiremode.addComponent<TransformComponent>(randX, randY);
+        bonusFiremode.addComponent<VelocityComponent>(-230.0f, 0.0f);
+
+        bonusFiremode.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_FIREMODE, 93, 0, 32, 32, 5,
+                                                            0.1f, 0.0f,
+                                                            AnimatedSpriteComponent::SpritesheetLayout::Vertical);
+        bonusFiremode.addComponent<ColliderComponent>(20.0f, 20.0f, true);
+
+        std::vector<std::tuple<BonusComponent::TypeBonus, int>> v;
+        v.emplace_back(BonusComponent::TypeBonus::FIREMODE, 50);
+        bonusFiremode.addComponent<BonusComponent>(v);
+    }
 }

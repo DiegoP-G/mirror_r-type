@@ -37,6 +37,7 @@ void AnimationSystem::update(EntityManager &entityManager, float deltaTime)
             if (animatedSprite.hideAfterOneCycle && animatedSprite.currentFrame == animatedSprite.totalFrames - 1)
             {
                 entityManager.destroyEntityByID(entity->getID());
+                entityManager.markEntityForDestruction(entity->getID());
                 continue;
             }
             else

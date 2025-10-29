@@ -126,6 +126,8 @@ sf::Texture *GraphicsManager::getTexture(int tex)
         return getTexture("explosion");
     case BONUS_LIFE:
         return getTexture("bonus_life");
+    case BONUS_FIREMODE:
+        return getTexture("bonus_firemode");
     case BOSS:
         return getTexture("boss");
     default:
@@ -201,8 +203,11 @@ sf::Font &GraphicsManager::getFont()
 
 bool GraphicsManager::registerTheSound()
 {
-    // createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/pew.mp3"), "pew");
-    // createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/music.mp3"), "music");
+    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/pew.mp3"), "pew");
+    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/music.mp3"), "music");
+    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/powerup.mp3"), "powerup");
+    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/newwave.mp3"), "newwave");
+    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/explosion.wav"), "explosion");
 
     return true;
 }
@@ -239,6 +244,9 @@ void GraphicsManager::playSound(const std::string &name, bool loop)
     {
         it->second.setLoop(loop);
         it->second.play();
+
+        if (name == "music")
+            it->second.setVolume(10);
     }
     else
     {

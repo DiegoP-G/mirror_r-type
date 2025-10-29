@@ -21,6 +21,8 @@
 class GameMediator;
 using PatternFunc = std::function<std::vector<Vector2D>(int, float, float)>;
 
+constexpr float chance = 1;
+
 struct Wave
 {
     int enemyCount;

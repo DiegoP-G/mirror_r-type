@@ -8,8 +8,8 @@ const char playerSpritePath[] = "assets/sprites/playerSpritesheet.png";
 const char fontPath[] = "assets/fonts/upheavtt.ttf";
 const char bulletSpritePath[] = "assets/sprites/bullet_spritesheet.png";
 const char basicEnemySpritePath[] = "assets/sprites/basic_enemy_spritesheet.png";
-const char bonusLifeSpritePath[] = "assets/sprites/bonus_bubbles.png";
-const char bossSpritePAth[] = "assets/sprites/spaceship_boss.png";
+const char bonusBubblesSpritePath[] = "assets/sprites/bonus_bubbles.png";
+const char bossSpritePath[] = "assets/sprites/spaceship_boss.png";
 const char explosionSpritePath[] = "assets/sprites/explosion.png";
 
 class PathFormater

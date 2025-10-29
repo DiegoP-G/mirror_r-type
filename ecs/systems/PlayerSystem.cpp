@@ -7,38 +7,39 @@ void PlayerSystem::update(EntityManager &entityManager, float deltaTime, bool cl
     for (auto &entity : entities)
     {
         auto &input = entity->getComponent<InputComponent>();
-        auto &player = entity->getComponent<PlayerComponent>();
-        player.currentCooldown -= deltaTime;
+        auto &playerComp = entity->getComponent<PlayerComponent>();
+        playerComp.currentCooldown -= deltaTime;
+        playerComp.bonusFiremode -= deltaTime;
 
-        if (player.stamina > player.maxStamina)
-            player.stamina = player.maxStamina;
+        if (playerComp.stamina > playerComp.maxStamina)
+            playerComp.stamina = playerComp.maxStamina;
 
-        if (input.warp && player.stamina >= WARP_STAMINA_COST * deltaTime)
+        if (input.warp && playerComp.stamina >= WARP_STAMINA_COST * deltaTime)
         {
-            player.stamina -= WARP_STAMINA_COST * deltaTime;
-            if (player.stamina < 0.0f)
-                player.stamina = 0.0f;
+            playerComp.stamina -= WARP_STAMINA_COST * deltaTime;
+            if (playerComp.stamina < 0.0f)
+                playerComp.stamina = 0.0f;
 
-            player.moveSpeed = NORMAL_SPEED * WARP_SPEED_MULTIPLIER;
+            playerComp.moveSpeed = NORMAL_SPEED * WARP_SPEED_MULTIPLIER;
         }
         else
         {
-            player.moveSpeed = NORMAL_SPEED;
-            player.stamina += player.staminaRegenRate * deltaTime;
-            if (player.stamina > player.maxStamina)
-                player.stamina = player.maxStamina;
+            playerComp.moveSpeed = NORMAL_SPEED;
+            playerComp.stamina += playerComp.staminaRegenRate * deltaTime;
+            if (playerComp.stamina > playerComp.maxStamina)
+                playerComp.stamina = playerComp.maxStamina;
         }
 
-        if (input.fire && player.currentCooldown <= 0)
+        if (input.fire && playerComp.currentCooldown <= 0)
         {
-            if (player.stamina >= FIRE_STAMINA_COST)
+            if (playerComp.stamina >= FIRE_STAMINA_COST)
             {
                 if (!client)
                     fire(entityManager, entity);
 
-                player.stamina -= FIRE_STAMINA_COST;
+                playerComp.stamina -= FIRE_STAMINA_COST;
                 input.fire = false;
-                player.currentCooldown = player.attackCooldown;
+                playerComp.currentCooldown = playerComp.attackCooldown;
             }
         }
 
@@ -46,18 +47,19 @@ void PlayerSystem::update(EntityManager &entityManager, float deltaTime, bool cl
         {
             auto &transform = entity->getComponent<TransformComponent>();
             if (input.up)
-                transform.position.y -= player.moveSpeed * deltaTime;
+                transform.position.y -= playerComp.moveSpeed * deltaTime;
             if (input.down)
-                transform.position.y += player.moveSpeed * deltaTime;
+                transform.position.y += playerComp.moveSpeed * deltaTime;
             if (input.left)
-                transform.position.x -= player.moveSpeed * deltaTime;
+                transform.position.x -= playerComp.moveSpeed * deltaTime;
             if (input.right)
-                transform.position.x += player.moveSpeed * deltaTime;
+                transform.position.x += playerComp.moveSpeed * deltaTime;
 
             handlePositionPlayer(entity);
         }
 
-        printf("PLAYER %d | Stamina: %.2f | Speed: %.2f\n", player.playerID, player.stamina, player.moveSpeed);
+        printf("PLAYER %d | Stamina: %.2f | Speed: %.2f\n", playerComp.playerID, playerComp.stamina,
+               playerComp.moveSpeed);
     }
 }
 
@@ -80,15 +82,36 @@ void PlayerSystem::handlePositionPlayer(Entity *&entity)
 void PlayerSystem::fire(EntityManager &entityManager, Entity *entity)
 {
     auto &transform = entity->getComponent<TransformComponent>();
-    auto &bullet = entityManager.createEntity();
-
-    bullet.addComponent<TransformComponent>(transform.position.x + 32.0f, transform.position.y + 16.0f);
-    bullet.addComponent<VelocityComponent>(300.0f, 0.0f);
-    bullet.addComponent<SpriteComponent>(8, 8, 255, 0, 0);
-    bullet.addComponent<ColliderComponent>(8.0f, 8.0f);
-
     auto &player = entity->getComponent<PlayerComponent>();
-    printf("BULLET OWNER ID: %d\n", player.playerID);
 
-    bullet.addComponent<ProjectileComponent>(30.0f, 2.0f, player.playerID, ENTITY_TYPE::PLAYER);
+    if (player.bonusFiremode > 0)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            auto &bullet = entityManager.createEntity();
+
+            bullet.addComponent<TransformComponent>(transform.position.x + 32.0f, transform.position.y + 16.0f);
+
+            Vector2D velocity(300.0f, (i - 1) * 50.0f);
+            bullet.addComponent<VelocityComponent>(velocity.x, velocity.y);
+
+            // float angle = std::atan2(velocity.y, velocity.x) * (180.0f / M_PI) + 90.0f;
+            // bullet.addComponent<AnimatedSpriteComponent
+
+            bullet.addComponent<SpriteComponent>(8, 8, 255, 0, 0);
+            bullet.addComponent<ColliderComponent>(8.0f, 8.0f);
+            bullet.addComponent<ProjectileComponent>(30.0f, 2.0f, player.playerID, ENTITY_TYPE::PLAYER);
+        }
+    }
+    else
+    {
+        auto &bullet = entityManager.createEntity();
+
+        bullet.addComponent<TransformComponent>(transform.position.x + 32.0f, transform.position.y + 16.0f);
+        bullet.addComponent<VelocityComponent>(300.0f, 0.0f);
+        bullet.addComponent<SpriteComponent>(8, 8, 255, 0, 0);
+        bullet.addComponent<ColliderComponent>(8.0f, 8.0f);
+        bullet.addComponent<ProjectileComponent>(30.0f, 2.0f, player.playerID, ENTITY_TYPE::PLAYER);
+    }
+    printf("BULLET OWNER ID: %d\n", player.playerID);
 }

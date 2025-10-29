@@ -14,6 +14,8 @@ class PlayerComponent : public IComponent
     bool isLocal;
     bool isReady;
     std::string name;
+    bool bonusPicked = false;
+    float bonusFiremode = 0;
 
     float stamina;
     float maxStamina;

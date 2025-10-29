@@ -1,8 +1,8 @@
 #include "VoiceManager.hpp"
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <iostream>
-#include <cstdint>
 #include <sys/types.h>
 
 VoiceManager::VoiceManager()
@@ -212,7 +212,7 @@ size_t VoiceManager::getAvailableSamples() const
     return RING_BUFFER_SIZE - r + w;
 }
 
-void VoiceManager::startRecording(std::function<void(const std::vector<uint8_t>&)> callback, int deviceIndex)
+void VoiceManager::startRecording(std::function<void(const std::vector<uint8_t> &)> callback, int deviceIndex)
 {
     if (isRecording)
     {

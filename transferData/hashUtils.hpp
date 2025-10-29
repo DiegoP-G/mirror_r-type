@@ -1,25 +1,25 @@
 #pragma once
 
 #ifdef _WIN32
-    #ifndef NOMINMAX
-    #define NOMINMAX
-    #endif
-    // #include "../vcpkg/installed/x64-windows/include/openssl/evp.h"
-    // #include "../vcpkg/installed/x64-windows/include/openssl/pem.h"
-    // #include "../vcpkg/installed/x64-windows/include/openssl/rand.h"
-    // #include "../vcpkg/installed/x64-windows/include/openssl/rsa.h"
-    // #include "../vcpkg/installed/x64-windows/include/openssl/err.h"
-    #ifndef WIN32_LEAN_AND_MEAN
-    #define WIN32_LEAN_AND_MEAN
-    #endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+// #include "../vcpkg/installed/x64-windows/include/openssl/evp.h"
+// #include "../vcpkg/installed/x64-windows/include/openssl/pem.h"
+// #include "../vcpkg/installed/x64-windows/include/openssl/rand.h"
+// #include "../vcpkg/installed/x64-windows/include/openssl/rsa.h"
+// #include "../vcpkg/installed/x64-windows/include/openssl/err.h"
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #else
 
 #endif
+#include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 #include <openssl/rsa.h>
-#include <openssl/err.h>
 
 #include <cstring>
 #include <iomanip>

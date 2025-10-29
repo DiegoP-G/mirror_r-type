@@ -36,6 +36,9 @@ enum GameMediatorEvent
     ServerPubKey = 0x90,
     ClientIVKey = 0x92,
     VoiceComming = 0x75,
+    PlayerBonus = 0x93,
+    NewWave = 0x94,
+    Explosion = 0x95
 };
 
 class NetworkManager;
