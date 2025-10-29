@@ -423,7 +423,7 @@ void GraphicsManager::initLobbyMenuUI()
 
     // Join game Button
     joinGameButton.setSize(sf::Vector2f(250, 60));
-    joinGameButton.setFillColor(sf::Color(70, 130, 180));
+    joinGameButton.setFillColor(sf::Color(50, 160, 150));
     joinGameButton.setPosition(window.getSize().x / 2.0f - 125, 500);
 
     joinGameButtonText.setFont(font);
