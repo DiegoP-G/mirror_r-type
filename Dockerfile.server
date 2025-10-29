@@ -22,7 +22,8 @@ RUN apt -y update && \
         libxext-dev \
         libxfixes-dev \
         libasound2-dev \
-        libjack-jackd2-dev
+        libjack-jackd2-dev \
+        libgl1-mesa-dev
 
 WORKDIR /app
 COPY . .
