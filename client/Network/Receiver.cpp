@@ -140,33 +140,28 @@ void Receiver::receiveTCPMessage()
     if (_tcpSocket == -1)
         return;
 
-    while (true)
+    auto [opcode, payload] = receiveFrameTCP(_tcpSocket, _tcpBuffer);
+
+    if (opcode == OPCODE_INCOMPLETE_DATA)
+        return;
+
+    if (opcode == OPCODE_CLOSE_CONNECTION)
     {
-        auto [opcode, payload] = receiveFrameTCP(_tcpSocket, _tcpBuffer);
+        onCloseConnection("");
+        return;
+    }
 
-        if (opcode == OPCODE_INCOMPLETE_DATA)
-        {
-            break;
-        }
+    std::cout << "[RECEIVER] TCP message: opcode=0x" << std::hex << (int)opcode << std::dec << ", " << payload.size()
+              << " bytes" << std::endl;
 
-        if (opcode == OPCODE_CLOSE_CONNECTION)
-        {
-            onCloseConnection("");
-            break;
-        }
-
-        std::cout << "[RECEIVER] TCP message: opcode=0x" << std::hex << (int)opcode << std::dec << ", "
-                  << payload.size() << " bytes" << std::endl;
-
-        auto it = _handlers.find(opcode);
-        if (it != _handlers.end())
-        {
-            it->second(payload, opcode);
-        }
-        else
-        {
-            std::cerr << "[RECEIVER] Unknown opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
-        }
+    auto it = _handlers.find(opcode);
+    if (it != _handlers.end())
+    {
+        it->second(payload, opcode);
+    }
+    else
+    {
+        std::cerr << "[RECEIVER] Unknown opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
     }
 }
 

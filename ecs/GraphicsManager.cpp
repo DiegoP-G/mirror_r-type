@@ -514,7 +514,6 @@ void GraphicsManager::showErrorMessage(const std::string &message)
 void GraphicsManager::updateErrorMessage()
 {
     // Check if we need to show an error message
-    printf("show error: %d\n", _showError);
     if (_showError)
     {
         // Create a background rectangle
@@ -571,7 +570,6 @@ void GraphicsManager::updateErrorMessage()
             }
             if (_showError && (event.type == sf::Event::KeyPressed || event.type == sf::Event::MouseButtonPressed))
             {
-                printf("SHOW ERROR: FALSE\n");
                 _showError = false;
                 break;
             }

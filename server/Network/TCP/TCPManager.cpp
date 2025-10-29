@@ -34,7 +34,6 @@
 typedef WSAPOLLFD pollfd;
 #else
 #include <arpa/inet.h>
-#include <fcntl.h>
 #include <netinet/in.h>
 #include <poll.h>
 #include <sys/socket.h>
@@ -51,6 +50,15 @@ TCPManager::TCPManager(NetworkManager &ref, PrometheusServer &metrics) : _networ
     if (_listenFd < 0)
 #endif
         throw std::runtime_error("TCP socket failed");
+
+    // Non-bloquant
+    // #ifdef _WIN32
+    //     u_long mode = 1;
+    //     ioctlsocket(_listenFd, FIONBIO, &mode);
+    // #else
+    //     int flags = fcntl(_listenFd, F_GETFL, 0);
+    //     fcntl(_listenFd, F_SETFL, flags | O_NONBLOCK);
+    // #endif
 
     // Réutiliser l'adresse
     int opt = 1;
@@ -127,14 +135,14 @@ void TCPManager::handleNewConnection()
     }
 #endif
 
-    // Mettre en non-bloquant
-#ifdef _WIN32
-    u_long mode = 1;
-    ioctlsocket(cfd, FIONBIO, &mode);
-#else
-    int flags = fcntl(cfd, F_GETFL, 0);
-    fcntl(cfd, F_SETFL, flags | O_NONBLOCK);
-#endif
+    //     // Mettre en non-bloquant
+    // #ifdef _WIN32
+    //     u_long mode = 1;
+    //     ioctlsocket(cfd, FIONBIO, &mode);
+    // #else
+    //     int flags = fcntl(cfd, F_GETFL, 0);
+    //     fcntl(cfd, F_SETFL, flags | O_NONBLOCK);
+    // #endif
 
     // Ajouter au poll (POLLIN seulement au début)
     _pollFds.push_back({cfd, POLLRDNORM | POLLRDBAND, 0});
@@ -283,43 +291,23 @@ void TCPManager::handleClientWrite(int fd)
 
 void TCPManager::handleClientRead(int fd, size_t &index)
 {
-    // Récupérer le buffer de lecture du client
     std::string &readBuffer = _networkManagerRef.getClientManager().getClientsMap()[fd].getBuffer();
+    auto [opcode, payload] = receiveFrameTCP(fd, readBuffer);
 
-    // Lire les messages disponibles
-    while (true)
+    if (opcode != OPCODE_INCOMPLETE_DATA && opcode != OPCODE_CLOSE_CONNECTION)
     {
-        auto [opcode, payload] = receiveFrameTCP(fd, readBuffer);
-
-        if (opcode == OPCODE_INCOMPLETE_DATA)
-        {
-            // Données incomplètes, on attendra plus de données
-            break;
-        }
-
-        if (opcode != OPCODE_INCOMPLETE_DATA && opcode != OPCODE_CLOSE_CONNECTION)
-        {
-            _metrics.IncrementTCPReceived();
-            _metrics.AddTCPBytes(payload.size() + 2);
-        }
-
-        if (opcode == OPCODE_CLOSE_CONNECTION)
-        {
-            // Nettoyer
-            _writeBuffers.erase(fd);
-
-            std::cout << "Before removing the client" << std::endl;
-            _networkManagerRef.getClientManager().removeClient(fd);
-            std::cout << "Notifying the mediator" << std::endl;
-            _networkManagerRef.getGameMediator().notify(GameMediatorEvent::PlayerDisconnected, "", "", fd);
-            _pollFds.erase(_pollFds.begin() + index);
-            --index;
-            return;
-        }
-
-        // Message valide reçu
-        // Notifier le médiateur
+        _metrics.IncrementTCPReceived();
+        _metrics.AddTCPBytes(payload.size() + 2);
         _networkManagerRef.getGameMediator().notify(static_cast<GameMediatorEvent>(opcode), payload, "", fd);
+    }
+
+    if (opcode == OPCODE_CLOSE_CONNECTION)
+    {
+        _writeBuffers.erase(fd);
+        _networkManagerRef.getClientManager().removeClient(fd);
+        _networkManagerRef.getGameMediator().notify(GameMediatorEvent::PlayerDisconnected, "", "", fd);
+        _pollFds.erase(_pollFds.begin() + index);
+        --index;
     }
 }
 
