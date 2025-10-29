@@ -28,22 +28,68 @@ if(NOT EXISTS "${VCPKG_ROOT}/vcpkg.exe" AND NOT EXISTS "${VCPKG_ROOT}/vcpkg")
     if(NOT GIT_CLONE_RESULT EQUAL 0)
         message(FATAL_ERROR "Failed to clone vcpkg")
     endif()
+    
+    message(STATUS "Bootstrapping vcpkg...")
     if(WIN32)
-        execute_process(COMMAND cmd /c bootstrap-vcpkg.bat WORKING_DIRECTORY "${VCPKG_ROOT}")
+        execute_process(
+            COMMAND cmd /c bootstrap-vcpkg.bat 
+            WORKING_DIRECTORY "${VCPKG_ROOT}"
+            RESULT_VARIABLE BOOTSTRAP_RESULT
+        )
     else()
-        execute_process(COMMAND ./bootstrap-vcpkg.sh WORKING_DIRECTORY "${VCPKG_ROOT}")
+        execute_process(
+            COMMAND ./bootstrap-vcpkg.sh 
+            WORKING_DIRECTORY "${VCPKG_ROOT}"
+            RESULT_VARIABLE BOOTSTRAP_RESULT
+        )
+    endif()
+    
+    if(NOT BOOTSTRAP_RESULT EQUAL 0)
+        message(FATAL_ERROR "Failed to bootstrap vcpkg")
+    endif()
+endif()
+
+# Configure vcpkg toolchain BEFORE any find_package calls
+if(WIN32)
+    set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
+    set(VCPKG_TARGET_TRIPLET "x64-windows" CACHE STRING "Vcpkg target triplet")
+else()
+    set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
+    set(VCPKG_TARGET_TRIPLET "x64-linux" CACHE STRING "Vcpkg target triplet")
+endif()
+
+# Install OpenSSL via vcpkg if not already installed
+if(WIN32)
+    set(VCPKG_INSTALLED_DIR "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}")
+    if(NOT EXISTS "${VCPKG_INSTALLED_DIR}/include/openssl/ssl.h")
+        message(STATUS "Installing OpenSSL via vcpkg...")
+        execute_process(
+            COMMAND "${VCPKG_ROOT}/vcpkg.exe" install openssl:${VCPKG_TARGET_TRIPLET}
+            WORKING_DIRECTORY "${VCPKG_ROOT}"
+            RESULT_VARIABLE VCPKG_INSTALL_RESULT
+        )
+        if(NOT VCPKG_INSTALL_RESULT EQUAL 0)
+            message(FATAL_ERROR "Failed to install OpenSSL via vcpkg")
+        endif()
+    endif()
+else()
+    set(VCPKG_INSTALLED_DIR "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}")
+    if(NOT EXISTS "${VCPKG_INSTALLED_DIR}/include/openssl/ssl.h")
+        message(STATUS "Installing OpenSSL via vcpkg...")
+        execute_process(
+            COMMAND "${VCPKG_ROOT}/vcpkg" install openssl:${VCPKG_TARGET_TRIPLET}
+            WORKING_DIRECTORY "${VCPKG_ROOT}"
+            RESULT_VARIABLE VCPKG_INSTALL_RESULT
+        )
+        if(NOT VCPKG_INSTALL_RESULT EQUAL 0)
+            message(FATAL_ERROR "Failed to install OpenSSL via vcpkg")
+        endif()
     endif()
 endif()
 
 include(FetchContent)
 
 # ---- OpenSSL (found via vcpkg) ----
-
-if (WIN32)
-    set(OPENSSL_ROOT_DIR "${CMAKE_SOURCE_DIR}/vcpkg/installed/x64-windows")
-    set(OPENSSL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/vcpkg/installed/x64-windows/include")
-endif()
-
 find_package(OpenSSL REQUIRED)
 if(OPENSSL_FOUND)
     message(STATUS "✓ OpenSSL trouvé!")
@@ -53,8 +99,6 @@ if(OPENSSL_FOUND)
 else()
     message(FATAL_ERROR "✗ OpenSSL non trouvé!")
 endif()
-# FIX: Removed `include_directories(${OPENSSL_INCLUDE_DIR})`.
-# Linking with OpenSSL::SSL and OpenSSL::Crypto handles this automatically.
 
 # ---- PortAudio ----
 FetchContent_Declare(
@@ -106,14 +150,16 @@ target_include_directories(transferData PUBLIC
     ${CMAKE_SOURCE_DIR}/transferData
     ${CMAKE_SOURCE_DIR}/ecs
 )
-if (WIN32)
-    target_compile_definitions(transferData PUBLIC TRANSFERDATA_STATIC)
-    target_link_libraries(transferData PUBLIC ws2_32)
-    target_link_libraries(transferData PRIVATE 
+target_link_libraries(transferData PUBLIC 
     OpenSSL::SSL
     OpenSSL::Crypto
 )
+
+if (WIN32)
+    target_compile_definitions(transferData PUBLIC TRANSFERDATA_STATIC)
+    target_link_libraries(transferData PUBLIC ws2_32)
 endif()
+
 if (UNIX)
     find_library(CRYPT_LIB crypt)
     if (CRYPT_LIB)
@@ -124,8 +170,6 @@ endif()
 # ============================================================
 #                               ECS
 # ============================================================
-
-
 file(GLOB_RECURSE ECS_SOURCES ecs/*.cpp)
 add_library(ecs STATIC ${ECS_SOURCES})
 target_include_directories(ecs PUBLIC
@@ -144,7 +188,6 @@ target_link_libraries(ecs PUBLIC
     OpenSSL::Crypto
 )
 
-
 # ---- Prometheus-cpp ----
 find_package(prometheus-cpp CONFIG QUIET)
 if (NOT prometheus-cpp_FOUND)
@@ -153,16 +196,16 @@ if (NOT prometheus-cpp_FOUND)
         prometheus_cpp
         GIT_REPOSITORY https://github.com/jupp0r/prometheus-cpp.git
         GIT_TAG v1.2.4
-        )
+    )
     set(ENABLE_PUSH OFF CACHE BOOL "Disable prometheus push support" FORCE)
     set(ENABLE_PULL ON CACHE BOOL "Enable prometheus pull support" FORCE)
-    set(ENABLE_COMPRESSION ON CACHE BOOL "Enable compression support" FORCE)
+    set(ENABLE_COMPRESSION OFF CACHE BOOL "Disable compression support" FORCE)
     set(ENABLE_TESTING OFF CACHE BOOL "Disable tests" FORCE)
     set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static prometheus-cpp libs" FORCE)
-    set(ENABLE_COMPRESSION OFF CACHE BOOL "Disable compression support" FORCE)
     FetchContent_MakeAvailable(prometheus_cpp)
-    endif()
-    if (prometheus_cpp_SOURCE_DIR)
+endif()
+
+if (prometheus_cpp_SOURCE_DIR)
     include_directories(
         ${prometheus_cpp_SOURCE_DIR}/core/include
         ${prometheus_cpp_SOURCE_DIR}/pull/include
@@ -271,6 +314,29 @@ if (WIN32)
         $<TARGET_FILE_DIR:r-type_client>
         COMMENT "Copying OpenAL DLL for r-type_client"
     )
+    
+    # Copy OpenSSL DLLs on Windows
+    if(EXISTS "${VCPKG_INSTALLED_DIR}/bin")
+        add_custom_command(TARGET r-type_client POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${VCPKG_INSTALLED_DIR}/bin/libssl-3-x64.dll"
+            $<TARGET_FILE_DIR:r-type_client>
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${VCPKG_INSTALLED_DIR}/bin/libcrypto-3-x64.dll"
+            $<TARGET_FILE_DIR:r-type_client>
+            COMMENT "Copying OpenSSL DLLs for r-type_client"
+        )
+        
+        add_custom_command(TARGET r-type_server POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${VCPKG_INSTALLED_DIR}/bin/libssl-3-x64.dll"
+            $<TARGET_FILE_DIR:r-type_server>
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${VCPKG_INSTALLED_DIR}/bin/libcrypto-3-x64.dll"
+            $<TARGET_FILE_DIR:r-type_server>
+            COMMENT "Copying OpenSSL DLLs for r-type_server"
+        )
+    endif()
 endif()
 
 if (UNIX AND NOT WIN32)
@@ -286,5 +352,3 @@ set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
     "${CMAKE_SOURCE_DIR}/r-type_client"
     "${CMAKE_SOURCE_DIR}/r-type_server"
 )
-
-

@@ -7,8 +7,20 @@ RUN dnf -y update && \
         gcc \
         gcc-c++ \
         cmake \
+        git \
         pkg-config \
-        SFML-devel
+        SFML-devel \
+        curl \
+        zip \
+        unzip \
+        tar \
+        openssl-devel \
+        libX11-devel \
+        libXrandr-devel \
+        libXcursor-devel \
+        libXrender-devel \
+        libXext-devel \
+        libXfixes-devel
 
 # Copy source code
 
