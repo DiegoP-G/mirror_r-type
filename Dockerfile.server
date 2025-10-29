@@ -10,14 +10,19 @@ RUN dnf -y update && \
         git \
         pkg-config \
         SFML-devel && \
+        cmake && \
+        gcc && \
+        git && \
+        curl && \
+        zip && \
+        unzip && \
+        tar && \
     dnf clean all
 
 WORKDIR /app
 COPY . .
 
-RUN sudo apt-get install -y docker.io docker-compose && \
-    sudo apt-get install -y cmake gcc g++ git curl zip unzip tar && \
-    ./install_vcpkg.sh
+RUN ./install_vcpkg.sh
 
 # Build the server
 RUN rm -rf build && \
