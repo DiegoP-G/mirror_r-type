@@ -1,6 +1,18 @@
 #include "enemyFactory.hpp"
 #include "systems/EnemySystem.hpp"
 
+std::pair<float, float> computeHitbox(float width, float height, float scaleX, float scaleY, float rotation)
+{
+    float scaledWidth = width * scaleX;
+    float scaledHeight = height * scaleY;
+
+    float radians = rotation * (M_PI / 180.0f); // Convert degrees to radians
+    float rotatedWidth = std::abs(scaledWidth * std::cos(radians)) + std::abs(scaledHeight * std::sin(radians));
+    float rotatedHeight = std::abs(scaledWidth * std::sin(radians)) + std::abs(scaledHeight * std::cos(radians));
+
+    return {rotatedWidth, rotatedHeight};
+}
+
 void EnemyFactory::createEnemy(EntityManager &entityManager, std::string enemyType, const Vector2D &position,
                                SHOOTINGTYPE shootingType)
 {
@@ -8,24 +20,34 @@ void EnemyFactory::createEnemy(EntityManager &entityManager, std::string enemyTy
     // 0 for movement type : left
     enemy.addComponent<EnemyComponent>(0, 1.0f, shootingType, 50);
 
+    const EnemyProperties *properties = nullptr;
+
     if (enemyType == "basic_enemy")
     {
-        enemy.addComponent<ColliderComponent>(20.0f, 20.0f, true);
-        enemy.addComponent<HealthComponent>(100, 100);
-        enemy.addComponent<HealthBarComponent>(30.0f, 4.0f, 14.0f, -16.0f);
-        enemy.addComponent<TransformComponent>(position.x, position.y);
-        enemy.addComponent<VelocityComponent>(0.0f, 0.0f);
-        enemy.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::ENEMY, 98.5, 32.3, 32.8, 32.3, 1, 0.05f,
-                                                    -90.0f);
+        properties = &BASIC_ENEMY;
+    }
+    else if (enemyType == "rotating_enemy")
+    {
+        properties = &ROTATING_ENEMY;
     }
     else if (enemyType == "boss")
     {
-        enemy.addComponent<ColliderComponent>(100.0f, 100.0f, true);
-        enemy.addComponent<HealthComponent>(200, 200);
-        enemy.addComponent<HealthBarComponent>(60.0f, 4.0f, -90.0f);
-        enemy.addComponent<TransformComponent>(position.x - 70, position.y);
-        enemy.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BOSS, 0, 32, 110, 112, 1, 0.05f, 0.0f,
-                                                    AnimatedSpriteComponent::SpritesheetLayout::Horizontal,
-                                                    Vector2D(1.5f, 1.5f));
+        properties = &BOSS;
+    }
+
+    if (properties)
+    {
+        auto hitbox = computeHitbox(properties->width, properties->height, properties->scaleX, properties->scaleY,
+                                    properties->rotation);
+
+        enemy.addComponent<ColliderComponent>(hitbox.first, hitbox.second, true);
+        enemy.addComponent<HealthComponent>(properties->health, properties->health);
+        enemy.addComponent<HealthBarComponent>(30.0f, 4.0f, 14.0f, -16.0f);
+        enemy.addComponent<TransformComponent>(position.x, position.y);
+        enemy.addComponent<VelocityComponent>(0.0f, 0.0f);
+        enemy.addComponent<AnimatedSpriteComponent>(properties->texture, properties->top, properties->left,
+                                                    properties->width, properties->height, properties->numFrames,
+                                                    properties->interval, properties->rotation, properties->layout,
+                                                    Vector2D(properties->scaleX, properties->scaleY));
     }
 }

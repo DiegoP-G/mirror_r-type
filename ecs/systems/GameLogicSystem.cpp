@@ -73,7 +73,7 @@ Wave GameLogicSystem::generateRandomWave(int currentWave)
     else
     {
         wave.enemyCount = rand() % 4 + 3;
-        wave.enemyType = "basic_enemy";
+        wave.enemyType = (rand() % 2 == 0) ? "basic_enemy" : "rotating_enemy";
         wave.pattern = generateRandomPattern();
     }
     return wave;

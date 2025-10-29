@@ -130,6 +130,8 @@ sf::Texture *GraphicsManager::getTexture(int tex)
         return getTexture("bonus_firemode");
     case BOSS:
         return getTexture("boss");
+    case ROTATING_ENEMY:
+        return getTexture("rotating_enemy");
     default:
         return nullptr;
     }

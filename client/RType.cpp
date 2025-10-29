@@ -181,6 +181,8 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusBubblesSpritePath), "bonus_firemode");
     sf::Texture &explosionTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(explosionSpritePath), "explosion");
+    sf::Texture &rotatingEnemy =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(rotatingEnemySpritePath), "rotating_enemy");
 
     g_graphics->storeTexture("background", backgroundTexture);
     g_graphics->storeTexture("boss", bossTexture);
@@ -190,6 +192,7 @@ void RTypeGame::createTextures()
     g_graphics->storeTexture("bonus_life", bonusLifeTexture);
     g_graphics->storeTexture("bonus_firemode", bonusFiremodeTexture);
     g_graphics->storeTexture("explosion", explosionTexture);
+    g_graphics->storeTexture("rotating_enemy", rotatingEnemy);
 }
 
 void RTypeGame::handleJoystickInput()
@@ -552,6 +555,7 @@ void RTypeGame::render()
 
         std::string waveText = "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
         g_graphics->drawText(waveText, windowWidth - 100, 10);
+        drawHitbox();
     }
     else if (_state == GameState::GAMEOVER)
     {
