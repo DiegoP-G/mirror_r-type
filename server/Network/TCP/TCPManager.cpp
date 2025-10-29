@@ -52,15 +52,6 @@ TCPManager::TCPManager(NetworkManager &ref, PrometheusServer &metrics) : _networ
 #endif
         throw std::runtime_error("TCP socket failed");
 
-    // Non-bloquant
-#ifdef _WIN32
-    u_long mode = 1;
-    ioctlsocket(_listenFd, FIONBIO, &mode);
-#else
-    int flags = fcntl(_listenFd, F_GETFL, 0);
-    fcntl(_listenFd, F_SETFL, flags | O_NONBLOCK);
-#endif
-
     // Réutiliser l'adresse
     int opt = 1;
 #ifdef _WIN32
