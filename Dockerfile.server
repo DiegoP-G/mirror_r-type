@@ -9,8 +9,18 @@ RUN dnf -y update && \
         cmake \
         git \
         pkg-config \
-        SFML-devel && \
-    dnf clean all
+        SFML-devel \
+        curl \
+        zip \
+        unzip \
+        tar \
+        openssl-devel \
+        libX11-devel \
+        libXrandr-devel \
+        libXcursor-devel \
+        libXrender-devel \
+        libXext-devel \
+        libXfixes-devel
 
 WORKDIR /app
 COPY . .
