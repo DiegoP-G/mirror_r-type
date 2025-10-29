@@ -23,7 +23,8 @@ RUN apt -y update && \
         libxfixes-dev \
         libasound2-dev \
         libjack-jackd2-dev \
-        libgl1-mesa-dev
+        libgl1-mesa-dev \
+        libudev-dev
 
 WORKDIR /app
 COPY . .
