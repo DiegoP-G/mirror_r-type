@@ -178,6 +178,9 @@ void TCPManager::handleNewConnection()
 
     // Notifier la création du joueur
     _networkManagerRef.addNewPlayer(cfd);
+
+    _networkManagerRef.getClientManager().addAdminPanelLog(std::string("New connection from ") +
+                                                           inet_ntoa(client_addr.sin_addr) + ".");
 }
 
 void TCPManager::sendMessage(int fd, uint8_t opcode, const std::string &payload)
