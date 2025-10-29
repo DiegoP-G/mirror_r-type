@@ -7,6 +7,7 @@ RUN dnf -y update && \
         gcc \
         gcc-c++ \
         cmake \
+        git \
         pkg-config \
         SFML-devel && \
     dnf clean all
@@ -26,4 +27,4 @@ EXPOSE 8081/tcp
 EXPOSE 8081/udp
 
 # Run the server
-CMD ["./GameServer"]
+CMD ["./r-type_server"]
