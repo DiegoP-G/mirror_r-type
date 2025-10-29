@@ -15,7 +15,9 @@ RUN dnf -y update && \
 WORKDIR /app
 COPY . .
 
-RUN ./install_vcpkg.sh
+RUN sudo apt-get install -y docker.io docker-compose && \
+    sudo apt-get install -y cmake gcc g++ git curl zip unzip tar && \
+    ./install_vcpkg.sh
 
 # Build the server
 RUN rm -rf build && \
