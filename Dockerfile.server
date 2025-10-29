@@ -9,15 +9,11 @@ RUN dnf -y update && \
         cmake \
         git \
         pkg-config \
-        SFML-devel && \
-        cmake && \
-        gcc && \
-        git && \
-        curl && \
-        zip && \
-        unzip && \
-        tar && \
-    dnf clean all
+        SFML-devel \
+        curl \
+        zip \
+        unzip \
+        tar \
 
 WORKDIR /app
 COPY . .
