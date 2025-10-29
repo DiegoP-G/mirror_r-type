@@ -1,5 +1,6 @@
 #pragma once
 #include <atomic>
+#include <cstdint>
 #include <functional>
 #include <portaudio.h>
 #include <string>
@@ -24,7 +25,7 @@ class VoiceManager
     int _currentInputDevice = -1;
     double _currentSampleRate = 16000.0;
 
-    std::function<void(const std::vector<u_int8_t> &)> onAudioCapture;
+    std::function<void(const std::vector<uint8_t> &)> onAudioCapture;
 
     static constexpr size_t RING_BUFFER_SIZE = 48000 * 4; // 4 secondes @ 48kHz
     static constexpr double NETWORK_SAMPLE_RATE = 48000.0;
@@ -54,10 +55,10 @@ class VoiceManager
 
     std::vector<AudioDevice> getInputDevices();
 
-    void startRecording(std::function<void(const std::vector<u_int8_t> &)> callback, int deviceIndex = -1);
+    void startRecording(std::function<void(const std::vector<uint8_t> &)> callback, int deviceIndex = -1);
     void stopRecording();
 
-    void feedAudioToRingBuffer(const std::vector<u_int8_t> &audioData);
+    void feedAudioToRingBuffer(const std::vector<uint8_t> &audioData);
 
     int getCurrentInputDevice() const
     {

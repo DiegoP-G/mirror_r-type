@@ -80,7 +80,7 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
 
         projectile.addComponent<TransformComponent>(transform.position.x - 10.0f, transform.position.y);
 
-        Vector2D velocity(-200.0f, 0.0f);
+        Vector2D velocity(-270.0f, 0.0f);
         projectile.addComponent<VelocityComponent>(velocity.x, velocity.y);
 
         float angle = std::atan2(velocity.y, velocity.x) * (180.0f / M_PI) + 90.0f;
@@ -97,7 +97,7 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
             auto &projectile = entityManager.createEntity();
             projectile.addComponent<TransformComponent>(transform.position.x - 10.0f, transform.position.y);
 
-            Vector2D velocity(-200.0f, (i - 1) * 50.0f);
+            Vector2D velocity(-270.0f, (i - 1) * 50.0f);
             projectile.addComponent<VelocityComponent>(velocity.x, velocity.y);
 
             float angle = std::atan2(velocity.y, velocity.x) * (180.0f / M_PI) + 90.0f;
@@ -113,7 +113,7 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
         auto &projectile1 = entityManager.createEntity();
         projectile1.addComponent<TransformComponent>(transform.position.x - 10.0f, transform.position.y - 15.0f);
 
-        Vector2D velocity1(-200.0f, 0.0f);
+        Vector2D velocity1(-270.0f, 0.0f);
         projectile1.addComponent<VelocityComponent>(velocity1.x, velocity1.y, true, false);
         projectile1.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, redBullet.left,
                                                           redBullet.top, 9, 17, 1, 1, -90.0f);

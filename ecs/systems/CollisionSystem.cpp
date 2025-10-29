@@ -156,8 +156,17 @@ void CollisionSystem::onPlayerHitBonus(Entity *player, Entity *bonus)
             if (healthComp.health > healthComp.maxHealth)
                 healthComp.health = healthComp.maxHealth;
         }
+        if (std::get<0>(b) == BonusComponent::TypeBonus::FIREMODE)
+        {
+            auto &playerComp = player->getComponent<PlayerComponent>();
+            playerComp.bonusFiremode += 7.0f;
+        }
     }
-    std::cout << "BONUS DESTOYED HIHI\n";
+
+    auto &playerComp = player->getComponent<PlayerComponent>();
+    playerComp.bonusPicked = true;
+
+    std::cout << "BONUS DESTROYED HIHI\n";
     bonus->destroy();
 }
 
@@ -210,8 +219,9 @@ void CollisionSystem::onEnemyHitProjectile(Entity *enemy, Entity *projectile,
             auto &explosion = entityManager.createEntity();
             auto &transform = enemy->getComponent<TransformComponent>();
             explosion.addComponent<TransformComponent>(transform.position.x, transform.position.y);
-            explosion.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::EXPLOSION, 282, 296, 36, 36, 5,
-                                                            0.05f, 0.0f, Vector2D(1.0f, 1.0f), 0, true);
+            explosion.addComponent<AnimatedSpriteComponent>(
+                GraphicsManager::Texture::EXPLOSION, 282, 296, 36, 36, 5, 0.05f, 0.0f,
+                AnimatedSpriteComponent::SpritesheetLayout::Horizontal, Vector2D(1.0f, 1.0f), 0, true);
 
             for (auto &pair : playersScores)
             {

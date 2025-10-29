@@ -7,7 +7,6 @@
 #include "../entity.hpp"
 void AnimationSystem::update(EntityManager &entityManager, float deltaTime)
 {
-    std::cout << "AnimationSystem update\n";
     auto entities = entityManager.getEntitiesWithComponents<InputComponent, PlayerComponent>();
 
     for (auto &entity : entities)
@@ -38,6 +37,7 @@ void AnimationSystem::update(EntityManager &entityManager, float deltaTime)
             if (animatedSprite.hideAfterOneCycle && animatedSprite.currentFrame == animatedSprite.totalFrames - 1)
             {
                 entityManager.destroyEntityByID(entity->getID());
+                entityManager.markEntityForDestruction(entity->getID());
                 continue;
             }
             else

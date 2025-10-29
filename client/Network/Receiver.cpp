@@ -91,6 +91,15 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
     _handlers[OPCODE_VOICE_DATA] = [this](const std::string &payload, int opcode) {
         _med.notify(UPDATE_DATA, payload, opcode);
     };
+    _handlers[OPCODE_BONUS] = [this](const std::string &payload, int opcode) {
+        _med.notify(UPDATE_DATA, payload, opcode);
+    };
+    _handlers[OPCODE_NEW_WAVE] = [this](const std::string &payload, int opcode) {
+        _med.notify(UPDATE_DATA, payload, opcode);
+    };
+    _handlers[OPCODE_EXPLOSION] = [this](const std::string &payload, int opcode) {
+        _med.notify(UPDATE_DATA, payload, opcode);
+    };
 }
 
 void Receiver::onCodeUdp(const std::string &payload)

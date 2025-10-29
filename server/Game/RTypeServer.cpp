@@ -24,6 +24,7 @@ void RTypeServer::createPlayer(int playerId, std::string playerName)
     playerEntity.addComponent<SpriteComponent>(32, 32, 255, 255, 0, GraphicsManager::Texture::PLAYER);
     playerEntity.addComponent<ColliderComponent>(32.0f, 32.0f);
     playerEntity.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::PLAYER, 0, 0, 33, 17.5, 5, 0.05f, 0.0f,
+                                                       AnimatedSpriteComponent::SpritesheetLayout::Horizontal,
                                                        Vector2D(2.0f, 2.0f));
     playerEntity.addComponent<InputComponent>();
     playerEntity.addComponent<HealthComponent>(100, 150);
@@ -80,7 +81,7 @@ void RTypeServer::update(float deltaTime)
     {
         {
             std::lock_guard<std::mutex> lock(entityManager.entityMutex);
-            gameLogicSystem.update(entityManager, deltaTime, mediator);
+            gameLogicSystem.update(entityManager, deltaTime, mediator, _lobbyUID);
 
             boundarySystem.update(entityManager, deltaTime);
             cleanupSystem.update(entityManager, deltaTime);
@@ -236,6 +237,8 @@ void RTypeServer::sendDestroyedEntities()
         {
             std::cout << "destroy bk " << id << std::endl;
         }
+        if (entityManager.getEntityByID(id)->hasComponent<EnemyComponent>())
+            mediator.notify(GameMediatorEvent::Explosion, "", _lobbyUID);
         mediator.notify(GameMediatorEvent::EntityDestroyed, data, _lobbyUID);
     }
 }

@@ -1,7 +1,8 @@
 #include "enemyFactory.hpp"
 #include "systems/EnemySystem.hpp"
 
-void EnemyFactory::createEnemy(EntityManager &entityManager, std::string enemyType, const Vector2D &position, SHOOTINGTYPE shootingType)
+void EnemyFactory::createEnemy(EntityManager &entityManager, std::string enemyType, const Vector2D &position,
+                               SHOOTINGTYPE shootingType)
 {
     auto &enemy = entityManager.createEntity();
     // 0 for movement type : left
@@ -24,6 +25,7 @@ void EnemyFactory::createEnemy(EntityManager &entityManager, std::string enemyTy
         enemy.addComponent<HealthBarComponent>(60.0f, 4.0f, -90.0f);
         enemy.addComponent<TransformComponent>(position.x - 70, position.y);
         enemy.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BOSS, 0, 32, 110, 112, 1, 0.05f, 0.0f,
+                                                    AnimatedSpriteComponent::SpritesheetLayout::Horizontal,
                                                     Vector2D(1.5f, 1.5f));
     }
 }

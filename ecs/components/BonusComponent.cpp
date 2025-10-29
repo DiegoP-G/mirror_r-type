@@ -16,7 +16,7 @@ BonusComponent::BonusComponent(std::vector<std::tuple<TypeBonus, int>> b) : bonu
 {
 }
 
-void BonusComponent::update(float deltyatime)
+void BonusComponent::update(float deltatime)
 {
 }
 

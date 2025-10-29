@@ -4,6 +4,7 @@
 #include "../transferData/transferData.hpp"
 #include "Network/NetworkManager.hpp"
 #include "VoiceManager.hpp"
+#include <cstdint>
 
 #include "Network/Receiver.hpp"
 #include "RType.hpp"
@@ -194,7 +195,7 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager *networkManager) : _networ
              case OPCODE_VOICE_DATA: {
                  if (voiceChatEnabled)
                  {
-                     std::vector<u_int8_t> audioData(data.begin(), data.end());
+                     std::vector<uint8_t> audioData(data.begin(), data.end());
                      _voiceManager->feedAudioToRingBuffer(audioData);
                  }
                  break;
@@ -304,6 +305,30 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager *networkManager) : _networ
                  break;
              }
 
+             case OPCODE_BONUS: {
+                 _game->getMutex().lock();
+                 if (g_graphics)
+                     g_graphics->playSound("powerup");
+                 _game->getMutex().unlock();
+                 break;
+             }
+
+             case OPCODE_NEW_WAVE: {
+                 _game->getMutex().lock();
+                 if (g_graphics)
+                     g_graphics->playSound("newwave");
+                 _game->getMutex().unlock();
+                 break;
+             }
+
+             case OPCODE_EXPLOSION: {
+                 _game->getMutex().lock();
+                 if (g_graphics)
+                     g_graphics->playSound("explosion");
+                 _game->getMutex().unlock();
+                 break;
+             }
+
              default:
                  std::cerr << "[Client] Unhandled opcode: 0x" << std::hex << (int)opcode << std::dec << std::endl;
                  break;
@@ -339,7 +364,7 @@ void NetworkECSMediator::setupVoiceChat(int deviceIndex)
     }
     voiceChatEnabled = true;
     _voiceManager->startRecording(
-        [this](const std::vector<u_int8_t> &audioData) {
+        [this](const std::vector<uint8_t> &audioData) {
             _sender->sendUdp(OPCODE_VOICE_DATA, std::string(audioData.begin(), audioData.end()));
         },
         deviceIndex);

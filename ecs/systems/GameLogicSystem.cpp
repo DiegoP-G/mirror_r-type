@@ -1,6 +1,8 @@
 #include "GameLogicSystem.hpp"
 #include "../enemyFactory.hpp"
 #include "../server/Game/GameMediator.hpp"
+#include "../server/Lobby/Lobby.hpp"
+#include "../server/Lobby/LobbyManager.hpp"
 #include "../transferData/transferData.hpp"
 #include <cstdlib>
 #include <ctime>
@@ -12,7 +14,8 @@ GameLogicSystem::GameLogicSystem() : rng(std::random_device{}())
     waveTimer = 0.0f;
 }
 
-void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, GameMediator &gameMediator)
+void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, GameMediator &gameMediator,
+                             std::string lobbyUid)
 {
     enemySpawnTimer += deltaTime;
     waveTimer += deltaTime;
@@ -20,9 +23,15 @@ void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, Game
     // Wait for spawnDelay before starting next wave
     if (!waveActive && waveTimer >= 1)
     {
-        std::cout << "Spawning wave " << currentWave + 1 << "hihi" << std::endl;
         spawnWave(entityManager, generateRandomWave(currentWave));
         waveActive = true;
+
+        auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
+        for (auto *player : players)
+        {
+            auto &playerComp = player->getComponent<PlayerComponent>();
+            gameMediator.notify(GameMediatorEvent::NewWave, "", "", playerComp.playerID);
+        }
     }
     else if (waveActive && entityManager.getEntitiesWithComponents<EnemyComponent>().empty())
     {
@@ -33,7 +42,18 @@ void GameLogicSystem::update(EntityManager &entityManager, float deltaTime, Game
 
         // Notify the server about the wave change
         std::string waveData = serializeInt(currentWave);
-        gameMediator.notify(GameMediatorEvent::UpdateWave, waveData);
+        gameMediator.notify(GameMediatorEvent::UpdateWave, waveData, lobbyUid);
+    }
+
+    auto players = entityManager.getEntitiesWithComponent<PlayerComponent>();
+    for (auto *player : players)
+    {
+        auto &playerComp = player->getComponent<PlayerComponent>();
+        if (playerComp.bonusPicked)
+        {
+            gameMediator.notify(GameMediatorEvent::PlayerBonus, "", "", playerComp.playerID);
+            playerComp.bonusPicked = false;
+        }
     }
 
     updateScore(entityManager);
@@ -44,11 +64,14 @@ Wave GameLogicSystem::generateRandomWave(int currentWave)
 {
     Wave wave;
     // Boss wave
-    if (currentWave != 0 && currentWave % 5 == 0) {
+    if (currentWave != 0 && currentWave % 5 == 0)
+    {
         wave.enemyCount = 1;
         wave.enemyType = "boss";
         wave.pattern = linePattern;
-    } else {
+    }
+    else
+    {
         wave.enemyCount = rand() % 4 + 3;
         wave.enemyType = "basic_enemy";
         wave.pattern = generateRandomPattern();
@@ -123,12 +146,17 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
     std::vector<Vector2D> positions = wave.pattern(wave.enemyCount, cx, cy);
     SHOOTINGTYPE shootingType;
 
-    if (positions.size() <= 3) {
-        shootingType = (rand() % 2 == 0) ? SHOOTINGTYPE::SINUS: SHOOTINGTYPE::THREE_DISPERSED; 
-    } else if (positions.size() <= 5) {
+    if (positions.size() <= 3)
+    {
+        shootingType = (rand() % 2 == 0) ? SHOOTINGTYPE::SINUS : SHOOTINGTYPE::THREE_DISPERSED;
+    }
+    else if (positions.size() <= 5)
+    {
         // Not so many enemy, shootingType = sinus/3 bullets
-        shootingType = (rand() % 2 == 0) ? SHOOTINGTYPE::STRAIGHT: SHOOTINGTYPE::SINUS; 
-    } else {
+        shootingType = (rand() % 2 == 0) ? SHOOTINGTYPE::STRAIGHT : SHOOTINGTYPE::SINUS;
+    }
+    else
+    {
         shootingType = SHOOTINGTYPE::STRAIGHT;
     }
 
@@ -151,11 +179,31 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
     bonusLife.addComponent<TransformComponent>(randX, randY);
     bonusLife.addComponent<VelocityComponent>(-230.0f, 0.0f);
 
-    bonusLife.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_LIFE, 0.0, 0.0, 32.8, 32.3, 1,
-                                                    0.05f, -90.0f);
+    bonusLife.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_LIFE, 0.0, 0.0, 32, 32, 5, 0.1f,
+                                                    0.0f, AnimatedSpriteComponent::SpritesheetLayout::Vertical);
     bonusLife.addComponent<ColliderComponent>(20.0f, 20.0f, true);
 
     std::vector<std::tuple<BonusComponent::TypeBonus, int>> v;
     v.emplace_back(BonusComponent::TypeBonus::HEALTH, 50);
     bonusLife.addComponent<BonusComponent>(v);
+
+    if (rand() % (int)(1 / chance) == 0)
+    {
+        float randY = rand() % ((windowHeight - 30) - 10 + 1) + 30;
+        float randX = cx + 50.0f;
+
+        auto &bonusFiremode = entityManager.createEntity();
+
+        bonusFiremode.addComponent<TransformComponent>(randX, randY);
+        bonusFiremode.addComponent<VelocityComponent>(-230.0f, 0.0f);
+
+        bonusFiremode.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_FIREMODE, 93, 0, 32, 32, 5,
+                                                            0.1f, 0.0f,
+                                                            AnimatedSpriteComponent::SpritesheetLayout::Vertical);
+        bonusFiremode.addComponent<ColliderComponent>(20.0f, 20.0f, true);
+
+        std::vector<std::tuple<BonusComponent::TypeBonus, int>> v;
+        v.emplace_back(BonusComponent::TypeBonus::FIREMODE, 50);
+        bonusFiremode.addComponent<BonusComponent>(v);
+    }
 }

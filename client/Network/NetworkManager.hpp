@@ -6,8 +6,6 @@
 #include "Sender.hpp"
 #include "transferData/hashUtils.hpp"
 #include <atomic>
-#include <netinet/in.h>
-#include <poll.h>
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -20,8 +18,8 @@
 #include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 using SocketType = SOCKET;
+#include <cstdint>
 #include <windows.h>
-
 #else
 using SocketType = int;
 #include <netinet/in.h>

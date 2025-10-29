@@ -130,7 +130,7 @@ constexpr uint8_t OPCODE_CREATE_LOBBY = 0x70;
 constexpr uint8_t OPCODE_JOIN_LOBBY = 0x71;
 // [CLIENT → SERVER, TCP]
 // Request to join an existing lobby
-// Payload: lobby_name (string string)
+// Payload: lobby_name player_name (string string)
 
 constexpr uint8_t OPCODE_LOBBY_CREATED = 0x72;
 // [SERVER → CLIENT, TCP]
@@ -146,6 +146,11 @@ constexpr uint8_t OPCODE_LOBBY_ERROR = 0x74;
 // [SERVER → CLIENT, TCP]
 // Error joining/creating lobby
 // Payload: error_message (string)
+
+constexpr uint8_t OPCODE_GAME_LOBBY = 0x76;
+// [CLIENT → SERVER, TCP]
+// Request to join an existing lobby
+// Payload: player_name (string)
 
 constexpr uint8_t OPCODE_LOGIN_REQUEST = 0x80;
 // [CLIENT → SERVER, TCP]
@@ -181,3 +186,18 @@ constexpr uint8_t OPCODE_VOICE_DATA = 0x75;
 // [CLIENT → SERVER, UDP]
 // Sends the client's voice data.
 // Payload: [ user_id (4 bytes) | audio_data (byte array) ]
+
+constexpr uint8_t OPCODE_BONUS = 0x93;
+// [SERVER → CLIENT, TCP]
+// Client got bonus
+// Payload: none
+
+constexpr uint8_t OPCODE_NEW_WAVE = 0x94;
+// [SERVER → CLIENT, TCP]
+// New wave alert
+// Payload: none
+
+constexpr uint8_t OPCODE_EXPLOSION = 0x95;
+// [SERVER → CLIENT, TCP]
+// Explosion
+// Payload: none

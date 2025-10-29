@@ -34,9 +34,7 @@
 
 GraphicsManager *g_graphics = nullptr;
 
-GraphicsManager::GraphicsManager(NetworkECSMediator &med) : _med(med), 
-    _showError(false),
-    _errorMessage("")
+GraphicsManager::GraphicsManager(NetworkECSMediator &med) : _med(med), _showError(false), _errorMessage("")
 {
 }
 
@@ -128,6 +126,8 @@ sf::Texture *GraphicsManager::getTexture(int tex)
         return getTexture("explosion");
     case BONUS_LIFE:
         return getTexture("bonus_life");
+    case BONUS_FIREMODE:
+        return getTexture("bonus_firemode");
     case BOSS:
         return getTexture("boss");
     default:
@@ -203,8 +203,11 @@ sf::Font &GraphicsManager::getFont()
 
 bool GraphicsManager::registerTheSound()
 {
-    // createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/pew.mp3"), "pew");
-    // createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/music.mp3"), "music");
+    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/pew.mp3"), "pew");
+    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/music.mp3"), "music");
+    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/powerup.mp3"), "powerup");
+    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/newwave.mp3"), "newwave");
+    createSoundFromPath(PathFormater::formatAssetPath("assets/sounds/explosion.wav"), "explosion");
 
     return true;
 }
@@ -241,6 +244,11 @@ void GraphicsManager::playSound(const std::string &name, bool loop)
     {
         it->second.setLoop(loop);
         it->second.play();
+
+        if (name == "music")
+            it->second.setVolume(10);
+        else
+            it->second.setVolume(15);
     }
     else
     {
@@ -404,16 +412,16 @@ void GraphicsManager::initLobbyMenuUI()
     joinLobbyButtonText.setFillColor(sf::Color::White);
     joinLobbyButtonText.setPosition(window.getSize().x / 2.0f - 90, 412);
 
-    // Back Button
-    backButton.setSize(sf::Vector2f(200, 50));
-    backButton.setFillColor(sf::Color(180, 70, 70));
-    backButton.setPosition(50, window.getSize().y - 100);
+    // Join game Button
+    joinGameButton.setSize(sf::Vector2f(250, 60));
+    joinGameButton.setFillColor(sf::Color(70, 130, 180));
+    joinGameButton.setPosition(window.getSize().x / 2.0f - 125, 500);
 
-    backButtonText.setFont(font);
-    backButtonText.setString("BACK");
-    backButtonText.setCharacterSize(24);
-    backButtonText.setFillColor(sf::Color::White);
-    backButtonText.setPosition(105, window.getSize().y - 90);
+    joinGameButtonText.setFont(font);
+    joinGameButtonText.setString("JOIN GAME");
+    joinGameButtonText.setCharacterSize(28);
+    joinGameButtonText.setFillColor(sf::Color::White);
+    joinGameButtonText.setPosition(window.getSize().x / 2.0f - 80, 512);
 
     // Lobby name textbox
     _lobbyTextbox = std::make_unique<TextBox>(font, [](const char *) {}, 400, 50);
@@ -447,8 +455,8 @@ void GraphicsManager::drawLobbyMenu()
     window.draw(createLobbyButtonText);
     window.draw(joinLobbyButton);
     window.draw(joinLobbyButtonText);
-    window.draw(backButton);
-    window.draw(backButtonText);
+    window.draw(joinGameButton);
+    window.draw(joinGameButtonText);
 }
 
 GraphicsManager::MenuAction GraphicsManager::handleLobbyMenuClick(int mouseX, int mouseY)
@@ -465,9 +473,9 @@ GraphicsManager::MenuAction GraphicsManager::handleLobbyMenuClick(int mouseX, in
         return MenuAction::JOIN_LOBBY;
     }
 
-    if (backButton.getGlobalBounds().contains(mousePos))
+    if (joinGameButton.getGlobalBounds().contains(mousePos))
     {
-        return MenuAction::BACK;
+        return MenuAction::MATCHMAKING;
     }
 
     return MenuAction::NONE;

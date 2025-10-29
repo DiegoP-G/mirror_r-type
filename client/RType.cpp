@@ -170,13 +170,15 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(backgroundSpritePath), "background");
     sf::Texture &playerTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(playerSpritePath), "player");
-    sf::Texture &bossTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bossSpritePAth), "boss");
+    sf::Texture &bossTexture = g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bossSpritePath), "boss");
     sf::Texture &bulletTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bulletSpritePath), "bullet");
     sf::Texture &basicEnemyTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(basicEnemySpritePath), "basic_enemy");
     sf::Texture &bonusLifeTexture =
-        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusLifeSpritePath), "bonus_life");
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusBubblesSpritePath), "bonus_life");
+    sf::Texture &bonusFiremodeTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusBubblesSpritePath), "bonus_firemode");
     sf::Texture &explosionTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(explosionSpritePath), "explosion");
 
@@ -186,6 +188,7 @@ void RTypeGame::createTextures()
     g_graphics->storeTexture("basic_enemy", basicEnemyTexture);
     g_graphics->storeTexture("bullet", bulletTexture);
     g_graphics->storeTexture("bonus_life", bonusLifeTexture);
+    g_graphics->storeTexture("bonus_firemode", bonusFiremodeTexture);
     g_graphics->storeTexture("explosion", explosionTexture);
 }
 
@@ -339,7 +342,6 @@ void RTypeGame::handleEvents()
                                            loginData, encryptedData))
                     {
                         std::cerr << "Client failed to encrypt data\n";
-                        EVP_PKEY_free(_med.getNetworkManager()->getServerPubKey());
                         return;
                     }
                     _playerName = username;
@@ -358,12 +360,10 @@ void RTypeGame::handleEvents()
                                            loginData, encryptedData))
                     {
                         std::cerr << "Client failed to encrypt data\n";
-                        EVP_PKEY_free(_med.getNetworkManager()->getServerPubKey());
                         return;
                     }
                     _playerName = username;
                     std::string encryptedDataStr(encryptedData.begin(), encryptedData.end());
-                    EVP_PKEY_free(_med.getNetworkManager()->getServerPubKey());
 
                     _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, encryptedDataStr, OPCODE_SIGNIN_REQUEST);
                 }
@@ -413,10 +413,11 @@ void RTypeGame::handleEvents()
                     std::cout << "[Client] Lobby name cannot be empty!" << std::endl;
                 }
             }
-            else if (action == GraphicsManager::MenuAction::BACK)
+            else if (action == GraphicsManager::MenuAction::MATCHMAKING)
             {
-                _state = GameState::MENULOGIN;
-                std::cout << "[Client] Going back to IP menu" << std::endl;
+                std::cout << "[Client] Joining Game: " << std::endl;
+                std::string data = _playerName;
+                _med.notify(NetworkECSMediatorEvent::SEND_DATA_TCP, data, OPCODE_GAME_LOBBY);
             }
         }
 

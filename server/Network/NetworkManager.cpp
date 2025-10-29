@@ -32,7 +32,7 @@
 #endif
 
 NetworkManager::NetworkManager(GameMediator &ref)
-    : _gameMediator(ref), _UDPManager(*this), _TCPManager(*this), _serverPubKey(nullptr)
+    : _gameMediator(ref), _UDPManager(*this, _metrics), _TCPManager(*this, _metrics), _serverPubKey(nullptr)
 {
     EVP_PKEY *serverKey = generateRSAKeyPair(2048);
     if (!serverKey)
@@ -49,6 +49,7 @@ NetworkManager::~NetworkManager()
 
 void NetworkManager::updateAllPoll()
 {
+    _metrics.IncrementTick();
     _UDPManager.update();
     _TCPManager.update();
 }

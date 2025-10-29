@@ -1,5 +1,6 @@
 #include "VoiceManager.hpp"
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <iostream>
 #include <sys/types.h>
@@ -105,7 +106,7 @@ int VoiceManager::recordCallback(const void *inputBuffer, void *outputBuffer, un
         sum += s * s;
     }
     float rms = std::sqrt(sum / resampled.size());
-    std::vector<u_int8_t> audioData(resampled.size() * sizeof(int16_t));
+    std::vector<uint8_t> audioData(resampled.size() * sizeof(int16_t));
     std::memcpy(audioData.data(), resampled.data(), audioData.size());
 
     vm->onAudioCapture(audioData);
@@ -122,7 +123,7 @@ int VoiceManager::recordCallback(const void *inputBuffer, void *outputBuffer, un
     return paContinue;
 }
 
-void VoiceManager::feedAudioToRingBuffer(const std::vector<u_int8_t> &audioData)
+void VoiceManager::feedAudioToRingBuffer(const std::vector<uint8_t> &audioData)
 {
     if (audioData.size() % sizeof(int16_t) != 0)
     {
@@ -211,7 +212,7 @@ size_t VoiceManager::getAvailableSamples() const
     return RING_BUFFER_SIZE - r + w;
 }
 
-void VoiceManager::startRecording(std::function<void(const std::vector<u_int8_t> &)> callback, int deviceIndex)
+void VoiceManager::startRecording(std::function<void(const std::vector<uint8_t> &)> callback, int deviceIndex)
 {
     if (isRecording)
     {

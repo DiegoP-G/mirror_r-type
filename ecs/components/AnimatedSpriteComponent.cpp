@@ -3,17 +3,22 @@
 #include <iostream>
 
 AnimatedSpriteComponent::AnimatedSpriteComponent(int textID, int left, int top, int frameWidth, int frameHeight,
-                                                 int totalFrames, float interval, float rotation, Vector2D scale,
-                                                 int currentFrame, bool hideAfter)
+                                                 int totalFrames, float interval, float rotation,
+                                                 SpritesheetLayout spritesheetLayout, Vector2D scale, int currentFrame,
+                                                 bool hideAfter)
     : textureID(textID), left(left), top(top), frameWidth(frameWidth), frameHeight(frameHeight),
-      totalFrames(totalFrames), animationInterval(interval), rotationAngle(rotation), scale(scale),
-      currentFrame(currentFrame), currentDirection(Default), elapsedTime(0.0f), hideAfterOneCycle(hideAfter)
+      totalFrames(totalFrames), animationInterval(interval), rotationAngle(rotation),
+      spritesheetLayout(spritesheetLayout), scale(scale), currentFrame(currentFrame), currentDirection(Default),
+      elapsedTime(0.0f), hideAfterOneCycle(hideAfter)
 {
 }
 
 void AnimatedSpriteComponent::setFrame(int frame)
 {
-    left = frameWidth * frame;
+    if (spritesheetLayout == Horizontal)
+        left = frameWidth * frame;
+    else if (spritesheetLayout == Vertical)
+        top = frameHeight * frame;
 }
 
 void AnimatedSpriteComponent::update(float deltaTime)
@@ -56,6 +61,7 @@ std::vector<uint8_t> AnimatedSpriteComponent::serialize() const
 
     // Serialize hideAfterOneCycle as a single byte (1 for true, 0 for false)
     data.push_back(hideAfterOneCycle ? 1 : 0);
+    data.push_back(static_cast<uint8_t>(spritesheetLayout));
 
     return data;
 }
@@ -68,6 +74,7 @@ AnimatedSpriteComponent AnimatedSpriteComponent::deserialize(const uint8_t *data
     float animationInterval, rotationAngle, elapsedTime;
     Vector2D scale;
     Direction dir;
+    SpritesheetLayout spritesheetLayout;
 
     std::memcpy(&textureID, data + offset, sizeof(int));
     offset += sizeof(int);
@@ -98,9 +105,11 @@ AnimatedSpriteComponent AnimatedSpriteComponent::deserialize(const uint8_t *data
 
     // Deserialize hideAfterOneCycle (1 for true, 0 for false)
     bool hideAfter = data[offset] != 0;
+    offset += sizeof(bool);
+    spritesheetLayout = static_cast<SpritesheetLayout>(data[offset]);
 
     AnimatedSpriteComponent comp(textureID, left, top, frameWidth, frameHeight, totalFrames, animationInterval,
-                                 rotationAngle, scale, currentFrame, hideAfter);
+                                 rotationAngle, spritesheetLayout, scale, currentFrame, hideAfter);
     comp.currentDirection = dir;
     comp.elapsedTime = elapsedTime;
 
