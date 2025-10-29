@@ -46,8 +46,8 @@ class NetworkManager
     TCPManager _TCPManager;
 
     EVP_PKEY *_serverPubKey;
-    std::vector<uint8_t> _aesKey;
-    std::vector<uint8_t> _aesIV;
+    // Key first, IV second
+    std::unordered_map<int, std::pair<std::vector<uint8_t>, std::vector<uint8_t>>> _aesKeyIVMap;
 
     std::thread _tcpThread;
     std::thread _udpThread;
@@ -97,26 +97,31 @@ class NetworkManager
         }
     }
 
-    void setAesKey(std::vector<uint8_t> &key)
+    void setAesKeyIV(int clientFd, const std::vector<uint8_t> &key, const std::vector<uint8_t> &iv)
     {
-        _aesKey = key;
+        _aesKeyIVMap[clientFd] = std::make_pair(key, iv);
     }
 
-    void setAesIV(std::vector<uint8_t> &iv)
+    std::optional<std::vector<uint8_t>> getAesKey(int clientFd)
     {
-        _aesIV = iv;
+        if (_aesKeyIVMap.find(clientFd) != _aesKeyIVMap.end())
+        {
+            return _aesKeyIVMap[clientFd].first;
+        }
+        return std::nullopt;
+    }
+
+    std::optional<std::vector<uint8_t>> getAesIV(int clientFd)
+    {
+        if (_aesKeyIVMap.find(clientFd) != _aesKeyIVMap.end())
+        {
+            return _aesKeyIVMap[clientFd].second;
+        }
+        return std::nullopt;
     }
 
     EVP_PKEY *getServerPubKey()
     {
         return _serverPubKey;
-    };
-    const std::vector<uint8_t> &getAesKey()
-    {
-        return _aesKey;
-    };
-    const std::vector<uint8_t> &getAesIV()
-    {
-        return _aesIV;
     };
 };

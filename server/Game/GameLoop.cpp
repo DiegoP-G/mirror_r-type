@@ -24,7 +24,16 @@ void Orchestrator::GameLoop::loop()
     _gameMediator.getNetworkManager().getClientManager().setAdministratorPanel(adminPanel);
 
     // Start the admin panel in a separate thread
-    std::thread adminPanelThread([&adminPanel]() { adminPanel.run(); });
+    std::thread adminPanelThread([&adminPanel]() {
+        try
+        {
+            adminPanel.run();
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Error occurred in admin panel: " << e.what() << std::endl;
+        }
+    });
 
     // Start blocking network loops
     _gameMediator.getNetworkManager().startNetworkLoops();
