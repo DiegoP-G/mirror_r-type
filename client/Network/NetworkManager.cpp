@@ -4,6 +4,7 @@
 #include "../NetworkECSMediator.hpp"
 #include "Receiver.hpp"
 #include "Sender.hpp"
+#include <thread>
 
 #ifdef _WIN32
 #ifndef NOMINMAX

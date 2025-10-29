@@ -56,7 +56,6 @@ void TickSystem::applyPlayerInputs(EntityManager &entityManager, const PlayerInp
         auto &playerComp = entity->getComponent<PlayerComponent>();
         auto &inputComp = entity->getComponent<InputComponent>();
 
-        // ! apply movement input
         velocity.velocity.x = 0.0f;
         velocity.velocity.y = 0.0f;
 

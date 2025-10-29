@@ -49,6 +49,10 @@ class NetworkManager
     std::vector<uint8_t> _aesKey;
     std::vector<uint8_t> _aesIV;
 
+    std::thread _tcpThread;
+    std::thread _udpThread;
+    std::atomic<bool> _shouldStop{false};
+
   public:
     NetworkManager(GameMediator &ref);
     ~NetworkManager();
@@ -62,8 +66,6 @@ class NetworkManager
     {
         return _gameMediator;
     }
-
-    void updateAllPoll();
 
     // SENF DATA TO ECS
 
@@ -80,6 +82,8 @@ class NetworkManager
     void sendDataToLobbyUDPExcept(std::shared_ptr<Lobby> lobby, const std::string &data, int opcode,
                                   int excludeClientFd);
 
+    void stopNetworkLoops();
+    void startNetworkLoops();
     TCPManager &getTCPManager()
     {
         return _TCPManager;
