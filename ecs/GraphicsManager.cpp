@@ -247,6 +247,8 @@ void GraphicsManager::playSound(const std::string &name, bool loop)
 
         if (name == "music")
             it->second.setVolume(10);
+        else
+            it->second.setVolume(15);
     }
     else
     {
