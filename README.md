@@ -1,4 +1,4 @@
-# Game Engine Project
+# RType
 A C++ multiplayer game engine built with Entity-Component-System (ECS) architecture and client-server networking.
 
 ## Features
@@ -22,7 +22,7 @@ A C++ multiplayer game engine built with Entity-Component-System (ECS) architect
 ### Building
 ```bash
 # Clone the repository
-git clone --recurse-submodules git@github.com:DiegoP-G/mirror_r-type.git
+git clone https://github.com/DiegoP-G/mirror_r-type.git
 cd mirror_r-type
 
 # Create build directory
