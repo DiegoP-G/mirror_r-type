@@ -101,10 +101,18 @@ void RenderSystem::drawHealthBar(Entity *entity)
     float offsetY = healthBarComp.offsetY;
     float offsetX = healthBarComp.offsetX;
 
-    g_graphics->drawRect(position.x + offsetX, position.y + offsetY, healthBarComp.width, barHeight, 255, 0, 0,
-                         255); // Red background
-    g_graphics->drawRect(position.x + offsetX, position.y + offsetY, barWidth, barHeight, 0, 255, 0,
-                         255); // Green health bar
+    if (entity->hasComponent<PlayerComponent>())
+    {
+        g_graphics->drawRect(position.x + offsetX, position.y + offsetY, healthBarComp.width, barHeight, 255, 0, 0,
+                             255);
+        g_graphics->drawRect(position.x + offsetX, position.y + offsetY, barWidth, barHeight, 0, 255, 0, 255);
+    }
+    else
+    {
+        g_graphics->drawRect(position.x + offsetX, position.y + offsetY, healthBarComp.width, barHeight, 255, 0, 0, 255,
+                             true);
+        g_graphics->drawRect(position.x + offsetX, position.y + offsetY, barWidth, barHeight, 0, 255, 0, 255, true);
+    }
     draw(entity);
 }
 

@@ -130,6 +130,10 @@ sf::Texture *GraphicsManager::getTexture(int tex)
         return getTexture("bonus_firemode");
     case BOSS:
         return getTexture("boss");
+    case ROTATING_ENEMY:
+        return getTexture("rotating_enemy");
+    case PURPLE_ENEMY:
+        return getTexture("purple_enemy");
     default:
         return nullptr;
     }
@@ -144,9 +148,14 @@ void GraphicsManager::drawTexture(const sf::Texture &texture, float x, float y, 
     window.draw(sprite);
 }
 
-void GraphicsManager::drawRect(float x, float y, float w, float h, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a)
+void GraphicsManager::drawRect(float x, float y, float w, float h, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a,
+                               bool centered)
 {
     sf::RectangleShape rect(sf::Vector2f((float)w, (float)h));
+    if (centered)
+    {
+        rect.setOrigin(w / 2, h / 2);
+    }
     rect.setPosition((float)x, (float)y);
     rect.setFillColor(sf::Color(r, g, b, a));
 
