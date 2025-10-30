@@ -133,9 +133,8 @@ void RenderSystem::drawHealthBar(Entity *entity)
     }
     else
     {
-        g_graphics->drawRect(position.x + offsetX, position.y + offsetY, healthBarComp.width, barHeight, 255, 0, 0, 255,
-                             true);
-        g_graphics->drawRect(position.x + offsetX, position.y + offsetY, barWidth, barHeight, 0, 255, 0, 255, true);
+        g_graphics->drawRect(position.x + offsetX, position.y + offsetY, healthBarComp.width, barHeight, 255, 0, 0, 255);
+        g_graphics->drawRect(position.x + offsetX, position.y + offsetY, barWidth, barHeight, 0, 255, 0, 255);
     }
     draw(entity);
 }

@@ -165,7 +165,7 @@ void CollisionSystem::onPlayerHitBonus(Entity *player, Entity *bonus, EntityMana
         if (std::get<0>(b) == BonusComponent::TypeBonus::FIREMODE)
         {
             auto &playerComp = player->getComponent<PlayerComponent>();
-            playerComp.bonusFiremode += 7.0f;
+            playerComp.bonusFiremode += 4.0f;
         }
 
         if (std::get<0>(b) == BonusComponent::TypeBonus::SHIELD)
@@ -175,9 +175,9 @@ void CollisionSystem::onPlayerHitBonus(Entity *player, Entity *bonus, EntityMana
             {
                 auto &shieldComp = shieldEntity->getComponent<ShieldComponent>();
                 if (shieldComp.ownerID == playerComp.playerID)
-                    shieldComp.shieldLeft += 8.0f;
+                    shieldComp.shieldLeft += 6.0f;
             }
-            playerComp.bonusShield += 8.0f;
+            playerComp.bonusShield += 6.0f;
         }
     }
 
