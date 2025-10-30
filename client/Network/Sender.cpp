@@ -31,38 +31,17 @@ void Sender::sendTcp(uint8_t opcode, const std::string &payload)
         return;
     }
 
-    try
-    {
-        sendFrameTCP(_tcpSocket, opcode, payload);
-        std::cout << "[Sender] Sent TCP frame (opcode=" << std::to_string(opcode) << ", size=" << payload.size() << ")"
-                  << std::endl;
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "[Sender] Error sending TCP frame: " << e.what() << std::endl;
-    }
+    sendFrameTCP(_tcpSocket, opcode, payload); // ! blocking write, handles partial sends internally
+    std::cout << "[Sender] Sent TCP frame (opcode=" << (int)opcode << ", size=" << payload.size() << ")" << std::endl;
 }
 
 void Sender::sendUdp(uint8_t opcode, const std::string &payload)
 {
-    // std::cout << (int)opcode << "|" << payload << "|" << std::endl;
-    // std::cout << _udpSocket << std::endl;
     if (_udpSocket == -1)
     {
         std::cerr << "[Sender] UDP socket not set!" << std::endl;
         return;
     }
 
-    try
-    {
-        // std::cout << "[Sender] Sending UDP frame (opcode=" << (int)opcode << ", size=" << payload.size() << ")"
-        //   << std::endl;
-        sendFrameUDP(_udpSocket, opcode, payload, _serverAddr, sizeof(_serverAddr));
-        // std::cout << "[Sender] Sent UDP frame (opcode=" << (int)opcode << ", size=" << payload.size() << ")"
-        //   << std::endl;
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "[Sender] Error sending UDP frame: " << e.what() << std::endl;
-    }
+    sendFrameUDP(_udpSocket, opcode, payload, _serverAddr, sizeof(_serverAddr));
 }

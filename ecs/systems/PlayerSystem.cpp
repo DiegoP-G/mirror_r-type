@@ -107,10 +107,9 @@ void PlayerSystem::fire(EntityManager &entityManager, Entity *entity)
             Vector2D velocity(300.0f, (i - 1) * 50.0f);
             bullet.addComponent<VelocityComponent>(velocity.x, velocity.y);
 
-            // float angle = std::atan2(velocity.y, velocity.x) * (180.0f / M_PI) + 90.0f;
-            // bullet.addComponent<AnimatedSpriteComponent
-
-            bullet.addComponent<SpriteComponent>(8, 8, 255, 0, 0);
+            bullet.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, yellowBullet.left,
+                                                         yellowBullet.top, yellowBullet.height, yellowBullet.width, 1,
+                                                         1, 90.0f);
             bullet.addComponent<ColliderComponent>(8.0f, 8.0f);
             bullet.addComponent<ProjectileComponent>(30.0f, 2.0f, player.playerID, ENTITY_TYPE::PLAYER);
         }
@@ -121,9 +120,10 @@ void PlayerSystem::fire(EntityManager &entityManager, Entity *entity)
 
         bullet.addComponent<TransformComponent>(transform.position.x + 32.0f, transform.position.y + 16.0f);
         bullet.addComponent<VelocityComponent>(300.0f, 0.0f);
-        bullet.addComponent<SpriteComponent>(8, 8, 255, 0, 0);
+        bullet.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, yellowBullet.left,
+                                                     yellowBullet.top, yellowBullet.height, yellowBullet.width, 1, 1,
+                                                     90.0f);
         bullet.addComponent<ColliderComponent>(8.0f, 8.0f);
         bullet.addComponent<ProjectileComponent>(30.0f, 2.0f, player.playerID, ENTITY_TYPE::PLAYER);
     }
-    printf("BULLET OWNER ID: %d\n", player.playerID);
 }

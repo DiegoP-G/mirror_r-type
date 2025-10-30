@@ -47,11 +47,33 @@ NetworkManager::~NetworkManager()
 {
 }
 
-void NetworkManager::updateAllPoll()
+void NetworkManager::startNetworkLoops()
 {
-    _metrics.IncrementTick();
-    _UDPManager.update();
-    _TCPManager.update();
+    _shouldStop.store(false);
+
+    _tcpThread = std::thread([this]() {
+        while (!_shouldStop.load())
+        {
+            _TCPManager.update();
+        }
+    });
+
+    _udpThread = std::thread([this]() {
+        while (!_shouldStop.load())
+        {
+            _UDPManager.update();
+        }
+    });
+}
+
+void NetworkManager::stopNetworkLoops()
+{
+    _shouldStop.store(true);
+
+    if (_tcpThread.joinable())
+        _tcpThread.join();
+    if (_udpThread.joinable())
+        _udpThread.join();
 }
 
 void NetworkManager::addNewPlayer(int socket)

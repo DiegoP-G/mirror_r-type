@@ -26,7 +26,6 @@ class PrometheusServer
     void SetCompressionEnabled(bool enabled) noexcept;
     void IncrementTick() noexcept;
 
-    // ! Added: update throughput gauge (KB/s)
     void UpdateThroughput() noexcept;
 
   private:
@@ -44,11 +43,9 @@ class PrometheusServer
     prometheus::Counter *tick_counter_;
     prometheus::Gauge *compression_enabled_;
 
-    // ! Added: instantaneous throughput gauges
     prometheus::Gauge *tcp_kbps_;
     prometheus::Gauge *udp_kbps_;
 
-    // ! Added: tracking state
     double last_tcp_bytes_ = 0.0;
     double last_udp_bytes_ = 0.0;
     std::chrono::steady_clock::time_point last_update_;

@@ -183,6 +183,10 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusBubblesSpritePath), "bonus_shield");
     sf::Texture &explosionTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(explosionSpritePath), "explosion");
+    sf::Texture &rotatingEnemy =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(rotatingEnemySpritePath), "rotating_enemy");
+    sf::Texture &purpleEnemy =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(purpleEnemySpritePath), "purple_enemy");
     sf::Texture &shieldTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(shieldSpritePath), "shield");
 
@@ -194,6 +198,8 @@ void RTypeGame::createTextures()
     g_graphics->storeTexture("bonus_life", bonusLifeTexture);
     g_graphics->storeTexture("bonus_firemode", bonusFiremodeTexture);
     g_graphics->storeTexture("explosion", explosionTexture);
+    g_graphics->storeTexture("rotating_enemy", rotatingEnemy);
+    g_graphics->storeTexture("purple_enemy", purpleEnemy);
     g_graphics->storeTexture("shield", shieldTexture);
 }
 
@@ -557,6 +563,7 @@ void RTypeGame::render()
 
         std::string waveText = "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
         g_graphics->drawText(waveText, windowWidth - 100, 10);
+        drawHitbox();
     }
     else if (_state == GameState::GAMEOVER)
     {
@@ -565,7 +572,6 @@ void RTypeGame::render()
         g_graphics->drawText("Press ESC to exit", 200, 350);
     }
     drawMicrophoneMenu();
-    drawHitbox();
 
     g_graphics->present();
 }

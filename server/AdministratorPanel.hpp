@@ -2,7 +2,7 @@
 #include "../client/assetsPath.hpp"
 #include "Lobby/LobbyManager.hpp"
 #include "Network/ClientManager.hpp"
-#include "NetworkManager.hpp"
+#include "Network/NetworkManager.hpp"
 #include "sqlAPI.hpp"
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
