@@ -96,6 +96,8 @@ class GraphicsManager
         BONUS_LIFE,
         BONUS_FIREMODE,
         BOSS,
+        BONUS_SHIELD,
+        SHIELD,
     };
 
     enum MenuAction

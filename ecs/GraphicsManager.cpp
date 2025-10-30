@@ -130,6 +130,10 @@ sf::Texture *GraphicsManager::getTexture(int tex)
         return getTexture("bonus_firemode");
     case BOSS:
         return getTexture("boss");
+    case BONUS_SHIELD:
+        return getTexture("bonus_shield");
+    case SHIELD:
+        return getTexture("shield");
     default:
         return nullptr;
     }

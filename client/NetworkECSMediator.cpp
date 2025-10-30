@@ -410,7 +410,17 @@ void NetworkECSMediator::receiveEntitiesUpdates(const std::vector<uint8_t> &data
     offset += sizeof(uint16_t);
 
     std::vector<uint8_t> healthData(data.begin() + offset, data.begin() + offset + healthSize);
+    offset += healthSize;
+
     deserializeHealth(healthData, serverEM);
+
+    uint16_t shieldSize = *reinterpret_cast<const uint16_t *>(&data[offset]);
+    offset += sizeof(uint16_t);
+
+    std::vector<uint8_t> shieldData(data.begin() + offset, data.begin() + offset + shieldSize);
+    offset += shieldSize;
+
+    _game->getEntityManager().deserializeAllShields(shieldData);
 
     std::cout << "bvedoe THE IS nb " << serverEM.getEntities().size() << std::endl;
     serverEM.applyPendingChanges();

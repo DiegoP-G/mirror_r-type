@@ -197,7 +197,7 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
         bonusFiremode.addComponent<TransformComponent>(randX, randY);
         bonusFiremode.addComponent<VelocityComponent>(-230.0f, 0.0f);
 
-        bonusFiremode.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_FIREMODE, 93, 0, 32, 32, 5,
+        bonusFiremode.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_FIREMODE, 96, 0, 32, 32, 5,
                                                             0.1f, 0.0f,
                                                             AnimatedSpriteComponent::SpritesheetLayout::Vertical);
         bonusFiremode.addComponent<ColliderComponent>(20.0f, 20.0f, true);
@@ -205,5 +205,26 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
         std::vector<std::tuple<BonusComponent::TypeBonus, int>> v;
         v.emplace_back(BonusComponent::TypeBonus::FIREMODE, 50);
         bonusFiremode.addComponent<BonusComponent>(v);
+    }
+
+    if (rand() % (int)(1 / chance) == 0)
+    {
+        std::cout << "SPAWING BONUS SHIELD" << std::endl;
+        float randY = rand() % ((windowHeight - 30) - 10 + 1) + 30;
+        float randX = cx + 50.0f;
+
+        auto &bonusShield = entityManager.createEntity();
+
+        bonusShield.addComponent<TransformComponent>(randX, randY);
+        bonusShield.addComponent<VelocityComponent>(-230.0f, 0.0f);
+
+        bonusShield.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_SHIELD, 32, 0, 32, 32, 5,
+                                                          0.1f, 0.0f,
+                                                          AnimatedSpriteComponent::SpritesheetLayout::Vertical);
+        bonusShield.addComponent<ColliderComponent>(20.0f, 20.0f, true);
+
+        std::vector<std::tuple<BonusComponent::TypeBonus, int>> v;
+        v.emplace_back(BonusComponent::TypeBonus::SHIELD, 50);
+        bonusShield.addComponent<BonusComponent>(v);
     }
 }

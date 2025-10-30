@@ -25,6 +25,8 @@
 
 int main(int argc, char const *argv[])
 {
+    std::srand(time(nullptr));
+
 #ifdef _WIN32
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)

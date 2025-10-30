@@ -10,6 +10,18 @@ void PlayerSystem::update(EntityManager &entityManager, float deltaTime, bool cl
         auto &playerComp = entity->getComponent<PlayerComponent>();
         playerComp.currentCooldown -= deltaTime;
         playerComp.bonusFiremode -= deltaTime;
+        playerComp.bonusShield -= deltaTime;
+
+        auto shieldEntities = entityManager.getEntitiesWithComponent<ShieldComponent>();
+        for (auto &shieldEntity : shieldEntities)
+        {
+            auto &shieldComp = shieldEntity->getComponent<ShieldComponent>();
+            if (shieldComp.ownerID == playerComp.playerID)
+            {
+                shieldComp.shieldLeft -= deltaTime;
+                break;
+            }
+        }
 
         if (playerComp.stamina > playerComp.maxStamina)
             playerComp.stamina = playerComp.maxStamina;

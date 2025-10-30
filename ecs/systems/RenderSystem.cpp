@@ -80,12 +80,36 @@ void RenderSystem::update(EntityManager &entityManager)
     // Draw animated entities
     auto animatedEntities = entityManager.getEntitiesWithComponents<TransformComponent, AnimatedSpriteComponent>();
     for (auto &entity : animatedEntities)
-        draw(entity);
+    {
+        if (!entity->hasComponent<ShieldComponent>())
+            draw(entity);
+    }
 
     // Draw health bars
     auto healthBarEntities = entityManager.getEntitiesWithComponents<TransformComponent, HealthBarComponent>();
     for (auto &entity : healthBarEntities)
         drawHealthBar(entity);
+
+    // Draw shields
+    auto shieldEntities = entityManager.getEntitiesWithComponents<TransformComponent, ShieldComponent>();
+    for (auto &entity : shieldEntities)
+    {
+        auto &shieldComp = entity->getComponent<ShieldComponent>();
+
+        if (shieldComp.shieldLeft <= 0)
+            continue;
+        std::cout << "FOUND ACTIVE SHIELD, TRY TO DRAW" << std::endl;
+        for (auto player : entityManager.getEntitiesWithComponent<PlayerComponent>())
+        {
+            if (player->getComponent<PlayerComponent>().playerID == shieldComp.ownerID)
+            {
+                auto &transformComp = player->getComponent<TransformComponent>();
+                renderAnimatedSprite(entity->getComponent<AnimatedSpriteComponent>(), transformComp.position.x + 0.5f,
+                                     transformComp.position.y);
+                break;
+            }
+        }
+    }
 }
 
 void RenderSystem::drawHealthBar(Entity *entity)
