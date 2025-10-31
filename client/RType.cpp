@@ -507,6 +507,7 @@ void RTypeGame::update(float deltaTime)
 
 void RTypeGame::render()
 {
+    // std::cout << "_state = " << _state << std::endl;
     g_graphics->clear();
 
     if (_state == GameState::KICKED)
@@ -555,6 +556,10 @@ void RTypeGame::render()
     }
     else if (_state == GameState::GAMEOVER)
     {
+        if (_winnerId == _playerId)
+            g_graphics->drawText("You Win! Congratulations!", 200, 250);
+        else
+            g_graphics->drawText("You Lose! Better luck next time!", 200, 250);
         std::string gameOverText = "Game Over! Your score: " + std::to_string(score);
         g_graphics->drawText(gameOverText, 200, 300);
         g_graphics->drawText("Press ESC to exit", 200, 350);
@@ -696,6 +701,8 @@ void RTypeGame::updateScore(std::vector<std::pair<int, int>> vec)
 
 void RTypeGame::setCurrentState(GameState newState)
 {
+    if (_state == GameState::GAMEOVER)
+        return;
     switch (newState)
     {
     case GameState::MENULOGIN:

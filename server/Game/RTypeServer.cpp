@@ -53,23 +53,12 @@ void RTypeServer::removePlayer(int id)
 
 void RTypeServer::update(float deltaTime)
 {
-    enum GameState
-    {
-        MENUIP,
-        MENULOBBY,
-        LOBBY,
-        INGAME,
-        MENU,
-        GAMEOVER
-    };
 
-    // if (_tick % 60 == 0)
     std::cout << "------------- tick passed--------------" << _tick << std::endl;
 
     if (gameOver)
         return;
 
-    // 1. Traiter tous les systèmes
     {
         std::lock_guard<std::mutex> lock(entityManager.entityMutex);
         backgroundSystem.update(entityManager, deltaTime);
@@ -122,7 +111,6 @@ void RTypeServer::update(float deltaTime)
             {
                 gameOver = true;
                 std::cout << "[Server] All players defeated! Game over." << std::endl;
-                // Trouver le gagnant par score
                 std::cout << "[Server] All waves completed! Determining winner..." << std::endl;
                 int winnerID = -1;
                 int maxScore = -1;
@@ -138,13 +126,11 @@ void RTypeServer::update(float deltaTime)
                 }
 
                 gameOver = true;
+                _state = (GameState)5;
                 std::cout << "[Server] Winner: Player " << winnerID << " with score " << maxScore << std::endl;
                 mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID), _lobbyUID);
             }
         }
-        // laserWarningSystem.update(entityManager, deltaTime);
-
-        // 3. Appliquer les changements (vide les buffers)
     }
     else
     {
@@ -156,11 +142,9 @@ void RTypeServer::update(float deltaTime)
         movementSystem.update(entityManager, deltaTime);
     }
 
-    // 4. Envoyer les updates de mouvement (toutes les entités actives)
-    // 2. AVANT applyPendingChanges, envoyer ce qui a été créé/détruit
-    sendNewEntities(); // Envoie les entités dans entitiesToCreate
+    sendNewEntities();
 
-    sendDestroyedEntities(); // Envoie les IDs dans entitiesToDestroy
+    sendDestroyedEntities();
 
     {
         std::lock_guard<std::mutex> lock(entityManager.entityMutex);
@@ -331,7 +315,7 @@ void RTypeServer::handlePlayerInput(const std::string &input)
         auto playerEntity = getEntityByPlayerID(playerId);
         if (playerEntity)
         {
-            // ✅ Update existing InputComponent safely
+            //  Update existing InputComponent safely
             if (!playerEntity->hasComponent<InputComponent>())
             {
                 playerEntity->addComponent<InputComponent>(inputComp);
