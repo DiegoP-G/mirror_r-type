@@ -2,6 +2,7 @@
 #include "../../transferData/opcode.hpp"
 #include "../../transferData/transferData.hpp"
 #include "../NetworkECSMediator.hpp"
+#include "../RType.hpp"
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -13,7 +14,13 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
+
+#include <cstdint>
 #include <windows.h>
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+// #include <win32_port.h>
+
 #else
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -21,6 +28,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #endif
+
+uint32_t lastSeq = 0;
 
 Receiver::Receiver(NetworkECSMediator &med) : _med(med)
 {
@@ -165,6 +174,19 @@ void Receiver::receiveTCPMessage()
     }
 }
 
+std::tuple<uint8_t, std::string> Receiver::receiveFrameUDPPacketLossCount(SOCKET sockfd, struct sockaddr_in &addr, socklen_t &addrlen)
+{
+    char buffer[32000];
+    ssize_t n = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr *)&addr, &addrlen);
+
+    if (n <= 0)
+        return {OPCODE_CLOSE_CONNECTION, ""};
+
+    uint8_t opcode = buffer[0];
+    std::string payload(buffer + 1, n - 1);
+    return {opcode, payload};
+}
+
 void Receiver::receiveUDPMessage()
 {
     if (_udpSocket == -1)
@@ -174,6 +196,24 @@ void Receiver::receiveUDPMessage()
     socklen_t len = sizeof(client);
 
     auto [opcode, payload] = receiveFrameUDP(_udpSocket, client, len);
+
+    if (payload.size() < sizeof(uint32_t)) {
+        std::cout << "returning size too small corupt" << std::endl;
+        return;
+    }
+
+    uint32_t seq;
+    std::memcpy(&seq, payload.data(), sizeof(uint32_t));
+
+    std::cout << "Seq is this " << seq << std::endl;
+    if (seq != lastSeq + 1 && lastSeq != 0) {
+        _med.getRTypeGame()->setPacketLoss(true);
+    } else  {
+        _med.getRTypeGame()->setPacketLoss(false);
+    }
+    lastSeq = seq;
+
+    std::cout << "Payload size:" << payload.size() << std::endl;
 
     auto it = _handlers.find(opcode);
     if (it != _handlers.end())

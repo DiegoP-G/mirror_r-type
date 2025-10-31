@@ -3,6 +3,7 @@
 #include "../ecs/keybindMenu.hpp"
 #include "../ecs/systems.hpp"
 #include "../ecs/textBox.hpp"
+#include <atomic>
 #include "NetworkECSMediator.hpp"
 #include "VoiceManager.hpp"
 #ifdef _WIN32
@@ -88,9 +89,18 @@ class RTypeGame
     int _selectedMicrophoneIndex = -1;
     bool _showMicrophoneMenu = false;
     std::vector<sf::FloatRect> _microphoneMenuButtons;
+    std::atomic_bool _packetLossDetected{false};
 
   public:
     void reset();
+
+    void setPacketLoss(bool p) {
+        _packetLossDetected.store(p, std::memory_order_relaxed);
+    };
+
+    bool getPacketLoss() const {
+        return _packetLossDetected.load(std::memory_order_relaxed);
+    }
 
     void toggleMicrophoneMenu()
     {
