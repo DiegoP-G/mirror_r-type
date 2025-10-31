@@ -238,11 +238,9 @@ void RTypeServer::sendDestroyedEntities()
 
     for (EntityID id : manager.getEntitiesToDestroy())
     {
-        std::cout << "--DESTROY id " << id << std::endl;
         auto data = serializeInt(id);
         if (entityManager.getEntityByID(id)->hasComponent<BackgroundScrollComponent>())
         {
-            std::cout << "destroy bk " << id << std::endl;
         }
         if (entityManager.getEntityByID(id)->hasComponent<EnemyComponent>())
         {

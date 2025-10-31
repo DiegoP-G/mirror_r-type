@@ -394,8 +394,6 @@ void NetworkECSMediator::receiveEntitiesUpdates(const std::vector<uint8_t> &data
     // if (_game->getTickSystem().lastServerTick < serverTick)
     //     _game->getTickSystem().lastServerTick = serverTick;
 
-    std::cout << " tick received: " << serverTick << std::endl;
-
     EntityManager serverEM; // état serveur temporaire
 
     uint16_t moveSize = *reinterpret_cast<const uint16_t *>(&data[offset]);
@@ -424,7 +422,6 @@ void NetworkECSMediator::receiveEntitiesUpdates(const std::vector<uint8_t> &data
 
     std::cout << "bvedoe THE IS nb " << serverEM.getEntities().size() << std::endl;
     serverEM.applyPendingChanges();
-    std::cout << "THE IS nb " << serverEM.getEntities().size() << std::endl;
     _game->getTickSystem().onServerUpdate(serverTick, serverEM, _game->getEntityManager());
 }
 
@@ -483,7 +480,6 @@ void NetworkECSMediator::deserializeMovements(const std::vector<uint8_t> &data, 
             servVel = clientVel;
             servVel.velocity = velocity;
 
-            std::cout << "HERE I GET MY PLAYER" << std::endl;
             continue;
         }
 
@@ -525,7 +521,6 @@ void NetworkECSMediator::deserializeHealth(const std::vector<uint8_t> &data, Ent
         Entity *entity = _game->getEntityManager().getEntityByID(id);
         if (!entity || !entity->hasComponent<HealthComponent>())
         {
-            std::cout << "NO ENTITITY ID" << id << std::endl;
             continue;
         }
 
@@ -533,7 +528,6 @@ void NetworkECSMediator::deserializeHealth(const std::vector<uint8_t> &data, Ent
         size_t remaining = data.size() - offset;
         if (remaining < sizeof(int) * 2)
         {
-            std::cout << "WTF" << std::endl;
             break;
         }
 
@@ -562,8 +556,6 @@ void NetworkECSMediator::receiveNewEntities(const std::vector<uint8_t> &data)
 
     uint32_t entityCount = *reinterpret_cast<const uint32_t *>(&data[offset]);
     offset += sizeof(uint32_t);
-
-    std::cout << "Received " << entityCount << " entities for tick " << serverTick << std::endl;
 
     for (uint32_t i = 0; i < entityCount; ++i)
     {

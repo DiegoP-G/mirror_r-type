@@ -178,7 +178,6 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
     float randY = rand() % ((windowHeight - 30) - 10 + 1) + 30;
 
     float randX = cx;
-    std::cout << "SPWAN BONUS on " << randX << "  " << randY << std::endl;
 
     bonusLife.addComponent<TransformComponent>(randX, randY);
     bonusLife.addComponent<VelocityComponent>(-230.0f, 0.0f);

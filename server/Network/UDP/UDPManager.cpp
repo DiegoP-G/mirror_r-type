@@ -41,7 +41,7 @@ UDPManager::UDPManager(NetworkManager &ref, PrometheusServer &metrics) : _Networ
     _addr.sin_port = htons(SERVER_PORT);
 
     int opt = 1;
-    setsockopt(_udpFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    setsockopt(_udpFd, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt));
     if (bind(_udpFd, (sockaddr *)&_addr, sizeof(_addr)) < 0)
         throw std::runtime_error("UDP bind failed");
 
@@ -53,11 +53,10 @@ UDPManager::~UDPManager()
     close(_udpFd);
 }
 
-// UDPManager::update() - blocking poll for both read & write
 void UDPManager::update()
 {
 #ifdef _WIN32
-    int ret = WSAPoll(_pollFds.data(), _pollFds.size(), 100); // 30ms timeout
+    int ret = WSAPoll(_pollFds.data(), _pollFds.size(), 100);
     if (ret == SOCKET_ERROR)
     {
         int error = WSAGetLastError();
