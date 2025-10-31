@@ -6,8 +6,7 @@ ShieldComponent::ShieldComponent()
 {
 }
 
-ShieldComponent::ShieldComponent(int ownerID)
-    : ownerID(ownerID)
+ShieldComponent::ShieldComponent(int ownerID) : ownerID(ownerID)
 {
 }
 
@@ -21,7 +20,7 @@ std::vector<uint8_t> ShieldComponent::serialize() const
 
     std::memcpy(data.data(), &ownerID, sizeof(int));
     std::memcpy(data.data() + sizeof(int), &shieldLeft, sizeof(float));
-    
+
     return data;
 }
 

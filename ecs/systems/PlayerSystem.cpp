@@ -10,14 +10,18 @@ void PlayerSystem::update(EntityManager &entityManager, float deltaTime, bool cl
         auto &playerComp = entity->getComponent<PlayerComponent>();
         playerComp.currentCooldown -= deltaTime;
 
-        if (playerComp.bonusFiremode > 0) {
+        if (playerComp.bonusFiremode > 0)
+        {
             playerComp.bonusFiremode -= deltaTime;
-            if (playerComp.bonusFiremode < 0) playerComp.bonusFiremode = 0.0f;
+            if (playerComp.bonusFiremode < 0)
+                playerComp.bonusFiremode = 0.0f;
         }
-        
-        if (playerComp.bonusShield > 0) {
+
+        if (playerComp.bonusShield > 0)
+        {
             playerComp.bonusShield -= deltaTime;
-            if (playerComp.bonusShield < 0) playerComp.bonusShield = 0.0f;
+            if (playerComp.bonusShield < 0)
+                playerComp.bonusShield = 0.0f;
 
             auto shieldEntities = entityManager.getEntitiesWithComponent<ShieldComponent>();
             for (auto &shieldEntity : shieldEntities)
@@ -26,12 +30,13 @@ void PlayerSystem::update(EntityManager &entityManager, float deltaTime, bool cl
                 if (shieldComp.ownerID == playerComp.playerID)
                 {
                     shieldComp.shieldLeft -= deltaTime;
-                    if (shieldComp.shieldLeft < 0) shieldComp.shieldLeft = 0;
+                    if (shieldComp.shieldLeft < 0)
+                        shieldComp.shieldLeft = 0;
                     break;
                 }
             }
         }
-        
+
         if (playerComp.stamina > playerComp.maxStamina)
             playerComp.stamina = playerComp.maxStamina;
 
