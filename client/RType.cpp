@@ -286,7 +286,6 @@ void RTypeGame::handleEvents()
         if (event.type == sf::Event::Closed)
         {
             running = false;
-            std::cout << "Running is set to false" << std::endl;
         }
 
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::M)
@@ -312,7 +311,6 @@ void RTypeGame::handleEvents()
         if (gameOver && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
         {
             running = false;
-            std::cout << "Running is set to false" << std::endl;
         }
 
         keybindMenu->handleEvent(event, g_graphics->getWindow());
@@ -487,7 +485,6 @@ void RTypeGame::findMyPlayer()
         if (playerComp.playerID == _playerId)
         {
             player = entity;
-            std::cout << "Player has been found" << std::endl;
             break;
         }
     }
@@ -620,7 +617,6 @@ void RTypeGame::run()
 
     g_graphics->playSound("music", true);
 
-    std::cout << "rtype run outside\n";
     while (running)
     {
         float deltaTime = clock.restart().asSeconds();
@@ -703,27 +699,27 @@ void RTypeGame::updateScore(std::vector<std::pair<int, int>> vec)
 
 void RTypeGame::setCurrentState(GameState newState)
 {
-    switch (newState)
-    {
-    case GameState::MENULOGIN:
-        std::cout << "In MENU state" << std::endl;
-        break;
-    case GameState::MENUIP:
-        std::cout << "In MENUIP state" << std::endl;
-        break;
-    case GameState::MENULOBBY:
-        std::cout << "In MENULOBBY state" << std::endl;
-        break;
-    case GameState::INGAME:
-        std::cout << "In INGAME state" << std::endl;
-        break;
-    case GameState::GAMEOVER:
-        std::cout << "In GAMEOVER state" << std::endl;
-        break;
-    default:
-        std::cout << "In UNKNOWN state" << std::endl;
-        break;
-    }
+    // switch (newState)
+    // {
+    // case GameState::MENULOGIN:
+    //     std::cout << "In MENU state" << std::endl;
+    //     break;
+    // case GameState::MENUIP:
+    //     std::cout << "In MENUIP state" << std::endl;
+    //     break;
+    // case GameState::MENULOBBY:
+    //     std::cout << "In MENULOBBY state" << std::endl;
+    //     break;
+    // case GameState::INGAME:
+    //     std::cout << "In INGAME state" << std::endl;
+    //     break;
+    // case GameState::GAMEOVER:
+    //     std::cout << "In GAMEOVER state" << std::endl;
+    //     break;
+    // default:
+    //     std::cout << "In UNKNOWN state" << std::endl;
+    //     break;
+    // }
     _state = newState;
 }
 

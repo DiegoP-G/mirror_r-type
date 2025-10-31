@@ -2,7 +2,7 @@
 #include "systems/EnemySystem.hpp"
 
 #ifdef _WIN32
-    #define M_PI 3.14159265358979323846
+#define M_PI 3.14159265358979323846
 #endif
 
 std::pair<float, float> computeHitbox(float width, float height, float scaleX, float scaleY, float rotation)

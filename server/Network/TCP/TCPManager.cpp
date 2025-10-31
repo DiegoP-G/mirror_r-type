@@ -193,14 +193,11 @@ void TCPManager::sendMessage(int fd, uint8_t opcode, const std::string &payload)
     // Ajouter le payload
     frame.insert(frame.end(), payload.begin(), payload.end());
 
-    std::cout << "finishing the frame" << std::endl;
     // Ajouter au buffer d'écriture
     _writeBuffers[fd].append(reinterpret_cast<char *>(frame.data()), frame.size());
-    std::cout << "Append to the buffer" << std::endl;
     // Activer POLLOUT pour ce socket
     for (auto &pfd : _pollFds)
     {
-        std::cout << "pfd.fd" << pfd.fd << std::endl;
         if (pfd.fd == fd)
         {
             pfd.events |= POLLWRNORM;

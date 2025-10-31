@@ -4,9 +4,9 @@
 #include "../NetworkECSMediator.hpp"
 #include "Receiver.hpp"
 #include "Sender.hpp"
-#include <thread>
 #include <cstring>
 #include <iostream>
+#include <thread>
 
 #ifdef _WIN32
 #ifndef NOMINMAX
@@ -21,14 +21,15 @@
 #include <windows.h>
 #else
 #include <arpa/inet.h>
+#include <errno.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <errno.h>
 #endif
 
-void reportError(const char* msg) {
+void reportError(const char *msg)
+{
 #ifdef _WIN32
     std::cerr << msg << ": " << WSAGetLastError() << std::endl;
 #else
@@ -42,7 +43,8 @@ NetworkManager::NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver
 {
 #ifdef _WIN32
     WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    {
         std::cerr << "WSAStartup failed\n";
     }
 #endif
@@ -101,8 +103,8 @@ bool NetworkManager::setup(const char *serverIp, int port)
     setsockopt(_tcpSocket, IPPROTO_TCP, TCP_NODELAY, (const char *)&nodelay, sizeof(nodelay));
 
     int bufsize = 262144;
-    setsockopt(_tcpSocket, SOL_SOCKET, SO_SNDBUF, (const char*)&bufsize, sizeof(bufsize));  // Cast for Windows
-    setsockopt(_tcpSocket, SOL_SOCKET, SO_RCVBUF, (const char*)&bufsize, sizeof(bufsize));  // Cast for Windows
+    setsockopt(_tcpSocket, SOL_SOCKET, SO_SNDBUF, (const char *)&bufsize, sizeof(bufsize)); // Cast for Windows
+    setsockopt(_tcpSocket, SOL_SOCKET, SO_RCVBUF, (const char *)&bufsize, sizeof(bufsize)); // Cast for Windows
 
     _udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
     if (_udpSocket < 0)
