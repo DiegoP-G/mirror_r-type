@@ -6,6 +6,7 @@
 #include "Sender.hpp"
 #include "transferData/hashUtils.hpp"
 #include <atomic>
+#include <thread>
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -49,6 +50,9 @@ class NetworkManager
     EVP_PKEY *_serverPubKey;
     std::vector<uint8_t> _aesKey;
     std::vector<uint8_t> _aesIV;
+
+    std::thread _tcpThread;
+    std::thread _udpThread;
 
   public:
     NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver);

@@ -56,7 +56,6 @@ void TickSystem::applyPlayerInputs(EntityManager &entityManager, const PlayerInp
         auto &playerComp = entity->getComponent<PlayerComponent>();
         auto &inputComp = entity->getComponent<InputComponent>();
 
-        // ! apply movement input
         velocity.velocity.x = 0.0f;
         velocity.velocity.y = 0.0f;
 
@@ -107,13 +106,12 @@ PlayerInput TickSystem::capturePlayerInput(EntityManager &clientEm)
     for (auto &entity : clientEm.getEntities())
     {
         if (entity->hasComponent<PlayerComponent>())
-            std::cout << "Player found with id : " << entity->getComponent<PlayerComponent>().playerID << " my id is "
-                      << _playerId << std::endl;
-        if (entity->hasComponent<PlayerComponent>() && entity->getComponent<PlayerComponent>().playerID == _playerId)
-        {
-            player = entity.get();
-            break;
-        }
+            if (entity->hasComponent<PlayerComponent>() &&
+                entity->getComponent<PlayerComponent>().playerID == _playerId)
+            {
+                player = entity.get();
+                break;
+            }
     }
 
     if (!player)
@@ -165,7 +163,6 @@ void TickSystem::saveSnapshot(EntityManager &entityManager)
         }
     }
 
-    std::cout << "new snap " << currentTick << std::endl;
     snapshotHistory.push_back(snapshot);
 }
 
@@ -201,12 +198,10 @@ bool TickSystem::statesDiffer(GameSnapshot &clientSnapshot, EntityManager &serve
 
     if (dx > POSITION_TOLERANCE || dy > POSITION_TOLERANCE)
     {
-        std::cout << "❌  ROLLBACK NEEDED" << std::endl;
         std::cout << "Position differs: dx=" << dx << " dy=" << dy << std::endl;
         return true;
     }
 
-    std::cout << "✅ NO ROLLBACK NEEDED" << std::endl;
     return false;
 }
 

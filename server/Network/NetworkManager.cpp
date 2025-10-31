@@ -45,13 +45,37 @@ NetworkManager::NetworkManager(GameMediator &ref)
 
 NetworkManager::~NetworkManager()
 {
+    if (_serverPubKey)
+        EVP_PKEY_free(_serverPubKey);
 }
 
-void NetworkManager::updateAllPoll()
+void NetworkManager::startNetworkLoops()
 {
-    _metrics.IncrementTick();
-    _UDPManager.update();
-    _TCPManager.update();
+    _shouldStop.store(false);
+
+    _tcpThread = std::thread([this]() {
+        while (!_shouldStop.load())
+        {
+            _TCPManager.update();
+        }
+    });
+
+    _udpThread = std::thread([this]() {
+        while (!_shouldStop.load())
+        {
+            _UDPManager.update();
+        }
+    });
+}
+
+void NetworkManager::stopNetworkLoops()
+{
+    _shouldStop.store(true);
+
+    if (_tcpThread.joinable())
+        _tcpThread.join();
+    if (_udpThread.joinable())
+        _udpThread.join();
 }
 
 void NetworkManager::addNewPlayer(int socket)
@@ -59,7 +83,6 @@ void NetworkManager::addNewPlayer(int socket)
     // std::cout << "NEW SOCKETTT" << socket << std::endl;
 }
 
-// Vérifier si l'adresse est valide (sin_family initialisé)
 void NetworkManager::sendDataAllClientUDP(std::string data, int opcode)
 {
     auto map = _clientManager.getClientsMap();
@@ -70,7 +93,6 @@ void NetworkManager::sendDataAllClientUDP(std::string data, int opcode)
         // Ne pas envoyer si l'adresse UDP n'est pas encore configurée
         sockaddr_in addr = c.second.getTrueAddr();
 
-        // Vérifier si l'adresse est valide (sin_family initialisé)
         if (addr.sin_family == AF_INET && addr.sin_port != 0)
         {
             clientAddrs.push_back(addr);
@@ -133,9 +155,13 @@ void NetworkManager::sendDataToLobbyUDP(std::shared_ptr<Lobby> lobby, const std:
             continue;
 
         sockaddr_in addr = clientOpt->getTrueAddr();
-        if (addr.sin_family == AF_INET && addr.sin_port != 0)
+        if (addr.sin_family == AF_INET && addr.sin_port != 0) {
             validAddrs.push_back(addr);
-        else
+
+            uint32_t seq = ++_udpSequenceNumbers[fd];
+            std::string payloadWithSeq(reinterpret_cast<const char*>(&seq), sizeof(uint32_t));
+            payloadWithSeq += data;
+        } else
             std::cout << "[UDP] Skipping client " << fd << " (UDP not authenticated yet)\n";
     }
 
@@ -151,7 +177,6 @@ void NetworkManager::sendDataToLobbyUDPExcept(std::shared_ptr<Lobby> lobby, cons
 
     for (int fd : players)
     {
-        // ✅ Sauter l'émetteur
         if (fd == excludeClientFd)
         {
             std::cout << "[UDP] Skipping sender client fd: " << fd << std::endl;
@@ -163,8 +188,12 @@ void NetworkManager::sendDataToLobbyUDPExcept(std::shared_ptr<Lobby> lobby, cons
             continue;
 
         sockaddr_in addr = clientOpt->getTrueAddr();
-        if (addr.sin_family == AF_INET && addr.sin_port != 0)
+        if (addr.sin_family == AF_INET && addr.sin_port != 0) {
+            uint32_t seq = ++_udpSequenceNumbers[fd];
+            std::string payloadWithSeq(reinterpret_cast<const char*>(&seq), sizeof(uint32_t));
+            payloadWithSeq += data;
             validAddrs.push_back(addr);
+        }
         else
             std::cout << "[UDP] Skipping client " << fd << " (UDP not authenticated yet)\n";
     }

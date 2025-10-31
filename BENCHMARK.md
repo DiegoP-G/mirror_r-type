@@ -192,3 +192,62 @@ While **LZ4** is faster, its weaker compression led to larger payloads and no re
 **Zlib** gives us smaller packets, reliable results, and consistent performance across all types of game data.
 
 ---
+
+## **Encryption Library Benchmark**
+
+| Criteria                  | OpenSSL            | GnuTLS             | WolfSSL            | mbedTLS           |
+| :------------------------ | :----------------- | :----------------- | :----------------- | :---------------- |
+| Performance               | :star::star::star::star: | :star::star::star:    | :star::star::star:    | :star::star:      |
+| Security Features         | :star::star::star::star: | :star::star::star:    | :star::star:          | :star::star:      |
+| Cross-platform Support    | :star::star::star::star: | :star::star::star:    | :star::star::star:    | :star::star::star: |
+| Resource Usage            | :star::star::star:    | :star::star:          | :star::star::star:    | :star::star::star: |
+| Documentation & Community | :star::star::star::star: | :star::star:          | :star::star:          | :star::star:      |
+| Ease of Integration       | :star::star::star:    | :star::star:          | :star::star::star:    | :star::star::star: |
+
+---
+
+### **Description of Criteria**
+
+**1. Performance**
+- **OpenSSL** is highly optimized for performance, especially for modern CPUs with hardware acceleration (e.g., AES-NI). It is widely used in high-performance applications like web servers and VPNs.
+- **GnuTLS** offers good performance but is slightly slower than OpenSSL in benchmarks for common algorithms like AES and RSA.
+- **WolfSSL** is lightweight and optimized for embedded systems, but its performance is slightly lower than OpenSSL for general-purpose use.
+- **mbedTLS** is designed for resource-constrained environments, so it sacrifices some performance for portability.
+
+**2. Security Features**
+- **OpenSSL** supports a wide range of cryptographic algorithms, including modern ciphers like ChaCha20-Poly1305, and provides robust TLS/SSL support.
+- **GnuTLS** also supports a broad range of algorithms but has fewer advanced features compared to OpenSSL.
+- **WolfSSL** focuses on embedded systems and supports a smaller set of algorithms, making it less versatile for general-purpose applications.
+- **mbedTLS** is lightweight and secure but lacks some of the advanced features found in OpenSSL.
+
+**3. Cross-platform Support**
+- **OpenSSL** is highly portable and works on almost all platforms, including Linux, Windows, macOS, and embedded systems.
+- **GnuTLS** is primarily focused on Linux and Unix-like systems but can be ported to other platforms with some effort.
+- **WolfSSL** and **mbedTLS** are both designed for embedded systems and are portable across a wide range of platforms.
+
+**4. Resource Usage**
+- **OpenSSL** is resource-efficient for general-purpose use but may be overkill for embedded systems.
+- **GnuTLS** has a slightly larger memory footprint compared to OpenSSL.
+- **WolfSSL** and **mbedTLS** are both lightweight and designed for low-resource environments, making them ideal for IoT and embedded devices.
+
+**5. Documentation & Community**
+- **OpenSSL** has extensive documentation and a large, active community, making it easy to find support and resources.
+- **GnuTLS** has less comprehensive documentation and a smaller community.
+- **WolfSSL** and **mbedTLS** have smaller communities and less extensive documentation, but they are well-supported for their target use cases.
+
+**6. Ease of Integration**
+- **OpenSSL** can be complex to integrate due to its extensive feature set and API complexity.
+- **GnuTLS** is simpler to use but less flexible than OpenSSL.
+- **WolfSSL** and **mbedTLS** are both designed for ease of integration in embedded systems, with simpler APIs and smaller codebases.
+
+---
+
+### **Conclusion**
+
+We chose **OpenSSL** for its:
+- High performance and optimization for modern hardware.
+- Comprehensive security features and support for a wide range of cryptographic algorithms.
+- Robust cross-platform support and active community.
+
+While **WolfSSL** and **mbedTLS** are excellent choices for embedded systems, and **GnuTLS** is a good alternative for Linux-based applications, **OpenSSL** remains the best choice for a high-performance, general-purpose encryption library in our project.
+

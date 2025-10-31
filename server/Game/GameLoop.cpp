@@ -17,12 +17,6 @@ void Orchestrator::GameLoop::loop()
 {
     _gameMediator.notify(GameMediatorEvent::SetupNetwork);
 
-    const double tickRate = 60.0; // 60 TPS
-    const std::chrono::duration<double> tickDuration(1.0 / tickRate);
-    auto previousTime = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> accumulatedTime(0);
-    // _gameMediator.notify(GameMediatorEvent::InitECS, "");
-
     AdministratorPanel adminPanel(_gameMediator.getNetworkManager());
     adminPanel.setClientManager(_gameMediator.getNetworkManager().getClientManager());
     adminPanel.setLobbyManager(_gameMediator.getLobbyManager());
@@ -40,26 +34,28 @@ void Orchestrator::GameLoop::loop()
         }
     });
 
-    // _gameMediator.notify(GameMediatorEvent::CreateLobby);
+    _gameMediator.getNetworkManager().startNetworkLoops();
+
+    const double tickRate = 60.0; // 60 TPS
+    const std::chrono::duration<double> tickDuration(1.0 / tickRate);
+    auto previousTime = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> accumulatedTime(0);
 
     while (true)
     {
-        _gameMediator.notify(GameMediatorEvent::TickNetwork);
-
         auto currentTime = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> frameTime = currentTime - previousTime;
+        accumulatedTime += currentTime - previousTime;
         previousTime = currentTime;
-
-        accumulatedTime += frameTime;
 
         while (accumulatedTime >= tickDuration)
         {
             double deltaTime = tickDuration.count(); // 1/60 s
             // _gameMediator.notify(GameMediatorEvent::TickLogic, std::to_string(deltaTime));
-
             accumulatedTime -= tickDuration;
         }
     }
 
-    // adminPanelThread.join();
+    _gameMediator.getNetworkManager().stopNetworkLoops();
+
+    adminPanelThread.join();
 }

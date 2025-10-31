@@ -60,8 +60,6 @@ class RTypeServer
   public:
     RTypeServer(GameMediator &mediator, std::string &lobbyUID) : mediator(mediator), _lobbyUID(lobbyUID)
     {
-        std::cout << "ffff" << std::endl;
-        std::cout << _lobbyUID << std::endl;
     }
 
     void removePlayer(int id);

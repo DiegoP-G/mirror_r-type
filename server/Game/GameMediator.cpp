@@ -30,9 +30,6 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
     _mediatorMap = {
         {GameMediatorEvent::SetupNetwork, [this](const std::string &, const std::string &, int) -> void {}},
 
-        {GameMediatorEvent::TickNetwork,
-         [this](const std::string &, const std::string &, int) -> void { _networkManager.updateAllPoll(); }},
-
         {GameMediatorEvent::EntitiesCreated,
          [this](const std::string &data, const std::string &lobbyUid, int) -> void {
              auto lobby = _lobbyManager.getLobby(lobbyUid);
@@ -63,7 +60,6 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
                  std::cerr << "[PlayerInput] Player not in a lobby.\n";
                  return;
              }
-             std::cout << "HERE" << data << std::endl;
              std::unique_ptr<RTypeServer> &rtype = lobby->getRTypeServer();
              rtype->handlePlayerInput(data);
          }},

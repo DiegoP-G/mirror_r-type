@@ -130,6 +130,10 @@ sf::Texture *GraphicsManager::getTexture(int tex)
         return getTexture("bonus_firemode");
     case BOSS:
         return getTexture("boss");
+    case ROTATING_ENEMY:
+        return getTexture("rotating_enemy");
+    case PURPLE_ENEMY:
+        return getTexture("purple_enemy");
     default:
         return nullptr;
     }
@@ -144,9 +148,14 @@ void GraphicsManager::drawTexture(const sf::Texture &texture, float x, float y, 
     window.draw(sprite);
 }
 
-void GraphicsManager::drawRect(float x, float y, float w, float h, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a)
+void GraphicsManager::drawRect(float x, float y, float w, float h, sf::Uint8 r, sf::Uint8 g, sf::Uint8 b, sf::Uint8 a,
+                               bool centered)
 {
     sf::RectangleShape rect(sf::Vector2f((float)w, (float)h));
+    if (centered)
+    {
+        rect.setOrigin(w / 2, h / 2);
+    }
     rect.setPosition((float)x, (float)y);
     rect.setFillColor(sf::Color(r, g, b, a));
 
@@ -414,7 +423,7 @@ void GraphicsManager::initLobbyMenuUI()
 
     // Join game Button
     joinGameButton.setSize(sf::Vector2f(250, 60));
-    joinGameButton.setFillColor(sf::Color(70, 130, 180));
+    joinGameButton.setFillColor(sf::Color(50, 160, 150));
     joinGameButton.setPosition(window.getSize().x / 2.0f - 125, 500);
 
     joinGameButtonText.setFont(font);
@@ -513,11 +522,8 @@ void GraphicsManager::showErrorMessage(const std::string &message)
 
 void GraphicsManager::updateErrorMessage()
 {
-    // Check if we need to show an error message
-    // printf("show error: %d\n", _showError);
     if (_showError)
     {
-        // Create a background rectangle
         sf::RectangleShape errorBackground;
         errorBackground.setSize(sf::Vector2f(600, 100));
         errorBackground.setFillColor(sf::Color(200, 0, 0, 220)); // Semi-transparent red
@@ -529,17 +535,13 @@ void GraphicsManager::updateErrorMessage()
         float bgY = (windowHeight - errorBackground.getSize().y) / 2;
         errorBackground.setPosition(bgX, bgY);
 
-        // Draw the background
         window.draw(errorBackground);
 
-        // Draw the error text
         sf::Text errorText;
         errorText.setFont(font);
         errorText.setString(_errorMessage);
         errorText.setCharacterSize(20);
         errorText.setFillColor(sf::Color::White);
-
-        // Center the text on the background
         sf::FloatRect textBounds = errorText.getLocalBounds();
         float textX = bgX + (errorBackground.getSize().x - textBounds.width) / 2;
         float textY = bgY + (errorBackground.getSize().y - textBounds.height) / 2 - 10;
@@ -571,7 +573,6 @@ void GraphicsManager::updateErrorMessage()
             }
             if (_showError && (event.type == sf::Event::KeyPressed || event.type == sf::Event::MouseButtonPressed))
             {
-                printf("SHOW ERROR: FALSE\n");
                 _showError = false;
                 break;
             }

@@ -23,6 +23,7 @@
 #include "../../Prometheus/PrometheusServer.hpp"
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 class NetworkManager;
@@ -37,14 +38,19 @@ class UDPManager
     int _udpFd;
     std::vector<struct pollfd> _pollFds;
 #endif
+
     NetworkManager &_NetworkManagerRef;
     PrometheusServer &_metrics;
     sockaddr_in _addr;
 
+    std::unordered_map<int, std::vector<std::pair<sockaddr_in, std::string>>> _udpWriteBuffers;
+
   public:
     UDPManager(NetworkManager &ref, PrometheusServer &metrics);
     ~UDPManager();
+
     void update();
     void sendTo(const std::vector<sockaddr_in> &addrs, int opcode, const std::string &data);
+    void queueSend(const sockaddr_in &addr, const std::string &data);
     void handleReceival(uint8_t opcode, const std::string &data);
 };

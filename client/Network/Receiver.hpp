@@ -24,6 +24,7 @@
 #include <unordered_map>
 
 class NetworkECSMediator;
+class RTypeGame;
 
 class Receiver
 {
@@ -60,6 +61,9 @@ class Receiver
 
     void receiveTCPMessage();
     void receiveUDPMessage();
+
+    // std::tuple<uint8_t, std::string> receiveFrameUDPPacketLossCount(SOCKET sockfd, struct sockaddr_in &addr,
+    // socklen_t &addrlen);
 
     void setTcpSocket(int socket)
     {

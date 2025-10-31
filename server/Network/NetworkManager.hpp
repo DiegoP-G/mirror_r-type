@@ -48,6 +48,11 @@ class NetworkManager
     EVP_PKEY *_serverPubKey;
     // Key first, IV second
     std::unordered_map<int, std::pair<std::vector<uint8_t>, std::vector<uint8_t>>> _aesKeyIVMap;
+    std::unordered_map<int, uint32_t> _udpSequenceNumbers;
+    std::thread _tcpThread;
+    std::thread _udpThread;
+    std::atomic<bool> _shouldStop{false};
+    
 
   public:
     NetworkManager(GameMediator &ref);
@@ -62,8 +67,6 @@ class NetworkManager
     {
         return _gameMediator;
     }
-
-    void updateAllPoll();
 
     // SENF DATA TO ECS
 
@@ -80,6 +83,8 @@ class NetworkManager
     void sendDataToLobbyUDPExcept(std::shared_ptr<Lobby> lobby, const std::string &data, int opcode,
                                   int excludeClientFd);
 
+    void stopNetworkLoops();
+    void startNetworkLoops();
     TCPManager &getTCPManager()
     {
         return _TCPManager;

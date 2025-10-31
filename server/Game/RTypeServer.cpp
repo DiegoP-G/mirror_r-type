@@ -151,7 +151,6 @@ void RTypeServer::update(float deltaTime)
         entityManager.applyPendingChanges();
     }
 
-    // // 4. Envoyer les updates de mouvement (toutes les entités actives)
     sendEntitiesUpdates();
     sendGameStateUpdates();
     std::cout << "Finishing update states" << std::endl;
@@ -230,11 +229,9 @@ void RTypeServer::sendDestroyedEntities()
 
     for (EntityID id : manager.getEntitiesToDestroy())
     {
-        std::cout << "--DESTROY id " << id << std::endl;
         auto data = serializeInt(id);
         if (entityManager.getEntityByID(id)->hasComponent<BackgroundScrollComponent>())
         {
-            std::cout << "destroy bk " << id << std::endl;
         }
         if (entityManager.getEntityByID(id)->hasComponent<EnemyComponent>())
             mediator.notify(GameMediatorEvent::Explosion, "", _lobbyUID);

@@ -12,94 +12,107 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
 if (WIN32)
     add_compile_definitions(NOMINMAX)
 endif()
-
 # ============================================================
 #                         VCPKG AUTO-INSTALL
 # ============================================================
-set(VCPKG_ROOT "${CMAKE_SOURCE_DIR}/vcpkg")
 
-if(NOT EXISTS "${VCPKG_ROOT}/vcpkg.exe" AND NOT EXISTS "${VCPKG_ROOT}/vcpkg")
-    message(STATUS "Cloning vcpkg...")
-    execute_process(
-        COMMAND git clone https://github.com/microsoft/vcpkg.git "${VCPKG_ROOT}"
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-        RESULT_VARIABLE GIT_CLONE_RESULT
-    )
-    if(NOT GIT_CLONE_RESULT EQUAL 0)
-        message(FATAL_ERROR "Failed to clone vcpkg")
-    endif()
-    
-    message(STATUS "Bootstrapping vcpkg...")
-    if(WIN32)
-        execute_process(
-            COMMAND cmd /c bootstrap-vcpkg.bat 
-            WORKING_DIRECTORY "${VCPKG_ROOT}"
-            RESULT_VARIABLE BOOTSTRAP_RESULT
-        )
-    else()
-        execute_process(
-            COMMAND bash bootstrap-vcpkg.sh 
-            WORKING_DIRECTORY "${VCPKG_ROOT}"
-            RESULT_VARIABLE BOOTSTRAP_RESULT
-        )
-    endif()
-    
-    if(NOT BOOTSTRAP_RESULT EQUAL 0)
-        message(FATAL_ERROR "Failed to bootstrap vcpkg")
-    endif()
-endif()
-
-# Configure vcpkg toolchain BEFORE any find_package calls
 if(WIN32)
-    set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
-    set(VCPKG_TARGET_TRIPLET "x64-windows" CACHE STRING "Vcpkg target triplet")
-    set(VCPKG_EXECUTABLE "${VCPKG_ROOT}/vcpkg.exe")
-else()
-    set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
-    set(VCPKG_TARGET_TRIPLET "x64-linux" CACHE STRING "Vcpkg target triplet")
-    set(VCPKG_EXECUTABLE "${VCPKG_ROOT}/vcpkg")
-endif()
+    set(VCPKG_ROOT "${CMAKE_SOURCE_DIR}/vcpkg")
 
-# Install OpenSSL via vcpkg if not already installed
-set(VCPKG_INSTALLED_DIR "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}")
-if(NOT EXISTS "${VCPKG_INSTALLED_DIR}/include/openssl/ssl.h")
-    message(STATUS "Installing OpenSSL via vcpkg for ${VCPKG_TARGET_TRIPLET}...")
-    message(STATUS "This may take several minutes on first run...")
-    
-    execute_process(
-        COMMAND ${VCPKG_EXECUTABLE} install openssl:${VCPKG_TARGET_TRIPLET}
-        WORKING_DIRECTORY "${VCPKG_ROOT}"
-        RESULT_VARIABLE VCPKG_INSTALL_RESULT
-        OUTPUT_VARIABLE VCPKG_OUTPUT
-        ERROR_VARIABLE VCPKG_ERROR
-    )
-    
-    if(NOT VCPKG_INSTALL_RESULT EQUAL 0)
-        message(FATAL_ERROR 
-            "Failed to install OpenSSL via vcpkg.\n"
-            "Output: ${VCPKG_OUTPUT}\n"
-            "Error: ${VCPKG_ERROR}\n"
-            "\nOn Linux, make sure you have installed:\n"
-            "  - Fedora/RHEL: kernel-headers perl perl-IPC-Cmd\n"
-            "  - Ubuntu/Debian: linux-libc-dev perl libmodule-install-perl\n"
-            "  - Alpine: linux-headers perl perl-ipc-cmd\n"
+    if(NOT EXISTS "${VCPKG_ROOT}/vcpkg.exe" AND NOT EXISTS "${VCPKG_ROOT}/vcpkg")
+        message(STATUS "Cloning vcpkg...")
+        execute_process(
+            COMMAND git clone https://github.com/microsoft/vcpkg.git "${VCPKG_ROOT}"
+            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+            RESULT_VARIABLE GIT_CLONE_RESULT
         )
+        if(NOT GIT_CLONE_RESULT EQUAL 0)
+            message(FATAL_ERROR "Failed to clone vcpkg")
+        endif()
+        
+        message(STATUS "Bootstrapping vcpkg...")
+        if(WIN32)
+            execute_process(
+                COMMAND cmd /c bootstrap-vcpkg.bat 
+                WORKING_DIRECTORY "${VCPKG_ROOT}"
+                RESULT_VARIABLE BOOTSTRAP_RESULT
+            )
+        endif()
+        
+        if(NOT BOOTSTRAP_RESULT EQUAL 0)
+            message(FATAL_ERROR "Failed to bootstrap vcpkg")
+        endif()
     endif()
-    message(STATUS "✓ OpenSSL installed successfully via vcpkg")
-endif()
 
+    if(WIN32)
+        set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
+        set(VCPKG_TARGET_TRIPLET "x64-windows" CACHE STRING "Vcpkg target triplet")
+        set(VCPKG_EXECUTABLE "${VCPKG_ROOT}/vcpkg.exe")
+    endif()
+
+    set(VCPKG_INSTALLED_DIR "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}")
+    if(NOT EXISTS "${VCPKG_INSTALLED_DIR}/include/openssl/ssl.h")
+        message(STATUS "Installing OpenSSL via vcpkg for ${VCPKG_TARGET_TRIPLET}...")
+        message(STATUS "This may take several minutes on first run...")
+        
+        execute_process(
+            COMMAND ${VCPKG_EXECUTABLE} install openssl:${VCPKG_TARGET_TRIPLET}
+            WORKING_DIRECTORY "${VCPKG_ROOT}"
+            RESULT_VARIABLE VCPKG_INSTALL_RESULT
+            OUTPUT_VARIABLE VCPKG_OUTPUT
+         
+           ERROR_VARIABLE VCPKG_ERROR
+        )
+        
+        if(NOT VCPKG_INSTALL_RESULT EQUAL 0)
+            message(FATAL_ERROR 
+                "Failed to install OpenSSL via vcpkg.\n"
+                "Output: ${VCPKG_OUTPUT}\n"
+                "Error: ${VCPKG_ERROR}\n"
+
+            )
+        endif()
+        message(STATUS "OpenSSL installed successfully via vcpkg")
+    endif()
+else()
+    set(VCPKG_ROOT "${CMAKE_SOURCE_DIR}/vcpkg")
+
+    if(NOT EXISTS "${VCPKG_ROOT}/vcpkg.exe" AND NOT EXISTS "${VCPKG_ROOT}/vcpkg")
+        message(STATUS "Cloning vcpkg...")
+        execute_process(
+            COMMAND git clone https://github.com/microsoft/vcpkg.git "${VCPKG_ROOT}"
+            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+            RESULT_VARIABLE GIT_CLONE_RESULT
+        )
+        if(NOT GIT_CLONE_RESULT EQUAL 0)
+            message(FATAL_ERROR "Failed to clone vcpkg")
+        endif()
+        if(WIN32)
+            execute_process(COMMAND cmd /c bootstrap-vcpkg.bat WORKING_DIRECTORY "${VCPKG_ROOT}")
+        else()
+            execute_process(COMMAND ./bootstrap-vcpkg.sh WORKING_DIRECTORY "${VCPKG_ROOT}")
+        endif()
+    endif()
+endif()
 include(FetchContent)
 
 # ---- OpenSSL (found via vcpkg) ----
+
+if (WIN32)
+    set(OPENSSL_ROOT_DIR "${CMAKE_SOURCE_DIR}/vcpkg/installed/x64-windows")
+    set(OPENSSL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/vcpkg/installed/x64-windows/include")
+endif()
+
 find_package(OpenSSL REQUIRED)
 if(OPENSSL_FOUND)
-    message(STATUS "✓ OpenSSL found!")
+    message(STATUS "✓ OpenSSL trouvé!")
     message(STATUS "  - Version: ${OPENSSL_VERSION}")
     message(STATUS "  - Include: ${OPENSSL_INCLUDE_DIR}")
     message(STATUS "  - Libraries: ${OPENSSL_LIBRARIES}")
 else()
-    message(FATAL_ERROR "✗ OpenSSL not found!")
+    message(FATAL_ERROR "✗ OpenSSL non trouvé!")
 endif()
+
 
 # ---- PortAudio ----
 FetchContent_Declare(

@@ -35,3 +35,13 @@ CMakeSettings*
 .vs
 *.sqlite
 vcpkg
+cloudflare-quiche
+fuzz
+gost-engine
+krb5
+oqs-provider
+pyca-cryptography
+python-ecdsa
+tlsfuzzer
+tlslite-ng
+wycheproof

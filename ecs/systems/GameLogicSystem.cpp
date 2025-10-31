@@ -10,6 +10,7 @@
 
 GameLogicSystem::GameLogicSystem() : rng(std::random_device{}())
 {
+    std::srand(std::time(nullptr));
     waveActive = false;
     waveTimer = 0.0f;
 }
@@ -64,7 +65,7 @@ Wave GameLogicSystem::generateRandomWave(int currentWave)
 {
     Wave wave;
     // Boss wave
-    if (currentWave != 0 && currentWave % 5 == 0)
+    if (currentWave != 0 && (currentWave + 1) % 5 == 0)
     {
         wave.enemyCount = 1;
         wave.enemyType = "boss";
@@ -73,7 +74,10 @@ Wave GameLogicSystem::generateRandomWave(int currentWave)
     else
     {
         wave.enemyCount = rand() % 4 + 3;
-        wave.enemyType = "basic_enemy";
+        std::vector<std::string> enemyTypes = {"basic_enemy", "rotating_enemy", "purple_enemy"};
+        wave.enemyType = enemyTypes[rand() % enemyTypes.size()];
+
+        wave.pattern = generateRandomPattern();
         wave.pattern = generateRandomPattern();
     }
     return wave;
@@ -174,7 +178,6 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
     float randY = rand() % ((windowHeight - 30) - 10 + 1) + 30;
 
     float randX = cx;
-    std::cout << "SPWAN BONUS on " << randX << "  " << randY << std::endl;
 
     bonusLife.addComponent<TransformComponent>(randX, randY);
     bonusLife.addComponent<VelocityComponent>(-230.0f, 0.0f);
