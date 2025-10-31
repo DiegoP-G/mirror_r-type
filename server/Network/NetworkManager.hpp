@@ -48,10 +48,11 @@ class NetworkManager
     EVP_PKEY *_serverPubKey;
     // Key first, IV second
     std::unordered_map<int, std::pair<std::vector<uint8_t>, std::vector<uint8_t>>> _aesKeyIVMap;
-
+    std::unordered_map<int, uint32_t> _udpSequenceNumbers;
     std::thread _tcpThread;
     std::thread _udpThread;
     std::atomic<bool> _shouldStop{false};
+    
 
   public:
     NetworkManager(GameMediator &ref);
