@@ -189,6 +189,11 @@ class RTypeGame
 
     void setCurrentState(GameState newState);
 
+    GameState getCurrentState()
+    {
+        return _state;
+    }
+
     void drawHitbox();
     void setKickState()
     {

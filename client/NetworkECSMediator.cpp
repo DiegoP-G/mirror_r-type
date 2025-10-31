@@ -285,6 +285,11 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager *networkManager) : _networ
 
                  if (_game)
                  {
+                     if (_game->getCurrentState() == GameState::GAMEOVER)
+                        {
+                            _game->getMutex().unlock();
+                            break;
+                        }
                      _game->setCurrentState(static_cast<GameState>(state));
                  }
                  _game->getMutex().unlock();
@@ -354,7 +359,7 @@ void NetworkECSMediator::setupVoiceChat(int deviceIndex)
 {
     if (!_voiceManager)
     {
-        std::cerr << "[Voice] ❌ VoiceManager not initialized!" << std::endl;
+        std::cerr << "[Voice] VoiceManager not initialized!" << std::endl;
         return;
     }
     if (voiceChatEnabled)
@@ -376,25 +381,24 @@ void NetworkECSMediator::stopVoiceChat()
     {
         _voiceManager->stopRecording();
         voiceChatEnabled = false;
-        std::cout << "[Voice] ✓ Voice chat disabled" << std::endl;
+        std::cout << "[Voice] Voice chat disabled" << std::endl;
     }
     else
     {
-        std::cerr << "[Voice] ⚠ VoiceManager not available for stopping" << std::endl;
+        std::cerr << "[Voice]  VoiceManager not available for stopping" << std::endl;
     }
 }
 void NetworkECSMediator::receiveEntitiesUpdates(const std::vector<uint8_t> &data)
 {
     size_t offset = 0;
 
-    // 1. Lire le tick serveur
     uint32_t serverTick = *reinterpret_cast<const uint32_t *>(&data[offset]);
     offset += sizeof(uint32_t);
 
     // if (_game->getTickSystem().lastServerTick < serverTick)
     //     _game->getTickSystem().lastServerTick = serverTick;
 
-    EntityManager serverEM; // état serveur temporaire
+    EntityManager serverEM;
 
     uint16_t moveSize = *reinterpret_cast<const uint16_t *>(&data[offset]);
     offset += sizeof(uint16_t);
@@ -426,27 +430,21 @@ void NetworkECSMediator::deserializeMovements(const std::vector<uint8_t> &data, 
     std::memcpy(&entityCount, data.data() + offset, sizeof(uint32_t));
     offset += sizeof(uint32_t);
 
-    // Pour chaque entité
     for (uint32_t i = 0; i < entityCount && offset < data.size(); ++i)
     {
-        // Lire EntityID
         EntityID id;
         std::memcpy(&id, data.data() + offset, sizeof(EntityID));
         offset += sizeof(EntityID);
 
-        // Trouver l'entité correspondante
         Entity *entity = _game->getEntityManager().getEntityByID(id);
         if (!entity)
         {
-            // Ignorer les données de cette entité
-            offset += 2 * sizeof(Vector2D); // position + velocity
+            offset += 2 * sizeof(Vector2D);
             continue;
         }
-        // Lire position
         Vector2D position = Vector2D::deserialize(data.data() + offset, sizeof(Vector2D));
         offset += sizeof(Vector2D);
 
-        // Lire velocity
         Vector2D velocity = Vector2D::deserialize(data.data() + offset, sizeof(Vector2D));
         offset += sizeof(Vector2D);
 
@@ -472,7 +470,6 @@ void NetworkECSMediator::deserializeMovements(const std::vector<uint8_t> &data, 
             continue;
         }
 
-        // Mettre à jour les composants
         if (entity->hasComponent<TransformComponent>())
         {
             auto &transform = entity->getComponent<TransformComponent>();
