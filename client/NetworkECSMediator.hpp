@@ -63,6 +63,10 @@ class NetworkECSMediator
         return *_voiceManager;
     }
 
+    RTypeGame *getRTypeGame()
+    {
+        return _game;
+    }
     void reset()
     {
         _sender = nullptr;

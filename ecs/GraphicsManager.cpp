@@ -522,10 +522,8 @@ void GraphicsManager::showErrorMessage(const std::string &message)
 
 void GraphicsManager::updateErrorMessage()
 {
-    // Check if we need to show an error message
     if (_showError)
     {
-        // Create a background rectangle
         sf::RectangleShape errorBackground;
         errorBackground.setSize(sf::Vector2f(600, 100));
         errorBackground.setFillColor(sf::Color(200, 0, 0, 220)); // Semi-transparent red
@@ -537,17 +535,13 @@ void GraphicsManager::updateErrorMessage()
         float bgY = (windowHeight - errorBackground.getSize().y) / 2;
         errorBackground.setPosition(bgX, bgY);
 
-        // Draw the background
         window.draw(errorBackground);
 
-        // Draw the error text
         sf::Text errorText;
         errorText.setFont(font);
         errorText.setString(_errorMessage);
         errorText.setCharacterSize(20);
         errorText.setFillColor(sf::Color::White);
-
-        // Center the text on the background
         sf::FloatRect textBounds = errorText.getLocalBounds();
         float textX = bgX + (errorBackground.getSize().x - textBounds.width) / 2;
         float textY = bgY + (errorBackground.getSize().y - textBounds.height) / 2 - 10;

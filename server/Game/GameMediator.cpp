@@ -60,7 +60,6 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
                  std::cerr << "[PlayerInput] Player not in a lobby.\n";
                  return;
              }
-             std::cout << "HERE" << data << std::endl;
              std::unique_ptr<RTypeServer> &rtype = lobby->getRTypeServer();
              rtype->handlePlayerInput(data);
          }},

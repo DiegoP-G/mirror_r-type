@@ -166,7 +166,6 @@ void CollisionSystem::onPlayerHitBonus(Entity *player, Entity *bonus)
     auto &playerComp = player->getComponent<PlayerComponent>();
     playerComp.bonusPicked = true;
 
-    std::cout << "BONUS DESTROYED HIHI\n";
     bonus->destroy();
 }
 
