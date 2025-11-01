@@ -555,7 +555,7 @@ void RTypeGame::render()
 
         std::string waveText = "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
         g_graphics->drawText(waveText, windowWidth - 100, 10);
-        drawHitbox();
+        // drawHitbox();
         if (getPacketLoss())
         {
             g_graphics->drawText("Packet Loss Detected!", windowWidth / 2 - 100, 10, 255, 0, 0);

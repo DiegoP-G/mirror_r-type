@@ -70,15 +70,15 @@ Wave GameLogicSystem::generateRandomWave(int currentWave)
         wave.enemyCount = 1;
         wave.enemyType = "boss";
         wave.pattern = linePattern;
+        wave.movement = MOVEMENTTYPE::STATIC_UP_DOWN;
     }
     else
     {
-        wave.enemyCount = rand() % 4 + 3;
+        wave.enemyCount = rand() % 4 + 2;
         std::vector<std::string> enemyTypes = {"basic_enemy", "rotating_enemy", "purple_enemy"};
         wave.enemyType = enemyTypes[rand() % enemyTypes.size()];
-
         wave.pattern = generateRandomPattern();
-        wave.pattern = generateRandomPattern();
+        wave.movement = MOVEMENTTYPE::ONLY_LEFT;
     }
     return wave;
 }
@@ -92,40 +92,6 @@ PatternFunc GameLogicSystem::generateRandomPattern()
 int GameLogicSystem::getScore() const
 {
     return score;
-}
-
-void GameLogicSystem::spawnLaser1(EntityManager &entityManager)
-{
-    for (size_t i = 0; i < 8; i++)
-    {
-        float width = 900.0f;
-        float height = 50.0f;
-        float x = 450.0f;
-        float y = 0.0f;
-        float waitingTime = 0.0f;
-        if (i < 3)
-        {
-            y = 100.0f + i % 3 * 200;
-            waitingTime = 3.0f;
-        }
-        else if (i < 6)
-        {
-            y = 100.0f + i % 3 * 200;
-            waitingTime = 14.0f;
-        }
-        else
-        {
-            y = 200.0f + i % 3 * 200;
-            waitingTime = 8.5f;
-        }
-
-        auto &laser = entityManager.createEntity();
-        laser.addComponent<TransformComponent>(width / 2, y);
-        laser.addComponent<CenteredComponent>(width / 2, height / 2);
-        laser.addComponent<SpriteComponent>(width, height, 255, 0, 0);
-        laser.addComponent<ColliderComponent>(width, height, false);
-        laser.addComponent<LaserWarningComponent>(width, height, waitingTime, 1.5f, 3.0f);
-    }
 }
 
 void GameLogicSystem::updateScore(EntityManager &entityManager)
@@ -150,9 +116,16 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
     std::vector<Vector2D> positions = wave.pattern(wave.enemyCount, cx, cy);
     SHOOTINGTYPE shootingType;
 
-    if (positions.size() <= 3)
+    if (wave.enemyType == "boss")
     {
-        shootingType = (rand() % 2 == 0) ? SHOOTINGTYPE::SINUS : SHOOTINGTYPE::THREE_DISPERSED;
+        shootingType = SHOOTINGTYPE::CIRCLE;
+        positions[0].x -= 140;
+    }
+    else if (positions.size() <= 3)
+    {
+        std::vector<SHOOTINGTYPE> possibility{SHOOTINGTYPE::SINUS, SHOOTINGTYPE::THREE_DISPERSED,
+                                              SHOOTINGTYPE::ALLDIRECTION};
+        shootingType = possibility[rand() % 2];
     }
     else if (positions.size() <= 5)
     {
@@ -166,22 +139,20 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
 
     for (const auto &pos : positions)
     {
-        EnemyFactory::createEnemy(entityManager, wave.enemyType, pos, shootingType);
+        EnemyFactory::createEnemy(entityManager, wave.enemyType, pos, shootingType, wave.movement);
     }
 
-    // === Spawn a bonus life entity ===
+    spawnBonus(entityManager, cx);
+}
+
+void GameLogicSystem::spawnBonus(EntityManager &entityManager, float cx)
+{
     auto &bonusLife = entityManager.createEntity();
-
-    // Random position inside the window (you had a syntax error here)
-    // float randX = static_cast<float>(rand() % static_cast<int>(windowWidth));
-
     float randY = rand() % ((windowHeight - 30) - 10 + 1) + 30;
-
     float randX = cx;
 
     bonusLife.addComponent<TransformComponent>(randX, randY);
     bonusLife.addComponent<VelocityComponent>(-230.0f, 0.0f);
-
     bonusLife.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_LIFE, 0.0, 0.0, 32, 32, 5, 0.1f,
                                                     0.0f, AnimatedSpriteComponent::SpritesheetLayout::Vertical);
     bonusLife.addComponent<ColliderComponent>(20.0f, 20.0f, true);
@@ -194,12 +165,10 @@ void GameLogicSystem::spawnWave(EntityManager &entityManager, const Wave &wave)
     {
         float randY = rand() % ((windowHeight - 30) - 10 + 1) + 30;
         float randX = cx + 50.0f;
-
         auto &bonusFiremode = entityManager.createEntity();
 
         bonusFiremode.addComponent<TransformComponent>(randX, randY);
         bonusFiremode.addComponent<VelocityComponent>(-230.0f, 0.0f);
-
         bonusFiremode.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BONUS_FIREMODE, 93, 0, 32, 32, 5,
                                                             0.1f, 0.0f,
                                                             AnimatedSpriteComponent::SpritesheetLayout::Vertical);
