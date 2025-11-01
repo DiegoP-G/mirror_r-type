@@ -558,7 +558,7 @@ void RTypeGame::render()
 
         std::string waveText = "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
         g_graphics->drawText(waveText, windowWidth - 100, 10);
-        drawHitbox();
+        // drawHitbox();
     }
     else if (_state == GameState::GAMEOVER)
     {

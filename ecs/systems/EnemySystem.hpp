@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../GraphicsManager.hpp"
+#include "../components/CircularMotionComponent.hpp"
 #include "../components/ColliderComponent.hpp"
 #include "../components/EnemyComponent.hpp"
 #include "../components/ProjectileComponent.hpp"
@@ -16,6 +17,15 @@ enum SHOOTINGTYPE
     STRAIGHT,
     THREE_DISPERSED,
     SINUS,
+    ALLDIRECTION,
+    CIRCLE,
+};
+
+enum MOVEMENTTYPE
+{
+    ONLY_LEFT,
+    SINE,
+    STATIC_UP_DOWN
 };
 
 struct bulletSpriteType

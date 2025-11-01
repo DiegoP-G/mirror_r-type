@@ -6,7 +6,7 @@ std::pair<float, float> computeHitbox(float width, float height, float scaleX, f
     float scaledWidth = width * scaleX;
     float scaledHeight = height * scaleY;
 
-    float radians = rotation * (M_PI / 180.0f); // Convert degrees to radians
+    float radians = rotation * (M_PI / 180.0f);
     float rotatedWidth = std::abs(scaledWidth * std::cos(radians)) + std::abs(scaledHeight * std::sin(radians));
     float rotatedHeight = std::abs(scaledWidth * std::sin(radians)) + std::abs(scaledHeight * std::cos(radians));
 
@@ -15,8 +15,8 @@ std::pair<float, float> computeHitbox(float width, float height, float scaleX, f
 
 std::tuple<float, float, float, float> computeHealthBar(const EnemyProperties &properties)
 {
-    float healthBarWidth = std::max(30.0f, properties.health * 0.2f); // Minimum width of 30
-    float healthBarHeight = 4.0f;                                     // Fixed height for the health bar
+    float healthBarWidth = std::max(30.0f, properties.health * 0.2f);
+    float healthBarHeight = 4.0f;
 
     float effectiveWidth = properties.width * properties.scaleX;
     float effectiveHeight = properties.height * properties.scaleY;
@@ -34,11 +34,10 @@ std::tuple<float, float, float, float> computeHealthBar(const EnemyProperties &p
 }
 
 void EnemyFactory::createEnemy(EntityManager &entityManager, std::string enemyType, const Vector2D &position,
-                               SHOOTINGTYPE shootingType)
+                               SHOOTINGTYPE shootingType, MOVEMENTTYPE movement)
 {
     auto &enemy = entityManager.createEntity();
-    // 0 for movement type : left
-    enemy.addComponent<EnemyComponent>(0, 1.0f, shootingType, 50);
+    enemy.addComponent<EnemyComponent>(movement, 1.0f, shootingType, 50);
 
     const EnemyProperties *properties = nullptr;
 
@@ -86,7 +85,10 @@ void EnemyFactory::createEnemy(EntityManager &entityManager, std::string enemyTy
             enemy.addComponent<HealthBarComponent>(healthBarWidth, healthBarHeight, 90, 0);
         }
         enemy.addComponent<TransformComponent>(position.x, position.y);
-        enemy.addComponent<VelocityComponent>(0.0f, 0.0f);
+        if (enemyType == "boss")
+            enemy.addComponent<VelocityComponent>(0.0f, -30.0f);
+        else
+            enemy.addComponent<VelocityComponent>(0.0f, 0.0f);
         enemy.addComponent<AnimatedSpriteComponent>(properties->texture, properties->top, properties->left,
                                                     properties->width, properties->height, properties->numFrames,
                                                     properties->interval, properties->rotation, properties->layout,

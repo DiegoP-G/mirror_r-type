@@ -9,5 +9,5 @@ class EnemyFactory
 {
   public:
     static void createEnemy(EntityManager &entityManager, std::string enemyType, const Vector2D &position,
-                            SHOOTINGTYPE shootingType);
+                            SHOOTINGTYPE shootingType, MOVEMENTTYPE movement);
 };

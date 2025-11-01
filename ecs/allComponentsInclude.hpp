@@ -3,6 +3,7 @@
 #include "components/AnimatedSpriteComponent.hpp"
 #include "components/BackgroundScrollComponent.hpp"
 #include "components/CenteredComponent.hpp"
+#include "components/CircularMotionComponent.hpp"
 #include "components/ColliderComponent.hpp"
 #include "components/EnemyComponent.hpp"
 #include "components/GameStateComponent.hpp"

@@ -28,6 +28,7 @@ struct Wave
     int enemyCount;
     std::string enemyType;
     PatternFunc pattern;
+    MOVEMENTTYPE movement;
 };
 
 class GameLogicSystem
@@ -51,10 +52,10 @@ class GameLogicSystem
     size_t currentWave = 0;
 
   private:
-    void spawnLaser1(EntityManager &entityManager);
     void updateScore(EntityManager &entityManager);
     void checkGameOverConditions(EntityManager &entityManager);
     void spawnWave(EntityManager &entityManager, const Wave &wave);
+    void spawnBonus(EntityManager &entityManager, float cx);
     Wave generateRandomWave(int currentWave);
     PatternFunc generateRandomPattern();
 };
