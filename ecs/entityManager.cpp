@@ -4,6 +4,7 @@
 #include "components/BackgroundScrollComponent.hpp"
 #include "components/BonusComponent.hpp"
 #include "components/CenteredComponent.hpp"
+#include "components/CircularMotionComponent.hpp"
 #include "components/ColliderComponent.hpp"
 #include "components/EnemyComponent.hpp"
 #include "components/GameStateComponent.hpp"
@@ -46,6 +47,8 @@ EntityManager::EntityManager()
     ComponentFactory::registerComponent<BonusComponent>();
     ComponentFactory::registerComponent<TextComponent>();
     ComponentFactory::registerComponent<ShieldComponent>();
+    ComponentFactory::registerComponent<TextComponent>();
+    ComponentFactory::registerComponent<CircularMotionComponent>();
 }
 
 std::vector<uint8_t> EntityManager::serializeEntityFull(EntityID id) const
