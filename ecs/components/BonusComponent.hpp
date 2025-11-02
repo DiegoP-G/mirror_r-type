@@ -9,6 +9,7 @@ class BonusComponent : public IComponent
     {
         HEALTH,
         FIREMODE,
+        SHIELD
     };
     BonusComponent(std::vector<std::tuple<TypeBonus, int>> bonus);
     void update(float deltaTime) override;

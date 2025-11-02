@@ -99,8 +99,8 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
             projectile.addComponent<VelocityComponent>(velocity.x, velocity.y);
 
             float angle = std::atan2(velocity.y, velocity.x) * (180.0f / M_PI) + 90.0f;
-            projectile.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, redBullet.left,
-                                                             redBullet.top, 9, 17, 1, 1, angle);
+            projectile.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, pinkBullet.left,
+                                                             pinkBullet.top, 9, 17, 1, 1, angle);
 
             projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
             projectile.addComponent<ProjectileComponent>(5.0f, 8.0f, enemy->getID(), ENTITY_TYPE::ENEMY);
@@ -113,8 +113,8 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
 
         Vector2D velocity1(-270.0f, 0.0f);
         projectile1.addComponent<VelocityComponent>(velocity1.x, velocity1.y, true, false);
-        projectile1.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, redBullet.left,
-                                                          redBullet.top, 9, 17, 1, 1, -90.0f);
+        projectile1.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, whiteBullet.left,
+                                                          whiteBullet.top, 9, 17, 1, 1, -90.0f);
         projectile1.addComponent<ColliderComponent>(10.0f, 5.0f);
         projectile1.addComponent<ProjectileComponent>(5.0f, 8.0f, enemy->getID(), ENTITY_TYPE::ENEMY);
 
@@ -123,8 +123,8 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
 
         Vector2D velocity2(-200.0f, 0.0f);
         projectile2.addComponent<VelocityComponent>(velocity2.x, velocity2.y, false, true);
-        projectile2.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, redBullet.left,
-                                                          redBullet.top, 9, 17, 1, 1, -90.0f);
+        projectile2.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, whiteBullet.left,
+                                                          whiteBullet.top, 9, 17, 1, 1, -90.0f);
         projectile2.addComponent<ColliderComponent>(10.0f, 5.0f);
         projectile2.addComponent<ProjectileComponent>(5.0f, 8.0f, enemy->getID(), ENTITY_TYPE::ENEMY);
     }
@@ -142,8 +142,9 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
             auto &projectile = entityManager.createEntity();
             projectile.addComponent<TransformComponent>(transform.position.x, transform.position.y);
             projectile.addComponent<VelocityComponent>(vx, vy);
-            projectile.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, redBullet.left,
-                                                             redBullet.top, 9, 17, 1, 1, -angle * (180.0f / M_PI) + 45);
+            projectile.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, greenBullet.left,
+                                                             greenBullet.top, 9, 17, 1, 1,
+                                                             -angle * (180.0f / M_PI) + 45);
             projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
             projectile.addComponent<ProjectileComponent>(5.0f, 8.0f, enemy->getID(), ENTITY_TYPE::ENEMY);
         }
@@ -160,8 +161,9 @@ void EnemySystem::enemyFire(EntityManager &entityManager, Entity *enemy)
 
             auto &projectile = entityManager.createEntity();
             projectile.addComponent<TransformComponent>(transform.position.x, transform.position.y);
-            projectile.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, redBullet.left,
-                                                             redBullet.top, 9, 17, 1, 1, -angle * (180.0f / M_PI) + 45);
+            projectile.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::BULLET, blueBullet.left,
+                                                             blueBullet.top, 9, 17, 1, 1,
+                                                             -angle * (180.0f / M_PI) + 45);
             projectile.addComponent<ColliderComponent>(10.0f, 5.0f);
             projectile.addComponent<ProjectileComponent>(5.0f, 8.0f, enemy->getID(), ENTITY_TYPE::ENEMY);
 

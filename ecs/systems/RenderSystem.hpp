@@ -7,6 +7,7 @@
 #include "../components/CenteredComponent.hpp"
 #include "../components/HealthBarComponent.hpp"
 #include "../components/HealthComponent.hpp"
+#include "../components/ShieldComponent.hpp"
 #include "../components/SpriteComponent.hpp"
 #include "../components/TransformComponent.hpp"
 #include "../components/Vector2D.hpp"
