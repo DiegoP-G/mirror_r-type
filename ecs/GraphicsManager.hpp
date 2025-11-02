@@ -98,6 +98,8 @@ class GraphicsManager
         BOSS,
         ROTATING_ENEMY,
         PURPLE_ENEMY,
+        BONUS_SHIELD,
+        SHIELD,
     };
 
     enum MenuAction

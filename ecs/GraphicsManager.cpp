@@ -134,6 +134,10 @@ sf::Texture *GraphicsManager::getTexture(int tex)
         return getTexture("rotating_enemy");
     case PURPLE_ENEMY:
         return getTexture("purple_enemy");
+    case BONUS_SHIELD:
+        return getTexture("bonus_shield");
+    case SHIELD:
+        return getTexture("shield");
     default:
         return nullptr;
     }

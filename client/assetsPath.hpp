@@ -13,6 +13,7 @@ const char bossSpritePath[] = "assets/sprites/spaceship_boss.png";
 const char explosionSpritePath[] = "assets/sprites/explosion.png";
 const char rotatingEnemySpritePath[] = "assets/sprites/rotating_enemy.png";
 const char purpleEnemySpritePath[] = "assets/sprites/purple_enemy.png";
+const char shieldSpritePath[] = "assets/sprites/shield.png";
 
 class PathFormater
 {

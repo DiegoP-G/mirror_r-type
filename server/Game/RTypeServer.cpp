@@ -31,6 +31,13 @@ void RTypeServer::createPlayer(int playerId, std::string playerName)
     playerEntity.addComponent<HealthBarComponent>(50.0f, 4.0f, 20.0f, -24.0f);
     playerEntity.addComponent<TextComponent>(playerName);
 
+    auto &shield = entityManager.createEntity();
+    shield.addComponent<TransformComponent>(105.0f, 300.0f);
+    shield.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::SHIELD, 0, 0, 30, 30, 8, 0.08f, 0.0f,
+                                                 AnimatedSpriteComponent::SpritesheetLayout::Horizontal,
+                                                 (Vector2D){2.15f, 2.0f});
+    shield.addComponent<ShieldComponent>(playerId);
+
     player = &playerEntity;
     _playersScores.push_back({playerId, 0});
 }
@@ -234,7 +241,11 @@ void RTypeServer::sendDestroyedEntities()
         {
         }
         if (entityManager.getEntityByID(id)->hasComponent<EnemyComponent>())
-            mediator.notify(GameMediatorEvent::Explosion, "", _lobbyUID);
+        {
+            auto &transform = entityManager.getEntityByID(id)->getComponent<TransformComponent>();
+            if (transform.position.x > 0.0f)
+                mediator.notify(GameMediatorEvent::Explosion, "", _lobbyUID);
+        }
         mediator.notify(GameMediatorEvent::EntityDestroyed, data, _lobbyUID);
     }
 }
@@ -257,6 +268,12 @@ void RTypeServer::sendEntitiesUpdates()
     data.insert(data.end(), reinterpret_cast<uint8_t *>(&healthSize),
                 reinterpret_cast<uint8_t *>(&healthSize) + sizeof(healthSize));
     data.insert(data.end(), healthData.begin(), healthData.end());
+
+    auto shieldData = entityManager.serializeAllShields();
+    uint16_t shieldSize = static_cast<uint16_t>(shieldData.size());
+    data.insert(data.end(), reinterpret_cast<uint8_t *>(&shieldSize),
+                reinterpret_cast<uint8_t *>(&shieldSize) + sizeof(shieldSize));
+    data.insert(data.end(), shieldData.begin(), shieldData.end());
 
     std::string serializedData(data.begin(), data.end());
     mediator.notify(GameMediatorEvent::UpdateEntities, serializedData, _lobbyUID);
