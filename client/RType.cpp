@@ -179,12 +179,16 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusBubblesSpritePath), "bonus_life");
     sf::Texture &bonusFiremodeTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusBubblesSpritePath), "bonus_firemode");
+    sf::Texture &bonusShieldTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusBubblesSpritePath), "bonus_shield");
     sf::Texture &explosionTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(explosionSpritePath), "explosion");
     sf::Texture &rotatingEnemy =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(rotatingEnemySpritePath), "rotating_enemy");
     sf::Texture &purpleEnemy =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(purpleEnemySpritePath), "purple_enemy");
+    sf::Texture &shieldTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(shieldSpritePath), "shield");
 
     g_graphics->storeTexture("background", backgroundTexture);
     g_graphics->storeTexture("boss", bossTexture);
@@ -196,6 +200,7 @@ void RTypeGame::createTextures()
     g_graphics->storeTexture("explosion", explosionTexture);
     g_graphics->storeTexture("rotating_enemy", rotatingEnemy);
     g_graphics->storeTexture("purple_enemy", purpleEnemy);
+    g_graphics->storeTexture("shield", shieldTexture);
 }
 
 void RTypeGame::handleJoystickInput()

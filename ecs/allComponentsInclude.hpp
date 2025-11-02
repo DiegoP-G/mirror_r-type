@@ -17,6 +17,7 @@
 #include "components/PlayerComponent.hpp"
 #include "components/ProjectileComponent.hpp"
 #include "components/Rect.hpp"
+#include "components/ShieldComponent.hpp"
 #include "components/SpriteComponent.hpp"
 #include "components/TextComponent.hpp"
 #include "components/TransformComponent.hpp"
