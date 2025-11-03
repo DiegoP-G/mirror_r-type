@@ -155,13 +155,15 @@ void NetworkManager::sendDataToLobbyUDP(std::shared_ptr<Lobby> lobby, const std:
             continue;
 
         sockaddr_in addr = clientOpt->getTrueAddr();
-        if (addr.sin_family == AF_INET && addr.sin_port != 0) {
+        if (addr.sin_family == AF_INET && addr.sin_port != 0)
+        {
             validAddrs.push_back(addr);
 
             uint32_t seq = ++_udpSequenceNumbers[fd];
-            std::string payloadWithSeq(reinterpret_cast<const char*>(&seq), sizeof(uint32_t));
+            std::string payloadWithSeq(reinterpret_cast<const char *>(&seq), sizeof(uint32_t));
             payloadWithSeq += data;
-        } else
+        }
+        else
             std::cout << "[UDP] Skipping client " << fd << " (UDP not authenticated yet)\n";
     }
 
@@ -188,9 +190,10 @@ void NetworkManager::sendDataToLobbyUDPExcept(std::shared_ptr<Lobby> lobby, cons
             continue;
 
         sockaddr_in addr = clientOpt->getTrueAddr();
-        if (addr.sin_family == AF_INET && addr.sin_port != 0) {
+        if (addr.sin_family == AF_INET && addr.sin_port != 0)
+        {
             uint32_t seq = ++_udpSequenceNumbers[fd];
-            std::string payloadWithSeq(reinterpret_cast<const char*>(&seq), sizeof(uint32_t));
+            std::string payloadWithSeq(reinterpret_cast<const char *>(&seq), sizeof(uint32_t));
             payloadWithSeq += data;
             validAddrs.push_back(addr);
         }

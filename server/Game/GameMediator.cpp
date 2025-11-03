@@ -49,12 +49,12 @@ GameMediator::GameMediator() : _networkManager(*new NetworkManager(*this)), _lob
              if (lobby)
                  _networkManager.sendDataToLobbyUDP(lobby, data, OPCODE_UPDATE_ENTITIES);
          }},
-        
+
         {GameMediatorEvent::UpdateEntitiesZlib,
          [this](const std::string &data, const std::string &lobbyUid, int) -> void {
-            auto lobby = _lobbyManager.getLobby(lobbyUid);
-            if (lobby)
-                _networkManager.sendDataToLobbyUDP(lobby, data, OPCODE_UPDATE_ENTITIES_ZLIB);
+             auto lobby = _lobbyManager.getLobby(lobbyUid);
+             if (lobby)
+                 _networkManager.sendDataToLobbyUDP(lobby, data, OPCODE_UPDATE_ENTITIES_ZLIB);
          }},
 
         {GameMediatorEvent::PlayerInput,

@@ -199,27 +199,25 @@ bool tryCompressZlib(const std::string &in, std::string &out, int minThreshold, 
     out.clear();
 
     const int srcSize = static_cast<int>(in.size());
-    if (srcSize < minThreshold) return false;
+    if (srcSize < minThreshold)
+        return false;
 
     const int headerSize = sizeof(uint32_t);
     out.resize(headerSize + compressBound(srcSize));
 
     unsigned long destLen = static_cast<unsigned long>(out.size() - headerSize);
 
-    int res = compress2(
-        reinterpret_cast<unsigned char*>(out.data() + headerSize),
-        &destLen,
-        reinterpret_cast<const unsigned char*>(in.data()),
-        srcSize,
-        Z_BEST_SPEED
-    );
+    int res = compress2(reinterpret_cast<unsigned char *>(out.data() + headerSize), &destLen,
+                        reinterpret_cast<const unsigned char *>(in.data()), srcSize, Z_BEST_SPEED);
 
-    if (res != Z_OK) {
+    if (res != Z_OK)
+    {
         out.clear();
         return false;
     }
 
-    if (destLen + headerSize >= static_cast<unsigned long>(srcSize - margin)) {
+    if (destLen + headerSize >= static_cast<unsigned long>(srcSize - margin))
+    {
         out.clear();
         return false;
     }
@@ -234,18 +232,21 @@ bool tryCompressZlib(const std::string &in, std::string &out, int minThreshold, 
 bool ZlibDecompressPayload(const std::string &in, std::string &out)
 {
     out.clear();
-    if (in.size() < sizeof(uint32_t)) return false;
+    if (in.size() < sizeof(uint32_t))
+        return false;
 
     unsigned long origSize = 0;
     std::memcpy(&origSize, in.data(), sizeof(uint32_t));
-    if (origSize == 0) return false;
+    if (origSize == 0)
+        return false;
 
     const unsigned char *src = (const unsigned char *)(in.data() + sizeof(uint32_t));
     unsigned long srcSize = in.size() - sizeof(uint32_t);
 
     out.resize(origSize);
     int res = uncompress((unsigned char *)&out[0], &origSize, src, srcSize);
-    if (res != Z_OK) {
+    if (res != Z_OK)
+    {
         out.clear();
         return false;
     }

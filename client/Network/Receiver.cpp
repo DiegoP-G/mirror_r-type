@@ -212,8 +212,9 @@ void Receiver::receiveUDPMessage()
     std::memcpy(&seq, payload.data(), sizeof(uint32_t));
 
     std::cout << "Seq is this " << seq << std::endl;
-        if (opcode != OPCODE_UPDATE_ENTITIES_ZLIB) {
-            if (seq != lastSeq + 1 && lastSeq != 0)
+    if (opcode != OPCODE_UPDATE_ENTITIES_ZLIB)
+    {
+        if (seq != lastSeq + 1 && lastSeq != 0)
         {
             _med.getRTypeGame()->setPacketLoss(true);
         }
@@ -223,7 +224,7 @@ void Receiver::receiveUDPMessage()
         }
         lastSeq = seq;
     }
-    
+
     std::cout << "Payload size:" << payload.size() << std::endl;
 
     auto it = _handlers.find(opcode);
