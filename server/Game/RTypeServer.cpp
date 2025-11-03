@@ -277,6 +277,7 @@ void RTypeServer::sendEntitiesUpdates()
 
     std::string serializedData(data.begin(), data.end());
 
+#ifdef COMPRESSION_ENABLED
     std::string compressedData;
     const bool ok = tryCompressZlib(serializedData, compressedData);
 
@@ -284,6 +285,9 @@ void RTypeServer::sendEntitiesUpdates()
         mediator.notify(GameMediatorEvent::UpdateEntitiesZlib, compressedData, _lobbyUID);
     else
         mediator.notify(GameMediatorEvent::UpdateEntities, serializedData, _lobbyUID);
+#else
+    mediator.notify(GameMediatorEvent::UpdateEntities, serializedData, _lobbyUID);
+#endif
 }
 
 void RTypeServer::restart()

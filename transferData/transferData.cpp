@@ -29,7 +29,10 @@
 #endif
 #include <tuple>
 #include <vector>
+
+#ifdef COMPRESSION_ENABLED
 #include <zlib.h>
+#endif
 
 bool sendFrameTCP(SOCKET fd, uint8_t opcode, const std::string &payload)
 {
@@ -196,6 +199,7 @@ std::tuple<uint8_t, std::string> receiveFrameUDP(SOCKET sockfd, struct sockaddr_
 
 bool tryCompressZlib(const std::string &in, std::string &out, int minThreshold, int margin)
 {
+#ifdef COMPRESSION_ENABLED
     out.clear();
 
     const int srcSize = static_cast<int>(in.size());
@@ -227,10 +231,15 @@ bool tryCompressZlib(const std::string &in, std::string &out, int minThreshold, 
 
     out.resize(headerSize + destLen);
     return true;
+#else
+    out.clear();
+    return false;
+#endif
 }
 
 bool ZlibDecompressPayload(const std::string &in, std::string &out)
 {
+#ifdef COMPRESSION_ENABLED
     out.clear();
     if (in.size() < sizeof(uint32_t))
         return false;
@@ -251,4 +260,9 @@ bool ZlibDecompressPayload(const std::string &in, std::string &out)
         return false;
     }
     return true;
+#else
+    std::cerr << "[transferData] Received compressed data but compression is disabled!" << std::endl;
+    out.clear();
+    return false;
+#endif
 }
