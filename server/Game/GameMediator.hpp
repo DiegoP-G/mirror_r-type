@@ -19,6 +19,7 @@ enum GameMediatorEvent
     GameStateUpdate,
     PlayerDisconnected,
     UpdateEntities = OPCODE_UPDATE_ENTITIES,
+    UpdateEntitiesZlib = OPCODE_UPDATE_ENTITIES_ZLIB,
     PlayerInput = OPCODE_PLAYER_INPUT,
     EntitiesCreated = OPCODE_ENTITY_CREATE,
     EntityDestroyed = OPCODE_ENTITY_DESTROY,

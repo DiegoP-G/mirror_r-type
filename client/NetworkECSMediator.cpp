@@ -212,6 +212,25 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager *networkManager) : _networ
                  break;
              }
 
+             case OPCODE_UPDATE_ENTITIES_ZLIB: {
+
+                 _game->getMutex().lock();
+
+                 std::string decompressedData;
+                 if (!ZlibDecompressPayload(data, decompressedData))
+                 {
+                     std::cerr << "[Receiver] Zlib decompress failed for movement update" << std::endl;
+                     return;
+                 }
+
+                 std::vector<uint8_t> bytes(decompressedData.begin(), decompressedData.end());
+
+                 receiveEntitiesUpdates(bytes);
+
+                 _game->getMutex().unlock();
+                 break;
+             }
+
              case OPCODE_LOBBY_INFO: {
                  _game->getMutex().lock();
                  if (data.size() >= 2)

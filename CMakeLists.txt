@@ -155,6 +155,23 @@ else()
     message(FATAL_ERROR "SQLite3 files not found in ${SQLITE3_DIR}")
 endif()
 
+# ---- Zlib ----
+if (NOT WIN32)
+    find_package(ZLIB QUIET)
+    if (NOT ZLIB_FOUND)
+        message(STATUS "Zlib not found, fetching it using FetchContent...")
+        include(FetchContent)
+        FetchContent_Declare(
+            zlib
+            GIT_REPOSITORY https://github.com/madler/zlib.git
+            GIT_TAG v1.2.13
+        )
+        FetchContent_MakeAvailable(zlib)
+    endif()
+else()
+    message(STATUS "Skipping Zlib on Windows - compression disabled")
+endif()
+
 # ============================================================
 #                         TRANSFER DATA
 # ============================================================
@@ -164,6 +181,18 @@ target_include_directories(transferData PUBLIC
     ${CMAKE_SOURCE_DIR}/transferData
     ${CMAKE_SOURCE_DIR}/ecs
 )
+
+if (NOT WIN32 AND TARGET ZLIB::ZLIB)
+    target_link_libraries(transferData PUBLIC ZLIB::ZLIB)
+    target_compile_definitions(transferData PUBLIC COMPRESSION_ENABLED)
+else()
+    if(WIN32)
+        message(STATUS "Compression disabled on Windows")
+    else()
+        message(WARNING "ZLIB::ZLIB target not available - compression disabled")
+    endif()
+endif()
+
 target_link_libraries(transferData PUBLIC 
     OpenSSL::SSL
     OpenSSL::Crypto

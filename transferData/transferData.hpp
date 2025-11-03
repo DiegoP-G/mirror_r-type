@@ -46,3 +46,6 @@ std::string deserializeString(const std::string &data);
 
 std::string serializeTuple(std::pair<int, int> tuple);
 std::pair<int, int> deserializeTuple(std::string data);
+
+bool tryCompressZlib(const std::string &in, std::string &out, int minTreshold = 96, int margin = 8);
+bool ZlibDecompressPayload(const std::string &in, std::string &out);
