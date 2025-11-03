@@ -52,12 +52,7 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
     };
 
     _handlers[OPCODE_UPDATE_ENTITIES_ZLIB] = [this](const std::string &payload, int opcode) {
-        std::string decompressedData;
-        if (!ZlibDecompressPayload(payload, decompressedData)) {
-            std::cerr << "[Receiver] Zlib decompress failed for movement update" << std::endl;
-            return;
-        }
-        _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, decompressedData, opcode);
+        _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
 
     _handlers[OPCODE_UPDATE_WAVE] = [this](const std::string &payload, int opcode) {
@@ -217,16 +212,18 @@ void Receiver::receiveUDPMessage()
     std::memcpy(&seq, payload.data(), sizeof(uint32_t));
 
     std::cout << "Seq is this " << seq << std::endl;
-    if (seq != lastSeq + 1 && lastSeq != 0)
-    {
-        _med.getRTypeGame()->setPacketLoss(true);
+        if (opcode != OPCODE_UPDATE_ENTITIES_ZLIB) {
+            if (seq != lastSeq + 1 && lastSeq != 0)
+        {
+            _med.getRTypeGame()->setPacketLoss(true);
+        }
+        else
+        {
+            _med.getRTypeGame()->setPacketLoss(false);
+        }
+        lastSeq = seq;
     }
-    else
-    {
-        _med.getRTypeGame()->setPacketLoss(false);
-    }
-    lastSeq = seq;
-
+    
     std::cout << "Payload size:" << payload.size() << std::endl;
 
     auto it = _handlers.find(opcode);
