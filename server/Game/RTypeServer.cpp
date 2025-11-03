@@ -31,6 +31,13 @@ void RTypeServer::createPlayer(int playerId, std::string playerName)
     playerEntity.addComponent<HealthBarComponent>(50.0f, 4.0f, 20.0f, -24.0f);
     playerEntity.addComponent<TextComponent>(playerName);
 
+    auto &shield = entityManager.createEntity();
+    shield.addComponent<TransformComponent>(105.0f, 300.0f);
+    shield.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::SHIELD, 0, 0, 30, 30, 8, 0.08f, 0.0f,
+                                                 AnimatedSpriteComponent::SpritesheetLayout::Horizontal,
+                                                 (Vector2D){2.15f, 2.0f});
+    shield.addComponent<ShieldComponent>(playerId);
+
     player = &playerEntity;
     _playersScores.push_back({playerId, 0});
 }
@@ -53,23 +60,12 @@ void RTypeServer::removePlayer(int id)
 
 void RTypeServer::update(float deltaTime)
 {
-    enum GameState
-    {
-        MENUIP,
-        MENULOBBY,
-        LOBBY,
-        INGAME,
-        MENU,
-        GAMEOVER
-    };
 
-    // if (_tick % 60 == 0)
     std::cout << "------------- tick passed--------------" << _tick << std::endl;
 
     if (gameOver)
         return;
 
-    // 1. Traiter tous les systèmes
     {
         std::lock_guard<std::mutex> lock(entityManager.entityMutex);
         backgroundSystem.update(entityManager, deltaTime);
@@ -105,31 +101,43 @@ void RTypeServer::update(float deltaTime)
             mediator.notify(GameMediatorEvent::UpdateScore, serializedData, _lobbyUID);
         }
 
-        if (gameLogicSystem.allWavesCompleted && !gameOver)
+        if (!gameOver)
         {
-            std::cout << "[Server] 🏆 All waves completed! Determining winner..." << std::endl;
+            auto entitiesPlayers = entityManager.getEntitiesWithComponents<PlayerComponent>();
 
-            // Trouver le gagnant par score
-            int winnerID = -1;
-            int maxScore = -1;
-
-            for (auto &[playerId, score] : _playersScores)
+            size_t players_alive = 0;
+            for (auto player : entitiesPlayers)
             {
-                std::cout << "[Server] Player " << playerId << " score: " << score << std::endl;
-                if (score > maxScore)
+                if (player->getComponent<HealthComponent>().health > 0)
                 {
-                    maxScore = score;
-                    winnerID = playerId;
+                    players_alive++;
                 }
             }
 
-            gameOver = true;
-            std::cout << "[Server] Winner: Player " << winnerID << " with score " << maxScore << std::endl;
-            mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID), _lobbyUID);
-        }
-        // laserWarningSystem.update(entityManager, deltaTime);
+            if (players_alive == 0)
+            {
+                gameOver = true;
+                std::cout << "[Server] All players defeated! Game over." << std::endl;
+                std::cout << "[Server] All waves completed! Determining winner..." << std::endl;
+                int winnerID = -1;
+                int maxScore = -1;
 
-        // 3. Appliquer les changements (vide les buffers)
+                for (auto &[playerId, score] : _playersScores)
+                {
+                    std::cout << "[Server] Player " << playerId << " score: " << score << std::endl;
+                    if (score > maxScore)
+                    {
+                        maxScore = score;
+                        winnerID = playerId;
+                    }
+                }
+
+                gameOver = true;
+                _state = (GameState)5;
+                std::cout << "[Server] Winner: Player " << winnerID << " with score " << maxScore << std::endl;
+                mediator.notify(GameMediatorEvent::GameOver, serializeInt(winnerID), _lobbyUID);
+            }
+        }
     }
     else
     {
@@ -141,18 +149,15 @@ void RTypeServer::update(float deltaTime)
         movementSystem.update(entityManager, deltaTime);
     }
 
-    // 4. Envoyer les updates de mouvement (toutes les entités actives)
-    // 2. AVANT applyPendingChanges, envoyer ce qui a été créé/détruit
-    sendNewEntities(); // Envoie les entités dans entitiesToCreate
+    sendNewEntities();
 
-    sendDestroyedEntities(); // Envoie les IDs dans entitiesToDestroy
+    sendDestroyedEntities();
 
     {
         std::lock_guard<std::mutex> lock(entityManager.entityMutex);
         entityManager.applyPendingChanges();
     }
 
-    // // 4. Envoyer les updates de mouvement (toutes les entités actives)
     sendEntitiesUpdates();
     sendGameStateUpdates();
     std::cout << "Finishing update states" << std::endl;
@@ -231,14 +236,16 @@ void RTypeServer::sendDestroyedEntities()
 
     for (EntityID id : manager.getEntitiesToDestroy())
     {
-        std::cout << "--DESTROY id " << id << std::endl;
         auto data = serializeInt(id);
         if (entityManager.getEntityByID(id)->hasComponent<BackgroundScrollComponent>())
         {
-            std::cout << "destroy bk " << id << std::endl;
         }
         if (entityManager.getEntityByID(id)->hasComponent<EnemyComponent>())
-            mediator.notify(GameMediatorEvent::Explosion, "", _lobbyUID);
+        {
+            auto &transform = entityManager.getEntityByID(id)->getComponent<TransformComponent>();
+            if (transform.position.x > 0.0f)
+                mediator.notify(GameMediatorEvent::Explosion, "", _lobbyUID);
+        }
         mediator.notify(GameMediatorEvent::EntityDestroyed, data, _lobbyUID);
     }
 }
@@ -261,6 +268,12 @@ void RTypeServer::sendEntitiesUpdates()
     data.insert(data.end(), reinterpret_cast<uint8_t *>(&healthSize),
                 reinterpret_cast<uint8_t *>(&healthSize) + sizeof(healthSize));
     data.insert(data.end(), healthData.begin(), healthData.end());
+
+    auto shieldData = entityManager.serializeAllShields();
+    uint16_t shieldSize = static_cast<uint16_t>(shieldData.size());
+    data.insert(data.end(), reinterpret_cast<uint8_t *>(&shieldSize),
+                reinterpret_cast<uint8_t *>(&shieldSize) + sizeof(shieldSize));
+    data.insert(data.end(), shieldData.begin(), shieldData.end());
 
     std::string serializedData(data.begin(), data.end());
 
@@ -323,7 +336,7 @@ void RTypeServer::handlePlayerInput(const std::string &input)
         auto playerEntity = getEntityByPlayerID(playerId);
         if (playerEntity)
         {
-            // ✅ Update existing InputComponent safely
+            //  Update existing InputComponent safely
             if (!playerEntity->hasComponent<InputComponent>())
             {
                 playerEntity->addComponent<InputComponent>(inputComp);
@@ -367,7 +380,6 @@ void RTypeServer::createBackground()
                                                        GraphicsManager::Texture::BACKGROUND);
         backgroundEntity.addComponent<BackgroundScrollComponent>(-300.0f, true);
 
-        std::cout << "Background created" << std::endl;
         return backgroundEntity;
     };
 

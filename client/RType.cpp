@@ -179,12 +179,16 @@ void RTypeGame::createTextures()
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusBubblesSpritePath), "bonus_life");
     sf::Texture &bonusFiremodeTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusBubblesSpritePath), "bonus_firemode");
+    sf::Texture &bonusShieldTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(bonusBubblesSpritePath), "bonus_shield");
     sf::Texture &explosionTexture =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(explosionSpritePath), "explosion");
     sf::Texture &rotatingEnemy =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(rotatingEnemySpritePath), "rotating_enemy");
     sf::Texture &purpleEnemy =
         g_graphics->createTextureFromPath(PathFormater::formatAssetPath(purpleEnemySpritePath), "purple_enemy");
+    sf::Texture &shieldTexture =
+        g_graphics->createTextureFromPath(PathFormater::formatAssetPath(shieldSpritePath), "shield");
 
     g_graphics->storeTexture("background", backgroundTexture);
     g_graphics->storeTexture("boss", bossTexture);
@@ -196,6 +200,7 @@ void RTypeGame::createTextures()
     g_graphics->storeTexture("explosion", explosionTexture);
     g_graphics->storeTexture("rotating_enemy", rotatingEnemy);
     g_graphics->storeTexture("purple_enemy", purpleEnemy);
+    g_graphics->storeTexture("shield", shieldTexture);
 }
 
 void RTypeGame::handleJoystickInput()
@@ -275,7 +280,6 @@ void RTypeGame::handleJoystickInput()
     {
         input.enter = false;
     }
-    // must include warp
 }
 
 void RTypeGame::handleEvents()
@@ -286,7 +290,6 @@ void RTypeGame::handleEvents()
         if (event.type == sf::Event::Closed)
         {
             running = false;
-            std::cout << "Running is set to false" << std::endl;
         }
 
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::M)
@@ -312,7 +315,6 @@ void RTypeGame::handleEvents()
         if (gameOver && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
         {
             running = false;
-            std::cout << "Running is set to false" << std::endl;
         }
 
         keybindMenu->handleEvent(event, g_graphics->getWindow());
@@ -487,7 +489,6 @@ void RTypeGame::findMyPlayer()
         if (playerComp.playerID == _playerId)
         {
             player = entity;
-            std::cout << "Player has been found" << std::endl;
             break;
         }
     }
@@ -513,6 +514,7 @@ void RTypeGame::update(float deltaTime)
 
 void RTypeGame::render()
 {
+    // std::cout << "_state = " << _state << std::endl;
     g_graphics->clear();
 
     if (_state == GameState::KICKED)
@@ -558,10 +560,18 @@ void RTypeGame::render()
 
         std::string waveText = "Wave: " + std::to_string(gameLogicSystem.currentWave + 1);
         g_graphics->drawText(waveText, windowWidth - 100, 10);
-        drawHitbox();
+        // drawHitbox();
+        if (getPacketLoss())
+        {
+            g_graphics->drawText("Packet Loss Detected!", windowWidth / 2 - 100, 10, 255, 0, 0);
+        }
     }
     else if (_state == GameState::GAMEOVER)
     {
+        if (_winnerId == _playerId)
+            g_graphics->drawText("You Win! Congratulations!", 200, 250);
+        else
+            g_graphics->drawText("You Lose! Better luck next time!", 200, 250);
         std::string gameOverText = "Game Over! Your score: " + std::to_string(score);
         g_graphics->drawText(gameOverText, 200, 300);
         g_graphics->drawText("Press ESC to exit", 200, 350);
@@ -620,7 +630,6 @@ void RTypeGame::run()
 
     g_graphics->playSound("music", true);
 
-    std::cout << "rtype run outside\n";
     while (running)
     {
         float deltaTime = clock.restart().asSeconds();
@@ -703,27 +712,27 @@ void RTypeGame::updateScore(std::vector<std::pair<int, int>> vec)
 
 void RTypeGame::setCurrentState(GameState newState)
 {
-    switch (newState)
-    {
-    case GameState::MENULOGIN:
-        std::cout << "In MENU state" << std::endl;
-        break;
-    case GameState::MENUIP:
-        std::cout << "In MENUIP state" << std::endl;
-        break;
-    case GameState::MENULOBBY:
-        std::cout << "In MENULOBBY state" << std::endl;
-        break;
-    case GameState::INGAME:
-        std::cout << "In INGAME state" << std::endl;
-        break;
-    case GameState::GAMEOVER:
-        std::cout << "In GAMEOVER state" << std::endl;
-        break;
-    default:
-        std::cout << "In UNKNOWN state" << std::endl;
-        break;
-    }
+    // switch (newState)
+    // {
+    // case GameState::MENULOGIN:
+    //     std::cout << "In MENU state" << std::endl;
+    //     break;
+    // case GameState::MENUIP:
+    //     std::cout << "In MENUIP state" << std::endl;
+    //     break;
+    // case GameState::MENULOBBY:
+    //     std::cout << "In MENULOBBY state" << std::endl;
+    //     break;
+    // case GameState::INGAME:
+    //     std::cout << "In INGAME state" << std::endl;
+    //     break;
+    // case GameState::GAMEOVER:
+    //     std::cout << "In GAMEOVER state" << std::endl;
+    //     break;
+    // default:
+    //     std::cout << "In UNKNOWN state" << std::endl;
+    //     break;
+    // }
     _state = newState;
 }
 

@@ -16,6 +16,7 @@ class PlayerComponent : public IComponent
     std::string name;
     bool bonusPicked = false;
     float bonusFiremode = 0;
+    float bonusShield = 0;
 
     float stamina;
     float maxStamina;

@@ -55,7 +55,6 @@ void Orchestrator::GameLoop::loop()
         }
     }
 
-    // Stop network loops on exit
     _gameMediator.getNetworkManager().stopNetworkLoops();
 
     adminPanelThread.join();

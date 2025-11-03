@@ -6,6 +6,7 @@
 #include "../components/InputComponent.hpp"
 #include "../components/PlayerComponent.hpp"
 #include "../components/ProjectileComponent.hpp"
+#include "../components/ShieldComponent.hpp"
 #include "../components/SpriteComponent.hpp"
 #include "../components/TransformComponent.hpp"
 #include "../components/VelocityComponent.hpp"

@@ -72,7 +72,7 @@ void CollisionSystem::handleCollision(Entity *a, Entity *b, std::vector<std::pai
     switch (typeA)
     {
     case EntityType::PLAYER:
-        handlePlayerCollision(a, b, typeB);
+        handlePlayerCollision(a, b, typeB, entityManager);
         break;
 
     case EntityType::ENEMY:
@@ -96,7 +96,8 @@ void CollisionSystem::handleCollision(Entity *a, Entity *b, std::vector<std::pai
     }
 }
 
-void CollisionSystem::handlePlayerCollision(Entity *player, Entity *other, EntityType otherType)
+void CollisionSystem::handlePlayerCollision(Entity *player, Entity *other, EntityType otherType,
+                                            EntityManager &entityManager)
 {
     switch (otherType)
     {
@@ -109,7 +110,7 @@ void CollisionSystem::handlePlayerCollision(Entity *player, Entity *other, Entit
         break;
 
     case EntityType::BONUS:
-        onPlayerHitBonus(player, other);
+        onPlayerHitBonus(player, other, entityManager);
         break;
 
     default:
@@ -127,6 +128,10 @@ void CollisionSystem::onPlayerHitProjectile(Entity *player, Entity *projectile)
     if (projComp.owner_type == PLAYER)
         return;
 
+    auto &playerComp = player->getComponent<PlayerComponent>();
+    if (playerComp.bonusShield > 0)
+        return;
+
     if (player->hasComponent<HealthComponent>())
     {
         auto &health = player->getComponent<HealthComponent>();
@@ -142,7 +147,7 @@ void CollisionSystem::onPlayerHitProjectile(Entity *player, Entity *projectile)
     projectile->destroy();
 }
 
-void CollisionSystem::onPlayerHitBonus(Entity *player, Entity *bonus)
+void CollisionSystem::onPlayerHitBonus(Entity *player, Entity *bonus, EntityManager &entityManager)
 {
     auto &BonusComp = bonus->getComponent<BonusComponent>();
 
@@ -156,17 +161,29 @@ void CollisionSystem::onPlayerHitBonus(Entity *player, Entity *bonus)
             if (healthComp.health > healthComp.maxHealth)
                 healthComp.health = healthComp.maxHealth;
         }
+
         if (std::get<0>(b) == BonusComponent::TypeBonus::FIREMODE)
         {
             auto &playerComp = player->getComponent<PlayerComponent>();
-            playerComp.bonusFiremode += 7.0f;
+            playerComp.bonusFiremode += 4.0f;
+        }
+
+        if (std::get<0>(b) == BonusComponent::TypeBonus::SHIELD)
+        {
+            auto &playerComp = player->getComponent<PlayerComponent>();
+            for (auto &shieldEntity : entityManager.getEntitiesWithComponent<ShieldComponent>())
+            {
+                auto &shieldComp = shieldEntity->getComponent<ShieldComponent>();
+                if (shieldComp.ownerID == playerComp.playerID)
+                    shieldComp.shieldLeft += 6.0f;
+            }
+            playerComp.bonusShield += 6.0f;
         }
     }
 
     auto &playerComp = player->getComponent<PlayerComponent>();
     playerComp.bonusPicked = true;
 
-    std::cout << "BONUS DESTROYED HIHI\n";
     bonus->destroy();
 }
 

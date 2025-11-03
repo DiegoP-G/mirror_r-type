@@ -15,7 +15,13 @@ class MovementSystem
         {
             auto &transform = entity->getComponent<TransformComponent>();
             auto &velocity = entity->getComponent<VelocityComponent>();
-            if (velocity.sineMovement)
+            if (entity->hasComponent<CircularMotionComponent>())
+            {
+                auto &circularMotion = entity->getComponent<CircularMotionComponent>();
+                auto &velocity = entity->getComponent<VelocityComponent>();
+                circularMotion.update(deltaTime, transform, velocity);
+            }
+            else if (velocity.sineMovement)
             {
                 velocity.time += deltaTime;
                 transform.position.x += velocity.velocity.x * deltaTime;

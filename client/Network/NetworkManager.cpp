@@ -1,9 +1,11 @@
 #include "NetworkManager.hpp"
 #include "../../transferData/opcode.hpp"
-#include "../../transferData/transferData.hpp" // ! include receiveFrameTCP
+#include "../../transferData/transferData.hpp"
 #include "../NetworkECSMediator.hpp"
 #include "Receiver.hpp"
 #include "Sender.hpp"
+#include <cstring>
+#include <iostream>
 #include <thread>
 
 #ifdef _WIN32
@@ -19,14 +21,21 @@
 #include <windows.h>
 #else
 #include <arpa/inet.h>
+#include <errno.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #endif
 
-#include <cstring>
-#include <iostream>
+void reportError(const char *msg)
+{
+#ifdef _WIN32
+    std::cerr << msg << ": " << WSAGetLastError() << std::endl;
+#else
+    perror(msg);
+#endif
+}
 
 NetworkManager::NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver &receiver)
     : _med(med), _sender(sender), _receiver(receiver), _tcpSocket(-1), _udpSocket(-1), _shouldStop(false),
@@ -35,7 +44,9 @@ NetworkManager::NetworkManager(NetworkECSMediator &med, Sender &sender, Receiver
 #ifdef _WIN32
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    {
         std::cerr << "WSAStartup failed\n";
+    }
 #endif
 }
 
@@ -71,20 +82,20 @@ bool NetworkManager::setup(const char *serverIp, int port)
     _serverAddr.sin_port = htons(port);
     if (inet_pton(AF_INET, serverIp, &_serverAddr.sin_addr) <= 0)
     {
-        perror("inet_pton");
+        reportError("inet_pton");
         return false;
     }
 
     _tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (_tcpSocket < 0)
     {
-        perror("TCP socket");
+        reportError("TCP socket");
         return false;
     }
 
     if (connect(_tcpSocket, (sockaddr *)&_serverAddr, sizeof(_serverAddr)) < 0)
     {
-        perror("TCP connect");
+        reportError("TCP connect");
         return false;
     }
 
@@ -92,17 +103,16 @@ bool NetworkManager::setup(const char *serverIp, int port)
     setsockopt(_tcpSocket, IPPROTO_TCP, TCP_NODELAY, (const char *)&nodelay, sizeof(nodelay));
 
     int bufsize = 262144;
-    setsockopt(_tcpSocket, SOL_SOCKET, SO_SNDBUF, &bufsize, sizeof(bufsize));
-    setsockopt(_tcpSocket, SOL_SOCKET, SO_RCVBUF, &bufsize, sizeof(bufsize));
+    setsockopt(_tcpSocket, SOL_SOCKET, SO_SNDBUF, (const char *)&bufsize, sizeof(bufsize)); // Cast for Windows
+    setsockopt(_tcpSocket, SOL_SOCKET, SO_RCVBUF, (const char *)&bufsize, sizeof(bufsize)); // Cast for Windows
 
     _udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
     if (_udpSocket < 0)
     {
-        perror("UDP socket");
+        reportError("UDP socket");
         return false;
     }
 
-    // UDP can be "connected" to default server address for send/recv
     connect(_udpSocket, (sockaddr *)&_serverAddr, sizeof(_serverAddr));
 
     _receiver.setServerAddr(_serverAddr);

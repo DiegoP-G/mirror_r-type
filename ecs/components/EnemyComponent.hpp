@@ -43,7 +43,7 @@ static constexpr EnemyProperties BOSS = {110.0f, 112.0f,
                                          1.5f,   1.5f,
                                          0.0f,   0.0f,
                                          32.0f,  AnimatedSpriteComponent::SpritesheetLayout::Horizontal,
-                                         300,    GraphicsManager::Texture::BOSS,
+                                         450,    GraphicsManager::Texture::BOSS,
                                          1,      0.1f};
 
 class EnemyComponent : public IComponent

@@ -1,14 +1,10 @@
 #include "entityManager.hpp"
-#include "components/EnemyComponent.hpp"
-#include "components/PlayerComponent.hpp"
-#include "components/ProjectileComponent.hpp"
-#include <algorithm>
-
 #include "ComponentFactory.hpp"
 #include "components/AnimatedSpriteComponent.hpp"
 #include "components/BackgroundScrollComponent.hpp"
 #include "components/BonusComponent.hpp"
 #include "components/CenteredComponent.hpp"
+#include "components/CircularMotionComponent.hpp"
 #include "components/ColliderComponent.hpp"
 #include "components/EnemyComponent.hpp"
 #include "components/GameStateComponent.hpp"
@@ -20,10 +16,13 @@
 #include "components/PipeComponent.hpp"
 #include "components/PlayerComponent.hpp"
 #include "components/ProjectileComponent.hpp"
+#include "components/ShieldComponent.hpp"
 #include "components/SpriteComponent.hpp"
 #include "components/TextComponent.hpp"
 #include "components/TransformComponent.hpp"
 #include "components/VelocityComponent.hpp"
+
+#include <algorithm>
 
 EntityManager::EntityManager()
 {
@@ -47,6 +46,9 @@ EntityManager::EntityManager()
     ComponentFactory::registerComponent<HealthBarComponent>();
     ComponentFactory::registerComponent<BonusComponent>();
     ComponentFactory::registerComponent<TextComponent>();
+    ComponentFactory::registerComponent<ShieldComponent>();
+    ComponentFactory::registerComponent<TextComponent>();
+    ComponentFactory::registerComponent<CircularMotionComponent>();
 }
 
 std::vector<uint8_t> EntityManager::serializeEntityFull(EntityID id) const
@@ -561,4 +563,71 @@ std::vector<std::pair<int, int>> EntityManager::deserializePlayersScores(const s
     }
 
     return playersScores;
+}
+
+std::vector<uint8_t> EntityManager::serializeAllShields() const
+{
+    std::vector<uint8_t> data;
+    uint32_t entityCount = 0;
+
+    for (const auto &entity : entities)
+    {
+        if (entity && entity->isActive() && entity->hasComponent<ShieldComponent>())
+            entityCount++;
+    }
+
+    data.insert(data.end(), (const uint8_t *)&entityCount, (const uint8_t *)&entityCount + sizeof(entityCount));
+
+    for (const auto &entity : entities)
+    {
+        if (!entity || !entity->isActive() || !entity->hasComponent<ShieldComponent>())
+            continue;
+
+        EntityID id = entity->getID();
+        data.insert(data.end(), (const uint8_t *)&id, (const uint8_t *)&id + sizeof(EntityID));
+
+        auto &shield = entity->getComponent<ShieldComponent>();
+        auto serialized = shield.serialize();
+        data.insert(data.end(), serialized.begin(), serialized.end());
+    }
+
+    return data;
+}
+
+void EntityManager::deserializeAllShields(const std::vector<uint8_t> &data)
+{
+    if (data.size() < sizeof(uint32_t))
+        return;
+
+    size_t offset = 0;
+    uint32_t entityCount = 0;
+
+    std::memcpy(&entityCount, data.data() + offset, sizeof(entityCount));
+    offset += sizeof(entityCount);
+
+    for (uint32_t i = 0; i < entityCount && offset < data.size(); i++)
+    {
+        if (offset + sizeof(EntityID) > data.size())
+            break;
+
+        EntityID id;
+        std::memcpy(&id, data.data() + offset, sizeof(EntityID));
+        offset += sizeof(EntityID);
+
+        Entity *entity = getEntityByID(id);
+        if (!entity || !entity->hasComponent<ShieldComponent>())
+            continue;
+
+        size_t remaining = data.size() - offset;
+        size_t expectedSize = sizeof(int) + sizeof(float);
+        if (remaining < expectedSize)
+            break;
+
+        auto comp = ShieldComponent::deserialize(data.data() + offset, expectedSize);
+        offset += expectedSize;
+
+        auto &shield = entity->getComponent<ShieldComponent>();
+        shield.ownerID = comp.ownerID;
+        shield.shieldLeft = comp.shieldLeft;
+    }
 }

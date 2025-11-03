@@ -1,21 +1,21 @@
 #pragma once
 
-#include "../components/AnimatedSpriteComponent.hpp"
-#include "../components/BonusComponent.hpp"
-#include "../components/ColliderComponent.hpp"
-#include "../components/EnemyComponent.hpp"
-#include "../components/ProjectileComponent.hpp"
-#include "../components/TransformComponent.hpp"
-
 #include "../GraphicsManager.hpp"
 #include "../entityManager.hpp"
 
+#include "../components/AnimatedSpriteComponent.hpp"
+#include "../components/BonusComponent.hpp"
 #include "../components/CenteredComponent.hpp"
+#include "../components/ColliderComponent.hpp"
+#include "../components/EnemyComponent.hpp"
 #include "../components/HealthComponent.hpp"
 #include "../components/JumpComponent.hpp"
 #include "../components/LaserWarningComponent.hpp"
 #include "../components/PlayerComponent.hpp"
+#include "../components/ProjectileComponent.hpp"
 #include "../components/Rect.hpp"
+#include "../components/ShieldComponent.hpp"
+#include "../components/TransformComponent.hpp"
 #include "../components/Vector2D.hpp"
 #include "getActualPosition.hpp"
 
@@ -53,12 +53,12 @@ class CollisionSystem
     // PLAYER COLLISION HANDLERS
     // ============================================================
 
-    void handlePlayerCollision(Entity *player, Entity *other, EntityType otherType);
+    void handlePlayerCollision(Entity *player, Entity *other, EntityType otherType, EntityManager &entityManager);
 
     void onPlayerHitProjectile(Entity *player, Entity *projectile);
 
     void onPlayerHitLaser(Entity *player, Entity *laser);
-    void onPlayerHitBonus(Entity *player, Entity *bonus);
+    void onPlayerHitBonus(Entity *player, Entity *bonus, EntityManager &entityManager);
 
     // ============================================================
     // ENEMY COLLISION HANDLERS
