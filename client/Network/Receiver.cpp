@@ -42,6 +42,15 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
 
+    _handlers[OPCODE_UPDATE_ENTITIES_ZLIB] = [this](const std::string &payload, int opcode) {
+        std::string decompressedData;
+        if (!ZlibDecompressPayload(payload, decompressedData)) {
+            std::cerr << "[Receiver] Zlib decompress failed for movement update" << std::endl;
+            return;
+        }
+        _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, decompressedData, opcode);
+    };
+
     _handlers[OPCODE_UPDATE_WAVE] = [this](const std::string &payload, int opcode) {
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };

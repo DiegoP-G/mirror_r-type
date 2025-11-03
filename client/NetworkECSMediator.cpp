@@ -212,6 +212,17 @@ NetworkECSMediator::NetworkECSMediator(NetworkManager *networkManager) : _networ
                  break;
              }
 
+             case OPCODE_UPDATE_ENTITIES_ZLIB: {
+
+                _game->getMutex().lock();
+                std::vector<uint8_t> bytes(data.begin(), data.end());
+
+                receiveEntitiesUpdates(bytes);
+                
+                _game->getMutex().unlock();
+                break;
+             }
+
              case OPCODE_LOBBY_INFO: {
                  _game->getMutex().lock();
                  if (data.size() >= 2)
