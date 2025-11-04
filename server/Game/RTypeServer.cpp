@@ -35,7 +35,7 @@ void RTypeServer::createPlayer(int playerId, std::string playerName)
     shield.addComponent<TransformComponent>(105.0f, 300.0f);
     shield.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::SHIELD, 0, 0, 30, 30, 8, 0.08f, 0.0f,
                                                  AnimatedSpriteComponent::SpritesheetLayout::Horizontal,
-                                                 (Vector2D){2.15f, 2.0f});
+                                                 Vector2D(2.15f, 2.0f));
     shield.addComponent<ShieldComponent>(playerId);
 
     player = &playerEntity;
