@@ -350,3 +350,12 @@ void TCPManager::update()
     }
     _metrics.UpdateThroughput();
 }
+
+std::string TCPManager::getWriteBufferOfId(int id)
+{
+    if (_writeBuffers.find(id) != _writeBuffers.end())
+    {
+        return _writeBuffers[id];
+    }
+    return "";
+}

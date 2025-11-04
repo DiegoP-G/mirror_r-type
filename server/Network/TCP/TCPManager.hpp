@@ -58,4 +58,5 @@ class TCPManager
 
     void update();
     void sendMessage(int fd, uint8_t opcode, const std::string &payload);
+    std::string getWriteBufferOfId(int id);
 };

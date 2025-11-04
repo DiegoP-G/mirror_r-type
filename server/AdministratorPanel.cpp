@@ -103,6 +103,11 @@ void AdministratorPanel::kickPlayer(sf::RenderWindow &window, sf::Event &event)
                     lobby->removePlayer(id);
                 }
 
+                // Wait for the client queue to be empty
+                while (!_networkManager.getTCPManager().getWriteBufferOfId(id).empty())
+                {
+                }
+
                 if (_clientManager->removeClient(id))
                 {
                     _logs.push_back("Client " + std::to_string(id) + " was kicked.");
@@ -146,7 +151,19 @@ void AdministratorPanel::banPlayer(sf::RenderWindow &window, sf::Event &event)
                         lobby->removePlayer(id);
                     }
 
-                    _logs.push_back("Client " + std::to_string(id) + " with IP " + ip + " was banned.");
+                    // Wait for the client queue to be empty
+                    while (!_networkManager.getTCPManager().getWriteBufferOfId(id).empty())
+                    {
+                    }
+
+                    if (_clientManager->removeClient(id))
+                    {
+                        _logs.push_back("Client " + std::to_string(id) + " with IP " + ip + " was banned.");
+                    }
+                    else
+                    {
+                        _logs.push_back("Failed to ban client " + std::to_string(id) + ".");
+                    }
                 }
                 else
                 {
