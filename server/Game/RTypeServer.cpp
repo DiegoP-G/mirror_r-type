@@ -35,7 +35,7 @@ void RTypeServer::createPlayer(int playerId, std::string playerName)
     shield.addComponent<TransformComponent>(105.0f, 300.0f);
     shield.addComponent<AnimatedSpriteComponent>(GraphicsManager::Texture::SHIELD, 0, 0, 30, 30, 8, 0.08f, 0.0f,
                                                  AnimatedSpriteComponent::SpritesheetLayout::Horizontal,
-                                                 (Vector2D){2.15f, 2.0f});
+                                                 Vector2D(2.15f, 2.0f));
     shield.addComponent<ShieldComponent>(playerId);
 
     player = &playerEntity;
@@ -276,7 +276,18 @@ void RTypeServer::sendEntitiesUpdates()
     data.insert(data.end(), shieldData.begin(), shieldData.end());
 
     std::string serializedData(data.begin(), data.end());
+
+#ifdef COMPRESSION_ENABLED
+    std::string compressedData;
+    const bool ok = tryCompressZlib(serializedData, compressedData);
+
+    if (ok)
+        mediator.notify(GameMediatorEvent::UpdateEntitiesZlib, compressedData, _lobbyUID);
+    else
+        mediator.notify(GameMediatorEvent::UpdateEntities, serializedData, _lobbyUID);
+#else
     mediator.notify(GameMediatorEvent::UpdateEntities, serializedData, _lobbyUID);
+#endif
 }
 
 void RTypeServer::restart()

@@ -432,6 +432,7 @@ void RTypeGame::handleEvents()
         if (_state == GameState::MENULOBBY)
         {
             g_graphics->getLobbyTextBox()->typeInBox(event);
+            keybindMenu->handleEvent(event, g_graphics->getWindow());
         }
 
         keybindMenu->handleEvent(event, g_graphics->getWindow());
@@ -531,7 +532,6 @@ void RTypeGame::render()
     {
         g_graphics->drawMenu();
         g_graphics->updateErrorMessage();
-        keybindMenu->draw(g_graphics->getWindow());
     }
     else if (_state == GameState::MENUIP)
     {
@@ -539,7 +539,6 @@ void RTypeGame::render()
         g_graphics->drawText("SeymourPintatGodeFeytGrodard-Type", 0, 30);
         g_graphics->getTextBox()->setPosition(200, 500);
         g_graphics->getTextBox()->draw(g_graphics->getWindow());
-        keybindMenu->draw(g_graphics->getWindow());
     }
     else if (_state == GameState::MENULOBBY)
     {

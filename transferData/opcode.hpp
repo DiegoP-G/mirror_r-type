@@ -54,6 +54,11 @@ constexpr uint8_t OPCODE_UPDATE_ENTITIES = 0x21;
 // Sends the updated world state (positions of other players, entities, etc).
 // Payload: compressed list of visible entities.
 
+constexpr uint8_t OPCODE_UPDATE_ENTITIES_ZLIB = 0x22;
+// [SERVER → CLIENT, UDP]
+// Sends the updated world state (positions of other players, entities, etc).
+// Payload: compressed list of visible entities with zlib compression.
+
 constexpr uint8_t OPCODE_PLAYER_INPUT = 0x26;
 // [CLIENT → SERVER, UDP]
 // Sends the client kb input.

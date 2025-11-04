@@ -51,6 +51,10 @@ Receiver::Receiver(NetworkECSMediator &med) : _med(med)
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
 
+    _handlers[OPCODE_UPDATE_ENTITIES_ZLIB] = [this](const std::string &payload, int opcode) {
+        _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
+    };
+
     _handlers[OPCODE_UPDATE_WAVE] = [this](const std::string &payload, int opcode) {
         _med.notify(NetworkECSMediatorEvent::UPDATE_DATA, payload, opcode);
     };
@@ -208,15 +212,18 @@ void Receiver::receiveUDPMessage()
     std::memcpy(&seq, payload.data(), sizeof(uint32_t));
 
     std::cout << "Seq is this " << seq << std::endl;
-    if (seq != lastSeq + 1 && lastSeq != 0)
+    if (opcode != OPCODE_UPDATE_ENTITIES_ZLIB)
     {
-        _med.getRTypeGame()->setPacketLoss(true);
+        if (seq != lastSeq + 1 && lastSeq != 0)
+        {
+            _med.getRTypeGame()->setPacketLoss(true);
+        }
+        else
+        {
+            _med.getRTypeGame()->setPacketLoss(false);
+        }
+        lastSeq = seq;
     }
-    else
-    {
-        _med.getRTypeGame()->setPacketLoss(false);
-    }
-    lastSeq = seq;
 
     std::cout << "Payload size:" << payload.size() << std::endl;
 

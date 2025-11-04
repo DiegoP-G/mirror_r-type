@@ -52,7 +52,6 @@ class NetworkManager
     std::thread _tcpThread;
     std::thread _udpThread;
     std::atomic<bool> _shouldStop{false};
-    
 
   public:
     NetworkManager(GameMediator &ref);

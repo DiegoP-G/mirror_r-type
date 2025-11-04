@@ -3,9 +3,9 @@
 #include "../ecs/keybindMenu.hpp"
 #include "../ecs/systems.hpp"
 #include "../ecs/textBox.hpp"
-#include <atomic>
 #include "NetworkECSMediator.hpp"
 #include "VoiceManager.hpp"
+#include <atomic>
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -94,11 +94,13 @@ class RTypeGame
   public:
     void reset();
 
-    void setPacketLoss(bool p) {
+    void setPacketLoss(bool p)
+    {
         _packetLossDetected.store(p, std::memory_order_relaxed);
     };
 
-    bool getPacketLoss() const {
+    bool getPacketLoss() const
+    {
         return _packetLossDetected.load(std::memory_order_relaxed);
     }
 
