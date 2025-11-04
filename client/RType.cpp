@@ -650,6 +650,7 @@ void RTypeGame::run()
 
         render();
     }
+    _med.getNetworkManager()->stop();
 
     cleanup();
 }
