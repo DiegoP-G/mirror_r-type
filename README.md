@@ -1,5 +1,5 @@
 # RType
-A C++ multiplayer game engine built with Entity-Component-System (ECS) architecture and client-server networking.
+A C++ multiplayer game built with Entity-Component-System (ECS) architecture, client-server networking, monitoring, authentification and more.
 
 ## Features
 - **ECS Architecture**: Flexible component-based entity system
